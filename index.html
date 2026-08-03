@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WhittWorks Studios — Web Design &amp; Consulting</title>
 <meta name="description" content="WhittWorks Studios is the solo studio of Caden Whitt, designing and building websites and digital tools for businesses and organizations.">
-<meta name="theme-color" content="#EFEDE6">
+<meta name="theme-color" content="#8a6a44">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="WhittWorks Studios — Web Design &amp; Consulting">
@@ -19,113 +19,172 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Permanent+Marker&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body id="top">
-<a class="skip-link" href="#main">Skip to content</a>
+<body>
 
-<header class="hero" aria-label="WhittWorks Studios">
+<nav class="deskbar" aria-label="Primary">
+  <span class="deskbar-name">WHITTWORKS STUDIOS</span>
+  <ul>
+    <li><a href="#" data-stop="2">About</a></li>
+    <li><a href="#" data-stop="3">Services</a></li>
+    <li><a href="#" data-stop="4">Work</a></li>
+    <li><a href="#" data-stop="6">Contact</a></li>
+  </ul>
+</nav>
 
-  <div class="hero-top">
-    <p class="meta">Web Design &amp; Consulting</p>
-    <nav class="hero-nav" aria-label="Primary">
-      <ul>
-        <li><a href="#about">About</a></li>
-        <li><a href="#services">Services</a></li>
-        <li><a href="#work">Work</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
-    <p class="meta meta-end">Est. 2026</p>
-  </div>
+<p class="scroll-hint" aria-hidden="true">scroll to inspect the board &darr;</p>
 
-  <h1 class="wordmark">
-    <span class="visually-hidden">WhittWorks Studios</span>
-    <span class="wm-line" aria-hidden="true"><span>W</span><span>H</span><span>I</span><span>T</span><span>T</span><span>W</span><span>O</span><span>R</span><span>K</span><span>S</span></span>
-    <span class="wm-line" aria-hidden="true"><span>S</span><span>T</span><span>U</span><span>D</span><span>I</span><span>O</span><span>S</span></span>
-  </h1>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="roughen" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
 
-  <p class="hero-statement"><span class="mark" aria-hidden="true"></span>Websites and digital tools for businesses and organizations, designed, built, and shipped end to end.</p>
+<div class="viewport">
+  <main class="board" id="board">
 
-  <div class="hero-bottom">
-    <p class="meta">Caden Whitt, Founder</p>
-    <p class="meta meta-end">whittworkstudios.com</p>
-  </div>
+    <svg class="strings" id="strings" viewBox="0 0 3600 2400" aria-hidden="true"></svg>
 
-</header>
+    <!-- ================= TITLE ================= -->
+    <section class="card index-card title-card" style="left:1400px; top:800px; --rot:-1.5deg" aria-label="WhittWorks Studios">
+      <h1 class="marker">WhittWorks<br>Studios</h1>
+      <p class="typed small">WEB DESIGN &amp; CONSULTING &middot; EST. 2026<br>CADEN WHITT, FOUNDER &middot; WHITTWORKSTUDIOS.COM</p>
+    </section>
 
-<main id="main">
+    <!-- ================= ABOUT ================= -->
+    <section class="card index-card about-card" style="left:360px; top:484px; --rot:1.2deg" aria-label="About">
+      <p class="typed card-head">ABOUT</p>
+      <p class="typed">Hey, I'm Caden! At WhittWorks Studios we do it all. From speedy web design to consulting and more, we've got you covered.</p>
+      <p class="typed">When I am not building websites I am traveling the world, hosting a plethora of different events, or diving into new experiences. I am studying Economics at Troy University, and I'd love to help with anything you need in the business or tech world!</p>
+    </section>
 
-  <section class="band" id="about" aria-labelledby="about-title">
-    <h2 class="band-label" id="about-title">About</h2>
-    <div class="about-grid">
-    <figure class="portrait">
+    <figure class="polaroid caden-polaroid" style="left:1060px; top:620px; --rot:3.3deg">
       <img src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200">
-      <figcaption class="meta">CADEN WHITT — FOUNDER</figcaption>
+      <figcaption class="hand">Caden &mdash; founder</figcaption>
     </figure>
-    <div class="about-copy">
-      <p class="about-lead">Hey, I'm Caden! At WhittWorks Studios we do it all. From speedy web design to consulting and more, we've got you covered.</p>
-      <p>When I am not building websites I am traveling the world, hosting a plethora of different events, or diving into new experiences. I am studying Economics at Troy University, and I'd love to help with anything you need in the business or tech world!</p>
-    </div>
-    </div>
-  </section>
 
-  <section class="band" id="services" aria-labelledby="services-title">
-    <h2 class="band-label" id="services-title">Services</h2>
-    <ul class="index">
-      <li class="index-row">
-        <h3 class="index-name">Custom Website Design &amp; Development</h3>
-        <p class="index-note">Design and front-to-back build of a site that fits how your organization actually works, from the first wireframe to launch day.</p>
-      </li>
-      <li class="index-row">
-        <h3 class="index-name">Site Management &amp; Hosting Setup</h3>
-        <p class="index-note">Domains, hosting, and deployment set up properly, plus ongoing updates so the site stays live and current after launch.</p>
-      </li>
-      <li class="index-row">
-        <h3 class="index-name">Business &amp; Technology Consulting</h3>
-        <p class="index-note">Working through the decisions behind the build: tooling, workflow, and where technology is worth the investment.</p>
-      </li>
-    </ul>
-  </section>
+    <!-- ================= SERVICES ================= -->
+    <section class="sticky service-sticky" style="left:2400px; top:326px; --rot:-2.1deg" aria-label="Service: web design and development">
+      <h2 class="hand sticky-title">Custom Website Design &amp; Development</h2>
+      <p class="hand sticky-note">first wireframe to launch day. a site that fits how your organization actually works.</p>
+    </section>
 
-  <section class="band band-work" id="work" aria-labelledby="work-title">
-    <h2 class="band-label" id="work-title">Featured Work</h2>
-    <figure class="plate">
-      <div class="plate-frame">
-        <img src="assets/levelup-card-900.jpg"
-             width="900" height="562" loading="lazy" decoding="async"
-             alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level. beside the Level Up arrow logo.">
-      </div>
-      <figcaption>
-        <a href="https://levelup-men.com" target="_blank" rel="noopener">Level Up Conference &mdash; Design, Development, Deployment &mdash; levelup-men.com<span class="visually-hidden"> (opens in a new tab)</span></a>
+    <section class="sticky service-sticky" style="left:2774px; top:452px; --rot:1.4deg" aria-label="Service: site management and hosting">
+      <h2 class="hand sticky-title">Site Management &amp; Hosting Setup</h2>
+      <p class="hand sticky-note">domains, hosting, and deploys set up properly. stays live and current after launch.</p>
+    </section>
+
+    <section class="sticky service-sticky" style="left:2512px; top:726px; --rot:-3.3deg" aria-label="Service: business and technology consulting">
+      <h2 class="hand sticky-title">Business &amp; Tech Consulting</h2>
+      <p class="hand sticky-note">tooling, workflow, and where technology is actually worth the investment.</p>
+    </section>
+
+    <!-- ================= WORK ================= -->
+    <figure class="photo-print work-photo" style="left:2220px; top:1285px; --rot:-2deg">
+      <span class="tape tape-tl" aria-hidden="true"></span>
+      <span class="tape tape-br" aria-hidden="true"></span>
+      <img src="assets/levelup-card-900.jpg" width="900" height="562" loading="lazy" decoding="async"
+           alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level.">
+      <figcaption class="hand photo-caption">
+        <a href="https://levelup-men.com" target="_blank" rel="noopener">Level Up Conference &middot; levelup-men.com &rarr;</a>
       </figcaption>
     </figure>
-    <p class="work-note">More work available on request.</p>
 
-    <figure class="testimonial">
-      <img class="testimonial-photo" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="480" height="480">
-      <blockquote class="testimonial-quote">
-        <p>&ldquo;Quick turnaround, great design, and excellent support. He built exactly what I envisioned and was helpful from start to finish.&rdquo;</p>
-      </blockquote>
-      <figcaption class="meta testimonial-attr">CHAD PREWETT &mdash; FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS CO&#8209;FOUNDER</figcaption>
+    <aside class="sticky mini-sticky" style="left:2944px; top:1741px; --rot:4.2deg">
+      <p class="hand sticky-note">more work available on request &rarr;</p>
+    </aside>
+
+    <!-- ================= TESTIMONIAL ================= -->
+    <section class="card index-card quote-card" style="left:1320px; top:1736px; --rot:1.6deg" aria-label="Client testimonial">
+      <p class="typed">&ldquo;Quick turnaround, great design, and excellent support. He built exactly what I envisioned and was helpful from start to finish.&rdquo;</p>
+      <p class="typed small attr">&mdash; CHAD PREWETT, FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS CO-FOUNDER</p>
+    </section>
+
+    <figure class="polaroid chad-polaroid" style="left:1990px; top:1845px; --rot:-2.6deg">
+      <img src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760">
+      <figcaption class="hand">Chad Prewett</figcaption>
     </figure>
-  </section>
 
-  <section class="band band-contact" id="contact" aria-labelledby="contact-title">
-    <h2 class="band-label">Contact</h2>
-    <p class="contact-head" id="contact-title">Have something you want built?</p>
-    <p class="contact-line">Reach out for design and consulting availability.</p>
-    <p class="contact-action"><a class="stamp" href="mailto:caden@whittworkstudios.com">Email the studio</a></p>
-    <p class="meta contact-address">caden@whittworkstudios.com</p>
-  </section>
+    <!-- ================= CONTACT ================= -->
+    <section class="card index-card contact-card" style="left:310px; top:1538px; --rot:-0.6deg" aria-label="Contact">
+      <h2 class="marker contact-head">Have something you want built?</h2>
+      <p class="typed">Reach out for design and consulting availability.</p>
+      <p class="circled-wrap">
+        <svg class="circle-ink" viewBox="0 0 340 90" aria-hidden="true"><path d="M20 46 Q22 12 170 10 Q322 8 320 45 Q318 80 168 82 Q24 84 20 52" fill="none" stroke="#c0281a" stroke-width="4" stroke-linecap="round"/></svg>
+        <a class="typed email-link" href="mailto:caden@whittworkstudios.com">caden@whittworkstudios.com</a>
+      </p>
+      <p class="typed small">&copy; 2026 WHITTWORKS STUDIOS &middot; BIRMINGHAM, ALABAMA</p>
+    </section>
 
-</main>
+    <!-- ================= DOODLE STICKIES ================= -->
+    <aside class="sticky doodle" style="left:1146px; top:286px; --rot:1.2deg" aria-hidden="true">
+      <svg viewBox="0 0 200 200" class="ink">
+        <path d="M35 32 Q100 26 166 31 L170 120 Q100 127 33 122 Z"/>
+        <path d="M52 46 Q100 42 150 46 L153 104 Q100 110 50 106 Z"/>
+        <path d="M62 62 q10 -4 20 0 t20 0 t20 0 t18 0"/>
+        <path d="M62 76 q10 -4 20 0 t20 0 t20 0"/>
+        <path d="M62 90 q10 -4 20 0 t20 0"/>
+        <path d="M85 124 L82 140 L121 140 L117 124"/>
+        <path d="M55 148 L150 144 L159 172 L47 176 Z"/>
+        <path d="M65 156 l75 -3 M62 164 l80 -3"/>
+      </svg>
+    </aside>
 
-<footer class="site-footer">
-  <p class="meta">&copy; 2026 WhittWorks Studios</p>
-  <p class="meta meta-end">Birmingham, Alabama</p>
-</footer>
+    <aside class="sticky doodle" style="left:2140px; top:1010px; --rot:-2.5deg" aria-hidden="true">
+      <svg viewBox="0 0 200 200" class="ink">
+        <path d="M38 24 L36 166 L178 164"/>
+        <path d="M31 33 L36 22 L42 32 M168 158 L179 164 L168 171"/>
+        <path d="M52 44 Q97 96 162 150"/>
+        <path d="M52 152 Q102 100 162 46"/>
+        <path d="M107 99 L36 99" stroke-dasharray="7 7"/>
+        <path d="M107 99 L107 165" stroke-dasharray="7 7"/>
+        <circle cx="107" cy="99" r="4" fill="#191919" stroke="none"/>
+        <text x="166" y="42" class="ink-label">S</text>
+        <text x="166" y="162" class="ink-label">D</text>
+        <text x="20" y="32" class="ink-label">P</text>
+        <text x="172" y="186" class="ink-label">Q</text>
+      </svg>
+    </aside>
 
+    <aside class="sticky doodle" style="left:276px; top:1104px; --rot:2.1deg" aria-hidden="true">
+      <svg viewBox="0 0 200 200" class="ink">
+        <path d="M22 122 L176 44 L98 152 L86 116 Z"/>
+        <path d="M176 44 L86 116"/>
+        <path d="M98 152 L94 128"/>
+        <text x="52" y="112" class="ink-label">$</text>
+        <text x="118" y="80" class="ink-label">$</text>
+        <path d="M28 162 q28 18 58 2" stroke-dasharray="6 8"/>
+      </svg>
+    </aside>
+
+    <aside class="sticky doodle" style="left:2020px; top:160px; --rot:-1deg" aria-hidden="true">
+      <svg viewBox="0 0 200 200" class="ink">
+        <circle cx="100" cy="82" r="38"/>
+        <path d="M88 96 q6 -14 12 0 q6 14 12 0"/>
+        <path d="M88 118 L112 118 M90 127 L110 127 M93 136 L107 136"/>
+        <path d="M100 24 L100 12 M141 41 L150 32 M59 41 L50 32 M148 82 L162 82 M52 82 L38 82"/>
+      </svg>
+    </aside>
+
+    <aside class="sticky doodle" style="left:1010px; top:1440px; --rot:-3deg" aria-hidden="true">
+      <svg viewBox="0 0 200 200" class="ink">
+        <path d="M38 30 L36 164 L174 162"/>
+        <path d="M48 148 L82 118 L102 134 L152 72"/>
+        <path d="M140 72 L153 70 L150 84"/>
+        <text x="158" y="52" class="ink-label">$</text>
+      </svg>
+    </aside>
+
+  </main>
+</div>
+
+<div class="scroll-space" aria-hidden="true"></div>
+
+<script src="js/board.js"></script>
 </body>
 </html>
