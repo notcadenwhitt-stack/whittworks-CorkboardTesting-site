@@ -40,3 +40,10 @@ this site. Raw source files are not redistributed in this repo.
 
 ## Board surfaces (pre-existing)
 - cork.jpg, wood.jpg — ambientCG, CC0 1.0.
+
+## Doodle art
+- doodle-bulb.webp — user-supplied stock download, "hand-drawn light bulb sketch,
+  isolated on white, line art vector" (JPG; filename suggests a stock site).
+  Added 2026-08-03. License: user-confirmed free for commercial use — source site
+  to be recorded. Processed to WebP: inverted-luminance alpha (white dropped to
+  transparent, antialiasing preserved) and tinted to the site's ink color (#191919).
