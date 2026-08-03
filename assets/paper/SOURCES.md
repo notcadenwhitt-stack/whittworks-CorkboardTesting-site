@@ -15,6 +15,17 @@ this site. Raw source files are not redistributed in this repo.
 - sticky-07 — Rawpixel via Openverse, CC0 1.0,
   https://www.rawpixel.com/image/5925272/photo-image-paper-sticky-note-public-domain
 
+## Sticky note color variants
+- sticky-01-blue, sticky-02-blue, sticky-03-blue, sticky-03-green,
+  sticky-05-pink, sticky-06-green — derived from the sticky-01/02/03/05/06
+  scans above (same sources/licenses). Added 2026-08-03 to give repeated
+  .paper-N classes distinct colors per element without new photography:
+  converted to HSV with Pillow, hue replaced with the target (blue ~210deg,
+  spring green ~110deg, pink ~340deg), saturation and value kept per-pixel
+  so grain, lighting gradients, and curl shadows are unchanged. sticky-05
+  and sticky-06 also got saturation scaled down (0.50x, 0.45x) from their
+  vivid originals so the hue swap reads as dyed paper instead of neon.
+
 ## Polaroid frames
 - polaroid-frame-1/2/3 — Fuzzimo "Blank Polaroid Frame Images" (scans 01, 12, 16),
   https://www.fuzzimo.com/free-hi-res-blank-polaroid-frames/

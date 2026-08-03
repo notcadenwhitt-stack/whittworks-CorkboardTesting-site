@@ -362,6 +362,17 @@ a { color: inherit; }
 .paper-6 { --paper: url("../assets/paper/sticky-06.webp"); aspect-ratio: 293/292;  --pt: 0.07;  --pr: 0.07; --pb: 0.09; --pl: 0.07; }
 .paper-7 { --paper: url("../assets/paper/sticky-07.webp"); aspect-ratio: 359/358;  --pt: 0.06;  --pr: 0.06; --pb: 0.09; --pl: 0.06; }
 
+/* color modifiers: same photographed scan, hue-shifted in HSV so paper
+   texture, lighting gradients, and curl shadows all survive. additive to
+   .paper-N so shared classes (paper-2, paper-3) can serve differently
+   colored elements without touching the unmodified default. */
+.paper-1.c-blue  { --paper: url("../assets/paper/sticky-01-blue.webp"); }
+.paper-2.c-blue  { --paper: url("../assets/paper/sticky-02-blue.webp"); }
+.paper-3.c-blue  { --paper: url("../assets/paper/sticky-03-blue.webp"); }
+.paper-3.c-green { --paper: url("../assets/paper/sticky-03-green.webp"); }
+.paper-5.c-pink  { --paper: url("../assets/paper/sticky-05-pink.webp"); }
+.paper-6.c-green { --paper: url("../assets/paper/sticky-06-green.webp"); }
+
 .hand {
   font-family: var(--hand);
   color: #1c1a16;
