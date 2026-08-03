@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WhittWorks Studios — Web Design &amp; Consulting</title>
 <meta name="description" content="WhittWorks Studios is the solo studio of Caden Whitt, designing and building websites and digital tools for businesses and organizations.">
-<meta name="theme-color" content="#0C0A09">
+<meta name="theme-color" content="#EFEDE6">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="WhittWorks Studios — Web Design &amp; Consulting">
@@ -17,134 +17,104 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500&family=Space+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body id="top">
 <a class="skip-link" href="#main">Skip to content</a>
 
-<header class="site-header">
-  <div class="shell header-inner">
-    <a class="brand" href="#top">
-      <span class="brand-mark" aria-hidden="true">W</span>
-      <span class="brand-name">WhittWorks<span class="brand-name-sub">Studios</span></span>
-    </a>
-    <nav class="site-nav" aria-label="Primary">
+<header class="hero" aria-label="WhittWorks Studios">
+
+  <div class="hero-top">
+    <p class="meta">Web Design &amp; Consulting</p>
+    <nav class="hero-nav" aria-label="Primary">
       <ul>
         <li><a href="#about">About</a></li>
         <li><a href="#services">Services</a></li>
         <li><a href="#work">Work</a></li>
-        <li><a class="nav-cta" href="#contact">Contact</a></li>
+        <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
+    <p class="meta meta-end">Est. 2026</p>
   </div>
+
+  <h1 class="wordmark">
+    <span class="visually-hidden">WhittWorks Studios</span>
+    <span class="wm-line" aria-hidden="true"><span>W</span><span>H</span><span>I</span><span>T</span><span>T</span><span>W</span><span>O</span><span>R</span><span>K</span><span>S</span></span>
+    <span class="wm-line" aria-hidden="true"><span>S</span><span>T</span><span>U</span><span>D</span><span>I</span><span>O</span><span>S</span></span>
+  </h1>
+
+  <p class="hero-statement"><span class="mark" aria-hidden="true"></span>Websites and digital tools for businesses and organizations, designed, built, and shipped end to end.</p>
+
+  <div class="hero-bottom">
+    <p class="meta">Caden Whitt, Founder</p>
+    <p class="meta meta-end">whittworkstudios.com</p>
+  </div>
+
 </header>
 
 <main id="main">
 
-  <section class="hero" id="top">
-    <div class="shell hero-inner">
-      <p class="eyebrow">Solo studio &middot; Web design &amp; consulting</p>
-      <h1 class="wordmark">
-        <span class="wordmark-line">WhittWorks</span>
-        <span class="wordmark-line wordmark-accent">Studios</span>
-      </h1>
-      <p class="lede">Websites and digital tools for businesses and organizations, designed, built, and shipped end to end.</p>
-      <p class="hero-actions">
-        <a class="btn btn-primary" href="#contact">Start a project</a>
-      </p>
+  <section class="band" id="about" aria-labelledby="about-title">
+    <h2 class="band-label" id="about-title">About</h2>
+    <div class="about-grid">
+    <figure class="portrait">
+      <img src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200">
+      <figcaption class="meta">CADEN WHITT — FOUNDER</figcaption>
+    </figure>
+    <div class="about-copy">
+      <p class="about-lead">WhittWorks Studios is the studio of Caden Whitt. I build websites and digital tools for businesses and organizations, and I handle the work myself from first sketch through deployment.</p>
+      <p>I'm studying Financial Economics at Troy University, and I'm expanding the studio into consulting so the same thinking can apply to the decisions behind the build, not only the build itself.</p>
     </div>
-    <div class="hero-glow" aria-hidden="true"></div>
-  </section>
-
-  <section class="section" id="about" aria-labelledby="about-title">
-    <div class="shell section-grid">
-      <div class="section-head">
-        <p class="kicker">01 &mdash; About</p>
-        <h2 id="about-title">One person, <em>accountable</em> for the whole build.</h2>
-      </div>
-      <div class="section-body prose">
-        <p>WhittWorks Studios is the studio of Caden Whitt. I build websites and digital tools for businesses and organizations, and I handle the work myself from first sketch through deployment.</p>
-        <p>I'm studying Financial Economics at Troy University, and I'm expanding the studio into consulting so the same thinking can apply to the decisions behind the build, not only the build itself.</p>
-      </div>
     </div>
   </section>
 
-  <section class="section" id="services" aria-labelledby="services-title">
-    <div class="shell">
-      <div class="section-head section-head-wide">
-        <p class="kicker">02 &mdash; Services</p>
-        <h2 id="services-title">What the studio does</h2>
-      </div>
-      <ul class="cards">
-        <li class="card">
-          <span class="card-num" aria-hidden="true">01</span>
-          <h3>Custom Website Design &amp; Development</h3>
-          <p>Design and front-to-back build of a site that fits how your organization actually works, from the first wireframe to launch day.</p>
-        </li>
-        <li class="card">
-          <span class="card-num" aria-hidden="true">02</span>
-          <h3>Site Management &amp; Hosting Setup</h3>
-          <p>Domains, hosting, and deployment set up properly, plus ongoing updates so the site stays live and current after launch.</p>
-        </li>
-        <li class="card">
-          <span class="card-num" aria-hidden="true">03</span>
-          <h3>Business &amp; Technology Consulting</h3>
-          <p>Working through the decisions behind the build: tooling, workflow, and where technology is worth the investment.</p>
-        </li>
-      </ul>
-    </div>
+  <section class="band" id="services" aria-labelledby="services-title">
+    <h2 class="band-label" id="services-title">Services</h2>
+    <ul class="index">
+      <li class="index-row">
+        <h3 class="index-name">Custom Website Design &amp; Development</h3>
+        <p class="index-note">Design and front-to-back build of a site that fits how your organization actually works, from the first wireframe to launch day.</p>
+      </li>
+      <li class="index-row">
+        <h3 class="index-name">Site Management &amp; Hosting Setup</h3>
+        <p class="index-note">Domains, hosting, and deployment set up properly, plus ongoing updates so the site stays live and current after launch.</p>
+      </li>
+      <li class="index-row">
+        <h3 class="index-name">Business &amp; Technology Consulting</h3>
+        <p class="index-note">Working through the decisions behind the build: tooling, workflow, and where technology is worth the investment.</p>
+      </li>
+    </ul>
   </section>
 
-  <section class="section" id="work" aria-labelledby="work-title">
-    <div class="shell">
-      <div class="section-head section-head-wide">
-        <p class="kicker">03 &mdash; Featured work</p>
-        <h2 id="work-title">Selected project</h2>
+  <section class="band band-work" id="work" aria-labelledby="work-title">
+    <h2 class="band-label" id="work-title">Featured Work</h2>
+    <figure class="plate">
+      <div class="plate-frame">
+        <img src="assets/levelup-card-900.jpg"
+             width="900" height="562" loading="lazy" decoding="async"
+             alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level. beside the Level Up arrow logo.">
       </div>
-
-      <article class="project">
-        <div class="project-media">
-          <img src="assets/levelup-card-900.jpg"
-               width="900" height="562" loading="lazy" decoding="async"
-               alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level. beside the Level Up arrow logo.">
-        </div>
-        <div class="project-body">
-          <h3 class="project-title">Level Up Conference</h3>
-          <p>Designed, built, and deployed the official website for a men's conference.</p>
-          <p class="project-meta">Design &middot; Development &middot; Deployment</p>
-          <p>
-            <a class="btn btn-ghost" href="https://levelup-men.com" target="_blank" rel="noopener">
-              Visit levelup-men.com
-              <span class="btn-arrow" aria-hidden="true">&#8599;</span>
-              <span class="visually-hidden">(opens in a new tab)</span>
-            </a>
-          </p>
-        </div>
-      </article>
-
-      <p class="work-note">More work available on request.</p>
-    </div>
+      <figcaption>
+        <a href="https://levelup-men.com" target="_blank" rel="noopener">Level Up Conference &mdash; Design, Development, Deployment &mdash; levelup-men.com<span class="visually-hidden"> (opens in a new tab)</span></a>
+      </figcaption>
+    </figure>
+    <p class="work-note">More work available on request.</p>
   </section>
 
-  <section class="section section-contact" id="contact" aria-labelledby="contact-title">
-    <div class="shell contact-inner">
-      <p class="kicker">04 &mdash; Contact</p>
-      <h2 id="contact-title">Have something you want built?</h2>
-      <p class="lede lede-tight">Tell me what you're working on and I'll tell you honestly whether I'm the right person for it.</p>
-      <p class="hero-actions">
-        <a class="btn btn-primary" href="mailto:notcadenwhitt@gmail.com">Email the studio</a>
-      </p>
-      <p class="contact-plain">notcadenwhitt@gmail.com</p>
-    </div>
+  <section class="band band-contact" id="contact" aria-labelledby="contact-title">
+    <h2 class="band-label">Contact</h2>
+    <p class="contact-head" id="contact-title">Have something you want built?</p>
+    <p class="contact-line">Tell me what you're working on and I'll tell you honestly whether I'm the right person for it.</p>
+    <p class="contact-action"><a class="stamp" href="mailto:caden@whittworkstudios.com">Email the studio</a></p>
+    <p class="meta contact-address">caden@whittworkstudios.com</p>
   </section>
 
 </main>
 
 <footer class="site-footer">
-  <div class="shell">
-    <p>&copy; 2026 WhittWorks Studios</p>
-  </div>
+  <p class="meta">&copy; 2026 WhittWorks Studios</p>
+  <p class="meta meta-end">Troy, Alabama</p>
 </footer>
 
 </body>
