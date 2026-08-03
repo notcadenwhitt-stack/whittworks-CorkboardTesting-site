@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="WhittWorks Studios">
+  <rect width="64" height="64" rx="14" fill="#0C0A09"/>
+  <path d="M11 17 L21 47 L32 26 L43 47 L53 17"
+        fill="none" stroke="#FFA92B" stroke-width="7"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
