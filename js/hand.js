@@ -1,5 +1,7 @@
 /* Handwriting variance: no two letterforms render identically, but it all
-   stays one hand. Seeded so every visit draws the same letters. */
+   stays one hand. Seeded so every visit draws the same letters.
+   Structure per element: one .jit wrapper (single flex/inline item), words
+   as .wd spans (atomic, so lines break only at spaces), chars as .ch. */
 (function () {
   "use strict";
 
@@ -51,28 +53,43 @@
       a.setAttribute("aria-label", (a.textContent || "").replace(/\s+/g, " ").trim());
     });
 
+    function jitterChar(c, code) {
+      var rnd = mulberry32(seed + code * 131 + (counter++) * 7919);
+      var s = document.createElement("span");
+      s.className = "ch";
+      s.setAttribute("aria-hidden", "true");
+      s.textContent = c;
+      s.style.setProperty("--r", ((rnd() * 2 - 1) * 2.05).toFixed(2) + "deg");
+      s.style.setProperty("--y", ((rnd() * 2 - 1) * 0.05).toFixed(3) + "em");
+      s.style.setProperty("--s", (0.968 + rnd() * 0.064).toFixed(3));
+      if (isCaveat) {
+        s.style.setProperty("--w", String(Math.round(base - span / 2 + rnd() * span)));
+      } else {
+        s.style.setProperty("--o", (0.86 + rnd() * 0.14).toFixed(3));
+      }
+      return s;
+    }
+
     (function wrap(node) {
       Array.prototype.slice.call(node.childNodes).forEach(function (ch) {
         if (ch.nodeType === 3) {
           var txt = ch.nodeValue;
           var frag = document.createDocumentFragment();
+          var wd = null;
           for (var i = 0; i < txt.length; i++) {
             var c = txt.charAt(i);
-            if (/\s/.test(c)) { frag.appendChild(document.createTextNode(c)); continue; }
-            var rnd = mulberry32(seed + txt.charCodeAt(i) * 131 + (counter++) * 7919);
-            var s = document.createElement("span");
-            s.className = "ch";
-            s.setAttribute("aria-hidden", "true");
-            s.textContent = c;
-            s.style.setProperty("--r", ((rnd() * 2 - 1) * 2.05).toFixed(2) + "deg");
-            s.style.setProperty("--y", ((rnd() * 2 - 1) * 0.05).toFixed(3) + "em");
-            s.style.setProperty("--s", (0.968 + rnd() * 0.064).toFixed(3));
-            if (isCaveat) {
-              s.style.setProperty("--w", String(Math.round(base - span / 2 + rnd() * span)));
-            } else {
-              s.style.setProperty("--o", (0.86 + rnd() * 0.14).toFixed(3));
+            if (/\s/.test(c)) {
+              wd = null;
+              frag.appendChild(document.createTextNode(c));
+              continue;
             }
-            frag.appendChild(s);
+            if (!wd) {
+              wd = document.createElement("span");
+              wd.className = "wd";
+              wd.setAttribute("aria-hidden", "true");
+              frag.appendChild(wd);
+            }
+            wd.appendChild(jitterChar(c, txt.charCodeAt(i)));
           }
           node.replaceChild(frag, ch);
         } else if (ch.nodeType === 1 && !/^(svg|img|br)$/i.test(ch.tagName)) {
@@ -80,6 +97,13 @@
         }
       });
     })(el);
+
+    /* one wrapper so flex/grid parents see a single item and keep spaces */
+    var jit = document.createElement("span");
+    jit.className = "jit";
+    jit.setAttribute("aria-hidden", "true");
+    while (el.firstChild) jit.appendChild(el.firstChild);
+    el.appendChild(jit);
 
     el.dataset.jittered = "1";
   });

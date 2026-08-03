@@ -236,7 +236,10 @@ a { color: inherit; }
 
 /* --- ink: every piece of writing trembles a little ------------------ */
 
-/* per-character jitter set by js/hand.js */
+/* per-character jitter set by js/hand.js.
+   .wd keeps each word atomic so lines still break only at spaces. */
+.jit { display: inline; }
+.wd { display: inline-block; white-space: nowrap; }
 .ch {
   display: inline-block;
   white-space: pre;
@@ -324,7 +327,15 @@ a { color: inherit; }
 /* --- sticky notes: real photographed paper -------------------------- */
 
 .sticky {
-  width: 344px;
+  /* NOTE: % padding on abs-positioned elements resolves against the 3600px
+     board, so writable-area insets are computed from --sz instead */
+  --sz: 344px;
+  width: var(--sz);
+  padding:
+    calc(var(--pt) * var(--sz))
+    calc(var(--pr) * var(--sz))
+    calc(var(--pb) * var(--sz))
+    calc(var(--pl) * var(--sz));
   background: none;
   box-shadow: none;
 }
@@ -342,14 +353,14 @@ a { color: inherit; }
 .sticky.flip::before { transform: scaleX(-1); }
 
 /* each variant is a different physical note: aspect from the photo,
-   padding from its measured writable area */
-.paper-1 { --paper: url("../assets/paper/sticky-01.webp"); aspect-ratio: 1013/989; padding: 7% 5% 15% 5.5%; }
-.paper-2 { --paper: url("../assets/paper/sticky-02.webp"); aspect-ratio: 1009/983; padding: 7% 5% 15% 6%; }
-.paper-3 { --paper: url("../assets/paper/sticky-03.webp"); aspect-ratio: 1029/982; padding: 7% 6% 16% 6%; }
-.paper-4 { --paper: url("../assets/paper/sticky-04.webp"); aspect-ratio: 294/284; padding: 6% 6% 10% 6%; }
-.paper-5 { --paper: url("../assets/paper/sticky-05.webp"); aspect-ratio: 539/533; padding: 5% 5% 12% 7%; }
-.paper-6 { --paper: url("../assets/paper/sticky-06.webp"); aspect-ratio: 293/292; padding: 7% 7% 9% 7%; }
-.paper-7 { --paper: url("../assets/paper/sticky-07.webp"); aspect-ratio: 359/358; padding: 6% 6% 9% 6%; }
+   writable-area insets from its measured safe zone (fractions of width) */
+.paper-1 { --paper: url("../assets/paper/sticky-01.webp"); aspect-ratio: 1013/989; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.055; }
+.paper-2 { --paper: url("../assets/paper/sticky-02.webp"); aspect-ratio: 1009/983; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.06; }
+.paper-3 { --paper: url("../assets/paper/sticky-03.webp"); aspect-ratio: 1029/982; --pt: 0.07;  --pr: 0.06; --pb: 0.16; --pl: 0.06; }
+.paper-4 { --paper: url("../assets/paper/sticky-04.webp"); aspect-ratio: 294/284;  --pt: 0.06;  --pr: 0.06; --pb: 0.10; --pl: 0.06; }
+.paper-5 { --paper: url("../assets/paper/sticky-05.webp"); aspect-ratio: 539/533;  --pt: 0.05;  --pr: 0.05; --pb: 0.12; --pl: 0.07; }
+.paper-6 { --paper: url("../assets/paper/sticky-06.webp"); aspect-ratio: 293/292;  --pt: 0.07;  --pr: 0.07; --pb: 0.09; --pl: 0.07; }
+.paper-7 { --paper: url("../assets/paper/sticky-07.webp"); aspect-ratio: 359/358;  --pt: 0.06;  --pr: 0.06; --pb: 0.09; --pl: 0.06; }
 
 .hand {
   font-family: var(--hand);
@@ -369,7 +380,7 @@ a { color: inherit; }
 }
 
 .mini-sticky {
-  width: 260px;
+  --sz: 260px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -378,8 +389,11 @@ a { color: inherit; }
 .mini-sticky .sticky-note { font-size: 30px; margin: 0; }
 
 .doodle {
-  width: 280px;
-  padding: 13% 12% 16% 12%;
+  --sz: 280px;
+  --pt: 0.13;
+  --pr: 0.12;
+  --pb: 0.16;
+  --pl: 0.12;
 }
 
 .ink {
