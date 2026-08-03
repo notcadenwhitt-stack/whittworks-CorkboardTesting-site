@@ -19,7 +19,7 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Permanent+Marker&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Permanent+Marker&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -42,6 +42,24 @@
       <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="4" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
+    <!-- ink tremor: same pen, different wobble per cluster of writing -->
+    <filter id="ink-a" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.08 0.05" numOctaves="2" seed="3" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/>
+    </filter>
+    <filter id="ink-b" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.08 0.05" numOctaves="2" seed="11" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2"/>
+    </filter>
+    <filter id="ink-c" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.08 0.05" numOctaves="2" seed="23" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2"/>
+    </filter>
+    <!-- lighter tremor for typewriter strikes -->
+    <filter id="ink-t" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.12 0.08" numOctaves="2" seed="31" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3"/>
+    </filter>
   </defs>
 </svg>
 
@@ -63,39 +81,41 @@
       <p class="typed">When I am not building websites I am traveling the world, hosting a plethora of different events, or diving into new experiences. I am studying Economics at Troy University, and I'd love to help with anything you need in the business or tech world!</p>
     </section>
 
-    <figure class="polaroid caden-polaroid" style="left:1060px; top:620px; --rot:3.3deg">
-      <img src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200">
+    <figure class="polaroid frame-1 caden-polaroid" style="left:1060px; top:620px; --rot:3.3deg">
+      <img class="pol-photo" src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200">
+      <span class="pol-gloss" aria-hidden="true"></span>
       <figcaption class="hand">Caden &mdash; founder</figcaption>
     </figure>
 
     <!-- ================= SERVICES ================= -->
-    <section class="sticky service-sticky" style="left:2400px; top:326px; --rot:-2.1deg" aria-label="Service: web design and development">
+    <section class="sticky service-sticky paper-1" style="left:2400px; top:326px; --rot:-2.1deg" aria-label="Service: web design and development">
       <h2 class="hand sticky-title">Custom Website Design &amp; Development</h2>
       <p class="hand sticky-note">first wireframe to launch day. a site that fits how your organization actually works.</p>
     </section>
 
-    <section class="sticky service-sticky" style="left:2774px; top:452px; --rot:1.4deg" aria-label="Service: site management and hosting">
+    <section class="sticky service-sticky paper-2" style="left:2774px; top:452px; --rot:1.4deg" aria-label="Service: site management and hosting">
       <h2 class="hand sticky-title">Site Management &amp; Hosting Setup</h2>
       <p class="hand sticky-note">domains, hosting, and deploys set up properly. stays live and current after launch.</p>
     </section>
 
-    <section class="sticky service-sticky" style="left:2512px; top:726px; --rot:-3.3deg" aria-label="Service: business and technology consulting">
+    <section class="sticky service-sticky paper-3" style="left:2512px; top:726px; --rot:-3.3deg" aria-label="Service: business and technology consulting">
       <h2 class="hand sticky-title">Business &amp; Tech Consulting</h2>
       <p class="hand sticky-note">tooling, workflow, and where technology is actually worth the investment.</p>
     </section>
 
-    <!-- ================= WORK ================= -->
-    <figure class="photo-print work-photo" style="left:2220px; top:1285px; --rot:-2deg">
-      <span class="tape tape-tl" aria-hidden="true"></span>
-      <span class="tape tape-br" aria-hidden="true"></span>
-      <img src="assets/levelup-card-900.jpg" width="900" height="562" loading="lazy" decoding="async"
+    <!-- ================= WORK: the Level Up postcard, picture side out ================= -->
+    <figure class="postcard postcard-front work-postcard" style="left:2220px; top:1300px; --rot:-2deg">
+      <img class="pc-picture" src="assets/levelup-card-900.jpg" width="900" height="562" loading="lazy" decoding="async"
            alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level.">
-      <figcaption class="hand photo-caption">
+      <span class="pc-grain" aria-hidden="true"></span>
+      <span class="tape tape-tl2" aria-hidden="true"></span>
+      <span class="tape tape-tr2" aria-hidden="true"></span>
+      <figcaption class="hand pc-caption">
         <a href="https://levelup-men.com" target="_blank" rel="noopener">Level Up Conference &middot; levelup-men.com &rarr;</a>
       </figcaption>
     </figure>
 
-    <aside class="sticky mini-sticky" style="left:2944px; top:1741px; --rot:4.2deg">
+    <aside class="sticky mini-sticky paper-5" style="left:2944px; top:1741px; --rot:4.2deg">
       <p class="hand sticky-note">more work available on request &rarr;</p>
     </aside>
 
@@ -105,24 +125,26 @@
       <p class="typed small attr">&mdash; CHAD PREWETT, FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS CO-FOUNDER</p>
     </section>
 
-    <figure class="polaroid chad-polaroid" style="left:1990px; top:1845px; --rot:-2.6deg">
-      <img src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760">
+    <figure class="polaroid frame-2 chad-polaroid" style="left:1990px; top:1845px; --rot:-2.6deg">
+      <img class="pol-photo" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760">
+      <span class="pol-gloss" aria-hidden="true"></span>
       <figcaption class="hand">Chad Prewett</figcaption>
     </figure>
 
-    <!-- ================= CONTACT ================= -->
-    <section class="card index-card contact-card" style="left:310px; top:1538px; --rot:-0.6deg" aria-label="Contact">
-      <h2 class="marker contact-head">Have something you want built?</h2>
-      <p class="typed">Reach out for design and consulting availability.</p>
-      <p class="circled-wrap">
+    <!-- ================= CONTACT: postcard, address side out ================= -->
+    <section class="postcard postcard-back contact-postcard" style="left:310px; top:1530px; --rot:-0.6deg" aria-label="Contact">
+      <h2 class="hand pc-head">Have something you want built?</h2>
+      <p class="hand pc-msg">Reach out for design and consulting availability.</p>
+      <img class="pc-stamp" src="assets/paper/stamp-1.webp" alt="" width="320" height="344">
+      <p class="circled-wrap pc-addr">
         <svg class="circle-ink" viewBox="0 0 340 90" aria-hidden="true"><path d="M20 46 Q22 12 170 10 Q322 8 320 45 Q318 80 168 82 Q24 84 20 52" fill="none" stroke="#c0281a" stroke-width="4" stroke-linecap="round"/></svg>
-        <a class="typed email-link" href="mailto:caden@whittworkstudios.com">caden@whittworkstudios.com</a>
+        <a class="hand email-link" href="mailto:caden@whittworkstudios.com">caden@whittworkstudios.com</a>
       </p>
-      <p class="typed small">&copy; 2026 WHITTWORKS STUDIOS &middot; BIRMINGHAM, ALABAMA</p>
+      <p class="hand pc-msg-small">&copy; 2026 WhittWorks Studios &middot; Birmingham, Alabama</p>
     </section>
 
     <!-- ================= DOODLE STICKIES ================= -->
-    <aside class="sticky doodle" style="left:1146px; top:286px; --rot:1.2deg" aria-hidden="true">
+    <aside class="sticky doodle paper-4" style="left:1146px; top:286px; --rot:1.2deg" aria-hidden="true">
       <svg viewBox="0 0 200 200" class="ink">
         <path d="M35 32 Q100 26 166 31 L170 120 Q100 127 33 122 Z"/>
         <path d="M52 46 Q100 42 150 46 L153 104 Q100 110 50 106 Z"/>
@@ -135,7 +157,7 @@
       </svg>
     </aside>
 
-    <aside class="sticky doodle" style="left:2140px; top:1010px; --rot:-2.5deg" aria-hidden="true">
+    <aside class="sticky doodle paper-6" style="left:2140px; top:1010px; --rot:-2.5deg" aria-hidden="true">
       <svg viewBox="0 0 200 200" class="ink">
         <path d="M38 24 L36 166 L178 164"/>
         <path d="M31 33 L36 22 L42 32 M168 158 L179 164 L168 171"/>
@@ -151,7 +173,7 @@
       </svg>
     </aside>
 
-    <aside class="sticky doodle" style="left:276px; top:1104px; --rot:2.1deg" aria-hidden="true">
+    <aside class="sticky doodle paper-7" style="left:276px; top:1104px; --rot:2.1deg" aria-hidden="true">
       <svg viewBox="0 0 200 200" class="ink">
         <path d="M22 122 L176 44 L98 152 L86 116 Z"/>
         <path d="M176 44 L86 116"/>
@@ -162,7 +184,7 @@
       </svg>
     </aside>
 
-    <aside class="sticky doodle" style="left:2020px; top:160px; --rot:-1deg" aria-hidden="true">
+    <aside class="sticky doodle paper-2 flip" style="left:2020px; top:160px; --rot:-1deg" aria-hidden="true">
       <svg viewBox="0 0 200 200" class="ink">
         <circle cx="100" cy="82" r="38"/>
         <path d="M88 96 q6 -14 12 0 q6 14 12 0"/>
@@ -171,7 +193,7 @@
       </svg>
     </aside>
 
-    <aside class="sticky doodle" style="left:1010px; top:1440px; --rot:-3deg" aria-hidden="true">
+    <aside class="sticky doodle paper-3 flip" style="left:1010px; top:1440px; --rot:-3deg" aria-hidden="true">
       <svg viewBox="0 0 200 200" class="ink">
         <path d="M38 30 L36 164 L174 162"/>
         <path d="M48 148 L82 118 L102 134 L152 72"/>
@@ -186,5 +208,6 @@
 <div class="scroll-space" aria-hidden="true"></div>
 
 <script src="js/board.js"></script>
+<script src="js/hand.js"></script>
 </body>
 </html>

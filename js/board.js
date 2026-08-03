@@ -25,7 +25,7 @@
     { x: 741,  y: 494 },  /* 1 about */
     { x: 1236, y: 636 },  /* 2 caden polaroid */
     { x: 2547, y: 335 },  /* 3 services s1 */
-    { x: 2634, y: 1294 }, /* 4 work photo */
+    { x: 2634, y: 1318 }, /* 4 work postcard */
     { x: 1697, y: 1749 }, /* 5 quote card */
     { x: 2180, y: 1861 }, /* 6 chad polaroid */
     { x: 694,  y: 1544 }, /* 7 contact */

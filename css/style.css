@@ -1,12 +1,11 @@
 /* WhittWorks Studios — the cork board
    Marker: Permanent Marker | Hand: Caveat | Typed: Special Elite | Meta: Space Mono
-   Cork #b08a58 · Ink #191919 · String red #b3271c · Sticky #ffe870 · Card #fbf8f1
+   Paper: real photographed/scanned assets in ../assets/paper/ (see SOURCES.md)
 ------------------------------------------------------------------ */
 
 :root {
   --ink: #191919;
   --red: #b3271c;
-  --sticky: #ffe870;
   --card: #fbf8f1;
 
   --marker: "Permanent Marker", cursive;
@@ -229,11 +228,27 @@ a { color: inherit; }
 
 /* --- shared paper physics ----------------------------------------- */
 
-.card, .sticky, .polaroid, .photo-print {
+.card, .sticky, .polaroid, .postcard {
   position: absolute;
   z-index: 3;
   transform: rotate(var(--rot, 0deg));
 }
+
+/* --- ink: every piece of writing trembles a little ------------------ */
+
+/* per-character jitter set by js/hand.js */
+.ch {
+  display: inline-block;
+  white-space: pre;
+  transform: rotate(var(--r, 0deg)) translateY(var(--y, 0)) scale(var(--s, 1));
+  font-variation-settings: "wght" var(--w, 500);
+  opacity: var(--o, 1);
+}
+
+.sticky-title, .sticky-note { filter: url(#ink-a); }
+.polaroid figcaption { filter: url(#ink-b); }
+.pc-head, .pc-msg, .pc-msg-small, .email-link, .marker { filter: url(#ink-c); }
+.typed { filter: url(#ink-t); }
 
 /* --- index cards (real 5x3 proportions) ---------------------------- */
 
@@ -243,6 +258,8 @@ a { color: inherit; }
   padding: 62px 40px 26px;
   overflow: hidden;
   background:
+    /* real scanned paper fiber */
+    url("../assets/paper/paper-grain.webp") 0 0 / 460px,
     /* faint paper grain */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 0 0.32 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23p)'/%3E%3C/svg%3E"),
     /* blue rules, edge to edge */
@@ -255,6 +272,7 @@ a { color: inherit; }
     linear-gradient(rgba(205, 92, 92, 0.75), rgba(205, 92, 92, 0.75)) 0 52px / 100% 1.5px no-repeat,
     /* soft top-light on the paper itself */
     linear-gradient(172deg, #faf8f0 0%, #f5f2e7 60%, #efebdd 100%);
+  background-blend-mode: soft-light, normal, normal, normal, normal;
   border-radius: 2px;
   box-shadow:
     1px 1px 2px rgba(25, 12, 4, 0.3),
@@ -303,64 +321,35 @@ a { color: inherit; }
 .quote-card { width: 700px; height: 420px; }
 .attr { margin-top: 32px; }
 
-.contact-card { width: 700px; height: 430px; padding-top: 58px; }
-.contact-head { font-size: 42px; line-height: 1.12; margin-bottom: 18px; }
-
-.circled-wrap {
-  position: relative;
-  display: inline-block;
-  margin: 26px 0 30px;
-  padding: 18px 26px;
-}
-.circle-ink {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  filter: url(#roughen);
-}
-.email-link {
-  position: relative;
-  font-size: 22px;
-  text-decoration: none;
-  white-space: nowrap;
-}
-.email-link:hover { color: var(--red); }
-
-/* --- sticky notes -------------------------------------------------- */
+/* --- sticky notes: real photographed paper -------------------------- */
 
 .sticky {
-  width: 320px;
-  min-height: 300px;
-  padding: 30px 26px;
-  background:
-    /* adhesive strip along the top edge */
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0, rgba(255, 255, 255, 0.09) 30px, transparent 46px),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.42 0 0 0 0 0.2 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23p)'/%3E%3C/svg%3E"),
-    /* cylinder shading: the sheet bows out at the center as it hangs */
-    radial-gradient(130% 90% at 46% 34%, rgba(255, 252, 215, 0.5), rgba(255, 252, 215, 0) 70%),
-    linear-gradient(172deg, #fdf0a0 0%, var(--sticky) 46%, #eecb42 80%, #ddb52e 100%);
-  /* pinched at the glued top edge, lifting wide at the bottom */
-  box-shadow:
-    1px 2px 2px rgba(25, 12, 4, 0.2),
-    4px 10px 12px -4px rgba(25, 12, 4, 0.24),
-    10px 26px 30px -8px rgba(22, 9, 2, 0.34);
+  width: 344px;
+  background: none;
+  box-shadow: none;
 }
-.sticky::after {
-  /* curled bottom-right corner: curved fold with a lit front face */
+.sticky::before {
   content: "";
   position: absolute;
-  right: -1px;
-  bottom: -1px;
-  width: 46px;
-  height: 46px;
-  clip-path: path("M46 0 L46 46 L0 46 Q10 12 46 0 Z");
-  background: linear-gradient(225deg, #fff8c8 8%, #f3d558 45%, #c9a326 78%, #a8871d 100%);
-  filter: drop-shadow(-3px -3px 3px rgba(90, 62, 6, 0.28));
+  inset: 0;
+  z-index: -1;
+  background: var(--paper) center / 100% 100% no-repeat;
+  filter:
+    drop-shadow(0 1px 1px rgba(25, 12, 4, 0.3))
+    drop-shadow(3px 8px 8px rgba(25, 12, 4, 0.2))
+    drop-shadow(8px 18px 20px rgba(22, 9, 2, 0.24));
 }
-/* pads are never perfectly uniform */
-.sticky:nth-of-type(odd) { filter: brightness(0.98) saturate(1.02); }
-.sticky:nth-of-type(3n) { filter: brightness(1.015); }
+.sticky.flip::before { transform: scaleX(-1); }
+
+/* each variant is a different physical note: aspect from the photo,
+   padding from its measured writable area */
+.paper-1 { --paper: url("../assets/paper/sticky-01.webp"); aspect-ratio: 1013/989; padding: 7% 5% 15% 5.5%; }
+.paper-2 { --paper: url("../assets/paper/sticky-02.webp"); aspect-ratio: 1009/983; padding: 7% 5% 15% 6%; }
+.paper-3 { --paper: url("../assets/paper/sticky-03.webp"); aspect-ratio: 1029/982; padding: 7% 6% 16% 6%; }
+.paper-4 { --paper: url("../assets/paper/sticky-04.webp"); aspect-ratio: 294/284; padding: 6% 6% 10% 6%; }
+.paper-5 { --paper: url("../assets/paper/sticky-05.webp"); aspect-ratio: 539/533; padding: 5% 5% 12% 7%; }
+.paper-6 { --paper: url("../assets/paper/sticky-06.webp"); aspect-ratio: 293/292; padding: 7% 7% 9% 7%; }
+.paper-7 { --paper: url("../assets/paper/sticky-07.webp"); aspect-ratio: 359/358; padding: 6% 6% 9% 6%; }
 
 .hand {
   font-family: var(--hand);
@@ -381,16 +370,16 @@ a { color: inherit; }
 
 .mini-sticky {
   width: 260px;
-  min-height: 200px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 .mini-sticky .sticky-note { font-size: 30px; margin: 0; }
 
 .doodle {
   width: 280px;
-  min-height: 280px;
-  padding: 18px;
+  padding: 13% 12% 16% 12%;
 }
 
 .ink {
@@ -414,46 +403,71 @@ a { color: inherit; }
   stroke: none;
 }
 
-/* --- polaroids (square frame, thick bottom border) ----------------- */
+/* --- polaroids: real scanned instant-film frames -------------------- */
 
 .polaroid {
-  background:
-    /* slight buckle across the print: real instant film never lies flat */
-    linear-gradient(100deg, rgba(0, 0, 0, 0) 30%, rgba(60, 45, 20, 0.05) 52%, rgba(0, 0, 0, 0) 72%),
-    linear-gradient(170deg, #ffffff 0%, #fbfaf3 70%, #f2efe2 100%);
-  padding: 17px 17px 0;
-  border-radius: 4px;
-  box-shadow:
-    1px 2px 2px rgba(25, 12, 4, 0.3),
-    4px 11px 14px -5px rgba(25, 12, 4, 0.3),
-    12px 30px 34px -10px rgba(22, 9, 2, 0.4);
+  width: 364px;
+  aspect-ratio: var(--fw) / var(--fh);
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  filter:
+    drop-shadow(1px 2px 2px rgba(25, 12, 4, 0.32))
+    drop-shadow(5px 12px 14px rgba(25, 12, 4, 0.26))
+    drop-shadow(11px 26px 28px rgba(22, 9, 2, 0.3));
 }
-.polaroid img {
-  width: 330px;
-  height: 330px;
-  object-fit: cover;
-  border-radius: 2px;
-  /* instant-film color cast */
-  filter: contrast(1.04) saturate(1.05) sepia(0.07);
-  /* the slight sunken look of the print behind the frame window */
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+.frame-1 {
+  --fw: 950; --fh: 1149;
+  --wx: 6.21; --wy: 5.74; --ww: 87.26; --wh: 73.63;
+  --frame: url("../assets/paper/polaroid-frame-1.webp");
 }
-.polaroid::before {
-  /* glossy sheen across the print */
+.frame-2 {
+  --fw: 950; --fh: 1154;
+  --wx: 5.05; --wy: 6.33; --ww: 88.95; --wh: 73.92;
+  --frame: url("../assets/paper/polaroid-frame-2.webp");
+}
+.polaroid::after {
+  /* the scanned frame sits over the photo; its window is transparent */
   content: "";
   position: absolute;
-  left: 17px;
-  right: 17px;
-  top: 17px;
-  height: 330px;
+  inset: 0;
+  z-index: 2;
+  background: var(--frame) 0 0 / 100% 100% no-repeat;
   pointer-events: none;
-  background: linear-gradient(115deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.04) 28%, transparent 45%);
 }
-.caden-polaroid img { object-position: 50% 10%; }
-.chad-polaroid img { object-position: 50% 22%; }
+.polaroid .pol-photo {
+  position: absolute;
+  /* small bleed past the window so no gap ever shows */
+  left: calc((var(--wx) - 0.35) * 1%);
+  top: calc((var(--wy) - 0.35) * 1%);
+  width: calc((var(--ww) + 0.7) * 1%);
+  height: calc((var(--wh) + 0.7) * 1%);
+  object-fit: cover;
+  z-index: 1;
+  /* instant-film color cast */
+  filter: contrast(1.05) saturate(0.9) sepia(0.14) brightness(0.98);
+}
+.pol-gloss {
+  position: absolute;
+  z-index: 3;
+  left: calc(var(--wx) * 1%);
+  top: calc(var(--wy) * 1%);
+  width: calc(var(--ww) * 1%);
+  height: calc(var(--wh) * 1%);
+  pointer-events: none;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.04) 26%, transparent 46%);
+}
+.caden-polaroid .pol-photo { object-position: 50% 10%; }
+.chad-polaroid .pol-photo { object-position: 50% 22%; }
 
 .polaroid figcaption {
-  height: 76px;
+  position: absolute;
+  z-index: 3;
+  left: 8%;
+  right: 8%;
+  top: calc((var(--wy) + var(--wh)) * 1%);
+  bottom: 2.5%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -461,49 +475,169 @@ a { color: inherit; }
   text-align: center;
 }
 
-/* --- printed photo (work) ------------------------------------------ */
+/* --- postcards: real scanned card stock ----------------------------- */
 
-.photo-print {
+.postcard { background: none; }
+.postcard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--stock) center / 100% 100% no-repeat;
+  filter:
+    drop-shadow(1px 2px 2px rgba(25, 12, 4, 0.32))
+    drop-shadow(5px 12px 15px rgba(25, 12, 4, 0.26))
+    drop-shadow(12px 28px 32px rgba(22, 9, 2, 0.3));
+}
+.postcard-front {
+  --stock: url("../assets/paper/postcard-front.webp");
   width: 800px;
-  background:
-    linear-gradient(96deg, rgba(0, 0, 0, 0) 34%, rgba(60, 45, 20, 0.04) 55%, rgba(0, 0, 0, 0) 74%),
-    linear-gradient(170deg, #ffffff 0%, #faf9f2 70%, #f3f1e6 100%);
-  padding: 18px 18px 8px;
-  border-radius: 3px;
-  box-shadow:
-    1px 2px 2px rgba(25, 12, 4, 0.3),
-    5px 12px 15px -5px rgba(25, 12, 4, 0.3),
-    14px 32px 38px -10px rgba(22, 9, 2, 0.38);
+  aspect-ratio: 1400 / 900;
 }
-.photo-print img {
-  filter: contrast(1.02) saturate(1.02);
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+.postcard-back {
+  --stock: url("../assets/paper/postcard-back.webp");
+  width: 720px;
+  aspect-ratio: 1400 / 868;
 }
-.photo-print img { width: 100%; }
 
-.photo-caption {
-  padding: 14px 6px 10px;
-  font-size: 30px;
+/* picture side: the Level Up shot printed into the card's picture area */
+.pc-picture {
+  position: absolute;
+  left: 2.5%;
+  top: 4.78%;
+  width: 94.57%;
+  height: 90.44%;
+  object-fit: cover;
+  z-index: 1;
+  filter: saturate(0.88) contrast(0.97) sepia(0.06);
 }
-.photo-caption a { text-decoration: none; }
-.photo-caption a:hover { color: var(--red); }
+.pc-grain {
+  /* the card's print grain over the modern shot, so it reads as printed */
+  position: absolute;
+  left: 2.5%;
+  top: 4.78%;
+  width: 94.57%;
+  height: 90.44%;
+  z-index: 2;
+  pointer-events: none;
+  background: url("../assets/paper/paper-grain.webp") 0 0 / 340px;
+  mix-blend-mode: multiply;
+  opacity: 0.17;
+  box-shadow: inset 0 0 18px rgba(50, 35, 12, 0.4);
+}
+.pc-caption {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: calc(100% - 20px);
+  width: 440px;
+  height: 128px;
+  transform: translateX(-50%) rotate(1.2deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 34px;
+  background: url("../assets/paper/tape-7.webp") center / 100% 100% no-repeat;
+  filter: url(#ink-b) drop-shadow(2px 5px 5px rgba(30, 15, 5, 0.3));
+  font-size: 29px;
+}
+.pc-caption a { text-decoration: none; color: #232019; }
+.pc-caption a:hover { color: var(--red); }
+
+/* address side: the contact card */
+.pc-head {
+  position: absolute;
+  z-index: 3;
+  left: 5.5%;
+  top: 30%;
+  width: 36%;
+  font-size: 40px;
+  line-height: 1.06;
+  font-weight: 700;
+  color: #2b2015;
+}
+.pc-msg {
+  position: absolute;
+  z-index: 3;
+  left: 5.5%;
+  top: 63%;
+  width: 35%;
+  font-size: 24px;
+  line-height: 1.16;
+  color: #2b2015;
+}
+.pc-msg-small {
+  position: absolute;
+  z-index: 3;
+  left: 5.5%;
+  bottom: 4.5%;
+  font-size: 16.5px;
+  color: #2b2015;
+  opacity: 0.78;
+}
+.pc-stamp {
+  position: absolute;
+  z-index: 2;
+  right: 2.6%;
+  top: 5.5%;
+  width: 15%;
+  height: auto;
+  transform: rotate(2.4deg);
+  filter: sepia(0.1) saturate(0.92) drop-shadow(1px 2px 2px rgba(40, 20, 5, 0.25));
+}
+.pc-addr {
+  position: absolute;
+  z-index: 3;
+  left: 46%;
+  top: 47%;
+  width: 49%;
+  margin: 0;
+  padding: 14px 20px;
+  text-align: center;
+}
+.circle-ink {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: url(#roughen);
+}
+.email-link {
+  position: relative;
+  font-size: 29px;
+  font-weight: 600;
+  color: #26201a;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.email-link:hover { color: var(--red); }
+
+/* --- tape: real masking-tape strips --------------------------------- */
 
 .tape {
   position: absolute;
-  width: 112px;
-  height: 36px;
-  background:
-    /* wrinkle lines along the pull direction */
-    repeating-linear-gradient(94deg, rgba(255, 255, 255, 0.14) 0 3px, transparent 3px 11px),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='t'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.75 0 0 0 0 0.68 0 0 0 0 0.5 0 0 0 0.1 0'/%3E%3C/filter%3E%3Crect width='90' height='90' filter='url(%23t)'/%3E%3C/svg%3E"),
-    rgba(228, 216, 172, 0.62);
-  /* torn ends */
-  clip-path: polygon(0 6%, 4% 0, 96% 3%, 100% 10%, 97% 38%, 100% 62%, 96% 96%, 3% 100%, 0 70%, 2% 40%);
-  box-shadow: 2px 4px 6px rgba(30, 15, 5, 0.22);
   z-index: 4;
+  background: var(--tape) center / 100% 100% no-repeat;
+  filter: drop-shadow(2px 4px 4px rgba(30, 15, 5, 0.28));
+  opacity: 0.96;
+  pointer-events: none;
 }
-.tape-tl { top: -14px; left: -34px; transform: rotate(-42deg); }
-.tape-br { bottom: 40px; right: -38px; transform: rotate(-40deg); }
+.tape-tl2 {
+  --tape: url("../assets/paper/tape-4.webp");
+  width: 126px;
+  height: 124px;
+  top: -52px;
+  left: -48px;
+}
+.tape-tr2 {
+  --tape: url("../assets/paper/tape-3.webp");
+  width: 132px;
+  height: 118px;
+  top: -56px;
+  right: -50px;
+  transform: scaleX(-1);
+}
 
 /* --- reduced motion / no-JS fallback ------------------------------- */
 
