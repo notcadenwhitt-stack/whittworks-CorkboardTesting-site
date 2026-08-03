@@ -306,8 +306,6 @@ a { color: inherit; }
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1;
-  object-fit: cover;
   border: 1px solid var(--ink);
 }
 
