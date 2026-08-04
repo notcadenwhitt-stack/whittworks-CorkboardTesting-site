@@ -9,12 +9,12 @@
   /* Camera stops: board-space center (x, y) and the span to fit (w, h). */
   var STOPS = [
     { x: 1800, y: 1200, w: 3860, h: 2620 },  /* 0 whole board */
-    { x: 1800, y: 1045, w: 1080, h: 740 },   /* 1 title card */
-    { x: 890,  y: 800,  w: 1520, h: 1060 },  /* 2 about + polaroid */
-    { x: 2745, y: 720,  w: 1320, h: 1000 },  /* 3 services cluster */
-    { x: 2660, y: 1560, w: 1420, h: 1060 },  /* 4 work photo */
-    { x: 1850, y: 1980, w: 1420, h: 880 },   /* 5 testimonial + chad */
-    { x: 660,  y: 1770, w: 1040, h: 820 },   /* 6 contact card */
+    { x: 1800, y: 1070, w: 1080, h: 740 },   /* 1 title card */
+    { x: 926,  y: 803,  w: 1340, h: 900 },   /* 2 about + polaroid */
+    { x: 2788, y: 722,  w: 1000, h: 950 },   /* 3 services cluster */
+    { x: 2660, y: 1587, w: 1420, h: 1060 },  /* 4 work photo */
+    { x: 1870, y: 1990, w: 1290, h: 820 },   /* 5 testimonial + chad */
+    { x: 700,  y: 1783, w: 1040, h: 650 },   /* 6 contact card */
     { x: 1800, y: 1200, w: 3860, h: 2620 }   /* 7 pull back out */
   ];
 
