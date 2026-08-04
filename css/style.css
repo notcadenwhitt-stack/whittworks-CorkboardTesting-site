@@ -145,7 +145,10 @@ a { color: inherit; }
      so there is no repeat to find. lighting is a lamp high on the left, not
      a symmetric vignette: one warm pool off-centre, two unequal dark pools. */
   background-image:
-    radial-gradient(70% 55% at 36% 24%, rgba(255, 240, 210, 0.3), rgba(128, 110, 90, 0) 72%),
+    /* the key light is across the room, not a lamp a metre off the board:
+       broad enough that there is no hotspot to locate, which is what makes
+       the parallel shadows below read as one distant source */
+    radial-gradient(140% 120% at 36% 24%, rgba(255, 240, 210, 0.22), rgba(128, 110, 90, 0) 72%),
     radial-gradient(90% 80% at 78% 96%, rgba(50, 28, 10, 0.5), rgba(128, 110, 90, 0) 62%),
     radial-gradient(115% 95% at 2% 86%, rgba(45, 26, 10, 0.42), rgba(128, 110, 90, 0) 64%),
     url("../assets/cork.jpg"),
@@ -272,12 +275,19 @@ a { color: inherit; }
     url("../assets/paper/paper-grain-hi.webp") 0 0 / 300px,
     /* faint paper grain */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 0 0.32 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23p)'/%3E%3C/svg%3E"),
-    /* blue rules, edge to edge */
+    /* blue rules, edge to edge. a printed rule is ink soaking sideways into
+       the fiber, not a 1px hairline: soft shoulders either side of the core
+       so the line survives the card's rotation without stair-stepping.
+       origin 53px puts the core 1.6px under the typed baselines (82 + 32k),
+       which is where a typist lands on ruled stock. */
     repeating-linear-gradient(
       to bottom,
-      transparent 0 31px,
-      rgba(96, 130, 178, 0.4) 31px 32px
-    ) 0 62px / 100% calc(100% - 62px) no-repeat,
+      transparent 0 29.6px,
+      rgba(96, 130, 178, 0.10) 29.6px 30.2px,
+      rgba(96, 130, 178, 0.28) 30.2px 31px,
+      rgba(96, 130, 178, 0.10) 31px 31.6px,
+      transparent 31.6px 32px
+    ) 0 53px / 100% calc(100% - 53px) no-repeat,
     /* single red header line */
     linear-gradient(rgba(205, 92, 92, 0.75), rgba(205, 92, 92, 0.75)) 0 52px / 100% 1.5px no-repeat,
     /* soft top-light on the paper itself */
@@ -289,6 +299,9 @@ a { color: inherit; }
   border-radius: 3px 7px 4px 6px;
   filter:
     url(#cut)
+    /* contact occlusion: the seam where the sheet touches whatever is under
+       it. zero offset, so it rings the whole silhouette and reads at rest */
+    drop-shadow(0 0 4px rgba(25, 12, 4, 0.42))
     drop-shadow(1px 1px 2px rgba(25, 12, 4, 0.3))
     drop-shadow(3px 7px 12px rgba(25, 12, 4, 0.28))
     drop-shadow(8px 22px 38px rgba(25, 12, 4, 0.24));
@@ -325,7 +338,7 @@ a { color: inherit; }
   font-size: 88px;
   line-height: 1.04;
   letter-spacing: 0.01em;
-  color: #1d1b17;
+  color: #26231e;
 }
 
 .title-card .typed.small { margin-top: 38px; }
@@ -357,11 +370,34 @@ a { color: inherit; }
   z-index: -1;
   background: var(--paper) center / 100% 100% no-repeat;
   filter:
+    drop-shadow(0 0 3px rgba(28, 15, 5, 0.5))
     drop-shadow(0 1px 1px rgba(25, 12, 4, 0.3))
     drop-shadow(3px 8px 8px rgba(25, 12, 4, 0.2))
-    drop-shadow(8px 18px 20px rgba(22, 9, 2, 0.24));
+    drop-shadow(8px 18px 20px rgba(22, 9, 2, 0.24))
+    /* glued along the top strip only, so the bottom of the note stands off
+       the cork and throws a long shadow the top edge never does */
+    drop-shadow(4px 26px 22px rgba(22, 9, 2, 0.26));
 }
 .sticky.flip::before { transform: scaleX(-1); }
+/* the sheet's own fiber reads back over the ink, so the pen sits in the
+   paper instead of floating on it. masked to the photographed silhouette so
+   nothing spills onto the cork at the torn edges. */
+.sticky::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    /* the lifted bottom edge catches the light bouncing back off the cork */
+    linear-gradient(to bottom, transparent 78%, rgba(255, 250, 228, 0.5)),
+    url("../assets/paper/paper-grain.webp") 0 0 / 170px;
+  -webkit-mask: var(--paper) center / 100% 100% no-repeat;
+  mask: var(--paper) center / 100% 100% no-repeat;
+  mix-blend-mode: overlay;
+  opacity: 0.3;
+}
+.sticky.flip::after { transform: scaleX(-1); }
 
 /* each variant is a different physical note: aspect from the photo,
    writable-area insets from its measured safe zone (fractions of width) */
@@ -386,7 +422,10 @@ a { color: inherit; }
 
 .hand {
   font-family: var(--hand);
-  color: #1c1a16;
+  /* ballpoint on absorbent stock is never true black, and it never fully
+     hides the sheet: a little of the fiber under the stroke reads through,
+     which is what stops the writing looking printed on top of the paper */
+  color: rgba(36, 33, 28, 0.87);
 }
 
 .sticky-title {
@@ -426,16 +465,23 @@ a { color: inherit; }
 }
 .ink path, .ink circle {
   fill: none;
-  stroke: #191919;
-  stroke-width: 3.2;
+  /* same slightly open ink as the handwriting, so the sticky's tooth reads
+     through the stroke instead of the stroke sitting on top of it */
+  stroke: rgba(26, 24, 20, 0.9);
+  /* one nib, but pressure is never constant: shapes that enclose something
+     get gone over and carry more ink than the detail drawn inside them.
+     per-path via --sw. */
+  stroke-width: var(--sw, 3.2);
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+/* quick tick strokes stop dead; they do not roll off into a round cap */
+.ink .tick { stroke-linecap: butt; }
 .ink-label {
   font-family: var(--hand);
   font-size: 30px;
   font-weight: 700;
-  fill: #191919;
+  fill: rgba(26, 24, 20, 0.9);
   stroke: none;
 }
 
@@ -449,6 +495,7 @@ a { color: inherit; }
   border-radius: 0;
   box-shadow: none;
   filter:
+    drop-shadow(0 0 4px rgba(28, 15, 5, 0.5))
     drop-shadow(1px 2px 2px rgba(25, 12, 4, 0.32))
     drop-shadow(5px 12px 14px rgba(25, 12, 4, 0.26))
     drop-shadow(11px 26px 28px rgba(22, 9, 2, 0.3));
@@ -543,6 +590,7 @@ a { color: inherit; }
   z-index: 0;
   background: var(--stock) center / 100% 100% no-repeat;
   filter:
+    drop-shadow(0 0 4px rgba(28, 15, 5, 0.5))
     drop-shadow(1px 2px 2px rgba(25, 12, 4, 0.32))
     drop-shadow(5px 12px 15px rgba(25, 12, 4, 0.26))
     drop-shadow(12px 28px 32px rgba(22, 9, 2, 0.3));
@@ -556,6 +604,21 @@ a { color: inherit; }
   --stock: url("../assets/paper/postcard-back.webp");
   width: 720px;
   aspect-ratio: 1400 / 868;
+}
+/* 1913 card stock over 2026 ballpoint: without the stock's own tooth
+   reading back over the writing, the handwriting floats above the
+   engraving instead of sitting in it. masked to the deckled silhouette. */
+.postcard-back::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  background: url("../assets/paper/paper-grain.webp") 0 0 / 170px;
+  -webkit-mask: var(--stock) center / 100% 100% no-repeat;
+  mask: var(--stock) center / 100% 100% no-repeat;
+  mix-blend-mode: overlay;
+  opacity: 0.3;
 }
 
 /* picture side: the Level Up shot printed into the card's picture area */
@@ -645,7 +708,8 @@ a { color: inherit; }
 .pc-msg-small {
   position: absolute;
   z-index: 3;
-  left: 5.5%;
+  /* clear of the printed GOLD MEDAL owl device in the card's bottom-left */
+  left: 46%;
   bottom: 4.5%;
   font-size: 16.5px;
   color: #2b2015;
@@ -663,7 +727,8 @@ a { color: inherit; }
 }
 .pc-addr {
   position: absolute;
-  z-index: 3;
+  /* deliberately no z-index: a stacking context here would isolate the
+     circle's multiply away from the card stock underneath it */
   left: 46%;
   top: 47%;
   width: 49%;
@@ -673,10 +738,17 @@ a { color: inherit; }
 }
 .circle-ink {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  /* sized to the viewBox's own 340:90, centred on the address: at inset:0
+     the box is too flat, the art fits by height and the loop lands inside
+     the ends of the address instead of round it */
+  left: 50%;
+  top: 50%;
+  width: 334px;
+  height: 88px;
+  transform: translate(-50%, -50%);
   filter: url(#roughen);
+  /* ballpoint over printed stock: the ink darkens what it crosses */
+  mix-blend-mode: multiply;
 }
 .email-link {
   position: relative;

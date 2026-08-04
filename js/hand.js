@@ -65,7 +65,9 @@
       if (isCaveat) {
         s.style.setProperty("--w", String(Math.round(base - span / 2 + rnd() * span)));
       } else {
-        s.style.setProperty("--o", (0.86 + rnd() * 0.14).toFixed(3));
+        /* one marker stroke never lays down evenly: some glyphs go down dry.
+           same rnd() call count, so the seeded layout is unchanged. */
+        s.style.setProperty("--o", (0.72 + rnd() * 0.28).toFixed(3));
       }
       return s;
     }

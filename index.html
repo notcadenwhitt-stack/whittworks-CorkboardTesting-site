@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Permanent+Marker&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap">
-<link rel="stylesheet" href="css/style.css?v=9">
+<link rel="stylesheet" href="css/style.css?v=18">
 </head>
 <body>
 
@@ -38,9 +38,12 @@
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
+    <!-- pen wobble at fiber scale. a low frequency with a big displacement
+         crenellates the whole stroke and reads as crumpled foil, so: higher
+         frequency, small throw. -->
     <filter id="roughen" x="-5%" y="-5%" width="110%" height="110%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="4" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
     <!-- guillotine cut: nibbles the index cards' silhouette off true -->
     <filter id="cut" x="-3%" y="-3%" width="106%" height="106%">
@@ -142,7 +145,12 @@
       <p class="hand pc-msg">Reach out for design and consulting availability.</p>
       <img class="pc-stamp" src="assets/paper/stamp-1.webp" alt="" width="320" height="344">
       <p class="circled-wrap pc-addr">
-        <svg class="circle-ink" viewBox="0 0 340 90" aria-hidden="true"><path d="M20 46 Q22 12 170 10 Q322 8 320 45 Q318 80 168 82 Q24 84 20 52" fill="none" stroke="#c0281a" stroke-width="4" stroke-linecap="round"/></svg>
+        <!-- nobody rings something in one clean pass: the pen overshoots
+             where it started, then goes round again over the top half -->
+        <svg class="circle-ink" viewBox="0 0 340 90" aria-hidden="true">
+          <path d="M28 52 Q18 14 172 11 Q330 9 322 46 Q316 82 166 84 Q26 87 21 50 Q19 30 44 20" fill="none" stroke="#b8301f" stroke-width="3.4" stroke-opacity="0.92" stroke-linecap="round"/>
+          <path d="M34 58 Q30 20 176 16 Q326 14 318 49" fill="none" stroke="#a8281a" stroke-width="4.6" stroke-opacity="0.7" stroke-linecap="round"/>
+        </svg>
         <a class="hand email-link" href="mailto:caden@whittworkstudios.com">caden@whittworkstudios.com</a>
       </p>
       <p class="hand pc-msg-small">&copy; 2026 WhittWorks Studios &middot; Birmingham, Alabama</p>
@@ -151,26 +159,26 @@
     <!-- ================= DOODLE STICKIES ================= -->
     <aside class="sticky doodle paper-4" style="left:1146px; top:286px; --rot:1.2deg" aria-hidden="true">
       <svg viewBox="0 0 200 200" class="ink">
-        <path d="M35 32 Q100 26 166 31 L170 120 Q100 127 33 122 Z"/>
-        <path d="M52 46 Q100 42 150 46 L153 104 Q100 110 50 106 Z"/>
-        <path d="M62 62 q10 -4 20 0 t20 0 t20 0 t18 0"/>
-        <path d="M62 76 q10 -4 20 0 t20 0 t20 0"/>
-        <path d="M62 90 q10 -4 20 0 t20 0"/>
-        <path d="M85 124 L82 140 L121 140 L117 124"/>
-        <path d="M55 148 L150 144 L159 172 L47 176 Z"/>
-        <path d="M65 156 l75 -3 M62 164 l80 -3"/>
+        <path style="--sw:4.3" d="M35 32 Q100 26 166 31 L170 120 Q100 127 33 122 Z"/>
+        <path style="--sw:3.3" d="M52 46 Q100 42 150 46 L153 104 Q100 110 50 106 Z"/>
+        <path style="--sw:2.5" d="M62 62 q10 -4 20 0 t20 0 t20 0 t18 0"/>
+        <path style="--sw:2.3" d="M62 76 q10 -4 20 0 t20 0 t20 0"/>
+        <path style="--sw:2.7" d="M62 90 q10 -4 20 0 t20 0"/>
+        <path style="--sw:3.1" d="M85 124 L82 140 L121 140 L117 124"/>
+        <path style="--sw:4.0" d="M55 148 L150 144 L159 172 L47 176 Z"/>
+        <path class="tick" style="--sw:2.4" d="M65 156 l75 -3 M62 164 l80 -3"/>
       </svg>
     </aside>
 
     <aside class="sticky doodle paper-6 c-green" style="left:2140px; top:1010px; --rot:-2.5deg" aria-hidden="true">
       <svg viewBox="0 0 200 200" class="ink">
-        <path d="M38 24 L36 166 L178 164"/>
-        <path d="M31 33 L36 22 L42 32 M168 158 L179 164 L168 171"/>
-        <path d="M52 44 Q97 96 162 150"/>
-        <path d="M52 152 Q102 100 162 46"/>
-        <path d="M107 99 L36 99" stroke-dasharray="7 7"/>
-        <path d="M107 99 L107 165" stroke-dasharray="7 7"/>
-        <circle cx="107" cy="99" r="4" fill="#191919" stroke="none"/>
+        <path style="--sw:4.4" d="M38 24 L36 166 L178 164"/>
+        <path class="tick" style="--sw:2.9" d="M31 33 L36 22 L42 32 M168 158 L179 164 L168 171"/>
+        <path style="--sw:3.6" d="M52 44 Q97 96 162 150"/>
+        <path style="--sw:3.2" d="M52 152 Q102 100 162 46"/>
+        <path class="tick" style="--sw:2.4" d="M107 99 L36 99" stroke-dasharray="7 7"/>
+        <path class="tick" style="--sw:2.3" d="M107 99 L107 165" stroke-dasharray="7 7"/>
+        <circle cx="107" cy="99" r="4" fill="rgba(26, 24, 20, 0.9)" stroke="none"/>
         <text x="166" y="42" class="ink-label">S</text>
         <text x="166" y="162" class="ink-label">D</text>
         <text x="20" y="32" class="ink-label">P</text>
@@ -180,12 +188,12 @@
 
     <aside class="sticky doodle paper-7" style="left:276px; top:1104px; --rot:2.1deg" aria-hidden="true">
       <svg viewBox="0 0 200 200" class="ink">
-        <path d="M22 122 L176 44 L98 152 L86 116 Z"/>
-        <path d="M176 44 L86 116"/>
-        <path d="M98 152 L94 128"/>
+        <path style="--sw:4.2" d="M22 122 L176 44 L98 152 L86 116 Z"/>
+        <path style="--sw:2.8" d="M176 44 L86 116"/>
+        <path class="tick" style="--sw:2.4" d="M98 152 L94 128"/>
         <text x="52" y="112" class="ink-label">$</text>
         <text x="118" y="80" class="ink-label">$</text>
-        <path d="M28 162 q28 18 58 2" stroke-dasharray="6 8"/>
+        <path class="tick" style="--sw:2.4" d="M28 162 q28 18 58 2" stroke-dasharray="6 8"/>
       </svg>
     </aside>
 
@@ -195,9 +203,9 @@
 
     <aside class="sticky doodle paper-3 flip c-green" style="left:1010px; top:1440px; --rot:-3deg" aria-hidden="true">
       <svg viewBox="0 0 200 200" class="ink">
-        <path d="M38 30 L36 164 L174 162"/>
-        <path d="M48 148 L82 118 L102 134 L152 72"/>
-        <path d="M140 72 L153 70 L150 84"/>
+        <path style="--sw:4.4" d="M38 30 L36 164 L174 162"/>
+        <path style="--sw:3.4" d="M48 148 L82 118 L102 134 L152 72"/>
+        <path class="tick" style="--sw:2.8" d="M140 72 L153 70 L150 84"/>
         <text x="158" y="52" class="ink-label">$</text>
       </svg>
     </aside>
