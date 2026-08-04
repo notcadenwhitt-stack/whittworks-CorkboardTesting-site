@@ -26,6 +26,22 @@ this site. Raw source files are not redistributed in this repo.
   and sticky-06 also got saturation scaled down (0.50x, 0.45x) from their
   vivid originals so the hue swap reads as dyed paper instead of neon.
 
+## Sticky note exposure match (2026-08-04)
+- sticky-04, sticky-05, sticky-05-pink, sticky-06, sticky-06-green — re-graded
+  in place with Pillow so they sit in the same exposure family as the
+  photographed service notes instead of reading as flat colour chips: HSV value
+  scaled to a 0.82 median, saturation to 0.42 (0.32 on the green/pink variants),
+  then sticky-03's normalised luminance (resized, flipped per note) multiplied in
+  to transplant its real lighting gradient and curl shading, then paper-grain
+  multiplied at 0.22 for tooth. Same sources/licenses, same filenames.
+
+## Postcard alpha recut (2026-08-04)
+- postcard-front, postcard-back — alpha only. Corners rounded to ~9px at four
+  unequal radii, each side's edge modulated with smooth 1-D noise (sd ~2px) and
+  feathered over 1.8px, so the cutouts stop being mathematically perfect
+  rectangles. RGB untouched, so the picture-area insets measured in the CSS
+  still land where they were measured.
+
 ## Polaroid frames
 - polaroid-frame-1/2/3 — Fuzzimo "Blank Polaroid Frame Images" (scans 01, 12, 16),
   https://www.fuzzimo.com/free-hi-res-blank-polaroid-frames/
@@ -46,6 +62,9 @@ this site. Raw source files are not redistributed in this repo.
   10, 15, 19, 33, 44, 53, 65, 73), https://resourceboy.com/textures/masking-tape-textures/
   Free for personal and commercial use, no attribution required; no standalone
   redistribution of the files.
+- paper-grain-hi.webp — the same Paper002 map remapped with Pillow to a high-key
+  luminance (mean 236, sd 9) so it can be multiplied onto near-white index-card
+  stock. The original mid-grey map cancels out in soft-light over a ~247 base.
 - paper-grain.webp — ambientCG Paper002 (2K Color map), https://ambientcg.com/view?id=Paper002
   CC0 1.0.
 

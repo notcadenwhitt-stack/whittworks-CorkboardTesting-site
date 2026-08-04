@@ -140,13 +140,19 @@ a { color: inherit; }
     10px 34px 90px rgba(0, 0, 0, 0.62),
     3px 8px 22px rgba(0, 0, 0, 0.5);
   background-color: #a87f4e;
-  /* real photographed cork with light falling across it */
+  /* real photographed cork. the same scan twice at sizes with no common
+     period inside the board (1180 and 890 only line up again at 105,020px),
+     so there is no repeat to find. lighting is a lamp high on the left, not
+     a symmetric vignette: one warm pool off-centre, two unequal dark pools. */
   background-image:
-    radial-gradient(85% 70% at 42% 30%, rgba(255, 240, 210, 0.35), rgba(128, 110, 90, 0) 70%),
-    radial-gradient(120% 90% at 50% 108%, rgba(50, 28, 10, 0.5), rgba(128, 110, 90, 0) 60%),
+    radial-gradient(70% 55% at 36% 24%, rgba(255, 240, 210, 0.3), rgba(128, 110, 90, 0) 72%),
+    radial-gradient(90% 80% at 78% 96%, rgba(50, 28, 10, 0.5), rgba(128, 110, 90, 0) 62%),
+    radial-gradient(115% 95% at 2% 86%, rgba(45, 26, 10, 0.42), rgba(128, 110, 90, 0) 64%),
+    url("../assets/cork.jpg"),
     url("../assets/cork.jpg");
-  background-size: auto, auto, 1024px 1024px;
-  background-blend-mode: soft-light, multiply, normal;
+  background-position: 0 0, 0 0, 0 0, 380px 610px, 0 0;
+  background-size: auto, auto, auto, 890px 890px, 1180px 1180px;
+  background-blend-mode: soft-light, multiply, multiply, soft-light, normal;
 }
 
 /* --- red string + pins -------------------------------------------- */
@@ -261,8 +267,9 @@ a { color: inherit; }
   padding: 62px 40px 26px;
   overflow: hidden;
   background:
-    /* real scanned paper fiber */
-    url("../assets/paper/paper-grain.webp") 0 0 / 460px,
+    /* real scanned paper fiber, remapped high-key so it multiplies onto
+       the near-white stock instead of cancelling out in soft-light */
+    url("../assets/paper/paper-grain-hi.webp") 0 0 / 300px,
     /* faint paper grain */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 0 0.32 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23p)'/%3E%3C/svg%3E"),
     /* blue rules, edge to edge */
@@ -275,12 +282,16 @@ a { color: inherit; }
     linear-gradient(rgba(205, 92, 92, 0.75), rgba(205, 92, 92, 0.75)) 0 52px / 100% 1.5px no-repeat,
     /* soft top-light on the paper itself */
     linear-gradient(172deg, #faf8f0 0%, #f5f2e7 60%, #efebdd 100%);
-  background-blend-mode: soft-light, normal, normal, normal, normal;
-  border-radius: 2px;
-  box-shadow:
-    1px 1px 2px rgba(25, 12, 4, 0.3),
-    3px 7px 12px rgba(25, 12, 4, 0.28),
-    8px 22px 38px rgba(25, 12, 4, 0.24);
+  background-blend-mode: multiply, normal, normal, normal, normal;
+  /* guillotined stock: corners are never equal and the edge is never straight.
+     #cut displaces the silhouette, so the shadows have to be drop-shadow()
+     to follow it instead of tracing the undisplaced box. */
+  border-radius: 3px 7px 4px 6px;
+  filter:
+    url(#cut)
+    drop-shadow(1px 1px 2px rgba(25, 12, 4, 0.3))
+    drop-shadow(3px 7px 12px rgba(25, 12, 4, 0.28))
+    drop-shadow(8px 22px 38px rgba(25, 12, 4, 0.24));
 }
 .index-card::after {
   /* faint corner curl shading */
@@ -470,8 +481,27 @@ a { color: inherit; }
   height: calc((var(--wh) + 0.7) * 1%);
   object-fit: cover;
   z-index: 1;
-  /* instant-film color cast */
-  filter: contrast(1.05) saturate(0.9) sepia(0.14) brightness(0.98);
+  /* emulsion corners: the dye never reaches the window's corner exactly */
+  border-radius: 4px;
+  /* a print cannot be brighter than the paper it is printed on: pull the
+     whites under the frame's own white and lift the blacks off zero */
+  filter: brightness(0.88) contrast(0.76) saturate(0.7) sepia(0.2);
+}
+/* film grain over the emulsion, under the frame. lives on .polaroid rather
+   than inside .pol-gloss because .pol-gloss's z-index makes a stacking
+   context, which would trap mix-blend-mode away from the photo. */
+.polaroid::before {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--wx) * 1%);
+  top: calc(var(--wy) * 1%);
+  width: calc(var(--ww) * 1%);
+  height: calc(var(--wh) * 1%);
+  pointer-events: none;
+  background: url("../assets/paper/paper-grain.webp") 0 0 / 130px;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
 }
 .pol-gloss {
   position: absolute;
@@ -481,7 +511,10 @@ a { color: inherit; }
   width: calc(var(--ww) * 1%);
   height: calc(var(--wh) * 1%);
   pointer-events: none;
-  background: linear-gradient(115deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.04) 26%, transparent 46%);
+  /* raking sheen on the film, then the window's own edge falloff */
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.045) 26%, transparent 46%),
+    radial-gradient(76% 72% at 50% 47%, transparent 54%, rgba(60, 45, 25, 0.22) 100%);
 }
 .caden-polaroid .pol-photo { object-position: 50% 10%; }
 .chad-polaroid .pol-photo { object-position: 50% 22%; }
@@ -534,7 +567,8 @@ a { color: inherit; }
   height: 90.44%;
   object-fit: cover;
   z-index: 1;
-  filter: saturate(0.88) contrast(0.97) sepia(0.06);
+  /* four-colour on uncoated stock: no monitor blacks, no monitor saturation */
+  filter: saturate(0.72) contrast(0.8) brightness(1.05) sepia(0.12);
 }
 .pc-grain {
   /* the card's print grain over the modern shot, so it reads as printed */
@@ -545,10 +579,26 @@ a { color: inherit; }
   height: 90.44%;
   z-index: 2;
   pointer-events: none;
-  background: url("../assets/paper/paper-grain.webp") 0 0 / 340px;
+  background:
+    /* faint rosette from the screen the picture was printed through */
+    repeating-radial-gradient(circle at 0 0, rgba(0, 0, 0, 0.1) 0 0.6px, transparent 0.6px 2.4px),
+    url("../assets/paper/paper-grain.webp") 0 0 / 340px;
   mix-blend-mode: multiply;
-  opacity: 0.17;
-  box-shadow: inset 0 0 18px rgba(50, 35, 12, 0.4);
+  opacity: 0.3;
+}
+/* ink-density ceiling: paper reflects, so the darkest ink on the card can
+   never reach the monitor black the source screenshot was captured at */
+.postcard-front::after {
+  content: "";
+  position: absolute;
+  left: 2.5%;
+  top: 4.78%;
+  width: 94.57%;
+  height: 90.44%;
+  z-index: 2;
+  pointer-events: none;
+  background: rgba(236, 226, 203, 0.14);
+  mix-blend-mode: screen;
 }
 .pc-caption {
   position: absolute;
