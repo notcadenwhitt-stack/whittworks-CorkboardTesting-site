@@ -530,13 +530,16 @@ a { color: inherit; }
   z-index: 1;
   /* emulsion corners: the dye never reaches the window's corner exactly */
   border-radius: 4px;
-  /* a print cannot be brighter than the paper it is printed on: pull the
-     whites under the frame's own white and lift the blacks off zero */
-  filter: brightness(0.88) contrast(0.76) saturate(0.7) sepia(0.2);
+  /* a good print of a good photo: clean, crisp, naturally coloured. the
+     only grade is a hair of exposure and bite so faces read sharp against
+     the frame's white. no sepia, no washed contrast, no desaturation. */
+  filter: brightness(1.05) contrast(1.05) saturate(1.06);
 }
 /* film grain over the emulsion, under the frame. lives on .polaroid rather
    than inside .pol-gloss because .pol-gloss's z-index makes a stacking
-   context, which would trap mix-blend-mode away from the photo. */
+   context, which would trap mix-blend-mode away from the photo. kept to a
+   whisper: enough that the print is not a flat pasted-in screenshot, far
+   too little to fog the picture. */
 .polaroid::before {
   content: "";
   position: absolute;
@@ -548,7 +551,7 @@ a { color: inherit; }
   pointer-events: none;
   background: url("../assets/paper/paper-grain.webp") 0 0 / 130px;
   mix-blend-mode: overlay;
-  opacity: 0.5;
+  opacity: 0.08;
 }
 .pol-gloss {
   position: absolute;
@@ -558,10 +561,12 @@ a { color: inherit; }
   width: calc(var(--ww) * 1%);
   height: calc(var(--wh) * 1%);
   pointer-events: none;
-  /* raking sheen on the film, then the window's own edge falloff */
+  /* raking sheen on the film, then the window's own edge falloff. both are
+     held back so the sheen never hazes the picture and the falloff stops
+     well short of the faces. */
   background:
-    linear-gradient(115deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.045) 26%, transparent 46%),
-    radial-gradient(76% 72% at 50% 47%, transparent 54%, rgba(60, 45, 25, 0.22) 100%);
+    linear-gradient(115deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.025) 22%, transparent 40%),
+    radial-gradient(88% 84% at 50% 45%, transparent 72%, rgba(58, 44, 26, 0.08) 100%);
 }
 .caden-polaroid .pol-photo { object-position: 50% 10%; }
 .chad-polaroid .pol-photo { object-position: 50% 22%; }
