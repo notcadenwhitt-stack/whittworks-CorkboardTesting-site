@@ -338,7 +338,7 @@ a { color: inherit; }
   font-size: 88px;
   line-height: 1.04;
   letter-spacing: 0.01em;
-  color: #26231e;
+  color: #0e0c0a;
 }
 
 .title-card .typed.small { margin-top: 38px; }
@@ -745,11 +745,13 @@ a { color: inherit; }
   position: absolute;
   /* sized to the viewBox's own 340:90, centred on the address: at inset:0
      the box is too flat, the art fits by height and the loop lands inside
-     the ends of the address instead of round it */
+     the ends of the address instead of round it. scaled up ~1.2x from the
+     viewBox baseline so the loop clears the "c" of caden and the "m" of
+     .com on both sides instead of grazing them. */
   left: 50%;
   top: 50%;
-  width: 334px;
-  height: 88px;
+  width: 400px;
+  height: 106px;
   transform: translate(-50%, -50%);
   filter: url(#roughen);
   /* ballpoint over printed stock: the ink darkens what it crosses */

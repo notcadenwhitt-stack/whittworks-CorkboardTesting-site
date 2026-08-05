@@ -67,7 +67,7 @@
       } else {
         /* one marker stroke never lays down evenly: some glyphs go down dry.
            same rnd() call count, so the seeded layout is unchanged. */
-        s.style.setProperty("--o", (0.72 + rnd() * 0.28).toFixed(3));
+        s.style.setProperty("--o", (0.93 + rnd() * 0.07).toFixed(3));
       }
       return s;
     }
