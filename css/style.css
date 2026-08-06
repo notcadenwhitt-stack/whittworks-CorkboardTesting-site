@@ -73,6 +73,33 @@ a { color: inherit; }
 }
 .deskbar a:hover { color: var(--red); }
 
+/* small screens: the bar's desktop metrics (455.9px) outrun a phone
+   viewport, so below tablet width we tighten padding/gap/type and let
+   the bar size itself to the viewport instead of overflowing it. desktop
+   (>=900px, well above this query) is untouched. */
+@media (max-width: 700px) {
+  .deskbar {
+    top: 10px;
+    gap: 0.6rem;
+    padding: 0.4rem 0.55rem;
+    max-width: calc(100vw - 20px);
+  }
+
+  .deskbar-name {
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+  }
+
+  .deskbar ul { gap: 0.5rem; }
+
+  .deskbar a {
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+    display: inline-block;
+    padding: 0.55rem 0.05rem;
+  }
+}
+
 .scroll-hint {
   position: fixed;
   bottom: 16px;
