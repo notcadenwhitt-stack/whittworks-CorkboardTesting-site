@@ -20,7 +20,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Permanent+Marker&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap">
-<link rel="stylesheet" href="css/style.css?v=21">
+<link rel="stylesheet" href="css/style.css?v=22">
+<!-- the cork is the backdrop everything sits on and it is the largest file
+     left, but it is discovered from CSS, so its fetch waits behind the Google
+     Fonts stylesheet (measured: assets start at 219ms, the font CSS lands at
+     222ms). Preloading starts it at ~47ms with the rest of the head. -->
+<link rel="preload" as="image" href="assets/cork.jpg">
 </head>
 <body>
 
@@ -90,7 +95,7 @@
     </section>
 
     <figure class="polaroid frame-1 caden-polaroid" style="left:1060px; top:620px; --rot:3.3deg">
-      <img class="pol-photo" src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200">
+      <img class="pol-photo" src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200" decoding="async">
       <span class="pol-gloss" aria-hidden="true"></span>
       <figcaption class="hand">Caden &mdash; founder</figcaption>
     </figure>
@@ -134,7 +139,7 @@
     </section>
 
     <figure class="polaroid frame-2 chad-polaroid" style="left:1990px; top:1845px; --rot:-2.6deg">
-      <img class="pol-photo" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760">
+      <img class="pol-photo" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760" decoding="async">
       <span class="pol-gloss" aria-hidden="true"></span>
       <figcaption class="hand">Chad Prewett</figcaption>
     </figure>
@@ -143,7 +148,7 @@
     <section class="postcard postcard-back contact-postcard" style="left:310px; top:1530px; --rot:-0.6deg" aria-label="Contact">
       <h2 class="hand pc-head">Have something you want built?</h2>
       <p class="hand pc-msg">Reach out for design and consulting availability.</p>
-      <img class="pc-stamp" src="assets/paper/stamp-1.webp" alt="" width="320" height="344">
+      <img class="pc-stamp" src="assets/paper/stamp-1.webp" alt="" width="320" height="344" decoding="async">
       <p class="circled-wrap pc-addr">
         <!-- nobody rings something in one clean pass: the pen overshoots
              where it started, then goes round again over the top half -->
@@ -198,7 +203,7 @@
     </aside>
 
     <aside class="sticky doodle paper-2 flip" style="left:2020px; top:160px; --rot:-1deg" aria-hidden="true">
-      <img class="ink" src="assets/paper/doodle-bulb.webp" alt="" width="330" height="330">
+      <img class="ink" src="assets/paper/doodle-bulb.webp" alt="" width="330" height="330" decoding="async">
     </aside>
 
     <aside class="sticky doodle paper-3 flip c-green" style="left:1010px; top:1440px; --rot:-3deg" aria-hidden="true">
@@ -215,7 +220,7 @@
 
 <div class="scroll-space" aria-hidden="true"></div>
 
-<script src="js/board.js"></script>
+<script src="js/board.js?v=2"></script>
 <script src="js/hand.js?v=2"></script>
 </body>
 </html>

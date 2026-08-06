@@ -96,12 +96,58 @@
 
   var ticking = false;
 
+  /* The board reads at rest and only at rest. Every piece of paper carries a
+     stack of four or five drop-shadow()s, and each one re-blurs the whole
+     accumulated result over an expanded filter region, so the stacks cost
+     ~173ms of the ~200ms it takes to actually draw a frame. While the camera
+     is flying nobody is reading anything, so a .moving class collapses each
+     stack to a single shadow tuned to sit where the stack's centre of mass
+     sits. The class is cleared on a short timer once scrolling settles, which
+     puts the full stacks back before the eye has anything to study. */
+  var MOVE_SETTLE = 160;
+  var moveTimer = null;
+  var lastMove = 0;
+
+  /* settle() re-checks the clock instead of trusting that it was rescheduled.
+     A frame of this board can take longer to draw than MOVE_SETTLE, and a
+     plain clearTimeout/setTimeout debounce driven off rAF would then fire in
+     the gap between two frames: the class would drop, the full shadow stacks
+     would come back mid-flight, and the next frame would put the class on
+     again, so the filters would flicker hardest exactly when the machine is
+     already behind. Marking from the scroll event (which is input-driven, not
+     render-driven) and re-arming from the real elapsed time makes the state
+     independent of how slow a frame happens to be. */
+  function settle() {
+    var idle = Date.now() - lastMove;
+    if (idle < MOVE_SETTLE) {
+      moveTimer = setTimeout(settle, MOVE_SETTLE - idle);
+      return;
+    }
+    moveTimer = null;
+    board.classList.remove("moving");
+  }
+
+  function markMoving() {
+    lastMove = Date.now();
+    if (moveTimer === null) {
+      board.classList.add("moving");
+      moveTimer = setTimeout(settle, MOVE_SETTLE);
+    }
+  }
+
+  /* scrollHeight is a forced layout flush. The runway is .scroll-space at
+     1300vh, so the value only ever changes with the viewport: measure it on
+     resize and on load instead of on every frame. */
+  var maxScroll = 0;
+
+  function measure() {
+    maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+  }
+
   function update() {
-    ticking = false;
     var vw = window.innerWidth;
     var vh = window.innerHeight;
-    var doc = document.documentElement;
-    var max = doc.scrollHeight - vh;
+    var max = maxScroll;
     var p = max > 0 ? (window.scrollY / max) * (STOPS.length - 1) : 0;
     p = Math.max(0, Math.min(STOPS.length - 1, p));
 
@@ -128,29 +174,48 @@
     if (hint) hint.classList.toggle("faded", window.scrollY > vh * 0.4);
   }
 
+  /* rAF entry point. update() itself stays pure so the first paint can call
+     it without ever flagging the board as moving. */
+  function frame() {
+    ticking = false;
+    /* also mark here, not only on the scroll event: on a slow machine the
+       main thread can be busy long enough that scroll events themselves
+       arrive further apart than MOVE_SETTLE. Keeping the state alive from
+       whichever of the two fired last means the collapse holds for the whole
+       gesture instead of dropping out between frames. */
+    markMoving();
+    update();
+  }
+
   function onScroll() {
+    markMoving();
     if (!ticking) {
       ticking = true;
-      window.requestAnimationFrame(update);
+      window.requestAnimationFrame(frame);
     }
   }
 
+  function onResize() {
+    measure();
+    onScroll();
+  }
+
   window.addEventListener("scroll", onScroll, { passive: true });
-  window.addEventListener("resize", onScroll);
+  window.addEventListener("resize", onResize);
+  window.addEventListener("load", function () { measure(); update(); });
 
   /* Nav links jump the camera to a stop. */
   document.querySelectorAll(".deskbar a[data-stop]").forEach(function (link) {
     link.addEventListener("click", function (e) {
       e.preventDefault();
       var stop = parseInt(link.getAttribute("data-stop"), 10);
-      var doc = document.documentElement;
-      var max = doc.scrollHeight - window.innerHeight;
       window.scrollTo({
-        top: (stop / (STOPS.length - 1)) * max,
+        top: (stop / (STOPS.length - 1)) * maxScroll,
         behavior: "smooth"
       });
     });
   });
 
+  measure();
   update();
 })();

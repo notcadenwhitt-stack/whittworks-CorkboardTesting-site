@@ -820,6 +820,41 @@ a { color: inherit; }
   transform: scaleX(-1);
 }
 
+/* --- while the camera is flying ------------------------------------ */
+
+/* Every sheet on the board carries four or five chained drop-shadow()s.
+   Chained is the expensive word: each one re-blurs the whole accumulated
+   result over a filter region the previous one just widened, so the cost is
+   superlinear in the length of the stack. Measured, the stacks are 173ms of
+   the 200ms it takes to genuinely raster one frame of this board. The other
+   twenty-odd effects together are under one vsync.
+
+   js/board.js hangs .moving on the board for as long as the scroll keeps
+   feeding it frames, and drops it 160ms after the last one. In that window
+   each stack collapses to a single shadow. These are not the "smallest"
+   member of each stack: offset, blur and alpha are tuned so the one shadow
+   lands on the stack's centre of mass, which is what keeps the swap back to
+   the full stack from reading as a flicker. Measured over the seven camera
+   stops, that tuning cuts the toggle's pixel delta from 1.82 to 0.60 mean
+   (12.2% to 3.7% of pixels moving by more than 8/255) at identical cost.
+
+   #cut stays on .index-card and the ink filters stay on the writing: with the
+   shadows collapsed, removing either measured no gain at all, so there is no
+   reason to let the card silhouette or the letterforms shift. */
+
+.board.moving .index-card {
+  filter: url(#cut) drop-shadow(6px 15px 26px rgba(25, 12, 4, 0.68));
+}
+.board.moving .sticky::before {
+  filter: drop-shadow(5px 15px 19px rgba(25, 12, 4, 0.7));
+}
+.board.moving .polaroid {
+  filter: drop-shadow(8px 19px 24px rgba(25, 12, 4, 0.72));
+}
+.board.moving .postcard::before {
+  filter: drop-shadow(8px 20px 26px rgba(25, 12, 4, 0.72));
+}
+
 /* --- reduced motion / no-JS fallback ------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
