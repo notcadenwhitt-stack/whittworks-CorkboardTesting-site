@@ -14,32 +14,444 @@
 <meta property="og:image:alt" content="WhittWorks Studios logo.">
 <meta name="twitter:card" content="summary_large_image">
 
+<!-- ==================================================================
+     LOADING OVERLAY
+     ==================================================================
+     This board is 24 images and about 1.4MB of paper. Left alone the
+     browser hands them over one at a time and the visitor watches the
+     desk assemble itself. The overlay covers that: a Sharpie slip on
+     the desk, a thin line that fills against real load progress, and a
+     cross-fade to a board that is already whole.
+
+     Both the CSS and the script are inline. The CSS so the overlay is
+     styled the instant it parses and never waits on css/style.css; the
+     script so the 24 fetches start at the top of the head instead of
+     after a round trip for a file.
+
+     THE ESCAPE HATCH. An overlay that can outlive its script is a trap,
+     and a trap on a services site costs a client. So #wwLoader is
+     display:none in the stylesheet and is only ever shown by
+     html.js-loading, a class the script puts on as its very first
+     statement. With no script at all (disabled, blocked, or a parse error
+     in this block) the class never lands, the overlay never paints, and
+     the page is exactly the page it was before this feature existed. The arming line and the logic share one <script> on
+     purpose: a syntax error takes out both, never the logic alone.
+     Past that, everything is wrapped so a thrown exception reveals the
+     board, and the CSS carries a 20s animation that takes the overlay
+     down with no script running at all.
+     ================================================================== -->
+<script>
+(function () {
+  "use strict";
+
+  var html = document.documentElement;
+
+  /* ARM. Nothing above this line can fail. If this line does not run, the
+     overlay stays display:none forever and the site is just the site. */
+  try { html.className += " js-loading"; } catch (e) { return; }
+
+  try {
+    /* a restored scroll position would put the camera mid-flight behind the
+       overlay, so the first frame after the fade would be a smear between two
+       stops instead of stop 0 */
+    if ("scrollRestoration" in history) { history.scrollRestoration = "manual"; }
+  } catch (e) {}
+
+  try {
+
+    /* Every image the page actually paints, derived from index.html and
+       css/style.css. Note the four sticky scans css/style.css declares on
+       .paper-1/3/5/6 are NOT here: every element carrying those classes also
+       carries a .c-blue/.c-green/.c-pink modifier that overrides --paper, so
+       the plain scans are never fetched. */
+    var ASSETS = [
+      "assets/cork.webp",
+      "assets/wood.jpg",
+      "assets/caden.jpg",
+      "assets/chad.jpg",
+      "assets/levelup-card-900.jpg",
+      "assets/paper/postcard-front.webp",
+      "assets/paper/postcard-back.webp",
+      "assets/paper/polaroid-frame-1.webp",
+      "assets/paper/polaroid-frame-2.webp",
+      "assets/paper/paper-grain.webp",
+      "assets/paper/paper-grain-hi.webp",
+      "assets/paper/stamp-1.webp",
+      "assets/paper/sticky-01-blue.webp",
+      "assets/paper/sticky-02.webp",
+      "assets/paper/sticky-02-blue.webp",
+      "assets/paper/sticky-03-blue.webp",
+      "assets/paper/sticky-03-green.webp",
+      "assets/paper/sticky-04.webp",
+      "assets/paper/sticky-05-pink.webp",
+      "assets/paper/sticky-06-green.webp",
+      "assets/paper/sticky-07.webp",
+      "assets/paper/tape-3.webp",
+      "assets/paper/tape-4.webp",
+      "assets/paper/tape-7.webp"
+    ];
+
+    var TIMEOUT_MS = 12000;  /* stalled-but-not-errored ceiling */
+    var FONTS_MS   = 6000;   /* fonts are a nicety: they get their own soft cap
+                                so they can never trip the failure path */
+    var MIN_MS     = 400;    /* on a warm cache the overlay would otherwise
+                                flash for 40ms and read as a glitch */
+    var RETRY_KEY  = "ww-loader-retried";
+
+    var reduce = false;
+    try {
+      reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    } catch (e) {}
+    var FADE_MS = reduce ? 0 : 500;
+
+    var started  = Date.now();
+    /* +1 unit for the fonts-and-first-layout gate, so the line hitting 100%
+       and the board actually being ready are the same moment */
+    var total    = ASSETS.length + 1;
+    var done     = 0;
+    var pending  = total;
+    var settled  = false;   /* a terminal state has been chosen */
+    var revealed = false;
+    var hardTimer = null;
+    var loaderEl, fillEl, trackEl, statusEl, errEl;
+
+    function paint() {
+      if (!fillEl) { return; }
+      fillEl.style.width = Math.min(100, Math.round((done / total) * 100)) + "%";
+    }
+
+    /* ---- terminal states ------------------------------------------- */
+
+    function reveal() {
+      if (revealed) { return; }
+      revealed = true;
+      settled = true;
+      clearTimeout(hardTimer);
+
+      var wait = 0;
+      try {
+        /* a scroll during the load would leave the camera off stop 0, and
+           putting it back fires board.js's .moving collapse for 160ms. Wait
+           that out so the frame under the fade is the full-shadow stop 0. */
+        if (window.scrollY !== 0) { window.scrollTo(0, 0); wait = 220; }
+      } catch (e) {}
+
+      setTimeout(function () {
+        try { html.classList.add("ww-ready"); } catch (e) {}
+        /* a timer, never transitionend: prefers-reduced-motion kills the
+           transition outright and transitionend would then never fire */
+        setTimeout(function () {
+          try {
+            if (loaderEl) { loaderEl.hidden = true; }
+            html.classList.remove("js-loading");
+          } catch (e) {}
+        }, FADE_MS);
+      }, wait);
+    }
+
+    /* An asset can 404 faster than the document parses, so fail() regularly
+       runs before bind() has any elements to write to. State is therefore
+       recorded first and painted second: showError() records, applyError()
+       paints, and bind() replays it if the failure got there first. Without
+       the split, a fast 404 sets the error state against null elements and
+       the visitor sits behind an overlay with nothing on it. */
+    var errored = false;
+
+    /* returns whether a card is actually on screen now */
+    function applyError() {
+      try {
+        if (!errEl) { return false; }
+        if (trackEl)  { trackEl.hidden = true; }
+        if (statusEl) { statusEl.hidden = true; }
+        errEl.hidden = false;
+        /* .ww-error cancels the 20s CSS bailout, so it goes on only once
+           there is something on screen worth keeping up. Setting it from a
+           failure that could not render its own card would disarm the last
+           backstop and leave a blank overlay standing forever. */
+        html.classList.add("ww-error");
+        var btn = document.getElementById("wwRetry");
+        if (btn) { btn.focus(); }
+        return true;
+      } catch (e) { return false; }
+    }
+
+    function showError() {
+      errored = true;
+      if (applyError()) { return; }
+      /* No card. If the overlay is already bound this will not improve, and
+         the choice is between trapping the visitor behind a blank screen and
+         handing them the board: hand them the board. If bind() has not run
+         yet, it replays this once the elements exist. */
+      if (loaderEl) { reveal(); }
+    }
+
+    function fail() {
+      if (settled) { return; }
+      settled = true;
+      clearTimeout(hardTimer);
+
+      /* default true: if sessionStorage is unavailable we behave as though the
+         retry is already spent, so a broken asset can never loop the reload */
+      var retried = true;
+      try { retried = sessionStorage.getItem(RETRY_KEY) === "1"; } catch (e) {}
+
+      if (!retried) {
+        try { sessionStorage.setItem(RETRY_KEY, "1"); }
+        catch (e) { showError(); return; }
+        if (statusEl) { statusEl.textContent = "Trying again"; }
+        setTimeout(function () {
+          try { location.reload(); } catch (e) { showError(); }
+        }, 60);
+        return;
+      }
+      showError();
+    }
+
+    function allReady() {
+      if (settled) { return; }
+      settled = true;
+      clearTimeout(hardTimer);
+      done = total;
+      paint();
+      /* a clean load clears the retry budget, so the next visit gets its own */
+      try { sessionStorage.removeItem(RETRY_KEY); } catch (e) {}
+      setTimeout(reveal, Math.max(0, MIN_MS - (Date.now() - started)));
+    }
+
+    /* ---- progress -------------------------------------------------- */
+
+    function unitDone() {
+      if (settled) { return; }
+      done++;
+      paint();
+      pending--;
+      if (pending <= 0) { allReady(); }
+    }
+
+    var DECODE_MS = 1000;
+
+    ASSETS.forEach(function (src) {
+      var img = new Image();
+      var counted = false;
+      function count() { if (!counted) { counted = true; unitDone(); } }
+
+      img.onload = function () {
+        /* decoded, not merely downloaded: a decode still pending at reveal is
+           a sheet of paper that pops in after the fade.
+           The cap is not paranoia. Measured here: in a tab the compositor is
+           not painting (backgrounded, occluded, a throttled preview pane)
+           decode() returns a promise that never settles at all: no resolve,
+           no reject. Gating on it alone hangs the whole loader. onload already
+           means the bytes arrived and parsed, so wait a beat for the decode
+           and then take onload's word for it. */
+        if (typeof img.decode === "function") {
+          try {
+            img.decode().then(count, count);
+            setTimeout(count, DECODE_MS);
+            return;
+          } catch (e) {}
+        }
+        count();
+      };
+      img.onerror = function () { fail(); };
+      img.src = src;
+    });
+
+    function fontsGate() {
+      var fired = false;
+      function ok() { if (!fired) { fired = true; unitDone(); } }
+      setTimeout(ok, FONTS_MS);
+      try {
+        if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
+          document.fonts.ready.then(ok, ok);
+        } else { ok(); }
+      } catch (e) { ok(); }
+    }
+
+    hardTimer = setTimeout(function () {
+      try { fail(); } catch (e) { reveal(); }
+    }, TIMEOUT_MS);
+
+    /* ---- wiring ---------------------------------------------------- */
+
+    function bind() {
+      if (revealed) { return; }
+      try {
+        loaderEl = document.getElementById("wwLoader");
+        fillEl   = document.getElementById("wwFill");
+        trackEl  = document.getElementById("wwTrack");
+        statusEl = document.getElementById("wwStatus");
+        errEl    = document.getElementById("wwError");
+
+        if (!loaderEl) { reveal(); return; }
+
+        var btn = document.getElementById("wwRetry");
+        if (btn) {
+          btn.addEventListener("click", function () { location.reload(); });
+        }
+
+        if (errored) { showError(); return; }
+
+        paint();
+        try { if (window.scrollY !== 0) { window.scrollTo(0, 0); } } catch (e) {}
+        /* fonts are only requested once something using them is laid out, so
+           ask after the document is parsed rather than from the head */
+        setTimeout(fontsGate, 0);
+      } catch (e) { reveal(); }
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", bind);
+    } else {
+      bind();
+    }
+
+  } catch (err) {
+    /* anything unexpected: take the overlay off and let the page be a page */
+    try { html.className = html.className.replace(/\s*\bjs-loading\b/g, ""); }
+    catch (e) {}
+  }
+})();
+</script>
+
+<style>
+/* --- loading overlay: critical CSS, inline so it never waits on style.css ---
+   Hidden by default. html.js-loading, set by the script above, is the only
+   thing that shows it: no script means no overlay, ever. */
+#wwLoader { display: none; }
+
+html.js-loading #wwLoader {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  /* the same desk the board hangs over, so the fade is a cross-dissolve
+     between two versions of one room rather than a cut between two screens */
+  background:
+    radial-gradient(95% 75% at 50% 40%, rgba(255, 226, 180, 0.10), transparent 66%),
+    linear-gradient(180deg, #372b1f 0%, #2b2118 55%, #201811 100%);
+  opacity: 1;
+  transition: opacity 500ms ease;
+  touch-action: none;
+  overscroll-behavior: contain;
+  /* CSS-only backstop. If the script arms the overlay and then stops running,
+     nothing left on the page would take it down. This fires at 20s with no
+     script involved. .ww-error unmatches the selector so a genuine error card
+     is never yanked away from someone reading it. */
+  animation: ww-bailout 1ms linear 20s forwards;
+}
+html.js-loading.ww-error #wwLoader { animation: none; }
+html.js-loading.ww-ready #wwLoader { opacity: 0; pointer-events: none; }
+@keyframes ww-bailout { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+
+/* Sharpie is black, and black on a dark desk is nothing. The lettering goes
+   where every other word on this site goes: on a slip of the same near-white
+   stock, pure CSS so the overlay owes nothing to the assets it is waiting on. */
+.ww-slip {
+  box-sizing: border-box;
+  max-width: min(560px, 92vw);
+  padding: 42px 46px 36px;
+  transform: rotate(-1.5deg);
+  border-radius: 3px 7px 4px 6px;
+  background: linear-gradient(172deg, #faf8f0 0%, #f5f2e7 60%, #efebdd 100%);
+  box-shadow:
+    0 0 4px rgba(25, 12, 4, 0.42),
+    3px 7px 12px rgba(25, 12, 4, 0.3),
+    8px 22px 38px rgba(25, 12, 4, 0.26);
+  text-align: center;
+}
+
+.ww-mark {
+  margin: 0;
+  font-family: "Permanent Marker", cursive;
+  font-weight: 400;
+  font-size: clamp(28px, 6vw, 52px);
+  line-height: 1.06;
+  letter-spacing: 0.01em;
+  color: #0e0c0a;
+  filter: url(#ink-c);
+}
+
+.ww-track {
+  width: min(260px, 62vw);
+  height: 2px;
+  margin: 34px 0 0;
+  background: rgba(244, 239, 226, 0.16);
+  overflow: hidden;
+}
+.ww-fill {
+  display: block;
+  width: 0%;
+  height: 100%;
+  background: #e6dcc6;
+  transition: width 260ms ease;
+}
+
+.ww-status {
+  margin: 15px 0 0;
+  font-family: "Space Mono", ui-monospace, Menlo, monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(244, 239, 226, 0.5);
+}
+
+.ww-err {
+  margin-top: 30px;
+  padding: 28px 32px 26px;
+  transform: rotate(1.1deg);
+  max-width: min(430px, 90vw);
+}
+.ww-err-head,
+.ww-err-body {
+  margin: 0;
+  font-family: "Special Elite", "Courier New", monospace;
+  color: #2b2115;
+}
+.ww-err-head { font-size: 19px; line-height: 1.35; }
+.ww-err-body { margin-top: 14px; font-size: 14px; line-height: 1.55; color: #55503f; }
+
+.ww-retry {
+  margin-top: 20px;
+  padding: 0.6rem 1.25rem;
+  font-family: "Space Mono", ui-monospace, Menlo, monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #241d14;
+  background: #ece4d2;
+  border: 1px solid rgba(40, 28, 14, 0.4);
+  border-radius: 2px;
+  cursor: pointer;
+}
+.ww-retry:hover { background: #f7f0de; }
+.ww-retry:focus-visible { outline: 3px solid #b3271c; outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.js-loading #wwLoader { transition: none; }
+  .ww-fill { transition: none; }
+}
+</style>
+
 <link rel="icon" href="assets/favicon-32.png" type="image/png">
 <link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Permanent+Marker&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap">
-<link rel="stylesheet" href="css/style.css?v=23">
+<link rel="stylesheet" href="css/style.css?v=24">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch waits behind the Google
      Fonts stylesheet (measured: assets start at 219ms, the font CSS lands at
      222ms). Preloading starts it at ~47ms with the rest of the head. -->
-<link rel="preload" as="image" href="assets/cork.jpg">
+<link rel="preload" as="image" href="assets/cork.webp">
 </head>
 <body>
-
-<nav class="deskbar" aria-label="Primary">
-  <span class="deskbar-name">WHITTWORKS STUDIOS</span>
-  <ul>
-    <li><a href="#" data-stop="2">About</a></li>
-    <li><a href="#" data-stop="3">Services</a></li>
-    <li><a href="#" data-stop="4">Work</a></li>
-    <li><a href="#" data-stop="6">Contact</a></li>
-  </ul>
-</nav>
-
-<p class="scroll-hint" aria-hidden="true">scroll to inspect the board &darr;</p>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -75,6 +487,37 @@
     </filter>
   </defs>
 </svg>
+
+<!-- The overlay sits after the <defs> above on purpose: .ww-mark carries
+     filter: url(#ink-c), and a CSS filter pointing at a filter element the
+     parser has not reached yet renders the element invisible. -->
+<div id="wwLoader" role="status" aria-live="polite" aria-label="Loading WhittWorks Studios">
+  <div class="ww-slip">
+    <p class="ww-mark">WhittWorks Studios</p>
+  </div>
+  <!-- the line is decoration; .ww-status carries the text alternative, and it
+       changes only on a state change so the live region stays quiet -->
+  <div class="ww-track" id="wwTrack" aria-hidden="true"><span class="ww-fill" id="wwFill"></span></div>
+  <p class="ww-status" id="wwStatus">Loading the board</p>
+
+  <div class="ww-slip ww-err" id="wwError" hidden>
+    <p class="ww-err-head">The board didn't finish loading.</p>
+    <p class="ww-err-body">Part of the page never arrived, so it isn't ready to show yet. Check your connection and try again.</p>
+    <button class="ww-retry" id="wwRetry" type="button">Try again</button>
+  </div>
+</div>
+
+<nav class="deskbar" aria-label="Primary">
+  <span class="deskbar-name">WHITTWORKS STUDIOS</span>
+  <ul>
+    <li><a href="#" data-stop="2">About</a></li>
+    <li><a href="#" data-stop="3">Services</a></li>
+    <li><a href="#" data-stop="4">Work</a></li>
+    <li><a href="#" data-stop="6">Contact</a></li>
+  </ul>
+</nav>
+
+<p class="scroll-hint" aria-hidden="true">scroll to inspect the board &darr;</p>
 
 <div class="viewport">
   <main class="board" id="board">
@@ -118,7 +561,10 @@
 
     <!-- ================= WORK: the Level Up postcard, picture side out ================= -->
     <figure class="postcard postcard-front work-postcard" style="left:2220px; top:1300px; --rot:-2deg">
-      <img class="pc-picture" src="assets/levelup-card-900.jpg" width="900" height="562" loading="lazy" decoding="async"
+      <!-- no loading="lazy" here: this shot is inside the stop-0 opening view,
+           and postcard-front.webp's picture area was compressed hard precisely
+           because this covers it. Deferring it shows a soft card first. -->
+      <img class="pc-picture" src="assets/levelup-card-900.jpg" width="900" height="562" decoding="async"
            alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level.">
       <span class="pc-grain" aria-hidden="true"></span>
       <span class="tape tape-tl2" aria-hidden="true"></span>

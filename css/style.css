@@ -178,8 +178,8 @@ a { color: inherit; }
     radial-gradient(140% 120% at 36% 24%, rgba(255, 240, 210, 0.22), rgba(128, 110, 90, 0) 72%),
     radial-gradient(90% 80% at 78% 96%, rgba(50, 28, 10, 0.5), rgba(128, 110, 90, 0) 62%),
     radial-gradient(115% 95% at 2% 86%, rgba(45, 26, 10, 0.42), rgba(128, 110, 90, 0) 64%),
-    url("../assets/cork.jpg"),
-    url("../assets/cork.jpg");
+    url("../assets/cork.webp"),
+    url("../assets/cork.webp");
   background-position: 0 0, 0 0, 0 0, 380px 610px, 0 0;
   background-size: auto, auto, auto, 890px 890px, 1180px 1180px;
   background-blend-mode: soft-light, multiply, multiply, soft-light, normal;
