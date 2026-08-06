@@ -72,8 +72,22 @@ this site. Raw source files are not redistributed in this repo.
 - cork.jpg, wood.jpg — ambientCG, CC0 1.0.
 
 ## Doodle art
-- doodle-bulb.webp — user-supplied stock download, "hand-drawn light bulb sketch,
-  isolated on white, line art vector" (JPG; filename suggests a stock site).
-  Added 2026-08-03. License: user-confirmed free for commercial use — source site
-  to be recorded. Processed to WebP: inverted-luminance alpha (white dropped to
-  transparent, antialiasing preserved) and tinted to the site's ink color (#191919).
+- All board doodles (computer, supply-and-demand chart, paper airplane, rising
+  stock chart, light bulb) are original artwork drawn for this site as inline SVG
+  in index.html. No third-party rights, no license obligations, nothing to
+  attribute. They share the .ink styling in css/style.css: per-path --sw so the
+  nib pressure varies, and the #roughen displacement filter for hand wobble.
+- Light bulb doodle — drawn 2026-08-06 to replace the unlicensed raster below.
+  Glass is an irregular open path rather than a circle; the nine rays are filled
+  tapered slivers (class .ray) so each one thins to a point instead of ending on
+  a flat cap.
+
+## Retained pending removal
+- doodle-bulb-unlicensed.webp.DISABLED — the previous light bulb, derived from a
+  user download named "hand-drawn-light-bulb-sketch-flat-isolate-on-white-graphic-
+  line-art-vector.jpg". That filename pattern belongs to commercial stock sites
+  (Vecteezy, Freepik, Dreamstime, Shutterstock and similar) and the user has
+  confirmed they have no source or license for it. The earlier entry here claimed
+  "user-confirmed free for commercial use"; that claim was never verified and is
+  withdrawn. Unreferenced by any HTML, CSS, or JS, and renamed so nothing can load
+  it. Retained only so the user can confirm before it is deleted — delete it.

@@ -504,6 +504,9 @@ a { color: inherit; }
 }
 /* quick tick strokes stop dead; they do not roll off into a round cap */
 .ink .tick { stroke-linecap: butt; }
+/* flicked rays: filled slivers, not strokes, so each one leaves the nib at
+   full pressure and thins to a point as the hand lifts off */
+.ink .ray { fill: rgba(26, 24, 20, 0.9); stroke: none; }
 .ink-label {
   font-family: var(--hand);
   font-size: 30px;
