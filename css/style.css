@@ -562,7 +562,19 @@ a { color: inherit; }
 
 .index-card {
   width: 720px;
-  height: 432px;
+  /* min-height, not height: WCAG 1.4.12 Text Spacing. At the shipped spacing
+     the copy fits inside the box, so this clamps to exactly 432px and the
+     resting board renders pixel-identically — verified 0 of 1,296,000 pixels
+     changed at all eight camera stops. Under a reader's spacing override the
+     About copy needs 508px, and a fixed height plus overflow:hidden
+     guillotined its last line, "business or tech world!", at the paper edge:
+     measured 432 box against 508 scrollHeight, the line's bottom 10px past
+     the cut. letter-spacing .12em alone is enough to trigger it.
+     height:auto is NOT the fix — it renders 423px and breaks the 5:3 box that
+     url(#cut) and the ::after corner curl both key off, at every spacing.
+     The two rules below must carry min-height too, or .quote-card (420px)
+     inherits its way up to this 432px floor and grows 12px at rest. */
+  min-height: 432px;
   padding: 62px 40px 26px;
   overflow: hidden;
   background:
@@ -623,7 +635,7 @@ a { color: inherit; }
 
 .title-card {
   width: 800px;
-  height: 480px;
+  min-height: 480px;
   text-align: center;
   padding-top: 92px;
 }
@@ -641,7 +653,7 @@ a { color: inherit; }
 
 .about-card { width: 720px; }
 
-.quote-card { width: 700px; height: 420px; }
+.quote-card { width: 700px; min-height: 420px; }
 .attr { margin-top: 32px; }
 
 /* --- sticky notes: real photographed paper -------------------------- */
