@@ -153,6 +153,13 @@
 }
 
 :root {
+  /* Sentinel, read by js/board.js before it does anything. Its only job is to
+     exist. If this stylesheet 404s the property is empty, board.js returns
+     immediately, and the page degrades to the plain readable document you get
+     with scripting off instead of a camera panning an unstyled one off screen.
+     Do not remove it and do not move it into another file. */
+  --camera: 1;
+
   --ink: #191919;
   --red: #b3271c;
   --card: #fbf8f1;
@@ -282,7 +289,19 @@ a { color: inherit; }
 .viewport {
   position: fixed;
   inset: 0;
-  overflow: hidden;
+  /* clip, NOT hidden. `hidden` still makes this a scroll container — measured
+     scrollWidth 1489 and scrollHeight 2040 against a 1440x900 client — and
+     nothing here ever gives the visitor a scrollbar for it, so the only thing
+     that could scroll it was the browser itself. It did: tabbing to the Level
+     Up caption link at the contact stop set .viewport.scrollLeft to 2715 to
+     bring the off-camera link into view, and the composed framing never came
+     back, because board.js only ever writes a transform and cannot see or
+     correct a scrolled ancestor. The postcard went from centred to hard
+     against the left edge with a doodle dragged in from off-camera, and at the
+     services stop scrollTop stuck at 1104 and the stop rendered the work
+     postcard instead. `clip` paints identically and is not a scroll container,
+     so there is nothing left to scroll. */
+  overflow: clip;
   /* wall-map.webp's own mean, under a 48x24 picture of it. Same principle as
      the cork and the paper: the room is the right blue on the first paint and
      already has continents in roughly the right places, so the scan sharpens
@@ -339,7 +358,14 @@ a { color: inherit; }
      from the first paint and the scan only adds grain. This was transparent,
      which let cork read through the frame until wood.jpg landed. */
   border: 30px solid #42342f;
-  border-image: url("../assets/wood.jpg") 170 / 30px round;
+  /* The slice and the source size move together or not at all: 170/512 and
+     85/256 are the same fraction (0.3320), so this samples exactly the same
+     band of grain it always did. A stale 170 against a 256px source would read
+     past the edge of the image. wood.jpg went 512 -> 256 (38,666 -> 9,876
+     bytes) because it fills a 30 board-px lip: even at the closest stop on a
+     retina panel that is ~83 device px, so 512 was a 6x oversupply and 256 is
+     still 3x. It is the one asset on the page measurably over-provisioned. */
+  border-image: url("../assets/wood.jpg") 85 / 30px round;
   box-shadow:
     /* cork sits recessed behind the frame lip */
     inset 0 3px 0 rgba(255, 230, 190, 0.14),

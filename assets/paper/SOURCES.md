@@ -5,7 +5,12 @@ this site. Raw source files are not redistributed in this repo.
 
 ## Sticky notes
 - sticky-01/02/03 — Unsplash, https://images.unsplash.com/photo-1553044707-b710ee53ffbd
-  (photographer Kelly Sikkema, same March 2019 shoot as unsplash.com/photos/BoAbPMRKLS0).
+  (photographer Kelly Sikkema, unsplash.com/photos/ElF7K4IWcGQ — corrected
+  2026-08-07; this file previously cited BoAbPMRKLS0, which is a different shot
+  from the same photographer and the same March 2019 shoot. Same licence, same
+  photographer, wrong ID. ElF7K4IWcGQ is the photo actually behind the CDN URL
+  above, traced through the Wayback Machine and confirmed by rendering the
+  cutouts against it.)
   Unsplash License: free commercial use, no attribution required. Sharpies and cast
   shadows removed in processing.
 - sticky-04, sticky-06 — Rawpixel via Openverse, CC0 1.0,
@@ -69,7 +74,14 @@ this site. Raw source files are not redistributed in this repo.
   CC0 1.0.
 
 ## Board surfaces (pre-existing)
-- cork.jpg, wood.jpg — ambientCG, CC0 1.0.
+- assets/cork.webp — ambientCG **Cork004** (Color map), https://ambientcg.com/view?id=Cork004
+  CC0 1.0. The asset ID was identified 2026-08-07 rather than assumed: the
+  shipped file scores a mean absolute error of 0.9/255 against the official
+  Cork004 1K Color map, against 22-29 for Cork001, Cork002 and Cork003. This
+  entry previously read "cork.jpg", which is not a filename that exists here.
+- assets/wood.jpg — ambientCG, CC0 1.0. Re-encoded 2026-08-07 from 512x512 to
+  256x256 (38,666 -> 9,876 bytes); the border-image slice in css/style.css moved
+  170 -> 85 in the same commit to keep the identical 0.3320 fraction.
 
 ## The wall behind the board
 - assets/wall-map.webp — the blue world map the cork board hangs on. 2000x1018,
@@ -155,6 +167,23 @@ github.com/google/fonts (`license: "OFL"` for caveat and spacemono, `license:
 "APACHE2"` for permanentmarker and specialelite) — recorded here so the next
 person does not have to re-check, and specifically so nobody repeats the common
 assumption that everything on Google Fonts is OFL.
+
+## Photographs of people (assets/) — recorded 2026-08-07
+These sit outside assets/paper/ but are the assets with the most rights attached,
+so they are recorded here with everything else rather than nowhere. Copyright is
+only half of it: both show identifiable people, and a likeness used in commercial
+marketing needs the subject's permission independently of who owns the file.
+
+- assets/chad.jpg — Chad Prewett and his wife, shown in the .chad-polaroid beside
+  his testimonial (index.html:230). Supplied directly by Chad Prewett for use with
+  that testimonial. The photograph was taken at his own event; he holds the rights
+  to the image and to both likenesses, and gave them for this use. Owner-confirmed
+  2026-08-07. Nothing outstanding.
+- assets/caden.jpg — Caden Whitt, founder, in the .caden-polaroid
+  (index.html:183). The subject is the site owner, so the likeness side needs
+  nothing. Who took the photograph is not recorded, and a photographer normally
+  holds copyright in a portrait even when the subject commissioned it. Low risk
+  and easy to close: name the photographer here, or note that it was self-taken.
 
 ## Doodle art
 - All board doodles (computer, supply-and-demand chart, paper airplane, rising

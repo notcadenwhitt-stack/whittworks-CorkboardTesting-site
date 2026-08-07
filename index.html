@@ -8,9 +8,16 @@
 <meta name="theme-color" content="#8a6a44">
 
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="WhittWorks Studios">
 <meta property="og:title" content="WhittWorks Studios — Web Design &amp; Consulting">
 <meta property="og:description" content="WhittWorks Studios is the solo studio of Caden Whitt, designing and building websites and digital tools for businesses and organizations.">
-<meta property="og:image" content="assets/og-thumbnail.jpg">
+<!-- og:image and og:url are ABSOLUTE, and they have to be. The Open Graph spec
+     asks for a URL, and the scrapers behind iMessage, Slack, LinkedIn, Facebook
+     and Discord fetch these out of the markup without a document base to
+     resolve against — a bare "assets/og-thumbnail.jpg" is simply dropped by
+     most of them, which is a blank card every time anyone shares the site. -->
+<meta property="og:url" content="https://whittworkstudios.com/">
+<meta property="og:image" content="https://whittworkstudios.com/assets/og-thumbnail.jpg">
 <meta property="og:image:alt" content="WhittWorks Studios logo.">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -67,21 +74,46 @@
      still matter: they are what letters the board if a font file 404s after
      a bad deploy, and what letters it in the swap period.
 
-     Two preloads, not five. The stylesheet is in the head and discovers all
-     five faces the moment it parses, so preloading is only worth it for the
-     faces the visitor is guaranteed to be looking at in the first frame: the
-     Sharpie wordmark on the title card, and the bold Space Mono in the
-     deskbar, which is fixed chrome and on screen at every scroll position.
-     Caveat (73KB) and Special Elite (52KB) are left to CSS discovery rather
-     than made to race cork.webp, which is the one asset every other asset is
-     seen against. crossorigin is required on font preloads even same-origin,
-     or the preload is fetched in a second, uncredentialed mode and the
-     browser downloads the file twice. -->
+     FOUR preloads, and this used to say two. The old rule was right — preload
+     only the faces the visitor is looking at in the first frame — but it was
+     applied on a wrong reading of which faces those are, and leaving Caveat to
+     CSS discovery cost far more than the bytes it saved.
+
+     Caveat, measured: discovered from the stylesheet it started around 2.8s
+     and landed at 7.55s at 125 KB/s, while the board had been legible since
+     ~3.6s, so there were four seconds of fallback lettering on a fully
+     composed board. The claim it was traded against — that a slow font costs
+     the lettering and never the board — does not survive contact: on the
+     fallback, .pc-head's box doubles from 30.05px to 59.18px, "Have something
+     you want built?" wraps to four lines, "built?" overprints "Reach out for
+     design", the email address runs out the right side of the hand-drawn ink
+     circle, and the copyright line falls off the card. Every service sticky
+     reflows too. Preloading it costs nothing measurable: Caveat lands at 3.65s
+     instead of 7.56s while FCP (3608 vs 3644ms), cork.webp (13697 vs 13744ms)
+     and last byte (15149 vs 15162ms) all stay inside noise.
+
+     Space Mono 400 joins for the reason the original rule already gives:
+     .deskbar a sets no font-weight, so the four nav links render at 400, not
+     the 700 that was being preloaded, and .scroll-hint uses the same face.
+     Both are fixed chrome, on screen at every scroll position, in the first
+     frame. It is 9.5KB, the smallest font on the page.
+
+     Special Elite stays on CSS discovery: it letters the index cards, which
+     are photographed paper the eye reaches after the board composes, and its
+     fallback (American Typewriter, Courier) is metrically close enough that
+     the swap does not relayout a card.
+
+     crossorigin is required on font preloads even same-origin, or the preload
+     is fetched in a second, uncredentialed mode and the file downloads twice. -->
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/permanent-marker-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/space-mono-700-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=36">
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/space-mono-400-latin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/caveat-latin.woff2">
+<link rel="stylesheet" href="css/style.css?v=37">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch used to wait behind the
      Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
@@ -108,8 +140,8 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=5">
-<link rel="preload" as="script" href="js/hand.js?v=4">
+<link rel="preload" as="script" href="js/board.js?v=6">
+<link rel="preload" as="script" href="js/hand.js?v=5">
 </head>
 <body>
 
@@ -334,7 +366,7 @@
 
 <div class="scroll-space" aria-hidden="true"></div>
 
-<script src="js/board.js?v=5"></script>
-<script src="js/hand.js?v=4"></script>
+<script src="js/board.js?v=6"></script>
+<script src="js/hand.js?v=5"></script>
 </body>
 </html>

@@ -2,6 +2,28 @@
 (function () {
   "use strict";
 
+  /* ==================================================================
+     DO NOT DRIVE A CAMERA THAT HAS NO STAGE
+     ==================================================================
+     If css/style.css never arrives — a bad deploy, a 404, a style-src that
+     rejects it — this script used to keep running, and that was strictly
+     worse than not running at all. The board becomes a plain <main> with no
+     .viewport clipping it and no absolute positioning, and the camera then
+     translates that ordinary document by thousands of pixels: measured across
+     the eight stops, 0/3/2/0/0/1/1/0 of 16 elements were on screen, and the
+     About card's top ran 4617 -> -2300 -> -9186 -> -6931, so content left the
+     top of the window and never came back at any scroll position. With the
+     same 404 and scripting OFF, the visitor gets a plain, complete, readable,
+     scrollable document.
+
+     So: read a custom property that exists only in the stylesheet, and if it
+     is not there, do nothing at all. The failure mode collapses to the no-JS
+     one, which is the better of the two. Cheap enough to sit above every
+     other line here — one getComputedStyle at startup.
+     ================================================================== */
+  if (!getComputedStyle(document.documentElement)
+        .getPropertyValue("--camera").trim()) return;
+
   var board = document.getElementById("board");
   var stringsSvg = document.getElementById("strings");
   var hint = document.querySelector(".scroll-hint");

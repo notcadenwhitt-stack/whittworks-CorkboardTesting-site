@@ -31,8 +31,15 @@
   document.querySelectorAll(SELECTORS).forEach(function (el, ei) {
     if (el.dataset.jittered) return;
 
-    var label = (el.textContent || "").replace(/\s+/g, " ").trim();
-    if (!label) return;
+    /* Two readings of the same element, and they are not interchangeable.
+       `seedText` is textContent, which is what has always seeded the hash, so
+       every letterform on the board keeps the exact shape it draws today.
+       `label` is innerText, which respects layout and turns the <br> in the h1
+       into a space — textContent runs the lines together and had the title
+       announcing as "WhittWorksStudios". Only the accessible name moves. */
+    var seedText = (el.textContent || "").replace(/\s+/g, " ").trim();
+    var label = (el.innerText || el.textContent || "").replace(/\s+/g, " ").trim();
+    if (!seedText) return;
 
     var cs = window.getComputedStyle(el);
     var fam = cs.fontFamily.toLowerCase();
@@ -45,7 +52,7 @@
     var base = bold ? 600 : 470;
     var span = 110;
 
-    var seed = fnv(label) ^ Math.imul(ei + 1, 2654435761);
+    var seed = fnv(seedText) ^ Math.imul(ei + 1, 2654435761);
 
     /* screen readers get whole words, not letters */
     el.setAttribute("aria-label", label);
@@ -103,7 +110,19 @@
     /* one wrapper so flex/grid parents see a single item and keep spaces */
     var jit = document.createElement("span");
     jit.className = "jit";
-    jit.setAttribute("aria-hidden", "true");
+    /* NOT aria-hidden when something inside can take focus. .pc-caption holds
+       the only outbound link on the site, and hiding an ancestor prunes the
+       whole subtree: the anchor kept its tab stop and lost its role, its entry
+       in the links list, and any announcement when focus landed on it — a
+       focusable element inside aria-hidden, which is a WCAG 4.1.2 failure and
+       the axe aria-hidden-focus rule. The aria-label set on nested anchors
+       above was dead code for exactly the same reason. Nothing leaks by
+       dropping it here: every .wd and .ch span carries its own aria-hidden, so
+       the 526 letter nodes stay out of the tree either way, and what surfaces
+       is the anchor with its own name. */
+    if (!el.querySelector("a[href], button, input, select, textarea, [tabindex]")) {
+      jit.setAttribute("aria-hidden", "true");
+    }
     while (el.firstChild) jit.appendChild(el.firstChild);
     el.appendChild(jit);
 
