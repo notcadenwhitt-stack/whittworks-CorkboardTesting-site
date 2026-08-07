@@ -24,6 +24,24 @@
   if (!getComputedStyle(document.documentElement)
         .getPropertyValue("--camera").trim()) return;
 
+  /* ==================================================================
+     PROOF OF LIFE
+     ==================================================================
+     The `js` class on <html> says a script ran. It does not say THIS script
+     ran, and the cork board is unusable without this one specifically: nothing
+     else ever writes #board's transform. If board.js 404s after a bad deploy,
+     or a strict CSP rejects it, `js` is still set by the inline head script and
+     by js/peek.js, and the board would be shown with no camera pointed at it —
+     the exact top-left-corner failure the sentinel above exists to prevent,
+     arriving by a different door.
+
+     So the stylesheet requires board-live, and only this line sets it, and only
+     after the guard above has passed. No camera, no board, and the editorial
+     design stays on screen instead. js/peek.js re-checks on a timer for the
+     case where this file loads but throws part-way through.
+     ================================================================== */
+  document.documentElement.classList.add("board-live");
+
   var board = document.getElementById("board");
   var stringsSvg = document.getElementById("strings");
   var hint = document.querySelector(".scroll-hint");

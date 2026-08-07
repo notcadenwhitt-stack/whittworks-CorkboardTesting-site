@@ -152,6 +152,42 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* --- the editorial design's two families -----------------------------
+   Anton letters its wordmark, Inter sets its body copy. They arrived with that
+   design still calling fonts.googleapis.com, which would have undone the point
+   of the section above: a third party back on the render path, and Google
+   handed the IP address of every visitor again. Both are here now, latin only,
+   byte-identical to the slices gstatic serves, both SIL OFL 1.1 with no
+   Reserved Font Name, both verified against github.com/google/fonts
+   METADATA.pb rather than assumed. Licence texts ship in assets/fonts/,
+   because OFL section 2 requires them to travel with the font. See SOURCES.md
+   for versions, sha256s and the exact URLs.
+
+   Inter is ONE variable rule spanning 100 900, not the two fixed-weight blocks
+   Google's css2 prints for wght@400;500. That output is two blocks pointing at
+   an identical URL, because the file is variable and its latin slice carries
+   the whole weight axis; only opsz was pinned out. One rule, same single
+   request, and anything asking for 700 gets real Inter instead of a synthesised
+   bold. Caveat's rule above already reads its range the same way. */
+
+@font-face {
+  font-family: "Anton";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../assets/fonts/anton-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("../assets/fonts/inter-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   /* Sentinel, read by js/board.js before it does anything. Its only job is to
      exist. If this stylesheet 404s the property is empty, board.js returns
@@ -1176,4 +1212,170 @@ a { color: inherit; }
    neither one is the whole answer. */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
+}
+
+/* ==================================================================
+   WHICH DESIGN IS ON SCREEN
+   ==================================================================
+   Progressive enhancement, stated as three rules. The editorial design is
+   the base document; the cork board is what it upgrades to when the page
+   can actually carry it.
+
+   The board needs a script (it has no camera without js/board.js — nothing
+   else ever writes #board's transform) and it needs width (below 900px the
+   camera cannot make body copy larger than about 10.8px no matter how the
+   stops are framed; that ceiling is derived in css/reading.css). When either
+   is missing, the editorial is not a fallback in the apologetic sense — it
+   is the better page, and it is the one that has been live.
+
+   Consequences worth being explicit about, because they are the whole
+   reason this is built this way:
+     - scripting off, any width      -> editorial
+     - a CSP that rejects board.js   -> editorial
+     - board.js 404s after a deploy  -> editorial
+     - a crawler with no JS          -> editorial, fully typeset
+     - a phone                       -> editorial, plus the sticky note
+     - a laptop                      -> cork board
+   Only one of the two is ever laid out, so only one is ever counted by
+   document.body.innerText.
+   ================================================================== */
+
+.corkboard { display: none; }
+
+/* A CAMERA, not merely a script. board-live is set by js/board.js and by
+   nothing else, only after it has confirmed the stylesheet arrived. `js`
+   alone would be a lie here: the inline head script and js/peek.js both set
+   it, so a 404 on board.js, or a CSP that rejects it, would leave `js`
+   present and hand the visitor a 3600x2400 board with nothing driving it.
+   That is the identical top-left-corner failure by another door. Require the
+   proof, not the intent. */
+@media (min-width: 901px) {
+  html.js.board-live .corkboard { display: block; }
+  html.js.board-live .editorial { display: none; }
+}
+
+/* The sticky note in the corner. Any width, camera alive: the visitor asked
+   for the board, so give them the board. Wins over the query above in both
+   directions because it is more specific. */
+html.js.board-live.board-open .corkboard { display: block; }
+html.js.board-live.board-open .editorial { display: none; }
+html.js.board-shut .corkboard { display: none; }
+html.js.board-shut .editorial { display: block; }
+
+/* Belt to the braces above. js/peek.js sets this from a setTimeout(0), which
+   cannot run until every classic script on the page has executed, so it is
+   the last word on whether board.js ever came alive. Placed last, and with
+   more specificity than the media query, so it wins from any state. */
+html.js.no-board .corkboard { display: none; }
+html.js.no-board .editorial { display: block; }
+html.js.no-board .board-peek { display: none; }
+
+/* U+2011 is in none of the seven fonts this site ships, so a non-breaking
+   hyphen fell through to a system face in the middle of a word. Plain
+   hyphen, and the span keeps it from breaking across lines. */
+.nobr { white-space: nowrap; }
+
+/* --- the sticky note in the corner -------------------------------- */
+
+/* Nothing without a script: both controls toggle state, and a control that
+   cannot do its job should not occupy a corner or a tab stop. */
+.board-peek,
+.board-exit { display: none; }
+
+html.js .board-peek {
+  position: fixed;
+  right: max(0.9rem, env(safe-area-inset-right));
+  bottom: max(0.9rem, env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  /* the whole control, note and label together, clears the 44px minimum
+     comfortably, so the tap target is the thing you can see */
+  min-height: 44px;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* above 900px the board is already what loads; there is nothing to ask for */
+@media (min-width: 901px) {
+  html.js .board-peek { display: none; }
+}
+/* and once the board is open, the peek's job is done */
+html.js.board-open .board-peek { display: none; }
+
+.peek-note {
+  position: relative;
+  flex: 0 0 auto;
+  width: 62px;
+  height: 62px;
+  /* the same photographed stock as the notes on the board, not a CSS square.
+     sticky-04 is the smallest scan in the set at 3.5KB. Its own median sits
+     underneath, so the note is the right yellow in the first frame and the
+     scan sharpens it, exactly like every other sheet on this site. */
+  background:
+    url("../assets/paper/sticky-04.webp") center / 100% 100% no-repeat,
+    linear-gradient(#d1ce79, #d1ce79);
+  transform: rotate(-4deg);
+  filter:
+    drop-shadow(0 1px 1px rgba(25, 12, 4, 0.3))
+    drop-shadow(3px 7px 10px rgba(25, 12, 4, 0.32));
+  transition: transform 0.18s ease;
+}
+
+.peek-face {
+  position: absolute;
+  left: 14%;
+  top: 14%;
+  width: 72%;
+  height: 72%;
+}
+
+.peek-label {
+  font-family: var(--hand);
+  font-size: 1.05rem;
+  line-height: 1;
+  color: #2b2015;
+  background: #f4efe2;
+  padding: 0.4rem 0.6rem;
+  transform: rotate(-1.2deg);
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.32);
+}
+
+/* a note that has just been pressed lifts off the cork a little */
+html.js .board-peek:hover .peek-note,
+html.js .board-peek:focus-visible .peek-note { transform: rotate(-1deg) scale(1.05); }
+html.js .board-peek:active .peek-note { transform: rotate(-4deg) scale(0.97); }
+
+/* the way back, only while the board is open on a screen too narrow to have
+   chosen it by default */
+@media (max-width: 900px) {
+  html.js.board-open .board-exit {
+    position: fixed;
+    left: 50%;
+    bottom: max(0.7rem, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    z-index: 60;
+    display: block;
+    min-height: 44px;
+    padding: 0.55rem 1rem;
+    border: 0;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #f4efe2;
+    background: rgba(25, 19, 12, 0.82);
+    border-radius: 2px;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peek-note { transition: none; }
 }

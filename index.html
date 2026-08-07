@@ -1,5 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+<!-- Set before ANY stylesheet is parsed, so the browser never lays out the
+     editorial and then throws it away. Everything below keys off this class:
+     no class, no cork board, and the tan editorial design is what renders.
+     One line, no dependencies, cannot fail after the fact. -->
+<script>document.documentElement.className += " js";</script>
+<!-- The floor, and the reason it is inline rather than in css/style.css: if
+     that stylesheet 404s, every display rule on the page goes with it and BOTH
+     designs render, stacked, one after the other. Measured: innerText 3116
+     instead of 1387, the whole site twice. This one declaration survives that,
+     because an inline style cannot fail to arrive separately from the document
+     it is written in. css/style.css re-states it and then overrides it for the
+     cases where the board should actually show. -->
+<style>.corkboard{display:none}</style>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -113,7 +126,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=43">
+<link rel="stylesheet" href="css/style.css?v=45">
 <!-- READING MODE, linked twice on purpose. See the header of css/reading.css.
      The media query covers narrow and short viewports; the <noscript> copy
      covers scripting being off at ANY width, which no media query can detect
@@ -121,7 +134,7 @@
      top-left corner of a 3600x2400 board with 3 of 16 pieces reachable. -->
 <link rel="stylesheet" href="css/reading.css?v=2"
       media="(max-width: 900px), (max-height: 540px)">
-<noscript><link rel="stylesheet" href="css/reading.css?v=2"></noscript>
+<link rel="stylesheet" href="css/editorial.css?v=1">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch used to wait behind the
      Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
@@ -148,7 +161,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=7">
+<link rel="preload" as="script" href="js/board.js?v=8">
 <link rel="preload" as="script" href="js/hand.js?v=5">
 </head>
 <body>
@@ -189,192 +202,363 @@
 </svg>
 
 
-<nav class="deskbar" aria-label="Primary">
-  <span class="deskbar-name">WHITTWORKS STUDIOS</span>
-  <ul>
-    <li><a href="#" data-stop="2">About</a></li>
-    <li><a href="#" data-stop="3">Services</a></li>
-    <li><a href="#" data-stop="4">Work</a></li>
-    <li><a href="#" data-stop="6">Contact</a></li>
-  </ul>
-</nav>
+<!-- ==================================================================
+     TWO DESIGNS, ONE DOCUMENT, AND THE ORDER MATTERS
+     ==================================================================
+     .editorial comes first and is the DEFAULT. .corkboard comes second and
+     is an enhancement that needs two things the editorial does not: a
+     script, and a wide screen.
 
-<p class="scroll-hint" aria-hidden="true">scroll to inspect the board &darr;</p>
+     So the editorial is what a phone shows, what a visitor with scripting
+     off shows, what a strict CSP that rejects js/board.js shows, what a
+     crawler reads first, and what is left if board.js 404s after a bad
+     deploy. The board is what a laptop with JavaScript shows, and what
+     anyone gets by tapping the sticky note in the corner.
 
-<div class="viewport">
-  <main class="board" id="board">
+     This is why the html element gets a js class from the inline script in
+     the head. Without it every one of those failure paths lands on a
+     complete, typeset, readable page instead of a 3600x2400 board with no
+     camera pointed at it. Only one of the two is ever in the layout, so
+     only one is ever in document.body.innerText.
+     ================================================================== -->
 
-    <svg class="strings" id="strings" viewBox="0 0 3600 2400" aria-hidden="true"></svg>
+<div class="editorial">
+  <a class="skip-link" href="#main">Skip to content</a>
 
-    <!-- ================= TITLE ================= -->
-    <section class="card index-card title-card" style="left:1400px; top:800px; --rot:-1.5deg" aria-label="WhittWorks Studios">
-      <h1 class="marker">WhittWorks<br>Studios</h1>
-      <p class="typed small">WEB DESIGN &amp; CONSULTING &middot; EST. 2026<br>CADEN WHITT, FOUNDER &middot; WHITTWORKSTUDIOS.COM</p>
+  <header class="hero" aria-label="WhittWorks Studios">
+
+    <div class="hero-top">
+      <p class="meta">Web Design &amp; Consulting</p>
+      <nav class="hero-nav" aria-label="Primary">
+        <ul>
+          <li><a href="#about">About</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#work">Work</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <p class="meta meta-end">Est. 2026</p>
+    </div>
+
+    <h1 class="wordmark">
+      <span class="visually-hidden">WhittWorks Studios</span>
+      <span class="wm-line" aria-hidden="true"><span>W</span><span>H</span><span>I</span><span>T</span><span>T</span><span>W</span><span>O</span><span>R</span><span>K</span><span>S</span></span>
+      <span class="wm-line" aria-hidden="true"><span>S</span><span>T</span><span>U</span><span>D</span><span>I</span><span>O</span><span>S</span></span>
+    </h1>
+
+    <p class="hero-statement"><span class="mark" aria-hidden="true"></span>Websites and digital tools for businesses and organizations, designed, built, and shipped end to end.</p>
+
+    <div class="hero-bottom">
+      <p class="meta">Caden Whitt, Founder</p>
+      <p class="meta meta-end">whittworkstudios.com</p>
+    </div>
+
+  </header>
+
+  <main id="main">
+
+    <section class="band" id="about" aria-labelledby="about-title">
+      <h2 class="band-label" id="about-title">About</h2>
+      <div class="about-grid">
+      <figure class="portrait">
+        <img src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200">
+        <figcaption class="meta">CADEN WHITT — FOUNDER</figcaption>
+      </figure>
+      <div class="about-copy">
+        <p class="about-lead">Hey, I'm Caden! At WhittWorks Studios we do it all. From speedy web design to consulting and more, we've got you covered.</p>
+        <p>When I am not building websites I am traveling the world, hosting a plethora of different events, or diving into new experiences. I am studying Economics at Troy University, and I'd love to help with anything you need in the business or tech world!</p>
+      </div>
+      </div>
     </section>
 
-    <!-- ================= ABOUT ================= -->
-    <section class="card index-card about-card" style="left:360px; top:484px; --rot:1.2deg" aria-label="About">
-      <p class="typed card-head">ABOUT</p>
-      <p class="typed">Hey, I'm Caden! At WhittWorks Studios we do it all. From speedy web design to consulting and more, we've got you covered.</p>
-      <p class="typed">When I am not building websites I am traveling the world, hosting a plethora of different events, or diving into new experiences. I am studying Economics at Troy University, and I'd love to help with anything you need in the business or tech world!</p>
+    <section class="band" id="services" aria-labelledby="services-title">
+      <h2 class="band-label" id="services-title">Services</h2>
+      <ul class="index">
+        <li class="index-row">
+          <h3 class="index-name">Custom Website Design &amp; Development</h3>
+          <p class="index-note">Design and front-to-back build of a site that fits how your organization actually works, from the first wireframe to launch day.</p>
+        </li>
+        <li class="index-row">
+          <h3 class="index-name">Site Management &amp; Hosting Setup</h3>
+          <p class="index-note">Domains, hosting, and deployment set up properly, plus ongoing updates so the site stays live and current after launch.</p>
+        </li>
+        <li class="index-row">
+          <h3 class="index-name">Business &amp; Technology Consulting</h3>
+          <p class="index-note">Working through the decisions behind the build: tooling, workflow, and where technology is worth the investment.</p>
+        </li>
+      </ul>
     </section>
 
-    <figure class="polaroid frame-1 caden-polaroid" style="left:1060px; top:620px; --rot:3.3deg">
-      <img class="pol-photo" fetchpriority="high" src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200" decoding="async">
-      <span class="pol-gloss" aria-hidden="true"></span>
-      <figcaption class="hand">Caden &mdash; founder</figcaption>
-    </figure>
+    <section class="band band-work" id="work" aria-labelledby="work-title">
+      <h2 class="band-label" id="work-title">Featured Work</h2>
+      <figure class="plate">
+        <div class="plate-frame">
+          <img src="assets/levelup-card-900.jpg"
+               width="900" height="562" loading="lazy" decoding="async"
+               alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level. beside the Level Up arrow logo.">
+        </div>
+        <figcaption>
+          <a href="https://levelup-men.com" target="_blank" rel="noopener">Level Up Conference &mdash; Design, Development, Deployment &mdash; levelup-men.com<span class="visually-hidden"> (opens in a new tab)</span></a>
+        </figcaption>
+      </figure>
+      <p class="work-note">More work available on request.</p>
 
-    <!-- ================= SERVICES ================= -->
-    <section class="sticky service-sticky paper-1 c-blue" style="left:2400px; top:326px; --rot:-2.1deg" aria-label="Service: web design and development">
-      <h2 class="hand sticky-title">Custom Website Design &amp; Development</h2>
-      <p class="hand sticky-note">first wireframe to launch day. a site that fits how your organization actually works.</p>
+      <figure class="testimonial">
+        <img class="testimonial-photo" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="480" height="480">
+        <blockquote class="testimonial-quote">
+          <p>&ldquo;Quick turnaround, great design, and excellent support. He built exactly what I envisioned and was helpful from start to finish.&rdquo;</p>
+        </blockquote>
+        <figcaption class="meta testimonial-attr">CHAD PREWETT &mdash; FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS <span class="nobr">CO-FOUNDER</span></figcaption>
+      </figure>
     </section>
 
-    <section class="sticky service-sticky paper-2 c-blue" style="left:2774px; top:452px; --rot:1.4deg" aria-label="Service: site management and hosting">
-      <h2 class="hand sticky-title">Site Management &amp; Hosting Setup</h2>
-      <p class="hand sticky-note">domains, hosting, and deploys set up properly. stays live and current after launch.</p>
+    <section class="band band-contact" id="contact" aria-labelledby="contact-title">
+      <h2 class="band-label">Contact</h2>
+      <p class="contact-head" id="contact-title">Have something you want built?</p>
+      <p class="contact-line">Reach out for design and consulting availability.</p>
+      <p class="contact-action"><a class="stamp" href="mailto:caden@whittworkstudios.com">Email the studio</a></p>
+      <p class="meta contact-address">caden@whittworkstudios.com</p>
     </section>
-
-    <section class="sticky service-sticky paper-3 c-blue" style="left:2512px; top:726px; --rot:-3.3deg" aria-label="Service: business and technology consulting">
-      <h2 class="hand sticky-title">Business &amp; Tech Consulting</h2>
-      <p class="hand sticky-note">tooling, workflow, and where technology is actually worth the investment.</p>
-    </section>
-
-    <!-- ================= WORK: the Level Up postcard, picture side out ================= -->
-    <figure class="postcard postcard-front work-postcard" style="left:2220px; top:1300px; --rot:-2deg">
-      <!-- no loading="lazy" here: this shot is inside the stop-0 opening view,
-           and postcard-front.webp's picture area was compressed hard precisely
-           because this covers it. Deferring it shows a soft card first. -->
-      <img class="pc-picture" fetchpriority="high" src="assets/levelup-card-900.jpg" width="900" height="562" decoding="async"
-           alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level.">
-      <span class="pc-grain" aria-hidden="true"></span>
-      <span class="tape tape-tl2" aria-hidden="true"></span>
-      <span class="tape tape-tr2" aria-hidden="true"></span>
-      <figcaption class="hand pc-caption">
-        <a href="https://levelup-men.com" target="_blank" rel="noopener">Level Up Conference &middot; levelup-men.com &rarr;</a>
-      </figcaption>
-    </figure>
-
-    <aside class="sticky mini-sticky paper-5 c-pink" style="left:2944px; top:1741px; --rot:4.2deg">
-      <p class="hand sticky-note">more work available on request &rarr;</p>
-    </aside>
-
-    <!-- ================= TESTIMONIAL ================= -->
-    <section class="card index-card quote-card" style="left:1320px; top:1736px; --rot:1.6deg" aria-label="Client testimonial">
-      <p class="typed">&ldquo;Quick turnaround, great design, and excellent support. He built exactly what I envisioned and was helpful from start to finish.&rdquo;</p>
-      <p class="typed small attr">&mdash; CHAD PREWETT, FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS CO-FOUNDER</p>
-    </section>
-
-    <figure class="polaroid frame-2 chad-polaroid" style="left:1990px; top:1845px; --rot:-2.6deg">
-      <img class="pol-photo" fetchpriority="high" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760" decoding="async">
-      <span class="pol-gloss" aria-hidden="true"></span>
-      <figcaption class="hand">Chad Prewett</figcaption>
-    </figure>
-
-    <!-- ================= CONTACT: postcard, address side out ================= -->
-    <section class="postcard postcard-back contact-postcard" style="left:310px; top:1530px; --rot:-0.6deg" aria-label="Contact">
-      <h2 class="hand pc-head">Have something you want built?</h2>
-      <p class="hand pc-msg">Reach out for design and consulting availability.</p>
-      <img class="pc-stamp" src="assets/paper/stamp-1.webp" alt="" width="320" height="344" decoding="async">
-      <p class="circled-wrap pc-addr">
-        <!-- nobody rings something in one clean pass: the pen overshoots
-             where it started, then goes round again over the top half -->
-        <svg class="circle-ink" viewBox="0 0 340 90" aria-hidden="true">
-          <path d="M28 52 Q18 14 172 11 Q330 9 322 46 Q316 82 166 84 Q26 87 21 50 Q19 30 44 20" fill="none" stroke="#b8301f" stroke-width="3.4" stroke-opacity="0.92" stroke-linecap="round"/>
-          <path d="M34 58 Q30 20 176 16 Q326 14 318 49" fill="none" stroke="#a8281a" stroke-width="4.6" stroke-opacity="0.7" stroke-linecap="round"/>
-        </svg>
-        <a class="hand email-link" href="mailto:caden@whittworkstudios.com">caden@whittworkstudios.com</a>
-      </p>
-      <p class="hand pc-msg-small">&copy; 2026 WhittWorks Studios &middot; Birmingham, Alabama</p>
-    </section>
-
-    <!-- ================= DOODLE STICKIES ================= -->
-    <aside class="sticky doodle paper-4" style="left:1146px; top:286px; --rot:1.2deg" aria-hidden="true">
-      <svg viewBox="0 0 200 200" class="ink">
-        <path style="--sw:4.3" d="M35 32 Q100 26 166 31 L170 120 Q100 127 33 122 Z"/>
-        <path style="--sw:3.3" d="M52 46 Q100 42 150 46 L153 104 Q100 110 50 106 Z"/>
-        <path style="--sw:2.5" d="M62 62 q10 -4 20 0 t20 0 t20 0 t18 0"/>
-        <path style="--sw:2.3" d="M62 76 q10 -4 20 0 t20 0 t20 0"/>
-        <path style="--sw:2.7" d="M62 90 q10 -4 20 0 t20 0"/>
-        <path style="--sw:3.1" d="M85 124 L82 140 L121 140 L117 124"/>
-        <path style="--sw:4.0" d="M55 148 L150 144 L159 172 L47 176 Z"/>
-        <path class="tick" style="--sw:2.4" d="M65 156 l75 -3 M62 164 l80 -3"/>
-      </svg>
-    </aside>
-
-    <aside class="sticky doodle paper-6 c-green" style="left:2140px; top:1010px; --rot:-2.5deg" aria-hidden="true">
-      <svg viewBox="0 0 200 200" class="ink">
-        <path style="--sw:4.4" d="M38 24 L36 166 L178 164"/>
-        <path class="tick" style="--sw:2.9" d="M31 33 L36 22 L42 32 M168 158 L179 164 L168 171"/>
-        <path style="--sw:3.6" d="M52 44 Q97 96 162 150"/>
-        <path style="--sw:3.2" d="M52 152 Q102 100 162 46"/>
-        <path class="tick" style="--sw:2.4" d="M107 99 L36 99" stroke-dasharray="7 7"/>
-        <path class="tick" style="--sw:2.3" d="M107 99 L107 165" stroke-dasharray="7 7"/>
-        <circle cx="107" cy="99" r="4" fill="rgba(26, 24, 20, 0.9)" stroke="none"/>
-        <text x="166" y="42" class="ink-label">S</text>
-        <text x="166" y="162" class="ink-label">D</text>
-        <text x="20" y="32" class="ink-label">P</text>
-        <text x="172" y="186" class="ink-label">Q</text>
-      </svg>
-    </aside>
-
-    <aside class="sticky doodle paper-7" style="left:276px; top:1104px; --rot:2.1deg" aria-hidden="true">
-      <svg viewBox="0 0 200 200" class="ink">
-        <path style="--sw:4.2" d="M22 122 L176 44 L98 152 L86 116 Z"/>
-        <path style="--sw:2.8" d="M176 44 L86 116"/>
-        <path class="tick" style="--sw:2.4" d="M98 152 L94 128"/>
-        <text x="52" y="112" class="ink-label">$</text>
-        <text x="118" y="80" class="ink-label">$</text>
-        <path class="tick" style="--sw:2.4" d="M28 162 q28 18 58 2" stroke-dasharray="6 8"/>
-      </svg>
-    </aside>
-
-    <aside class="sticky doodle paper-2 flip" style="left:2020px; top:160px; --rot:-1deg" aria-hidden="true">
-      <svg viewBox="0 0 200 200" class="ink">
-        <path class="ray" d="M55.9 115.5 Q46 122.2 37.7 131.3 Q47 123.7 58.3 118.8 Z"/>
-        <path class="ray" d="M45 83.7 Q31.5 83.7 18 86 Q31.5 85.7 45 88.3 Z"/>
-        <path class="ray" d="M55.9 54.7 Q43.6 49.9 32.9 42.4 Q42.8 51.1 53.5 58.4 Z"/>
-        <path class="ray" d="M77.3 39.2 Q71.6 28.6 64.3 18.9 Q70.2 29.4 73.9 41 Z"/>
-        <path class="ray" d="M104.2 35.1 Q102.3 20 102.8 5 Q100.6 20 99.4 34.9 Z"/>
-        <path class="ray" d="M127.6 41.9 Q130.8 31.6 136.5 22.8 Q129.8 31.1 124.4 40.1 Z"/>
-        <path class="ray" d="M147 59.3 Q158.9 52 169.5 42.5 Q157.9 50.4 144.6 55.5 Z"/>
-        <path class="ray" d="M155 89.1 Q167 86.9 179 87.4 Q167 85.5 155 84.9 Z"/>
-        <path class="ray" d="M142.9 117.2 Q152 123.4 162.2 127.9 Q152.9 122.1 145 114.1 Z"/>
-        <path style="--sw:4.4" d="M87 132 C79 123 63 111 60 92 C56 68 74 46 99 45 C125 44 145 66 141 91 C138 111 122 122 115 131"/>
-        <path style="--sw:3.5" d="M86 130 C86 133 85 136 84 139"/>
-        <path style="--sw:3.5" d="M115 131 C116 134 117 137 118 140"/>
-        <path style="--sw:3.4" d="M84 140 q17 -5 34 1"/>
-        <path style="--sw:3.1" d="M84 140 L87 169"/>
-        <path style="--sw:3.1" d="M118 141 L115 169"/>
-        <path class="tick" style="--sw:3" d="M85 149 q16 6 32 -1"/>
-        <path class="tick" style="--sw:2.9" d="M86 158 q15 -5 30 1"/>
-        <path class="tick" style="--sw:2.8" d="M87 166 q14 6 28 -1"/>
-        <path style="--sw:3.3" d="M87 169 q13 11 28 -2"/>
-        <path style="--sw:2.7" d="M96 175 q5 4 9 -1"/>
-        <path style="--sw:2.5" d="M93 107 L100 88 L107 107"/>
-        <path style="--sw:2.3" d="M93 107 c-5 3 -11 0 -8 -5 c2 -3 7 -1 8 5"/>
-        <path style="--sw:2.3" d="M107 107 c5 3 11 0 8 -5 c-2 -3 -7 -1 -8 5"/>
-        <path class="tick" style="--sw:2.4" d="M94 108 q-2 7 -2 13"/>
-        <path class="tick" style="--sw:2.4" d="M106 108 q2 7 3 13"/>
-      </svg>
-    </aside>
-
-    <aside class="sticky doodle paper-3 flip c-green" style="left:1010px; top:1440px; --rot:-3deg" aria-hidden="true">
-      <svg viewBox="0 0 200 200" class="ink">
-        <path style="--sw:4.4" d="M38 30 L36 164 L174 162"/>
-        <path style="--sw:3.4" d="M48 148 L82 118 L102 134 L152 72"/>
-        <path class="tick" style="--sw:2.8" d="M140 72 L153 70 L150 84"/>
-        <text x="158" y="52" class="ink-label">$</text>
-      </svg>
-    </aside>
 
   </main>
+
+  <footer class="site-footer">
+    <p class="meta">&copy; 2026 WhittWorks Studios</p>
+    <p class="meta meta-end">Birmingham, Alabama</p>
+  </footer>
 </div>
 
-<div class="scroll-space" aria-hidden="true"></div>
+<div class="corkboard" id="corkboard">
+  <nav class="deskbar" aria-label="Primary">
+    <span class="deskbar-name">WHITTWORKS STUDIOS</span>
+    <ul>
+      <li><a href="#" data-stop="2">About</a></li>
+      <li><a href="#" data-stop="3">Services</a></li>
+      <li><a href="#" data-stop="4">Work</a></li>
+      <li><a href="#" data-stop="6">Contact</a></li>
+    </ul>
+  </nav>
 
-<script src="js/board.js?v=7"></script>
+  <p class="scroll-hint" aria-hidden="true">scroll to inspect the board &darr;</p>
+
+  <div class="viewport">
+    <main class="board" id="board">
+
+      <svg class="strings" id="strings" viewBox="0 0 3600 2400" aria-hidden="true"></svg>
+
+      <!-- ================= TITLE ================= -->
+      <section class="card index-card title-card" style="left:1400px; top:800px; --rot:-1.5deg" aria-label="WhittWorks Studios">
+        <h1 class="marker">WhittWorks<br>Studios</h1>
+        <p class="typed small">WEB DESIGN &amp; CONSULTING &middot; EST. 2026<br>CADEN WHITT, FOUNDER &middot; WHITTWORKSTUDIOS.COM</p>
+      </section>
+
+      <!-- ================= ABOUT ================= -->
+      <section class="card index-card about-card" style="left:360px; top:484px; --rot:1.2deg" aria-label="About">
+        <p class="typed card-head">ABOUT</p>
+        <p class="typed">Hey, I'm Caden! At WhittWorks Studios we do it all. From speedy web design to consulting and more, we've got you covered.</p>
+        <p class="typed">When I am not building websites I am traveling the world, hosting a plethora of different events, or diving into new experiences. I am studying Economics at Troy University, and I'd love to help with anything you need in the business or tech world!</p>
+      </section>
+
+      <figure class="polaroid frame-1 caden-polaroid" style="left:1060px; top:620px; --rot:3.3deg">
+        <img class="pol-photo" fetchpriority="high" src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200" decoding="async">
+        <span class="pol-gloss" aria-hidden="true"></span>
+        <figcaption class="hand">Caden &mdash; founder</figcaption>
+      </figure>
+
+      <!-- ================= SERVICES ================= -->
+      <section class="sticky service-sticky paper-1 c-blue" style="left:2400px; top:326px; --rot:-2.1deg" aria-label="Service: web design and development">
+        <h2 class="hand sticky-title">Custom Website Design &amp; Development</h2>
+        <p class="hand sticky-note">first wireframe to launch day. a site that fits how your organization actually works.</p>
+      </section>
+
+      <section class="sticky service-sticky paper-2 c-blue" style="left:2774px; top:452px; --rot:1.4deg" aria-label="Service: site management and hosting">
+        <h2 class="hand sticky-title">Site Management &amp; Hosting Setup</h2>
+        <p class="hand sticky-note">domains, hosting, and deploys set up properly. stays live and current after launch.</p>
+      </section>
+
+      <section class="sticky service-sticky paper-3 c-blue" style="left:2512px; top:726px; --rot:-3.3deg" aria-label="Service: business and technology consulting">
+        <h2 class="hand sticky-title">Business &amp; Tech Consulting</h2>
+        <p class="hand sticky-note">tooling, workflow, and where technology is actually worth the investment.</p>
+      </section>
+
+      <!-- ================= WORK: the Level Up postcard, picture side out ================= -->
+      <figure class="postcard postcard-front work-postcard" style="left:2220px; top:1300px; --rot:-2deg">
+        <!-- no loading="lazy" here: this shot is inside the stop-0 opening view,
+             and postcard-front.webp's picture area was compressed hard precisely
+             because this covers it. Deferring it shows a soft card first. -->
+        <img class="pc-picture" fetchpriority="high" src="assets/levelup-card-900.jpg" width="900" height="562" decoding="async"
+             alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level.">
+        <span class="pc-grain" aria-hidden="true"></span>
+        <span class="tape tape-tl2" aria-hidden="true"></span>
+        <span class="tape tape-tr2" aria-hidden="true"></span>
+        <figcaption class="hand pc-caption">
+          <a href="https://levelup-men.com" target="_blank" rel="noopener">Level Up Conference &middot; levelup-men.com &rarr;</a>
+        </figcaption>
+      </figure>
+
+      <aside class="sticky mini-sticky paper-5 c-pink" style="left:2944px; top:1741px; --rot:4.2deg">
+        <p class="hand sticky-note">more work available on request &rarr;</p>
+      </aside>
+
+      <!-- ================= TESTIMONIAL ================= -->
+      <section class="card index-card quote-card" style="left:1320px; top:1736px; --rot:1.6deg" aria-label="Client testimonial">
+        <p class="typed">&ldquo;Quick turnaround, great design, and excellent support. He built exactly what I envisioned and was helpful from start to finish.&rdquo;</p>
+        <p class="typed small attr">&mdash; CHAD PREWETT, FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS CO-FOUNDER</p>
+      </section>
+
+      <figure class="polaroid frame-2 chad-polaroid" style="left:1990px; top:1845px; --rot:-2.6deg">
+        <img class="pol-photo" fetchpriority="high" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760" decoding="async">
+        <span class="pol-gloss" aria-hidden="true"></span>
+        <figcaption class="hand">Chad Prewett</figcaption>
+      </figure>
+
+      <!-- ================= CONTACT: postcard, address side out ================= -->
+      <section class="postcard postcard-back contact-postcard" style="left:310px; top:1530px; --rot:-0.6deg" aria-label="Contact">
+        <h2 class="hand pc-head">Have something you want built?</h2>
+        <p class="hand pc-msg">Reach out for design and consulting availability.</p>
+        <img class="pc-stamp" src="assets/paper/stamp-1.webp" alt="" width="320" height="344" decoding="async">
+        <p class="circled-wrap pc-addr">
+          <!-- nobody rings something in one clean pass: the pen overshoots
+               where it started, then goes round again over the top half -->
+          <svg class="circle-ink" viewBox="0 0 340 90" aria-hidden="true">
+            <path d="M28 52 Q18 14 172 11 Q330 9 322 46 Q316 82 166 84 Q26 87 21 50 Q19 30 44 20" fill="none" stroke="#b8301f" stroke-width="3.4" stroke-opacity="0.92" stroke-linecap="round"/>
+            <path d="M34 58 Q30 20 176 16 Q326 14 318 49" fill="none" stroke="#a8281a" stroke-width="4.6" stroke-opacity="0.7" stroke-linecap="round"/>
+          </svg>
+          <a class="hand email-link" href="mailto:caden@whittworkstudios.com">caden@whittworkstudios.com</a>
+        </p>
+        <p class="hand pc-msg-small">&copy; 2026 WhittWorks Studios &middot; Birmingham, Alabama</p>
+      </section>
+
+      <!-- ================= DOODLE STICKIES ================= -->
+      <aside class="sticky doodle paper-4" style="left:1146px; top:286px; --rot:1.2deg" aria-hidden="true">
+        <svg viewBox="0 0 200 200" class="ink">
+          <path style="--sw:4.3" d="M35 32 Q100 26 166 31 L170 120 Q100 127 33 122 Z"/>
+          <path style="--sw:3.3" d="M52 46 Q100 42 150 46 L153 104 Q100 110 50 106 Z"/>
+          <path style="--sw:2.5" d="M62 62 q10 -4 20 0 t20 0 t20 0 t18 0"/>
+          <path style="--sw:2.3" d="M62 76 q10 -4 20 0 t20 0 t20 0"/>
+          <path style="--sw:2.7" d="M62 90 q10 -4 20 0 t20 0"/>
+          <path style="--sw:3.1" d="M85 124 L82 140 L121 140 L117 124"/>
+          <path style="--sw:4.0" d="M55 148 L150 144 L159 172 L47 176 Z"/>
+          <path class="tick" style="--sw:2.4" d="M65 156 l75 -3 M62 164 l80 -3"/>
+        </svg>
+      </aside>
+
+      <aside class="sticky doodle paper-6 c-green" style="left:2140px; top:1010px; --rot:-2.5deg" aria-hidden="true">
+        <svg viewBox="0 0 200 200" class="ink">
+          <path style="--sw:4.4" d="M38 24 L36 166 L178 164"/>
+          <path class="tick" style="--sw:2.9" d="M31 33 L36 22 L42 32 M168 158 L179 164 L168 171"/>
+          <path style="--sw:3.6" d="M52 44 Q97 96 162 150"/>
+          <path style="--sw:3.2" d="M52 152 Q102 100 162 46"/>
+          <path class="tick" style="--sw:2.4" d="M107 99 L36 99" stroke-dasharray="7 7"/>
+          <path class="tick" style="--sw:2.3" d="M107 99 L107 165" stroke-dasharray="7 7"/>
+          <circle cx="107" cy="99" r="4" fill="rgba(26, 24, 20, 0.9)" stroke="none"/>
+          <text x="166" y="42" class="ink-label">S</text>
+          <text x="166" y="162" class="ink-label">D</text>
+          <text x="20" y="32" class="ink-label">P</text>
+          <text x="172" y="186" class="ink-label">Q</text>
+        </svg>
+      </aside>
+
+      <aside class="sticky doodle paper-7" style="left:276px; top:1104px; --rot:2.1deg" aria-hidden="true">
+        <svg viewBox="0 0 200 200" class="ink">
+          <path style="--sw:4.2" d="M22 122 L176 44 L98 152 L86 116 Z"/>
+          <path style="--sw:2.8" d="M176 44 L86 116"/>
+          <path class="tick" style="--sw:2.4" d="M98 152 L94 128"/>
+          <text x="52" y="112" class="ink-label">$</text>
+          <text x="118" y="80" class="ink-label">$</text>
+          <path class="tick" style="--sw:2.4" d="M28 162 q28 18 58 2" stroke-dasharray="6 8"/>
+        </svg>
+      </aside>
+
+      <aside class="sticky doodle paper-2 flip" style="left:2020px; top:160px; --rot:-1deg" aria-hidden="true">
+        <svg viewBox="0 0 200 200" class="ink">
+          <path class="ray" d="M55.9 115.5 Q46 122.2 37.7 131.3 Q47 123.7 58.3 118.8 Z"/>
+          <path class="ray" d="M45 83.7 Q31.5 83.7 18 86 Q31.5 85.7 45 88.3 Z"/>
+          <path class="ray" d="M55.9 54.7 Q43.6 49.9 32.9 42.4 Q42.8 51.1 53.5 58.4 Z"/>
+          <path class="ray" d="M77.3 39.2 Q71.6 28.6 64.3 18.9 Q70.2 29.4 73.9 41 Z"/>
+          <path class="ray" d="M104.2 35.1 Q102.3 20 102.8 5 Q100.6 20 99.4 34.9 Z"/>
+          <path class="ray" d="M127.6 41.9 Q130.8 31.6 136.5 22.8 Q129.8 31.1 124.4 40.1 Z"/>
+          <path class="ray" d="M147 59.3 Q158.9 52 169.5 42.5 Q157.9 50.4 144.6 55.5 Z"/>
+          <path class="ray" d="M155 89.1 Q167 86.9 179 87.4 Q167 85.5 155 84.9 Z"/>
+          <path class="ray" d="M142.9 117.2 Q152 123.4 162.2 127.9 Q152.9 122.1 145 114.1 Z"/>
+          <path style="--sw:4.4" d="M87 132 C79 123 63 111 60 92 C56 68 74 46 99 45 C125 44 145 66 141 91 C138 111 122 122 115 131"/>
+          <path style="--sw:3.5" d="M86 130 C86 133 85 136 84 139"/>
+          <path style="--sw:3.5" d="M115 131 C116 134 117 137 118 140"/>
+          <path style="--sw:3.4" d="M84 140 q17 -5 34 1"/>
+          <path style="--sw:3.1" d="M84 140 L87 169"/>
+          <path style="--sw:3.1" d="M118 141 L115 169"/>
+          <path class="tick" style="--sw:3" d="M85 149 q16 6 32 -1"/>
+          <path class="tick" style="--sw:2.9" d="M86 158 q15 -5 30 1"/>
+          <path class="tick" style="--sw:2.8" d="M87 166 q14 6 28 -1"/>
+          <path style="--sw:3.3" d="M87 169 q13 11 28 -2"/>
+          <path style="--sw:2.7" d="M96 175 q5 4 9 -1"/>
+          <path style="--sw:2.5" d="M93 107 L100 88 L107 107"/>
+          <path style="--sw:2.3" d="M93 107 c-5 3 -11 0 -8 -5 c2 -3 7 -1 8 5"/>
+          <path style="--sw:2.3" d="M107 107 c5 3 11 0 8 -5 c-2 -3 -7 -1 -8 5"/>
+          <path class="tick" style="--sw:2.4" d="M94 108 q-2 7 -2 13"/>
+          <path class="tick" style="--sw:2.4" d="M106 108 q2 7 3 13"/>
+        </svg>
+      </aside>
+
+      <aside class="sticky doodle paper-3 flip c-green" style="left:1010px; top:1440px; --rot:-3deg" aria-hidden="true">
+        <svg viewBox="0 0 200 200" class="ink">
+          <path style="--sw:4.4" d="M38 30 L36 164 L174 162"/>
+          <path style="--sw:3.4" d="M48 148 L82 118 L102 134 L152 72"/>
+          <path class="tick" style="--sw:2.8" d="M140 72 L153 70 L150 84"/>
+          <text x="158" y="52" class="ink-label">$</text>
+        </svg>
+      </aside>
+
+    </main>
+  </div>
+
+  <div class="scroll-space" aria-hidden="true"></div>
+</div>
+
+<!-- ==================================================================
+     THE STICKY NOTE IN THE CORNER
+     ==================================================================
+     The way onto the cork board from a phone, and the way back off it.
+
+     Both are <button>, not <a>. They change what this page shows; they do
+     not navigate anywhere, and dressing a state change up as a link lies to
+     anyone using a screen reader or middle-clicking. Both live outside
+     .editorial and .corkboard so neither is hidden along with the design it
+     belongs to.
+
+     They only exist for people who can use them: both are display:none
+     without the js class, because nothing can toggle without a script, and
+     an inert control is worse than no control. The peek is hidden above
+     900px, where the board is already the default and there is nothing to
+     ask for.
+
+     The smiley is drawn, not typed. A real note on a real board would be
+     Sharpie, and the emoji would be the one flat vector object on a page
+     built entirely out of photographed paper and hand strokes. It shares
+     the .ink treatment and the #roughen displacement filter with the five
+     doodles pinned to the board itself.
+     ================================================================== -->
+<button class="board-peek" type="button" aria-controls="corkboard"
+        aria-label="Open the cork board version of this site">
+  <span class="peek-note" aria-hidden="true">
+    <svg class="ink peek-face" viewBox="0 0 100 100">
+      <!-- two Sharpie dashes and a mouth that overshoots on the left, the
+           way a hand drawing quickly finishes a curve past where it meant to -->
+      <path style="--sw:7" d="M35 37 q1.5 6 0.5 11"/>
+      <path style="--sw:7" d="M65 38 q-1.5 6 -0.5 11"/>
+      <path style="--sw:6" d="M27 59 q10 19 24 18 q16 -1 22 -20"/>
+    </svg>
+  </span>
+  <span class="peek-label">the real board</span>
+</button>
+
+<button class="board-exit" type="button" aria-controls="corkboard"
+        aria-label="Go back to the main site">
+  <span aria-hidden="true">&larr;</span> back to the site
+</button>
+
+<script src="js/peek.js?v=6"></script>
+<script src="js/board.js?v=8"></script>
 <script src="js/hand.js?v=5"></script>
 </body>
 </html>
