@@ -160,6 +160,13 @@
      Do not remove it and do not move it into another file. */
   --camera: 1;
 
+  /* Is the camera the right way to show this board at this viewport? Set to 0
+     by the reading-mode query at the bottom of this file, where the board
+     reflows into a column instead. js/board.js re-reads it on every resize, so
+     rotating a phone or zooming the browser switches modes live. Distinct from
+     --camera above, which asks only whether this stylesheet arrived at all. */
+  --camera-active: 1;
+
   --ink: #191919;
   --red: #b3271c;
   --card: #fbf8f1;

@@ -113,7 +113,15 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=37">
+<link rel="stylesheet" href="css/style.css?v=43">
+<!-- READING MODE, linked twice on purpose. See the header of css/reading.css.
+     The media query covers narrow and short viewports; the <noscript> copy
+     covers scripting being off at ANY width, which no media query can detect
+     and which is the case that used to leave a desktop visitor looking at the
+     top-left corner of a 3600x2400 board with 3 of 16 pieces reachable. -->
+<link rel="stylesheet" href="css/reading.css?v=2"
+      media="(max-width: 900px), (max-height: 540px)">
+<noscript><link rel="stylesheet" href="css/reading.css?v=2"></noscript>
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch used to wait behind the
      Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
@@ -140,7 +148,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=6">
+<link rel="preload" as="script" href="js/board.js?v=7">
 <link rel="preload" as="script" href="js/hand.js?v=5">
 </head>
 <body>
@@ -366,7 +374,7 @@
 
 <div class="scroll-space" aria-hidden="true"></div>
 
-<script src="js/board.js?v=6"></script>
+<script src="js/board.js?v=7"></script>
 <script src="js/hand.js?v=5"></script>
 </body>
 </html>

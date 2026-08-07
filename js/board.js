@@ -193,6 +193,10 @@
        which is a flicker with nothing to hide behind it. One guard here
        covers both call sites and leaves the normal-mode system untouched. */
     if (reduced) return;
+    /* Reading mode scrolls the document, not the camera. Letting the class
+       ride those scroll events would swap every sheet's shadow stack on and
+       off while somebody is reading a stationary column. */
+    if (!cameraActive()) return;
     lastMove = Date.now();
     if (moveTimer === null) {
       board.classList.add("moving");
@@ -209,7 +213,30 @@
     maxScroll = document.documentElement.scrollHeight - window.innerHeight;
   }
 
+  /* Reading mode. Below 700px the stylesheet reflows the board into a column
+     and sets --camera-active to 0; there is no stage left to point a camera
+     at, and writing a transform would drag that column off screen. Read live
+     rather than latched at load, because the viewport crossing the threshold
+     is exactly the event that matters: rotating a phone, dragging a window
+     narrow, or zooming the browser, which shrinks the CSS viewport and is the
+     whole reason zoom now magnifies anything at all. */
+  function cameraActive() {
+    return getComputedStyle(document.documentElement)
+      .getPropertyValue("--camera-active").trim() !== "0";
+  }
+
   function update() {
+    if (!cameraActive()) {
+      /* Clear anything a previous frame wrote, or the column inherits a
+         transform from whichever stop the camera was resting on when the
+         window crossed the threshold. The stylesheet also carries
+         `transform: none !important` for the case where this script is stale
+         or never ran; this line is what makes the live switch clean. */
+      if (board.style.transform) board.style.transform = "";
+      if (hint) hint.classList.remove("faded");
+      return;
+    }
+
     var vw = window.innerWidth;
     var vh = window.innerHeight;
     var max = maxScroll;
@@ -305,11 +332,34 @@
     }
   }
 
+  /* Which piece of paper each nav link is really pointing at. The camera path
+     below reaches it by stop index; reading mode has no stops, no runway and
+     therefore a maxScroll of 0, so every link would have scrolled to the top
+     of the page and looked broken. Same four destinations either way. */
+  var STOP_TARGET = {
+    2: ".about-card",
+    3: ".service-sticky",
+    4: ".work-postcard",
+    6: ".contact-postcard"
+  };
+
   /* Nav links jump the camera to a stop. */
   document.querySelectorAll(".deskbar a[data-stop]").forEach(function (link) {
     link.addEventListener("click", function (e) {
       e.preventDefault();
       var stop = parseInt(link.getAttribute("data-stop"), 10);
+
+      if (!cameraActive()) {
+        var target = document.querySelector(STOP_TARGET[stop] || "");
+        if (target) {
+          target.scrollIntoView({
+            behavior: reduced ? "auto" : "smooth",
+            block: "start"
+          });
+        }
+        return;
+      }
+
       window.scrollTo({
         top: (stop / (STOPS.length - 1)) * maxScroll,
         /* a smooth scroll in reduced mode would drag the snap through every
