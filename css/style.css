@@ -4,39 +4,81 @@
 ------------------------------------------------------------------ */
 
 /* ==================================================================
-   THE SKELETON
+   THE PLACEHOLDERS
    ==================================================================
    1.6MB of photographed paper arrives one sheet at a time and no version of
    that is fast, so the only question is what the visitor looks at meanwhile.
-   It used to be an empty dark rectangle, latterly behind a fade. Now it is
-   the board: every element carrying a scan also carries a flat colour taken
-   out of that exact scan, so the first frame has the right shapes in the
-   right places in the right colours and the scans only add texture.
+   It used to be an empty dark rectangle, latterly behind a fade, latterly a
+   flat colour per element sampled out of that element's own scan.
 
-   THE COLOURS are per-channel MEDIANS over each asset's pixels with alpha
-   >= 250, computed with PIL/numpy — the opaque body of the file the browser
-   is about to fetch, not an eyedropper guess. Photographs are the MEAN over
-   the crop object-fit shows, because a photo's median is one of its two
-   halves and neither is the tone. No new requests; every value is 4 bytes.
+   THE FLAT COLOURS WERE THE WRONG ANSWER and it is worth writing down why,
+   because they measured well. They put the right shapes in the right places
+   in the right colours in the first frame, and they cut time-to-recognisable
+   from 12.6s to 3.1s on a 100 KB/s line. What they could not do is arrive
+   gracefully. Flat to photographic is a step change, and on the cork — which
+   is not an element, it is the entire background of the site — that step was
+   the only thing the visitor ever saw happen. Flat colour is the right
+   skeleton for text and boxes. It is the wrong one for texture.
 
-   STAYING INSIDE THE SILHOUETTE. A rectangle that later becomes a torn
-   sticky or a deckled postcard visibly SHRINKS, which is the same popping in
-   a new hat. So each tint is a gradient layer sized to the largest centred
-   box that is alpha 250-255 throughout that scan, measured the same way, and
-   it sits UNDER the scan: stickies 91% (worst of the 13 needs 95.5%),
-   polaroid frames and both postcards 98% (opaque from 6-9px in at native
-   size), stamp 78% x 88%. The scan can only reveal the tint, never crop it,
-   and the growth is 2-6 screen pixels at the opening stop.
+   SO EACH FLAT COLOUR IS NOW A PICTURE OF THE SAME FILE. Every scan gets a
+   heavily downscaled copy of itself, WebP, base64 into this stylesheet:
+   ~20px for a sticky, 27-48px for the photographs, 144px for the cork. They
+   are laid at the same size, position and blend mode as the asset they stand
+   in for, so the real file lands on a soft version of itself and the arrival
+   is a focus pull rather than a change of material. 23 of them, 8,140 base64
+   characters, 6.5KB gzipped on the wire, and — the point — ZERO extra
+   requests: they are in the stylesheet, so they are decodable in the first
+   frame that paints. No fade, no overlay, no script.
+   tools/lqip/make_lqip.py rebuilds them all from the assets.
 
-   NO TINT ON TAPE. Masking tape is translucent (tape-7 peaks at alpha 253,
-   body near 228), so anything under it reads through on the FINISHED board:
-   tinting the caption tape measured a 13/255 shift over 30% of it and cost
-   the tape its show-through. It is the wrong shape for this too — the two
-   corner strips run diagonally across 42% and 19% of their boxes and the
+   THE SIZES ARE NOT UNIFORM because the right size is not a constant. Sticky
+   paper is one colour and a lighting gradient, so 20px carries all of it.
+   Cork is nothing but texture: measured, the 1180px cork tile's per-channel
+   std is 19.2 at full size and 3.0 at 32px, which is to say a 32px cork
+   placeholder decodes to a flat swatch and would have changed nothing at all.
+
+   AND THIS SHEET IS RENDER-BLOCKING, which is the other half of every size
+   here. On a throttled cold load css/style.css shares the pipe with five
+   preloads and gets about a sixth of it, so a kilobyte added here costs
+   roughly 55ms of first paint at 1 Mbps, not 8ms. Measured against the flat
+   build over three cold loads each: first contentful paint 1788ms -> 2040ms
+   at 1 Mbps and 2028ms -> 2288ms at 100 KB/s. A quarter of a second, and the
+   cork is most of it, which is why the cork sits at 144px/q48 (std 11.3 for
+   2.7KB) and not at 192px/q50 (13.4 for 6.0KB) — that version measured
+   2516ms and 2636ms, so the extra 3.3KB bought texture nobody can see for
+   half a second of blank screen that everybody can.
+
+   STAYING INSIDE THE SILHOUETTE, unchanged from the flat build. A rectangle
+   that later becomes a torn sticky or a deckled postcard visibly SHRINKS,
+   which is the same popping in a new hat. So each placeholder is cropped to
+   AND drawn in the largest centred box that is alpha 250-255 throughout that
+   scan: stickies 91% (worst of the 13 needs 95.5%), polaroid frames and both
+   postcards 98% (opaque from 6-9px in at native size), stamp 78% x 88%.
+   Cropping as well as sizing is what keeps it registered — the thumbnail is
+   of that box, not of the whole sheet squeezed into it. Cut-outs are
+   flattened onto their own opaque median first, so no cut edge contributes a
+   dark halo to its own thumbnail. The scan can only reveal the placeholder,
+   never crop it, and the growth is 2-6 screen pixels at the opening stop.
+   The flat colours are kept underneath as the last layer of each stack: four
+   bytes each, and they are what paints if a data URI ever fails to decode.
+
+   NOTHING UNDER TAPE. Masking tape is translucent (tape-7 peaks at alpha
+   253, body near 228), so anything under it reads through on the FINISHED
+   board: tinting the caption tape measured a 13/255 shift over 30% of it and
+   cost the tape its show-through. It is the wrong shape for this too — the
+   two corner strips run diagonally across 42% and 19% of their boxes and the
    largest centred box inside them is 6% and 0%. Opaque paper takes a
-   skeleton; translucent tape does not. The index cards need none: their
-   stock is already a gradient. The two grain files are texture at 0.3
-   opacity over things that are already there.
+   placeholder; translucent tape does not. The index cards need none: their
+   stock is already a gradient. The walnut frame keeps its flat #42342f,
+   because border-image has no second layer to hide a placeholder under and
+   the frame is 30px of a 3660px box.
+
+   WHAT THIS DOES NOT FIX. paper-grain-hi.webp MULTIPLIES onto the index
+   cards and its own mean is 236/255, so the three big cards darken by ~7.5%
+   when it lands. A multiply layer cannot be pre-applied and then cancelled:
+   the only cures are to restructure the card's blend stack or to change how
+   the loaded card looks, and the loaded card is approved. It is the one
+   arrival on this page that is still a step rather than a focus pull.
    ================================================================== */
 
 /* ==================================================================
@@ -241,9 +283,10 @@ a { color: inherit; }
   position: fixed;
   inset: 0;
   overflow: hidden;
-  /* wall-map.webp's own mean. Same skeleton principle as the cork and the
-     paper: the room is already the right blue on the first paint, and when the
-     scan lands it only adds continents, never a colour change. */
+  /* wall-map.webp's own mean, under a 48x24 picture of it. Same principle as
+     the cork and the paper: the room is the right blue on the first paint and
+     already has continents in roughly the right places, so the scan sharpens
+     the coastlines rather than drawing them. */
   background-color: #233341;
   background-image:
     /* The key light, aimed to agree with the board's. .board's key is a broad
@@ -262,11 +305,13 @@ a { color: inherit; }
        printed on. High-frequency noise is free here and costs bytes in a
        WebP, so the scan carries only the low-frequency mottle. */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.42 0 0 0 0 0.34 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23w)'/%3E%3C/svg%3E"),
-    url("../assets/wall-map.webp");
-  background-position: 0 0, 0 0, 0 0, 0 0, 50% 45%;
-  background-size: auto, auto, auto, auto, cover;
-  background-repeat: no-repeat, no-repeat, no-repeat, repeat, no-repeat;
-  background-blend-mode: soft-light, multiply, multiply, normal, normal;
+    url("../assets/wall-map.webp"),
+    /* the map at 48x24, under the map. see THE PLACEHOLDERS at the top. */
+    url("data:image/webp;base64,UklGRpwAAABXRUJQVlA4IJAAAACwBQCdASowABgAPrVQokunJKMhpWzI4BaJZwAIHeFO5c/zlzd/72NJg2FjFPz9gaixo9lAJvAA/vKiPflx/2qAMvJQnDcTTMD7+dj3B+4cIgzEpZxXM7xbiiCm6ujHYTI4YlzlRDXhBSMlZXe6g0al4FAuLMG46DGn8JH64D4QEyZXxsyPzb//M1xeQnAAAAA=");
+  background-position: 0 0, 0 0, 0 0, 0 0, 50% 45%, 50% 45%;
+  background-size: auto, auto, auto, auto, cover, cover;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat, no-repeat, no-repeat;
+  background-blend-mode: soft-light, multiply, multiply, normal, normal, normal;
 }
 
 /* darkened room corners + fine photographic grain over the whole scene */
@@ -311,6 +356,12 @@ a { color: inherit; }
      that same file. Measured against a loaded render, the raw median was off
      by 13.2 mean channel levels, this by 2.6. */
   background-color: #bb6c27;
+  /* cork.webp at 144x144, 2.7KB of WebP inlined here so it is decodable in
+     the first frame. It is laid TWICE below, at the same two sizes and the
+     same two blend modes as the scan, so the placeholder is not a colour
+     standing in for the composite — it is the composite, computed by the
+     browser from low-resolution inputs. */
+  --cork-lq: url("data:image/webp;base64,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");
   /* real photographed cork. the same scan twice at sizes with no common
      period inside the board (1180 and 890 only line up again at 105,020px),
      so there is no repeat to find. lighting is a lamp high on the left, not
@@ -323,10 +374,15 @@ a { color: inherit; }
     radial-gradient(90% 80% at 78% 96%, rgba(50, 28, 10, 0.5), rgba(128, 110, 90, 0) 62%),
     radial-gradient(115% 95% at 2% 86%, rgba(45, 26, 10, 0.42), rgba(128, 110, 90, 0) 64%),
     url("../assets/cork.webp"),
-    url("../assets/cork.webp");
-  background-position: 0 0, 0 0, 0 0, 380px 610px, 0 0;
-  background-size: auto, auto, auto, 890px 890px, 1180px 1180px;
-  background-blend-mode: soft-light, multiply, multiply, soft-light, normal;
+    url("../assets/cork.webp"),
+    /* the same two layers again, in miniature, underneath. the 1180 layer is
+       `normal` and opaque, so the moment cork.webp decodes it covers both of
+       these outright: there is no fade, no transition, nothing to schedule. */
+    var(--cork-lq),
+    var(--cork-lq);
+  background-position: 0 0, 0 0, 0 0, 380px 610px, 0 0, 380px 610px, 0 0;
+  background-size: auto, auto, auto, 890px 890px, 1180px 1180px, 890px 890px, 1180px 1180px;
+  background-blend-mode: soft-light, multiply, multiply, soft-light, normal, soft-light, normal;
 }
 
 /* --- red string + pins -------------------------------------------- */
@@ -539,10 +595,13 @@ a { color: inherit; }
   position: absolute;
   inset: 0;
   z-index: -1;
-  /* second layer = skeleton: the scan's median at 91% of the box, inside
-     every sticky silhouette in the set. */
+  /* layers 2 and 3 are the placeholder: a ~20px picture of this note over the
+     scan's median, both at 91% of the box. */
   background:
     var(--paper) center / 100% 100% no-repeat,
+    /* the same note at ~20px, held to the 91% box that is inside every torn
+       silhouette in the set, so it can only be revealed and never cropped */
+    var(--lq) center / 91% 91% no-repeat,
     linear-gradient(var(--tint), var(--tint)) center / 91% 91% no-repeat;
   filter:
     drop-shadow(0 0 3px rgba(28, 15, 5, 0.5))
@@ -578,13 +637,13 @@ a { color: inherit; }
    writable-area insets from its measured safe zone (fractions of width).
    --tint is that scan's median over its opaque pixels; it is what the note is
    made of until the note arrives. */
-.paper-1 { --paper: url("../assets/paper/sticky-01.webp"); --tint: #cdc775; aspect-ratio: 1013/989; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.055; }
-.paper-2 { --paper: url("../assets/paper/sticky-02.webp"); --tint: #cfc87b; aspect-ratio: 1009/983; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.06; }
-.paper-3 { --paper: url("../assets/paper/sticky-03.webp"); --tint: #d0ca84; aspect-ratio: 1029/982; --pt: 0.07;  --pr: 0.06; --pb: 0.16; --pl: 0.06; }
-.paper-4 { --paper: url("../assets/paper/sticky-04.webp"); --tint: #d1ce79; aspect-ratio: 294/284;  --pt: 0.06;  --pr: 0.06; --pb: 0.10; --pl: 0.06; }
-.paper-5 { --paper: url("../assets/paper/sticky-05.webp"); --tint: #d1cc79; aspect-ratio: 539/533;  --pt: 0.05;  --pr: 0.05; --pb: 0.12; --pl: 0.07; }
-.paper-6 { --paper: url("../assets/paper/sticky-06.webp"); --tint: #cad279; aspect-ratio: 293/292;  --pt: 0.07;  --pr: 0.07; --pb: 0.09; --pl: 0.07; }
-.paper-7 { --paper: url("../assets/paper/sticky-07.webp"); --tint: #dc8395; aspect-ratio: 359/358;  --pt: 0.06;  --pr: 0.06; --pb: 0.09; --pl: 0.06; }
+.paper-1 { --paper: url("../assets/paper/sticky-01.webp"); --tint: #cdc775; aspect-ratio: 1013/989; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.055; --lq: url("data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAABQAwCdASoUABQAPrVUpE2nJKOmKAgA4BaJZQDGfBmIE9JacAD+7bac/xv76vddu+S4VxvE2oe5pRAwADDyAbuAAAA="); }
+.paper-2 { --paper: url("../assets/paper/sticky-02.webp"); --tint: #cfc87b; aspect-ratio: 1009/983; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.06; --lq: url("data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAACQAwCdASoUABMAPrVUo00nJKMiKAgA4BaJZQDE2BZl3C22r7kgAP7t/l2F/Qr1l99NjSusmd4KI3tLDVI/BIPmbga4/oAA"); }
+.paper-3 { --paper: url("../assets/paper/sticky-03.webp"); --tint: #d0ca84; aspect-ratio: 1029/982; --pt: 0.07;  --pr: 0.06; --pb: 0.16; --pl: 0.06; --lq: url("data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAAAQBACdASoUABMAPrVOoEsnJCMhsBgIAOAWiWMAyJgVOaEF4/BhX9cyAAD+7mEIv195Q9AqGnB9L34aco631QuiknyAAA=="); }
+.paper-4 { --paper: url("../assets/paper/sticky-04.webp"); --tint: #d1ce79; aspect-ratio: 294/284;  --pt: 0.06;  --pr: 0.06; --pb: 0.10; --pl: 0.06; --lq: url("data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADQAwCdASoUABMAPrVIoUunI6MhsBgIAOAWiWMAtOgY6Iea+D2JgAAA/u69n+6PyZ912lBprq3LNKR5dkjCp4xSAAA="); }
+.paper-5 { --paper: url("../assets/paper/sticky-05.webp"); --tint: #d1cc79; aspect-ratio: 539/533;  --pt: 0.05;  --pr: 0.05; --pb: 0.12; --pl: 0.07; --lq: url("data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAABwAwCdASoUABQAPrVUpE0nJKOiKAgA4BaJZQC+SBEc0kGnYKAA/tY4/Z/Qr5M+65ebI1mE8OQfo4j2s1Cm02AA"); }
+.paper-6 { --paper: url("../assets/paper/sticky-06.webp"); --tint: #cad279; aspect-ratio: 293/292;  --pt: 0.07;  --pr: 0.07; --pb: 0.09; --pl: 0.07; --lq: url("data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAABwAwCdASoUABQAPrVMn0snJCKhqA1Q4BaJYwDImBlPaYZbMIAA/u7Bqff8b/Vr5MjpW4+/nrrCFvuZDHB4AA=="); }
+.paper-7 { --paper: url("../assets/paper/sticky-07.webp"); --tint: #dc8395; aspect-ratio: 359/358;  --pt: 0.06;  --pr: 0.06; --pb: 0.09; --pl: 0.06; --lq: url("data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAQAwCdASoUABQAPrVUpE0nJKOiqAgA4BaJZQDKABaoBwAA/uJF4gP6P+7/vwGV3fx0D1h7tnoiEAAA"); }
 
 /* color modifiers: same photographed scan, hue-shifted in HSV so paper
    texture, lighting gradients, and curl shadows all survive. additive to
@@ -592,12 +651,12 @@ a { color: inherit; }
    colored elements without touching the unmodified default. each one moves
    --tint with --paper, or the note would arrive in the wrong colour and then
    change colour, which is the worst version of this. */
-.paper-1.c-blue  { --paper: url("../assets/paper/sticky-01-blue.webp");  --tint: #75a2cd; }
-.paper-2.c-blue  { --paper: url("../assets/paper/sticky-02-blue.webp");  --tint: #7ba6cf; }
-.paper-3.c-blue  { --paper: url("../assets/paper/sticky-03-blue.webp");  --tint: #85abcf; }
-.paper-3.c-green { --paper: url("../assets/paper/sticky-03-green.webp"); --tint: #91d085; }
-.paper-5.c-pink  { --paper: url("../assets/paper/sticky-05-pink.webp");  --tint: #d08fa5; }
-.paper-6.c-green { --paper: url("../assets/paper/sticky-06-green.webp"); --tint: #99d28e; }
+.paper-1.c-blue  { --paper: url("../assets/paper/sticky-01-blue.webp");  --tint: #75a2cd; --lq: url("data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAAAQAwCdASoUABQAPrVUo00nJKMiqAgA4BaJZQC2yBatoQAA/t1yl77s7RaZe/16pa5SaazTdo5K1k6EZEV2W3l2DbswAA=="); }
+.paper-2.c-blue  { --paper: url("../assets/paper/sticky-02-blue.webp");  --tint: #7ba6cf; --lq: url("data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAACwAwCdASoUABMAPrVUpE0nJKOiKAgA4BaJZQC9hoAAP5pO9njUAAD+4HxFkHrQtCBz1Pv4JejnwANJcXi4JBMdvN60EBU3c+AAAA=="); }
+.paper-3.c-blue  { --paper: url("../assets/paper/sticky-03-blue.webp");  --tint: #85abcf; --lq: url("data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAABwAwCdASoUABMAPrVMoEmnJKMhMAgA4BaJZQC90Cke0eBmxgAA/uWUmeBJW2efeuLmyIUIBkSlusTNnqnKFv0v0EAN5HfzV6B+c8AA"); }
+.paper-3.c-green { --paper: url("../assets/paper/sticky-03-green.webp"); --tint: #91d085; --lq: url("data:image/webp;base64,UklGRlQAAABXRUJQVlA4IEgAAADQAwCdASoUABMAPrVQoEqnJSMhsBgIAOAWiWUAwQqAADyvtQCPqGAA/uwH1H13i0o16n38FKTGWVSFO4CbVbAvQQBAOL6AAAA="); }
+.paper-5.c-pink  { --paper: url("../assets/paper/sticky-05-pink.webp");  --tint: #d08fa5; --lq: url("data:image/webp;base64,UklGRkIAAABXRUJQVlA4IDYAAABQAwCdASoUABQAPrVUpE0nJKOiKAgA4BaJZQAALnWvmHsiAAD98I//9a+bO33XE9CFZjF4BAA="); }
+.paper-6.c-green { --paper: url("../assets/paper/sticky-06-green.webp"); --tint: #99d28e; --lq: url("data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAABQAwCdASoUABQAPrVMn0snJCKhqA1Q4BaJZQC7ABXzKvk3cAD+7J5iI5ZzfkEr5ZnCvSRCn8GKBQQNJe6i8a0U0kAAAA=="); }
 
 .hand {
   font-family: var(--hand);
@@ -672,10 +731,12 @@ a { color: inherit; }
 .polaroid {
   width: 364px;
   aspect-ratio: var(--fw) / var(--fh);
-  /* frame stock's median at 98%: both scans are opaque from 6px and 8px in
-     at 950px wide, so this never reaches past the frame edge, and it sits
-     under both the photo and the frame. */
-  background: linear-gradient(#f6f5f2, #f6f5f2) center / 98% 98% no-repeat;
+  /* a 23x28 picture of the frame over the frame stock's median, both at 98%:
+     both scans are opaque from 6px and 8px in at 950px wide, so this never
+     reaches past the frame edge, and it sits under both photo and frame. */
+  background:
+    var(--frame-lq) center / 98% 98% no-repeat,
+    linear-gradient(#f6f5f2, #f6f5f2) center / 98% 98% no-repeat;
   padding: 0;
   border-radius: 0;
   box-shadow: none;
@@ -689,11 +750,13 @@ a { color: inherit; }
   --fw: 950; --fh: 1149;
   --wx: 6.21; --wy: 5.74; --ww: 87.26; --wh: 73.63;
   --frame: url("../assets/paper/polaroid-frame-1.webp");
+  --frame-lq: url("data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAADwAgCdASoXABwAPrVUo00nJKMiqAgA4BaJaQAAPaaKAAD+88IdisdUc6kxsjItwGhsAAAA");
 }
 .frame-2 {
   --fw: 950; --fh: 1154;
   --wx: 5.05; --wy: 6.33; --ww: 88.95; --wh: 73.92;
   --frame: url("../assets/paper/polaroid-frame-2.webp");
+  --frame-lq: url("data:image/webp;base64,UklGRj4AAABXRUJQVlA4IDIAAAAQAwCdASoXABwAPrVUpE0nJKOiKAgA4BaJaQAAPfUZkeAA/vPBVdQyLx7AWkddNgAAAA==");
 }
 .polaroid::after {
   /* the scanned frame sits over the photo; its window is transparent */
@@ -753,17 +816,30 @@ a { color: inherit; }
     linear-gradient(115deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.025) 22%, transparent 40%),
     radial-gradient(88% 84% at 50% 45%, transparent 72%, rgba(58, 44, 26, 0.08) 100%);
 }
-/* a tone behind each print, so the window is filled rather than a hole in
-   the frame. Median is right for paper (one colour plus printed detail) and
-   wrong for a photograph: caden.jpg is 45% blown sky behind a dark suit, so
-   its median sits in neither half and landed 39 levels off the print it
-   stands in for. These are MEANS over the crop object-fit shows (caden
-   source rows 34-769 of 1080, chad 28-660 of 760). The img's filter applies
-   to its background too, so the grade lands on these exactly as on the
-   photo. All three photographs are progressive JPEGs, so they start
-   resolving over the top of these well before they finish arriving. */
-.caden-polaroid .pol-photo { object-position: 50% 10%; background-color: #b0b2b3; }
-.chad-polaroid .pol-photo { object-position: 50% 22%; background-color: #67757e; }
+/* the print itself, behind the print. 27x40 and 33x40 of caden.jpg and
+   chad.jpg, laid with background-size:cover and the SAME position the img's
+   object-position uses — cover and object-fit:cover crop a box identically,
+   so the placeholder is framed on the face exactly as the photograph will be,
+   and no crop needs restating here to drift out of date later.
+
+   The mean underneath each one is the old flat tint and stays as the floor.
+   A median is right for paper (one colour plus printed detail) and wrong for
+   a photograph: caden.jpg is 45% blown sky behind a dark suit, so its median
+   sits in neither half and landed 39 levels off the print it stands in for.
+
+   The img's filter applies to its own background, so the grade lands on the
+   placeholder exactly as on the photo, and the img is opaque at cover, so it
+   covers the placeholder outright the moment it decodes. All three
+   photographs are progressive JPEGs on top of that, so they start resolving
+   over these well before they finish arriving. */
+.caden-polaroid .pol-photo {
+  object-position: 50% 10%;
+  background: url("data:image/webp;base64,UklGRjQBAABXRUJQVlA4ICgBAAAwBwCdASobACgAPrFQokynJKMiKrgIAOAWCUAYZuXYwA0tDRoLqwVfT1/4pS7pSJoraPkSEx4SkYJzui/nzkyDUAAA/vi6KuqQR64dU2evupB+ZMRrhukhV3+K9cd6eOIQzbqTukrz7hOn/XQVBwtyblIUK6rTbgT5+lNvwQTAt9N8txWhRkljfS0/+U0slc7xvKz+ZIlRt6FxlQQ/z+c26kdgmi5D3yZJ7PXKLrpRzEfi5mpgRgfMti3f9rGj42OVA1E6lTSeAzDRz+Zr+YkJJ45pTKAtX21MqSDKzmSjEEDhz7+KuSOgbgfvgDwUly2MN4mPR6wGwbw0PFXO6Ywn2z924PP8SdJ0eVgyEM5pEiFpnyQfZ1ayHN5GeIj7qc1oJJLVit0AAA==") 50% 10% / cover no-repeat #b0b2b3;
+}
+.chad-polaroid .pol-photo {
+  object-position: 50% 22%;
+  background: url("data:image/webp;base64,UklGRjoCAABXRUJQVlA4IC4CAABQCwCdASohACgAPrFEnEonI6Khrjv7MOAWCWgAnTK0CYgxuxxq/LF6Kv6AdK7pqpdASv7vkJzWNoscWz/iETPT75DVuKKYscDIh28dshjfe7QQFKJyi0avt1WNMpXtHBGmzwAA/vCo6kc2bfCS40KWRSG2gdegUwc5HJCSwdldt6vvLB+yyYAqfqrI+pPDMAxGYDsyjs/4SI/YFbjx9BKTXaRHdKRPLiSJuqQlxcqNX+aSrbOF+5ylmtDmZ2MAusn5A/XiSAHPx5rxiWSODNgYTZWadNehiqnfRVbubtgzNzQ8narUz47X/8o8SnXuFDlSOGqNER8PehCoYKIG4xrPPj2x/9FUvhtcxs+iOcjn+ceOOPBxA0q6JBEN2XAC2fXjuN9rQQ46gIqRBMhNq4JbopwSuh/dyEp67Rt55AY9zyNihKj0xhE2z5nN/7Emn72+KAYftNOrkASFRsJgFdMX3HcC0daQWX8VYM2yJ4q5PZABmdvzwJ8bUyvettnMbhJTX6Zh1f4uRlhZO/ocvySiMuOzu3nR2tjbccctyzcXZlr5mDJcnOJx5CzSuaGfVkDMfHS7r70B76j5Wo2Ke+GFtAXtP9SXpmLHV4nr4CAvzcm9fwd7ullUIWd9Ce/ofq73+CQm5t3WUAa+CwvFjjZnvEjzalWZRcDBwFZcIIBQj5xrPArwDKeztVw6oNIO9cVMIV9858unuyTmBaXgSH49XOG+fReFxR52ExAAAAA=") 50% 22% / cover no-repeat #67757e;
+}
 
 .polaroid figcaption {
   position: absolute;
@@ -787,11 +863,12 @@ a { color: inherit; }
   position: absolute;
   inset: 0;
   z-index: 0;
-  /* deckled stock, so the tint is held to 98%: both scans go fully opaque
-     8px and 9px in at 1400px wide. The deckle grows into place instead of
-     the rectangle shrinking out of it. */
+  /* deckled stock, so the placeholder is held to 98%: both scans go fully
+     opaque 8px and 9px in at 1400px wide. The deckle grows into place around
+     it instead of the rectangle shrinking out of it. */
   background:
     var(--stock) center / 100% 100% no-repeat,
+    var(--stock-lq) center / 98% 98% no-repeat,
     linear-gradient(var(--stock-tint), var(--stock-tint)) center / 98% 98% no-repeat;
   filter:
     drop-shadow(0 0 4px rgba(28, 15, 5, 0.5))
@@ -805,12 +882,14 @@ a { color: inherit; }
      by the Level Up shot. this is the median of the stock that actually
      shows: the margin outside the picture area. */
   --stock-tint: #e9e7d9;
+  --stock-lq: url("data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAABwBACdASooABoAPrVKnkmnJCKhMBqqqOAWiWkAzUgkomp9ERzQgD05XteSoAD+8SkHJbLR+IT6CrGqr8qWkUtdmIvLSIqCs4P7r/FRCAmrxAAA");
   width: 800px;
   aspect-ratio: 1400 / 900;
 }
 .postcard-back {
   --stock: url("../assets/paper/postcard-back.webp");
   --stock-tint: #e7e5db;
+  --stock-lq: url("data:image/webp;base64,UklGRpoAAABXRUJQVlA4II4AAADQBACdASooABkAPrVIn0qnJCKhqrgN+OAWiWkAzuwNz6G7NwEhnP7PnwlRQljpQAD+8L2XylbcdervnvDh9JPaD4PjZS/4iXVv2LBK8hQx14WVpBlA0OcgMOXT9K7F9nyYLpU2gouJMNaOzon9r4mJSwMl26j/rfqmGYDd4Ad/8vzuuS6mksl3j0LGAAAA");
   width: 720px;
   aspect-ratio: 1400 / 868;
 }
@@ -839,10 +918,12 @@ a { color: inherit; }
   height: 90.44%;
   object-fit: cover;
   z-index: 1;
-  /* levelup-card-900.jpg's mean, same reasoning as the portraits: the shot
-     is a near-black page with white lettering, so its median is the black
-     and nothing else. The filter below grades this as it grades the shot. */
-  background-color: #333236;
+  /* the shot at 48x30 over levelup-card-900.jpg's mean, same reasoning as the
+     portraits: the shot is a near-black page with white lettering, so its
+     median is the black and nothing else, and at 48px the headline block and
+     the logo are already where they will be. The filter below grades this as
+     it grades the shot. */
+  background: url("data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAACwCACdASowAB4APrFUo04nJKMiJWgA4BYJaQDSd24K77MKZBk6AbAMYVzmvSgQakSUv2rU3q5y+YAzZR5kWxNbhtBvFJ5IArLBRZYhIAAA/vbxePJm1bfBs3hVoTGiG/rR/zxgIEPiyYRB0EOQskHyEnSC8xNXxdDV1J1B7kWf0cUbzycfPtqxqbph0/vofXslZI55bCalEneQAGHzqMcmhABjnmg8zVG/7F8/IDRAEPj8lE302pLSKVj47loTX+uRczP49RODjRHwhhB6dCoKobPez/kzvEMGmpSX6+UTtbYZaEn8YPpVz8x3MPfIyG0n8tID67lZ4MN8H9+DXr5Jp/6RADbusp8tYalNVEmBqPB1r/pcf82WzPYQ6jPcjurCiHpM2wSSIxHuYo/GqamL8U8QLti/maAfEScTyczC7/vuc37Lqph8ltXMBzpPQNQU6E1rd4r4P2oXSsXk6MDLOc3wRiEpk4ghUo+d7dfrLvpMEXYgw09ttfd3jkDaMl74/f5rmw2UfRNRhC4Q5wNkkE8iikWZ6rUaHr6niMicoAZu9035NepP4EMMRxO4Xxce8KOrHDdJ/XqEoMDXyIuPQJa+lqu+82Qk5iWMBwCY7SQA") 50% 50% / cover no-repeat #333236;
   /* four-colour on uncoated stock: no monitor blacks, no monitor saturation */
   filter: saturate(0.72) contrast(0.8) brightness(1.05) sepia(0.12);
 }
@@ -940,9 +1021,11 @@ a { color: inherit; }
   width: 15%;
   height: auto;
   transform: rotate(2.4deg);
-  /* perforated edges, so the tint is the largest centred all-opaque box,
-     78% x 88%, in stamp-1.webp's own median pink. */
-  background: linear-gradient(#ed738b, #ed738b) center / 78% 88% no-repeat;
+  /* perforated edges, so the placeholder is cropped to and drawn in the
+     largest centred all-opaque box, 78% x 88%, over that box's median pink. */
+  background:
+    url("data:image/webp;base64,UklGRvwAAABXRUJQVlA4IPAAAADQBQCdASoUABgAPrVQoEwnJKMiKAqo4BaJbAC09iADsqnPhmHyvjhtE2Yy9fA7hzSMqEAlukIAAP5rBIpmD1Ho7340dapLUeDmQ4FPH9Lo9I2MbHzxGvw8CNjw1cMZFuS8EzqGUFVR96wC0nf7or7L/NaWO8Z37fDlGvUPNUQmHHPioeGJ/Q11/q3CgCFkvQfPKzbJBgHJKVrv86K3wN/6iR6tja4NoTsC96reGBMQwTeDJs4wjs/ILaJwq8WpG1QeLCI9zTcYOl3o8bqeWCNt2d30hMfvZ0423+Sn+V2hi6v0meP1HwW6AurcAa4AAAA=") center / 78% 88% no-repeat,
+    linear-gradient(#ed738b, #ed738b) center / 78% 88% no-repeat;
   filter: sepia(0.1) saturate(0.92) drop-shadow(1px 2px 2px rgba(40, 20, 5, 0.25));
 }
 .pc-addr {
