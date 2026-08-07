@@ -977,6 +977,16 @@ a { color: inherit; }
 
 /* --- reduced motion / no-JS fallback ------------------------------- */
 
+/* This rule is the small half of honouring the preference and it is worth
+   being honest about which half. The only CSS transition on the page is the
+   scroll hint fading out; killing it is correct and costs the visitor
+   nothing. The motion a vestibular visitor actually needs turned off is the
+   camera — a 3600x2400 layer translated and scaled continuously under the
+   scroll — and no stylesheet can reach it, because js/board.js writes the
+   transform straight onto the element every frame. That half lives in
+   board.js, which reads this same query and snaps the camera to the nearest
+   of the eight stops instead of gliding between them. Read the two together;
+   neither one is the whole answer. */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }

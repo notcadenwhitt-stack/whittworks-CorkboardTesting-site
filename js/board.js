@@ -6,6 +6,42 @@
   var stringsSvg = document.getElementById("strings");
   var hint = document.querySelector(".scroll-hint");
 
+  /* ==================================================================
+     PREFERS-REDUCED-MOTION
+     ==================================================================
+     The CSS media query at the end of style.css only ever killed
+     transitions, and this page's transitions are a fading hint. The motion
+     that actually matters is right here: a 3600x2400 layer translated and
+     scaled continuously under the scroll, 41 megapixels of it sweeping and
+     zooming across the whole viewport. Large-area zoom and parallax are a
+     documented vestibular trigger — dizziness, nausea, migraine — and WCAG
+     2.1 (2.3.3 Animation from Interactions) asks for a way to turn off
+     motion that is not essential to the content. It is not essential here:
+     the board is a layout, and every word on it is in the DOM either way.
+
+     WHAT REDUCED MODE DOES: the camera snaps to the NEAREST stop instead of
+     interpolating towards it. Same eight STOPS, same framing, same clamp,
+     same nav links — scrolling still walks the whole board, but the picture
+     cuts from one composed view to the next the way slides do, and there is
+     no continuous scale ramp anywhere. Nothing is laid out differently, so
+     nothing can end up blank, clipped, or off the cork that would not
+     already be so in normal mode, at any viewport.
+
+     WHY SNAPPING AND NOT A STATIC FULL-BOARD PAGE: a static board would have
+     to reflow eight framings into one readable column, which means a second
+     layout to keep correct and a second set of ways for the board to break.
+     Snapping reuses the framing that is already known to work at every
+     viewport and removes exactly the thing that causes the harm.
+
+     The query is live. Flipping the OS setting re-reads it and repaints
+     without a reload; nothing here is decided once at load. When it does NOT
+     match, every line below runs exactly as it did before this block existed.
+     ================================================================== */
+  var motionQuery = window.matchMedia
+    ? window.matchMedia("(prefers-reduced-motion: reduce)")
+    : null;
+  var reduced = !!(motionQuery && motionQuery.matches);
+
   /* Camera stops: board-space center (x, y) and the span to fit (w, h). */
   var STOPS = [
     { x: 1800, y: 1200, w: 3860, h: 2620 },  /* 0 whole board */
@@ -128,6 +164,13 @@
   }
 
   function markMoving() {
+    /* Nothing is in flight in reduced mode: the board holds one composed
+       stop and then holds the next one, so there is no fly-through to buy
+       frames for. Toggling the shadow stacks anyway would swap every sheet's
+       shading on and off under a picture that is otherwise standing still,
+       which is a flicker with nothing to hide behind it. One guard here
+       covers both call sites and leaves the normal-mode system untouched. */
+    if (reduced) return;
     lastMove = Date.now();
     if (moveTimer === null) {
       board.classList.add("moving");
@@ -151,14 +194,26 @@
     var p = max > 0 ? (window.scrollY / max) * (STOPS.length - 1) : 0;
     p = Math.max(0, Math.min(STOPS.length - 1, p));
 
-    var i = Math.min(Math.floor(p), STOPS.length - 2);
-    var f = ease(p - i);
-    var a = STOPS[i], b = STOPS[i + 1];
+    var x, y, s;
 
-    var x = lerp(a.x, b.x, f);
-    var y = lerp(a.y, b.y, f);
-    /* log-space scale so long zooms feel even */
-    var s = Math.exp(lerp(Math.log(scaleFor(a, vw, vh)), Math.log(scaleFor(b, vw, vh)), f));
+    if (reduced) {
+      /* Nearest stop, taken whole. No lerp on x/y and no exp/log ramp on
+         scale, so there is no in-between frame to sit through: the view is
+         one of the eight compositions and then it is the next one. */
+      var stop = STOPS[Math.round(p)];
+      x = stop.x;
+      y = stop.y;
+      s = scaleFor(stop, vw, vh);
+    } else {
+      var i = Math.min(Math.floor(p), STOPS.length - 2);
+      var f = ease(p - i);
+      var a = STOPS[i], b = STOPS[i + 1];
+
+      x = lerp(a.x, b.x, f);
+      y = lerp(a.y, b.y, f);
+      /* log-space scale so long zooms feel even */
+      s = Math.exp(lerp(Math.log(scaleFor(a, vw, vh)), Math.log(scaleFor(b, vw, vh)), f));
+    }
 
     /* keep the camera on the cork: clamp view to board bounds */
     var BW = 3600, BH = 2400;
@@ -204,6 +259,30 @@
   window.addEventListener("resize", onResize);
   window.addEventListener("load", function () { measure(); update(); });
 
+  /* The preference is not a load-time constant. Someone can turn it on from
+     the OS while the page is open — that is in fact when they are most likely
+     to reach for it, halfway through a zoom that is making them ill — so the
+     query is read live and the board repaints into the other mode on the
+     spot. addListener is the pre-2021 Safari spelling of the same thing. */
+  function onMotionChange() {
+    reduced = motionQuery.matches;
+    if (reduced && moveTimer !== null) {
+      /* drop a collapse that was armed by the mode we just left, so the
+         shadow stacks come back on the still frame instead of 160ms into it */
+      clearTimeout(moveTimer);
+      moveTimer = null;
+      board.classList.remove("moving");
+    }
+    update();
+  }
+  if (motionQuery) {
+    if (motionQuery.addEventListener) {
+      motionQuery.addEventListener("change", onMotionChange);
+    } else if (motionQuery.addListener) {
+      motionQuery.addListener(onMotionChange);
+    }
+  }
+
   /* Nav links jump the camera to a stop. */
   document.querySelectorAll(".deskbar a[data-stop]").forEach(function (link) {
     link.addEventListener("click", function (e) {
@@ -211,7 +290,10 @@
       var stop = parseInt(link.getAttribute("data-stop"), 10);
       window.scrollTo({
         top: (stop / (STOPS.length - 1)) * maxScroll,
-        behavior: "smooth"
+        /* a smooth scroll in reduced mode would drag the snap through every
+           stop between here and there, which is the one thing worse than the
+           zoom it replaced: a burst of hard cuts instead of one. Land on it. */
+        behavior: reduced ? "auto" : "smooth"
       });
     });
   });
