@@ -1,0 +1,80 @@
+# robots.txt — whittworkstudios.com
+# WhittWorks Studios. One page, one board, nothing private on it.
+
+# ---------------------------------------------------------------------------
+# Search crawlers: everything is open.
+# ---------------------------------------------------------------------------
+User-agent: *
+Allow: /
+
+# No Sitemap: line. This site is a single page at /, which every crawler
+# already finds from the domain root, so a sitemap.xml would be one file to
+# keep in sync listing one URL that needs no help being discovered.
+
+# ---------------------------------------------------------------------------
+# AI / MODEL-TRAINING CRAWLERS — currently ALLOWED. Read before changing.
+# ---------------------------------------------------------------------------
+# The six crawlers below fetch pages to train or ground large language
+# models. That is a separate question from search indexing, and it is the
+# site owner's call rather than a technical default, so nothing has been
+# decided for you here: every group below carries a bare "Disallow:", which
+# is the robots.txt idiom for "nothing is off limits", so today they are
+# allowed exactly like everyone else.
+#
+# TO BLOCK TRAINING USE ON ONE OF THEM: delete the leading "# " from that
+# group's "# Disallow: /" line. Leave its bare "Disallow:" line where it is —
+# an empty Disallow matches no URL at all, so the two lines together are
+# simply a block, with no conflict to resolve. Do not swap the bare
+# "Disallow:" for "Allow: /": an "Allow: /" sitting next to a "Disallow: /"
+# is a tie on path length, and a tie goes to Allow, so the block would
+# silently do nothing.
+#
+# Naming a crawler in its own group also takes it OUT of the "User-agent: *"
+# group above — a crawler obeys the most specific group that matches it and
+# ignores the rest. That is why each group needs its own rule line rather
+# than falling through to the general one.
+#
+# WHAT EACH ONE IS, so the choice does not need research:
+#   GPTBot        OpenAI, trains models. Blocking it does NOT remove the site
+#                 from ChatGPT's live browsing (that is OAI-SearchBot).
+#   ClaudeBot     Anthropic, trains models. Anthropic's live-fetch agent is
+#                 Claude-User and is not listed here.
+#   Google-Extended  Not a crawler at all — a permission token. It fetches
+#                 nothing; it tells Google whether pages Googlebot has
+#                 already indexed may be used for Gemini training. Blocking
+#                 it costs nothing in Google Search ranking or indexing.
+#   CCBot         Common Crawl, a public archive that many model trainers
+#                 then use as a source. Blocking it blocks that whole chain.
+#   PerplexityBot Perplexity, indexes for its answer engine and cites its
+#                 sources. Blocking it usually loses the citation too.
+#   Bytespider    ByteDance/TikTok, trains models. Widely reported to crawl
+#                 aggressively and to be inconsistent about honouring this
+#                 file, so treat a Disallow here as a request, not a fence.
+#
+# Two things this file cannot do, whichever way it is set: it cannot stop a
+# crawler that chooses to ignore it, and it cannot reach anything already
+# collected. It is a published preference, and it is still worth publishing.
+
+User-agent: GPTBot
+Disallow:
+# Disallow: /
+
+User-agent: ClaudeBot
+Disallow:
+# Disallow: /
+
+User-agent: Google-Extended
+Disallow:
+# Disallow: /
+
+User-agent: CCBot
+Disallow:
+# Disallow: /
+
+User-agent: PerplexityBot
+Disallow:
+# Disallow: /
+
+User-agent: Bytespider
+Disallow:
+# Disallow: /
