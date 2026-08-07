@@ -218,6 +218,16 @@ marketing needs the subject's permission independently of who owns the file.
   copyright and the likeness side are covered. Owner-confirmed 2026-08-07.
   Nothing outstanding.
 
+## Brand marks and icons (assets/) — recorded 2026-08-07
+- assets/favicon-32.png (32x32), assets/favicon-512.png (512x512),
+  assets/apple-touch-icon.png (180x180), assets/favicon.svg and
+  assets/og-thumbnail.jpg (1200x630) all derive from the WhittWorks Studios
+  logo, which is the owner's own mark. Introduced in commit 108cd7e ("Use
+  WhittWorks logo for favicon and social-share thumbnail") and re-encoded in
+  2aae614. No third-party rights, nothing to attribute.
+  favicon.svg is committed but not referenced from index.html; it is kept
+  deliberately rather than deleted, unlike the -orig source scans.
+
 ## The work sample (assets/) — recorded 2026-08-07
 - assets/levelup-card-900.jpg — a screenshot of levelup-men.com, printed into
   the picture area of the work postcard (index.html:209). The site is
