@@ -143,6 +143,39 @@
   min-height: 0;
   overflow: visible;
   padding: 3.2rem 1.6rem 2rem;
+
+  /* NO url(#cut) HERE, AND IT IS A WEBKIT BUG NOT A TASTE CALL.
+     Reported from a real iPhone and reproduced in the iOS Simulator on real
+     WebKit: opening the board on a phone painted a solid BLACK RECTANGLE about
+     170x188pt pinned to the top-left of the viewport, over the cork and the
+     title card. Chrome never showed it at any viewport, which is why every
+     emulated check passed for days.
+
+     Bisected in the Simulator, one variant at a time:
+       all filters off ................. fixed
+       svg url() off, shadows kept ..... fixed
+       shadows off, svg url() kept ..... still black
+       .ink #roughen off ............... still black
+       defs <svg> display:none ......... still black
+       off-screen doodles repositioned . still black
+       url(#cut) off, all else kept .... FIXED
+     So it is this one filter. #cut is feTurbulence + feDisplacementMap over a
+     106% x 106% region, and here the cards run far taller than the fixed
+     720x432 box it was written against, inside a ~4,300px scrolling flex
+     column. WebKit allocates that filter region and paints it opaque black at
+     the origin.
+
+     What is lost, only below 900px: the nibbled guillotine edge on the three
+     index cards. They keep the photographed stock, the grain, the ruled lines,
+     the red header rule, the corner curl and all four drop-shadows — the
+     shadows are exactly the half of the stack this restores. The board on a
+     laptop is untouched and still cuts its own edges, and Goal 4 is judged on
+     the board. A nibbled edge is not worth a black hole on every phone. */
+  filter:
+    drop-shadow(0 0 4px rgba(25, 12, 4, 0.42))
+    drop-shadow(1px 1px 2px rgba(25, 12, 4, 0.3))
+    drop-shadow(3px 7px 12px rgba(25, 12, 4, 0.28))
+    drop-shadow(8px 22px 38px rgba(25, 12, 4, 0.24));
 }
 
 /* The Sharpie wordmark is 88px, set for an 800px card, and hand.js wraps
