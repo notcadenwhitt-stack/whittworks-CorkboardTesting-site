@@ -194,6 +194,40 @@ Licences were checked at source, not assumed. TWO OF THE FOUR ARE NOT OFL:
   and https://fonts.gstatic.com/s/spacemono/v17/i7dMIFZifjKcF5UAWdDRaPpZUFWaHi6WZ3Q.woff2
 
 Both licences permit self-hosting and redistribution, including subsetting.
+### The two arrows are not in Caveat, and that is deliberate (2026-08-07)
+
+The board carries two right arrows, `&rarr;` (U+2192): one on the work
+postcard's caption and one on the pink "more work available on request" note.
+They render in the platform's last-resort symbol face — Lucida Grande on macOS
+— not in Caveat, so they sit next to handwriting in a system sans.
+
+This was investigated properly and then LEFT ALONE. Recording both halves so
+nobody re-derives the first and re-opens the second.
+
+WHY IT HAPPENS, and it is not a subsetting mistake. U+2192 is absent from the
+ENTIRE upstream Caveat family, not merely from the latin slice shipped here:
+the canonical variable font (googlefonts/caveat, fonts/variable/Caveat[wght].ttf,
+403,648 bytes, v2.000) has 753 cmap entries and the whole U+2190-21FF and
+U+27A0-27BF blocks are empty. No arrow of any direction exists to subset in.
+U+2191 and U+2193 are named in this file's unicode-range and are absent from
+the binary too. Widening the range therefore fixes nothing on its own.
+
+WHAT WAS BUILT AND NOT SHIPPED. A working fix exists: compose the glyph from
+Caveat's own contours (the endash outline stretched into a shaft, the greater
+outline scaled for the head, both carrying the same wght variation deltas so it
+thickens with the axis like its parents), add it to the subset, widen the range
+to U+2191-2193. It costs +40 bytes and no new request, and it reads as the same
+hand. OFL 1.1 permits it: Caveat declares no Reserved Font Name, so a modified
+copy may keep the family name.
+
+WHY IT IS NOT SHIPPED ANYWAY. It would put a hand-modified font, still called
+Caveat, into a repository whose whole licensing story was just audited and
+cleaned up — in exchange for two characters. The owner weighed that and chose
+the system arrow. Owner decision, 2026-08-07. If it is ever revisited, the
+build script and its measurements are in this conversation's history, not in
+the repo, because shipping the tool without the font would leave a provenance
+record pointing at something that does not exist.
+
 Neither OFL font carries a Reserved Font Name, so the families keep their real
 names. Verified 2026-08-07 against the METADATA.pb and licence files in
 github.com/google/fonts (`license: "OFL"` for caveat and spacemono, `license:
