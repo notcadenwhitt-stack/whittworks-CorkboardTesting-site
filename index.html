@@ -15,84 +15,25 @@
 <meta name="twitter:card" content="summary_large_image">
 
 <!-- ==================================================================
-     CAPPED FADE-IN
+     NOTHING HIDES THE BOARD
      ==================================================================
-     Left alone, the browser hands over 24 images one at a time and the
-     visitor watches the desk assemble itself. So the board is held back
-     until either every subresource has finished or the cap runs out,
-     whichever comes FIRST, and then fades in whole. Whichever wins, it
-     reveals. There is no error state and nothing to retry: a slow or broken
-     asset just means the board fills in on screen, which is what the web
-     does anyway and is strictly better than a dark screen.
+     There was a capped fade here: hold #board at opacity 0 until either
+     window.load or a 1500ms cap, then fade it in. It is gone, and the reason
+     is worth keeping. The cap wins any time ~1.6MB of paper takes longer than
+     1.5s, which is every connection worth designing for, so the board was
+     revealed still half-loaded and the rest of it landed afterwards anyway.
+     The visitor paid the hold AND still watched the desk assemble itself.
+     Measured on a 100 KB/s line, the assets arrive one at a time from 2.5s
+     to 21.5s: against that, a 1.5s hold is indistinguishable from no hold.
+     A control with no fade put the board on screen at ~491ms against ~1315ms
+     with it.
 
-     NO PATH LEAVES THE BOARD HIDDEN. The hiding rule needs html.ww-fade,
-     and the only thing that sets it is the script below, as its very first
-     statement: no script at all (disabled, blocked, or a syntax error in
-     this block) means the class never lands, the rule never matches, and
-     the page is exactly the page it was without this feature. Arming and
-     revealing share one script element on purpose, so a parse error takes
-     out both and never the reveal alone. Past that there are two independent
-     reveals, the cap and the load event, either one is sufficient, and if
-     even registering them throws, the catch reveals on the spot.
-
-     WHAT THE FADE COSTS. Animating opacity on a 3600x2400 element makes the
-     compositor group the whole subtree into one buffer and raster it as a
-     unit, and every sheet of paper on that board carries a chained stack of
-     four or five drop-shadow()s. Measured in headful Chrome with the cache
-     off: the 400ms transition ran 2.2s of wall clock and the board was not
-     on screen until 3.8s, against 0.5s with the fade removed altogether.
-     The site already owns the fix: .moving collapses each stack to a single
-     tuned shadow while the camera flies, and the same rules now answer to
-     html.ww-flat, which rides in with the arming class and comes off when
-     the transition ends. Same measurement with the stacks collapsed: the
-     transition runs 0.69s and the board lands at 1.3s.
-     ww-flat only ever changes shadows, so no path through it can leave the
-     board hidden, and it is a different class on a different element from
-     board.js's .moving, so a visitor who scrolls mid-fade cannot have one
-     stripped out from under the other.
+     What replaces it is in css/style.css: every element that carries a
+     photographed scan also carries a flat colour sampled out of that exact
+     scan, shaped to stay inside the eventual silhouette. The board is in the
+     right shapes, in the right places, in the right colours, in the first
+     frame that paints, and the scans only add texture on top of it.
      ================================================================== -->
-<style>
-html.ww-fade #board { opacity: 0; }
-html.ww-fade.ww-in #board { opacity: 1; transition: opacity 400ms ease; }
-@media (prefers-reduced-motion: reduce) {
-  html.ww-fade.ww-in #board { transition: none; }
-}
-</style>
-<script>
-(function () {
-  var h = document.documentElement;
-  /* ARM */
-  try { h.className += " ww-fade ww-flat"; } catch (e) { return; }
-  /* Idempotent, and if classList is somehow missing it drops the arming class
-     instead, which reveals at once through the className that just worked. */
-  function show() {
-    try { h.classList.add("ww-in"); }
-    catch (e) { h.className = h.className.replace(/ ww-fade/g, ""); }
-    /* The collapse is worth having only while the opacity is moving. The
-       board reads at rest, so at rest it gets its full stacks back: this
-       timer covers reduced motion (transition: none fires no transitionend),
-       a hidden tab, and an interrupted transition. 1200ms is three times the
-       declared fade and about twice the measured one, so transitionend
-       normally wins the race; a machine slow enough to lose it gets the full
-       stacks back early, which is only today's behaviour again. */
-    try { setTimeout(deep, 1200); } catch (e) { deep(); }
-  }
-  function deep() {
-    try { h.classList.remove("ww-flat"); }
-    catch (e) { h.className = h.className.replace(/ ww-flat/g, ""); }
-  }
-  try {
-    setTimeout(show, 1500);                 /* the cap */
-    window.addEventListener("load", show);  /* everything already arrived */
-    /* transitionend bubbles, so this needs no reference to an element the
-       parser has not reached yet. */
-    document.addEventListener("transitionend", function (e) {
-      if (e.target && e.target.id === "board" && e.propertyName === "opacity") deep();
-    }, true);
-    setTimeout(deep, 3000);                 /* backstop past the cap + fade */
-  } catch (e) { show(); deep(); }
-})();
-</script>
 
 <link rel="icon" href="assets/favicon-32.png" type="image/png">
 <link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
@@ -120,21 +61,30 @@ html.ww-fade.ww-in #board { opacity: 1; transition: opacity 400ms ease; }
      families of borrowed lettering are not worth that. -->
 <link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
       href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Permanent+Marker&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap">
-<link rel="stylesheet" href="css/style.css?v=27">
+<link rel="stylesheet" href="css/style.css?v=32">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch waits behind the Google
      Fonts stylesheet (measured: assets start at 219ms, the font CSS lands at
-     222ms). Preloading starts it at ~47ms with the rest of the head. -->
-<link rel="preload" as="image" href="assets/cork.webp">
+     222ms). Preloading starts it at ~47ms with the rest of the head.
+
+     STARTING IT EARLY WAS NOT ENOUGH. A preload without fetchpriority lands
+     in the Low tier with the other two dozen images, and on a 100 KB/s line
+     that measured cork.webp beginning at 118ms and not finishing until
+     17.78s of an 18.4s load: the largest file on the page holding a
+     connection open for the whole load and finishing next to last. High puts
+     it in front of the paper, which is the right order — the cork is the one
+     asset every other asset is seen against. -->
+<link rel="preload" as="image" href="assets/cork.webp" fetchpriority="high">
 <!-- The two scripts sit at the end of <body>, so the parser only asks for them
      after 24 image requests are already holding the connection open. Measured
      on a 100 KB/s line that put the camera at 8.7s. Preloading them here puts
-     9KB of code ahead of 1.3MB of paper. That matters more now than it did
-     behind a loading screen: the fade caps out at 1.5s, so on a slow line the
-     visitor is looking at a half-filled board and wanting to scroll it long
-     before the paper has landed. The href must stay byte-identical to the
-     script tags at the end of the body or the browser fetches each file
-     twice. -->
+     9KB of code ahead of 1.3MB of paper, and matters more than ever now that
+     the board is legible from the first frame: the visitor can read it and
+     want to scroll it long before the paper has landed, and the camera is
+     what scrolling does. Measured with these two in place, board.js and
+     hand.js finish at 631ms and 398ms on that same line. The href must stay
+     byte-identical to the script tags at the end of the body or the browser
+     fetches each file twice. -->
 <link rel="preload" as="script" href="js/board.js?v=4">
 <link rel="preload" as="script" href="js/hand.js?v=4">
 </head>
@@ -207,7 +157,7 @@ html.ww-fade.ww-in #board { opacity: 1; transition: opacity 400ms ease; }
     </section>
 
     <figure class="polaroid frame-1 caden-polaroid" style="left:1060px; top:620px; --rot:3.3deg">
-      <img class="pol-photo" src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200" decoding="async">
+      <img class="pol-photo" fetchpriority="high" src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200" decoding="async">
       <span class="pol-gloss" aria-hidden="true"></span>
       <figcaption class="hand">Caden &mdash; founder</figcaption>
     </figure>
@@ -233,7 +183,7 @@ html.ww-fade.ww-in #board { opacity: 1; transition: opacity 400ms ease; }
       <!-- no loading="lazy" here: this shot is inside the stop-0 opening view,
            and postcard-front.webp's picture area was compressed hard precisely
            because this covers it. Deferring it shows a soft card first. -->
-      <img class="pc-picture" src="assets/levelup-card-900.jpg" width="900" height="562" decoding="async"
+      <img class="pc-picture" fetchpriority="high" src="assets/levelup-card-900.jpg" width="900" height="562" decoding="async"
            alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level.">
       <span class="pc-grain" aria-hidden="true"></span>
       <span class="tape tape-tl2" aria-hidden="true"></span>
@@ -254,7 +204,7 @@ html.ww-fade.ww-in #board { opacity: 1; transition: opacity 400ms ease; }
     </section>
 
     <figure class="polaroid frame-2 chad-polaroid" style="left:1990px; top:1845px; --rot:-2.6deg">
-      <img class="pol-photo" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760" decoding="async">
+      <img class="pol-photo" fetchpriority="high" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760" decoding="async">
       <span class="pol-gloss" aria-hidden="true"></span>
       <figcaption class="hand">Chad Prewett</figcaption>
     </figure>

@@ -3,6 +3,42 @@
    Paper: real photographed/scanned assets in ../assets/paper/ (see SOURCES.md)
 ------------------------------------------------------------------ */
 
+/* ==================================================================
+   THE SKELETON
+   ==================================================================
+   1.6MB of photographed paper arrives one sheet at a time and no version of
+   that is fast, so the only question is what the visitor looks at meanwhile.
+   It used to be an empty dark rectangle, latterly behind a fade. Now it is
+   the board: every element carrying a scan also carries a flat colour taken
+   out of that exact scan, so the first frame has the right shapes in the
+   right places in the right colours and the scans only add texture.
+
+   THE COLOURS are per-channel MEDIANS over each asset's pixels with alpha
+   >= 250, computed with PIL/numpy — the opaque body of the file the browser
+   is about to fetch, not an eyedropper guess. Photographs are the MEAN over
+   the crop object-fit shows, because a photo's median is one of its two
+   halves and neither is the tone. No new requests; every value is 4 bytes.
+
+   STAYING INSIDE THE SILHOUETTE. A rectangle that later becomes a torn
+   sticky or a deckled postcard visibly SHRINKS, which is the same popping in
+   a new hat. So each tint is a gradient layer sized to the largest centred
+   box that is alpha 250-255 throughout that scan, measured the same way, and
+   it sits UNDER the scan: stickies 91% (worst of the 13 needs 95.5%),
+   polaroid frames and both postcards 98% (opaque from 6-9px in at native
+   size), stamp 78% x 88%. The scan can only reveal the tint, never crop it,
+   and the growth is 2-6 screen pixels at the opening stop.
+
+   NO TINT ON TAPE. Masking tape is translucent (tape-7 peaks at alpha 253,
+   body near 228), so anything under it reads through on the FINISHED board:
+   tinting the caption tape measured a 13/255 shift over 30% of it and cost
+   the tape its show-through. It is the wrong shape for this too — the two
+   corner strips run diagonally across 42% and 19% of their boxes and the
+   largest centred box inside them is 6% and 0%. Opaque paper takes a
+   skeleton; translucent tape does not. The index cards need none: their
+   stock is already a gradient. The two grain files are texture at 0.3
+   opacity over things that are already there.
+   ================================================================== */
+
 :root {
   --ink: #191919;
   --red: #b3271c;
@@ -157,8 +193,11 @@ a { color: inherit; }
   height: 2400px;
   transform-origin: 0 0;
   will-change: transform;
-  /* real walnut frame */
-  border: 30px solid transparent;
+  /* real walnut frame. border-color is the wood scan's own median (#42342f
+     over the 170px slice, same as the whole file), so the frame is walnut
+     from the first paint and the scan only adds grain. This was transparent,
+     which let cork read through the frame until wood.jpg landed. */
+  border: 30px solid #42342f;
   border-image: url("../assets/wood.jpg") 170 / 30px round;
   box-shadow:
     /* cork sits recessed behind the frame lip */
@@ -170,7 +209,12 @@ a { color: inherit; }
     /* frame casts onto the wall, light from upper left */
     10px 34px 90px rgba(0, 0, 0, 0.62),
     3px 8px 22px rgba(0, 0, 0, 0.5);
-  background-color: #a87f4e;
+  /* not cork.webp's raw median (#af7441): the CSS lays the scan over itself
+     at two sizes and soft-lights the upper one, which lifts contrast and
+     saturation. This is the median of softlight(cork@890, cork@1180) from
+     that same file. Measured against a loaded render, the raw median was off
+     by 13.2 mean channel levels, this by 2.6. */
+  background-color: #bb6c27;
   /* real photographed cork. the same scan twice at sizes with no common
      period inside the board (1180 and 890 only line up again at 105,020px),
      so there is no repeat to find. lighting is a lamp high on the left, not
@@ -399,7 +443,11 @@ a { color: inherit; }
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: var(--paper) center / 100% 100% no-repeat;
+  /* second layer = skeleton: the scan's median at 91% of the box, inside
+     every sticky silhouette in the set. */
+  background:
+    var(--paper) center / 100% 100% no-repeat,
+    linear-gradient(var(--tint), var(--tint)) center / 91% 91% no-repeat;
   filter:
     drop-shadow(0 0 3px rgba(28, 15, 5, 0.5))
     drop-shadow(0 1px 1px rgba(25, 12, 4, 0.3))
@@ -431,25 +479,29 @@ a { color: inherit; }
 .sticky.flip::after { transform: scaleX(-1); }
 
 /* each variant is a different physical note: aspect from the photo,
-   writable-area insets from its measured safe zone (fractions of width) */
-.paper-1 { --paper: url("../assets/paper/sticky-01.webp"); aspect-ratio: 1013/989; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.055; }
-.paper-2 { --paper: url("../assets/paper/sticky-02.webp"); aspect-ratio: 1009/983; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.06; }
-.paper-3 { --paper: url("../assets/paper/sticky-03.webp"); aspect-ratio: 1029/982; --pt: 0.07;  --pr: 0.06; --pb: 0.16; --pl: 0.06; }
-.paper-4 { --paper: url("../assets/paper/sticky-04.webp"); aspect-ratio: 294/284;  --pt: 0.06;  --pr: 0.06; --pb: 0.10; --pl: 0.06; }
-.paper-5 { --paper: url("../assets/paper/sticky-05.webp"); aspect-ratio: 539/533;  --pt: 0.05;  --pr: 0.05; --pb: 0.12; --pl: 0.07; }
-.paper-6 { --paper: url("../assets/paper/sticky-06.webp"); aspect-ratio: 293/292;  --pt: 0.07;  --pr: 0.07; --pb: 0.09; --pl: 0.07; }
-.paper-7 { --paper: url("../assets/paper/sticky-07.webp"); aspect-ratio: 359/358;  --pt: 0.06;  --pr: 0.06; --pb: 0.09; --pl: 0.06; }
+   writable-area insets from its measured safe zone (fractions of width).
+   --tint is that scan's median over its opaque pixels; it is what the note is
+   made of until the note arrives. */
+.paper-1 { --paper: url("../assets/paper/sticky-01.webp"); --tint: #cdc775; aspect-ratio: 1013/989; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.055; }
+.paper-2 { --paper: url("../assets/paper/sticky-02.webp"); --tint: #cfc87b; aspect-ratio: 1009/983; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.06; }
+.paper-3 { --paper: url("../assets/paper/sticky-03.webp"); --tint: #d0ca84; aspect-ratio: 1029/982; --pt: 0.07;  --pr: 0.06; --pb: 0.16; --pl: 0.06; }
+.paper-4 { --paper: url("../assets/paper/sticky-04.webp"); --tint: #d1ce79; aspect-ratio: 294/284;  --pt: 0.06;  --pr: 0.06; --pb: 0.10; --pl: 0.06; }
+.paper-5 { --paper: url("../assets/paper/sticky-05.webp"); --tint: #d1cc79; aspect-ratio: 539/533;  --pt: 0.05;  --pr: 0.05; --pb: 0.12; --pl: 0.07; }
+.paper-6 { --paper: url("../assets/paper/sticky-06.webp"); --tint: #cad279; aspect-ratio: 293/292;  --pt: 0.07;  --pr: 0.07; --pb: 0.09; --pl: 0.07; }
+.paper-7 { --paper: url("../assets/paper/sticky-07.webp"); --tint: #dc8395; aspect-ratio: 359/358;  --pt: 0.06;  --pr: 0.06; --pb: 0.09; --pl: 0.06; }
 
 /* color modifiers: same photographed scan, hue-shifted in HSV so paper
    texture, lighting gradients, and curl shadows all survive. additive to
    .paper-N so shared classes (paper-2, paper-3) can serve differently
-   colored elements without touching the unmodified default. */
-.paper-1.c-blue  { --paper: url("../assets/paper/sticky-01-blue.webp"); }
-.paper-2.c-blue  { --paper: url("../assets/paper/sticky-02-blue.webp"); }
-.paper-3.c-blue  { --paper: url("../assets/paper/sticky-03-blue.webp"); }
-.paper-3.c-green { --paper: url("../assets/paper/sticky-03-green.webp"); }
-.paper-5.c-pink  { --paper: url("../assets/paper/sticky-05-pink.webp"); }
-.paper-6.c-green { --paper: url("../assets/paper/sticky-06-green.webp"); }
+   colored elements without touching the unmodified default. each one moves
+   --tint with --paper, or the note would arrive in the wrong colour and then
+   change colour, which is the worst version of this. */
+.paper-1.c-blue  { --paper: url("../assets/paper/sticky-01-blue.webp");  --tint: #75a2cd; }
+.paper-2.c-blue  { --paper: url("../assets/paper/sticky-02-blue.webp");  --tint: #7ba6cf; }
+.paper-3.c-blue  { --paper: url("../assets/paper/sticky-03-blue.webp");  --tint: #85abcf; }
+.paper-3.c-green { --paper: url("../assets/paper/sticky-03-green.webp"); --tint: #91d085; }
+.paper-5.c-pink  { --paper: url("../assets/paper/sticky-05-pink.webp");  --tint: #d08fa5; }
+.paper-6.c-green { --paper: url("../assets/paper/sticky-06-green.webp"); --tint: #99d28e; }
 
 .hand {
   font-family: var(--hand);
@@ -524,7 +576,10 @@ a { color: inherit; }
 .polaroid {
   width: 364px;
   aspect-ratio: var(--fw) / var(--fh);
-  background: none;
+  /* frame stock's median at 98%: both scans are opaque from 6px and 8px in
+     at 950px wide, so this never reaches past the frame edge, and it sits
+     under both the photo and the frame. */
+  background: linear-gradient(#f6f5f2, #f6f5f2) center / 98% 98% no-repeat;
   padding: 0;
   border-radius: 0;
   box-shadow: none;
@@ -602,8 +657,17 @@ a { color: inherit; }
     linear-gradient(115deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.025) 22%, transparent 40%),
     radial-gradient(88% 84% at 50% 45%, transparent 72%, rgba(58, 44, 26, 0.08) 100%);
 }
-.caden-polaroid .pol-photo { object-position: 50% 10%; }
-.chad-polaroid .pol-photo { object-position: 50% 22%; }
+/* a tone behind each print, so the window is filled rather than a hole in
+   the frame. Median is right for paper (one colour plus printed detail) and
+   wrong for a photograph: caden.jpg is 45% blown sky behind a dark suit, so
+   its median sits in neither half and landed 39 levels off the print it
+   stands in for. These are MEANS over the crop object-fit shows (caden
+   source rows 34-769 of 1080, chad 28-660 of 760). The img's filter applies
+   to its background too, so the grade lands on these exactly as on the
+   photo. All three photographs are progressive JPEGs, so they start
+   resolving over the top of these well before they finish arriving. */
+.caden-polaroid .pol-photo { object-position: 50% 10%; background-color: #b0b2b3; }
+.chad-polaroid .pol-photo { object-position: 50% 22%; background-color: #67757e; }
 
 .polaroid figcaption {
   position: absolute;
@@ -627,7 +691,12 @@ a { color: inherit; }
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: var(--stock) center / 100% 100% no-repeat;
+  /* deckled stock, so the tint is held to 98%: both scans go fully opaque
+     8px and 9px in at 1400px wide. The deckle grows into place instead of
+     the rectangle shrinking out of it. */
+  background:
+    var(--stock) center / 100% 100% no-repeat,
+    linear-gradient(var(--stock-tint), var(--stock-tint)) center / 98% 98% no-repeat;
   filter:
     drop-shadow(0 0 4px rgba(28, 15, 5, 0.5))
     drop-shadow(1px 2px 2px rgba(25, 12, 4, 0.32))
@@ -636,11 +705,16 @@ a { color: inherit; }
 }
 .postcard-front {
   --stock: url("../assets/paper/postcard-front.webp");
+  /* the front's own median is the teal of its 1913 picture, which is covered
+     by the Level Up shot. this is the median of the stock that actually
+     shows: the margin outside the picture area. */
+  --stock-tint: #e9e7d9;
   width: 800px;
   aspect-ratio: 1400 / 900;
 }
 .postcard-back {
   --stock: url("../assets/paper/postcard-back.webp");
+  --stock-tint: #e7e5db;
   width: 720px;
   aspect-ratio: 1400 / 868;
 }
@@ -669,6 +743,10 @@ a { color: inherit; }
   height: 90.44%;
   object-fit: cover;
   z-index: 1;
+  /* levelup-card-900.jpg's mean, same reasoning as the portraits: the shot
+     is a near-black page with white lettering, so its median is the black
+     and nothing else. The filter below grades this as it grades the shot. */
+  background-color: #333236;
   /* four-colour on uncoated stock: no monitor blacks, no monitor saturation */
   filter: saturate(0.72) contrast(0.8) brightness(1.05) sepia(0.12);
 }
@@ -715,6 +793,10 @@ a { color: inherit; }
   justify-content: center;
   text-align: center;
   padding: 0 34px;
+  /* NO TINT: see the tape note at the top of this file. tape-7 is
+     translucent, so a colour under it would still read through on the
+     finished board (measured: 13/255 over 30% of this caption). The caption
+     arrives on bare cork and the tape lands on top of it. */
   background: url("../assets/paper/tape-7.webp") center / 100% 100% no-repeat;
   filter: url(#ink-b) drop-shadow(2px 5px 5px rgba(30, 15, 5, 0.3));
   font-size: 29px;
@@ -762,6 +844,9 @@ a { color: inherit; }
   width: 15%;
   height: auto;
   transform: rotate(2.4deg);
+  /* perforated edges, so the tint is the largest centred all-opaque box,
+     78% x 88%, in stamp-1.webp's own median pink. */
+  background: linear-gradient(#ed738b, #ed738b) center / 78% 88% no-repeat;
   filter: sepia(0.1) saturate(0.92) drop-shadow(1px 2px 2px rgba(40, 20, 5, 0.25));
 }
 .pc-addr {
@@ -849,29 +934,19 @@ a { color: inherit; }
    shadows collapsed, removing either measured no gain at all, so there is no
    reason to let the card silhouette or the letterforms shift.
 
-   The opening fade wants exactly the same thing for exactly the same reason:
-   an opacity transition on the board groups the subtree into one buffer and
-   rasters the whole stack of stacks at once, which measured 2.4s against
-   250ms with no fade at all. So each rule below answers to html.ww-flat as
-   well, set by the fade script in index.html <head> and dropped when the
-   transition ends. Two owners, two classes, one set of declarations: the
-   camera writes .moving on the board, the fade writes ww-flat on <html>, and
-   a visitor who scrolls mid-fade cannot have one strip the other. */
+   These rules used to answer to an html.ww-flat class as well, for an opening
+   fade that no longer exists. The camera is the only owner now. */
 
-.board.moving .index-card,
-html.ww-flat .board .index-card {
+.board.moving .index-card {
   filter: url(#cut) drop-shadow(6px 15px 26px rgba(25, 12, 4, 0.68));
 }
-.board.moving .sticky::before,
-html.ww-flat .board .sticky::before {
+.board.moving .sticky::before {
   filter: drop-shadow(5px 15px 19px rgba(25, 12, 4, 0.7));
 }
-.board.moving .polaroid,
-html.ww-flat .board .polaroid {
+.board.moving .polaroid {
   filter: drop-shadow(8px 19px 24px rgba(25, 12, 4, 0.72));
 }
-.board.moving .postcard::before,
-html.ww-flat .board .postcard::before {
+.board.moving .postcard::before {
   filter: drop-shadow(8px 20px 26px rgba(25, 12, 4, 0.72));
 }
 
