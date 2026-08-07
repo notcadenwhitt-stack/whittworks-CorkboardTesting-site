@@ -4,15 +4,6 @@
 ------------------------------------------------------------------ */
 
 :root {
-  /* Proof that this file is in force, read by the loading overlay in
-     index.html. Not "did the request finish" but "did the cascade apply":
-     a 404, a blocked sheet and a truncated one all read the same way here,
-     absent, and the overlay shows its error card instead of handing over an
-     unstyled column of Times New Roman with a 100% progress bar behind it.
-     Keep this at the top of :root and do not rename it without editing the
-     cssApplied() check in index.html. */
-  --ww-css: ready;
-
   --ink: #191919;
   --red: #b3271c;
   --card: #fbf8f1;

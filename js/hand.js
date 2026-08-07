@@ -109,13 +109,4 @@
 
     el.dataset.jittered = "1";
   });
-
-  /* Readiness signal for the loading overlay: the lettering has been walked.
-     Set last, so a throw partway through leaves it unset and the overlay
-     treats it as the hard failure it is rather than revealing half-jittered
-     handwriting. */
-  try {
-    window.__wwHandReady = true;
-    document.dispatchEvent(new CustomEvent("ww:hand-ready"));
-  } catch (e) { window.__wwHandReady = true; }
 })();

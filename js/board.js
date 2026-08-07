@@ -216,17 +216,8 @@
     });
   });
 
+  /* Drive the camera once, immediately. Nothing waits on the fade: the board
+     is already at stop 0 the first time it is painted, faded or not. */
   measure();
   update();
-
-  /* Readiness signal for the loading overlay. It is set here, after the camera
-     has actually been driven once, so it means "the board works" rather than
-     "the file arrived": if anything above throws, this line never runs, the
-     overlay never sees a camera, and the visitor gets the error card instead
-     of a page where scrolling does nothing. The overlay checks the transform
-     on #board as well, so a stray global cannot fake it. */
-  try {
-    window.__wwBoardReady = true;
-    document.dispatchEvent(new CustomEvent("ww:board-ready"));
-  } catch (e) { window.__wwBoardReady = true; }
 })();

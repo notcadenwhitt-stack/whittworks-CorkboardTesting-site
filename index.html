@@ -15,778 +15,50 @@
 <meta name="twitter:card" content="summary_large_image">
 
 <!-- ==================================================================
-     LOADING OVERLAY
+     CAPPED FADE-IN
      ==================================================================
-     This board is 24 images and about 1.4MB of paper. Left alone the
-     browser hands them over one at a time and the visitor watches the
-     desk assemble itself. The overlay covers that: a Sharpie slip on
-     the desk, a thin line that fills against real load progress, and a
-     cross-fade to a board that is already whole.
+     Left alone, the browser hands over 24 images one at a time and the
+     visitor watches the desk assemble itself. So the board is held back
+     until either every subresource has finished or the cap runs out,
+     whichever comes FIRST, and then fades in whole. Whichever wins, it
+     reveals. There is no error state and nothing to retry: a slow or broken
+     asset just means the board fills in on screen, which is what the web
+     does anyway and is strictly better than a dark screen.
 
-     Both the CSS and the script are inline. The CSS so the overlay is
-     styled the instant it parses and never waits on css/style.css; the
-     script so the 24 fetches start at the top of the head instead of
-     after a round trip for a file.
-
-     THE ESCAPE HATCH. An overlay that can outlive its script is a trap,
-     and a trap on a services site costs a client. So #wwLoader is
-     display:none in the stylesheet and is only ever shown by
-     html.js-loading, a class the script puts on as its very first
-     statement. With no script at all (disabled, blocked, or a parse error
-     in this block) the class never lands, the overlay never paints, and
-     the page is exactly the page it was before this feature existed. The arming line and the logic share one <script> on
-     purpose: a syntax error takes out both, never the logic alone.
-     Past that, everything is wrapped so a thrown exception reveals the
-     board, and the CSS carries a 20s bailout animation that the script
-     keeps pushing out with a heartbeat: stop the script and the overlay
-     comes down 20s later with no script running at all.
-
-     WHAT COUNTS AS FAILURE. Slow is not broken. Nothing here fails on
-     elapsed time: a load that is still moving runs as long as it needs.
-     What ends the wait badly is either an asset that actually errored,
-     or a stall (a full stallWindow() with nothing arriving at all) while
-     one of the three files that make this page a page is still missing.
-     Everything else, stall included, ends with the board on screen.
+     NO PATH LEAVES THE BOARD HIDDEN. The hiding rule needs html.ww-fade,
+     and the only thing that sets it is the script below, as its very first
+     statement: no script at all (disabled, blocked, or a syntax error in
+     this block) means the class never lands, the rule never matches, and
+     the page is exactly the page it was without this feature. Arming and
+     revealing share one script element on purpose, so a parse error takes
+     out both and never the reveal alone. Past that there are two independent
+     reveals, the cap and the load event, either one is sufficient, and if
+     even registering them throws, the catch reveals on the spot.
      ================================================================== -->
-<script>
-(function () {
-  "use strict";
-
-  var html = document.documentElement;
-
-  /* ARM. Nothing above this line can fail. If this line does not run, the
-     overlay stays display:none forever and the site is just the site. */
-  try { html.className += " js-loading"; } catch (e) { return; }
-
-  try {
-    /* a restored scroll position would put the camera mid-flight behind the
-       overlay, so the first frame after the fade would be a smear between two
-       stops instead of stop 0 */
-    if ("scrollRestoration" in history) { history.scrollRestoration = "manual"; }
-  } catch (e) {}
-
-  try {
-
-    /* Every image the page actually paints, derived from index.html and
-       css/style.css. Note the four sticky scans css/style.css declares on
-       .paper-1/3/5/6 are NOT here: every element carrying those classes also
-       carries a .c-blue/.c-green/.c-pink modifier that overrides --paper, so
-       the plain scans are never fetched. */
-    var ASSETS = [
-      "assets/cork.webp",
-      "assets/wood.jpg",
-      "assets/caden.jpg",
-      "assets/chad.jpg",
-      "assets/levelup-card-900.jpg",
-      "assets/paper/postcard-front.webp",
-      "assets/paper/postcard-back.webp",
-      "assets/paper/polaroid-frame-1.webp",
-      "assets/paper/polaroid-frame-2.webp",
-      "assets/paper/paper-grain.webp",
-      "assets/paper/paper-grain-hi.webp",
-      "assets/paper/stamp-1.webp",
-      "assets/paper/sticky-01-blue.webp",
-      "assets/paper/sticky-02.webp",
-      "assets/paper/sticky-02-blue.webp",
-      "assets/paper/sticky-03-blue.webp",
-      "assets/paper/sticky-03-green.webp",
-      "assets/paper/sticky-04.webp",
-      "assets/paper/sticky-05-pink.webp",
-      "assets/paper/sticky-06-green.webp",
-      "assets/paper/sticky-07.webp",
-      "assets/paper/tape-3.webp",
-      "assets/paper/tape-4.webp",
-      "assets/paper/tape-7.webp"
-    ];
-
-    /* Images are the paper. These three are the page: without the stylesheet
-       this is Times New Roman in a column, and without board.js there is no
-       camera, so scrolling does nothing at all. Gating on images alone let a
-       100% bar hand over a wreck, which is worse than no loader. */
-    var CRITICAL = ["css/style.css", "js/board.js", "js/hand.js"];
-
-    /* NOT a deadline. STALL_MS is the FLOOR on how long nothing at all may
-       arrive before we stop waiting; every completed unit and every resource
-       the browser finishes pushes it back. The window also widens itself to
-       three times the longest gap already survived (a 300KB file on a bad line
-       legitimately takes longer than the whole page does on a good one), up to
-       STALL_CAP. A load that keeps moving is never cut off. */
-    var STALL_MS   = 10000;
-    var STALL_CAP  = 45000;
-    var FONTS_MS   = 6000;   /* fonts are a nicety: their own soft cap, so a
-                                slow font host can never hold the board back */
-    var MIN_MS     = 400;    /* on a warm cache the overlay would otherwise
-                                flash for 40ms and read as a glitch */
-    var CSS_GRACE  = 400;    /* see cssVerdict() */
-    var CREEP_TAU  = 3000;   /* how fast the bar fills between real units */
-    var CREEP_MAX  = 2;      /* and how far it may ever run ahead of them */
-    var TICK_MS    = 200;
-    var BEAT_MS    = 6000;   /* heartbeat that rearms the CSS bailout */
-    var DECODE_MS  = 1000;
-    var RETRY_KEY  = "ww-loader-retried";
-
-    var reduce = false;
-    try {
-      reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    } catch (e) {}
-    var FADE_MS = reduce ? 0 : 500;
-
-    var started  = Date.now();
-    /* five gates alongside the paper: the stylesheet applied, the document
-       parsed, board.js ran, hand.js ran, fonts settled. They are cheap and
-       they land early, which is what puts the bar in motion in the first
-       seconds instead of leaving it at 0% until an image completes. */
-    var GATES    = ["css", "dom", "board", "hand", "fonts"];
-    var gateDone = {};
-    var total    = ASSETS.length + GATES.length;
-    var done     = 0;
-    var pending  = total;
-    var settled  = false;   /* a terminal state has been chosen */
-    var revealed = false;
-    var errored  = false;   /* something actually failed, not merely lagged */
-    var lastMove = Date.now();  /* stall clock: last sign of life of any kind */
-    var maxGap   = 0;           /* longest silence this load has already survived */
-    var lastUnit = Date.now();  /* creep clock: last completed unit */
-    var shown    = 0;           /* painted %, latched so the bar never retreats */
-    var beat     = false;
-    var ticker   = null;
-    var loaderEl, fillEl, trackEl, statusEl, errEl, liveEl;
-    var inerted  = [];
-
-    function now() { return Date.now(); }
-
-    /* ---- progress -------------------------------------------------- */
-
-    /* Real units are the truth. Between them the bar eases toward the work
-       already in flight (a browser keeps at least six requests open, so there
-       is always more happening than has finished), bounded at CREEP_MAX units
-       so it can never run far ahead of what has genuinely arrived, and latched
-       so it never retreats. That is the difference between a visitor on a slow
-       line watching a line move and one watching a frozen 0% for fifteen
-       seconds and concluding the site is broken. */
-    function paint() {
-      if (!fillEl) { return; }
-      var creep = 0;
-      if (!settled) {
-        creep = CREEP_MAX * (1 - Math.exp(-(now() - lastUnit) / CREEP_TAU));
-      }
-      var pct = ((done + creep) / total) * 100;
-      if (pct > 99) { pct = 99; }          /* 100% is allReady()'s to give */
-      if (settled) { pct = (done / total) * 100; }
-      if (pct > shown) { shown = pct; }
-      fillEl.style.width = shown.toFixed(1) + "%";
-    }
-
-    /* any sign the network is still doing something */
-    function alive() {
-      var t = now();
-      var gap = t - lastMove;
-      if (gap > maxGap) { maxGap = gap; }
-      lastMove = t;
-    }
-
-    /* how long silence has to last before it stops being slowness */
-    function stallWindow() {
-      var w = maxGap * 3;
-      if (w < STALL_MS)  { w = STALL_MS; }
-      if (w > STALL_CAP) { w = STALL_CAP; }
-      return w;
-    }
-
-    function unitDone() {
-      if (settled) { return; }
-      done++;
-      lastUnit = now();
-      alive();
-      paint();
-      pending--;
-      if (pending <= 0) { allReady(); }
-    }
-
-    function gate(name) {
-      if (gateDone[name]) { return; }
-      gateDone[name] = true;
-      unitDone();
-    }
-
-    /* ---- terminal states ------------------------------------------- */
-
-    function say(msg) {
-      try { if (liveEl) { liveEl.textContent = msg; } } catch (e) {}
-    }
-
-    function reveal() {
-      if (revealed) { return; }
-      revealed = true;
-      settled = true;
-      stop();
-
-      var wait = 0;
-      try {
-        /* a scroll during the load would leave the camera off stop 0, and
-           putting it back fires board.js's .moving collapse for 160ms. Wait
-           that out so the frame under the fade is the full-shadow stop 0. */
-        if (window.scrollY !== 0) { window.scrollTo(0, 0); wait = 220; }
-      } catch (e) {}
-
-      setTimeout(function () {
-        try { html.classList.add("ww-ready"); } catch (e) {}
-        /* a timer, never transitionend: prefers-reduced-motion kills the
-           transition outright and transitionend would then never fire */
-        setTimeout(function () {
-          try {
-            unfence();
-            if (loaderEl) {
-              loaderEl.hidden = true;
-              loaderEl.removeAttribute("aria-busy");
-            }
-            html.classList.remove("js-loading");
-            /* hand the keyboard back to the top of the document rather than
-               leaving focus on an element that is now display:none */
-            var b = document.body;
-            b.setAttribute("tabindex", "-1");
-            b.focus();
-            b.removeAttribute("tabindex");
-          } catch (e) {}
-        }, FADE_MS);
-      }, wait);
-    }
-
-    /* An asset can 404 faster than the document parses, so the failure path
-       regularly runs before bind() has any elements to write to. State is
-       therefore recorded first and painted second: showError() records,
-       applyError() paints, and bind() replays it if the failure got there
-       first. Without the split, a fast 404 sets the error state against null
-       elements and the visitor sits behind an overlay with nothing on it. */
-    var errShown = false;
-
-    /* returns whether a card is actually on screen now */
-    function applyError() {
-      try {
-        if (!errEl) { return false; }
-        if (trackEl)  { trackEl.hidden = true; }
-        if (statusEl) { statusEl.hidden = true; }
-        errEl.hidden = false;
-        errShown = true;
-        /* .ww-error cancels the CSS bailout, so it goes on only once there is
-           something on screen worth keeping up. Setting it from a failure that
-           could not render its own card would disarm the last backstop and
-           leave a blank overlay standing forever. */
-        html.classList.add("ww-error");
-        say("The board didn't finish loading. Part of this page never arrived from the server. A try again button is focused.");
-        var btn = document.getElementById("wwRetry");
-        if (btn) { btn.focus(); }
-        return true;
-      } catch (e) { return false; }
-    }
-
-    function showError() {
-      errored = true;
-      if (applyError()) { return; }
-      /* No card. If the overlay is already bound this will not improve, and
-         the choice is between trapping the visitor behind a blank screen and
-         handing them the board: hand them the board. If bind() has not run
-         yet, it replays this once the elements exist. */
-      if (loaderEl) { reveal(); }
-    }
-
-    /* the genuine-failure path, and the only path that may reload */
-    function fail() {
-      if (settled) { return; }
-      settled = true;
-      errored = true;
-      stop();
-
-      /* default true: if sessionStorage is unavailable we behave as though the
-         retry is already spent, so a broken asset can never loop the reload */
-      var retried = true;
-      try { retried = sessionStorage.getItem(RETRY_KEY) === "1"; } catch (e) {}
-
-      if (!retried) {
-        try { sessionStorage.setItem(RETRY_KEY, "1"); }
-        catch (e) { showError(); return; }
-        if (statusEl) { statusEl.textContent = "Trying again"; }
-        say("Loading failed. Trying again.");
-        setTimeout(function () {
-          try { location.reload(); } catch (e) { showError(); }
-        }, 60);
-        return;
-      }
-      showError();
-    }
-
-    function allReady() {
-      if (settled) { return; }
-      settled = true;
-      stop();
-      done = total;
-      paint();
-      /* a clean load clears the retry budget, so the next visit gets its own */
-      try { sessionStorage.removeItem(RETRY_KEY); } catch (e) {}
-      say("The board is ready.");
-      setTimeout(reveal, Math.max(0, MIN_MS - (now() - started)));
-    }
-
-    /* ---- the stall detector ---------------------------------------- */
-
-    /* Reached only when nothing at all has arrived for a whole stallWindow().
-       Elapsed time alone never gets here: five minutes of steady progress is
-       a slow line, not a fault, and it ends with a board. */
-    function onStall() {
-      if (settled) { return; }
-      if (errored || !criticalReady()) {
-        /* either something broke, or the stylesheet or the camera never made
-           it, and neither of those is a board worth showing */
-        fail();
-        return;
-      }
-      /* the page works; some sheet of paper is simply never coming. A board
-         with a slow tape scan on it beats an error card in front of a board
-         that is fine. */
-      settled = true;
-      stop();
-      paint();
-      say("The board is ready.");
-      reveal();
-    }
-
-    function criticalReady() {
-      return !!(gateDone.css && gateDone.board && gateDone.hand);
-    }
-
-    /* ---- the three files that decide whether there is a page -------- */
-
-    /* Not "did the request finish" but "is the stylesheet in force": a custom
-       property only css/style.css can set, read off the cascade. A 404, a
-       blocked sheet or a truncated one all read the same way here: absent. */
-    function cssApplied() {
-      try {
-        var v = window.getComputedStyle(html).getPropertyValue("--ww-css");
-        return (v || "").replace(/\s|"/g, "") === "ready";
-      } catch (e) { return false; }
-    }
-
-    /* board.js flags itself once the camera has actually been driven, and the
-       transform it wrote is checked independently, so a board.js that loads
-       and then throws still reads as not ready. */
-    function boardApplied() {
-      try {
-        var b = document.getElementById("board");
-        return !!(window.__wwBoardReady && b && b.style.transform);
-      } catch (e) { return false; }
-    }
-
-    function handApplied() {
-      try { return !!window.__wwHandReady; } catch (e) { return false; }
-    }
-
-    /* By DOMContentLoaded a head stylesheet has necessarily settled: the
-       parser-blocking script at the end of <body> cannot run until every
-       pending sheet has, so if the property is still missing a moment later
-       the sheet is not coming. That is a hard failure, not a slow one. */
-    function cssVerdict() {
-      if (settled || gateDone.css) { return; }
-      if (cssApplied()) { gate("css"); return; }
-      setTimeout(function () {
-        if (settled || gateDone.css) { return; }
-        if (cssApplied()) { gate("css"); } else { fail(); }
-      }, CSS_GRACE);
-    }
-
-    /* ---- watchdog -------------------------------------------------- */
-
-    function pollGates() {
-      if (!gateDone.css && cssApplied()) { gate("css"); }
-      if (!gateDone.board && boardApplied()) { gate("board"); }
-      if (!gateDone.hand && handApplied()) { gate("hand"); }
-    }
-
-    /* The CSS bailout drops the overlay 20s after the last heartbeat, so
-       "the script stopped" is what takes it down, never "the load is slow".
-       Swapping the animation name restarts that clock without a reflow. */
-    function heartbeat() {
-      try {
-        beat = !beat;
-        html.classList.toggle("ww-beat", beat);
-      } catch (e) {}
-    }
-
-    var lastBeat = 0;
-
-    var lastKids = 0;
-
-    function tick() {
-      if (settled) { return; }
-      try {
-        earlyBind();
-        /* the overlay binds while the parser is still working, so the board,
-           and with it the email link and the offsite link, arrive after the
-           first pass. Re-fence whenever the child count moves. */
-        if (bound && document.body && document.body.children.length !== lastKids) {
-          lastKids = document.body.children.length;
-          fence();
-        }
-        pollGates();
-        paint();
-        if (now() - lastBeat > BEAT_MS) { lastBeat = now(); heartbeat(); }
-        if (now() - lastMove > stallWindow()) { onStall(); }
-      } catch (e) { reveal(); }
-    }
-
-    function stop() {
-      if (ticker) { clearInterval(ticker); ticker = null; }
-    }
-
-    ticker = setInterval(tick, TICK_MS);
-
-    /* Anything the browser finishes counts as the network being alive, even
-       the things this loader does not gate on. It only ever postpones the
-       stall check; it can never satisfy it. */
-    try {
-      if (window.PerformanceObserver) {
-        var po = new PerformanceObserver(function (list) {
-          var ents = list.getEntries();
-          alive();
-          for (var i = 0; i < ents.length; i++) {
-            var u = ents[i].name || "";
-            /* a critical file that came back 4xx/5xx is a hard failure now,
-               without waiting on the stall clock (Chrome/Edge/Firefox) */
-            if (ents[i].responseStatus && ents[i].responseStatus >= 400) {
-              for (var k = 0; k < CRITICAL.length; k++) {
-                if (u.indexOf(CRITICAL[k]) !== -1) { fail(); return; }
-              }
-            }
-          }
-        });
-        po.observe({ type: "resource", buffered: true });
-      }
-    } catch (e) {}
-
-    /* ---- the paper ------------------------------------------------- */
-
-    ASSETS.forEach(function (src) {
-      var img = new Image();
-      var counted = false;
-      function count() { if (!counted) { counted = true; unitDone(); } }
-
-      img.onload = function () {
-        /* decoded, not merely downloaded: a decode still pending at reveal is
-           a sheet of paper that pops in after the fade.
-           The cap is not paranoia. Measured here: in a tab the compositor is
-           not painting (backgrounded, occluded, a throttled preview pane)
-           decode() returns a promise that never settles at all: no resolve,
-           no reject. Gating on it alone hangs the whole loader. onload already
-           means the bytes arrived and parsed, so wait a beat for the decode
-           and then take onload's word for it. */
-        alive();
-        if (typeof img.decode === "function") {
-          try {
-            img.decode().then(count, count);
-            setTimeout(count, DECODE_MS);
-            return;
-          } catch (e) {}
-        }
-        count();
-      };
-      img.onerror = function () { fail(); };
-      img.src = src;
-    });
-
-    function fontsGate() {
-      var fired = false;
-      function ok() { if (!fired) { fired = true; gate("fonts"); } }
-      setTimeout(ok, FONTS_MS);
-      try {
-        if (document.fonts && document.fonts.ready && document.fonts.ready.then) {
-          document.fonts.ready.then(ok, ok);
-        } else { ok(); }
-      } catch (e) { ok(); }
-    }
-
-    /* ---- the page behind the overlay is not there ------------------- */
-
-    /* An opaque cover the keyboard can walk behind is not a cover. Without
-       this, Tab reaches the mailto: link and the offsite Level Up link from
-       a loading screen, and a screen reader reads a board nobody can see. */
-    function fence() {
-      try {
-        var kids = document.body.children;
-        for (var i = 0; i < kids.length; i++) {
-          var el = kids[i];
-          if (el === loaderEl || el.tagName === "SCRIPT") { continue; }
-          el.setAttribute("inert", "");
-          /* only ever un-set what we set: several of these carry their own
-             aria-hidden in the markup and must keep it */
-          if (!el.hasAttribute("aria-hidden")) {
-            el.setAttribute("aria-hidden", "true");
-            inerted.push(el);
-          }
-        }
-      } catch (e) {}
-    }
-
-    function unfence() {
-      try {
-        var kids = document.body.children;
-        for (var i = 0; i < kids.length; i++) { kids[i].removeAttribute("inert"); }
-        for (var j = 0; j < inerted.length; j++) {
-          inerted[j].removeAttribute("aria-hidden");
-        }
-        inerted = [];
-      } catch (e) {}
-    }
-
-    /* inert is the real fence; these two are the fallback for engines that
-       do not have it yet, and they cost nothing where it does. */
-    function guard() {
-      document.addEventListener("focusin", function (e) {
-        if (revealed || !loaderEl || loaderEl.hidden) { return; }
-        if (!loaderEl.contains(e.target)) {
-          var btn = document.getElementById("wwRetry");
-          if (errShown && btn) { btn.focus(); } else { loaderEl.focus(); }
-        }
-      }, true);
-
-      loaderEl.addEventListener("keydown", function (e) {
-        if (revealed) { return; }
-        var k = e.key;
-        if (k === "Tab") {
-          var btn = document.getElementById("wwRetry");
-          if (!errShown || !btn) { e.preventDefault(); loaderEl.focus(); return; }
-          e.preventDefault();
-          btn.focus();
-          return;
-        }
-        /* the camera reads off scroll position, and scrolling blind behind an
-           opaque cover only means arriving somewhere you did not choose */
-        if (k === " " || k === "Spacebar" || k === "PageDown" || k === "PageUp" ||
-            k === "Home" || k === "End" || k.indexOf("Arrow") === 0) {
-          e.preventDefault();
-        }
-      });
-    }
-
-    /* ---- wiring ---------------------------------------------------- */
-
-    var bound = false;
-
-    /* The overlay is the first thing in <body>, so it exists within a few
-       hundred ms even on a bad line, while DOMContentLoaded waits behind every
-       script the parser has yet to reach. Binding on parse rather than on
-       DOMContentLoaded is what stops the bar sitting at a literal 0% for the
-       first eight seconds of a slow load. Called from the ticker until it
-       takes, and again from DOMContentLoaded for the children parsed since. */
-    function earlyBind() {
-      if (revealed || bound) { return false; }
-      var el = document.getElementById("wwLoader");
-      if (!el) { return false; }
-      bound = true;
-
-      loaderEl = el;
-      fillEl   = document.getElementById("wwFill");
-      trackEl  = document.getElementById("wwTrack");
-      statusEl = document.getElementById("wwStatus");
-      errEl    = document.getElementById("wwError");
-      liveEl   = document.getElementById("wwLive");
-
-      var btn = document.getElementById("wwRetry");
-      if (btn) {
-        btn.addEventListener("click", function () { location.reload(); });
-      }
-
-      fence();
-      guard();
-      try { loaderEl.focus(); } catch (e) {}
-
-      if (errored) { showError(); return true; }
-
-      say("Loading the board.");
-      paint();
-      return true;
-    }
-
-    function bind() {
-      if (revealed) { return; }
-      try {
-        earlyBind();
-        if (!loaderEl) { reveal(); return; }
-        /* body children parsed after the early pass are covered now */
-        fence();
-        if (errored) { showError(); return; }
-
-        try { if (window.scrollY !== 0) { window.scrollTo(0, 0); } } catch (e) {}
-        gate("dom");
-        cssVerdict();
-        /* fonts are only requested once something using them is laid out, so
-           ask after the document is parsed rather than from the head */
-        setTimeout(fontsGate, 0);
-        pollGates();
-        paint();
-      } catch (e) { reveal(); }
-    }
-
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", bind);
-    } else {
-      bind();
-    }
-
-  } catch (err) {
-    /* anything unexpected: take the overlay off and let the page be a page */
-    try { html.className = html.className.replace(/\s*\bjs-loading\b/g, ""); }
-    catch (e) {}
-  }
-})();
-</script>
-
 <style>
-/* --- loading overlay: critical CSS, inline so it never waits on style.css ---
-   Hidden by default. html.js-loading, set by the script above, is the only
-   thing that shows it: no script means no overlay, ever. */
-#wwLoader { display: none; }
-
-html.js-loading #wwLoader {
-  display: flex;
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  box-sizing: border-box;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  /* the same desk the board hangs over, so the fade is a cross-dissolve
-     between two versions of one room rather than a cut between two screens */
-  background:
-    radial-gradient(95% 75% at 50% 40%, rgba(255, 226, 180, 0.10), transparent 66%),
-    linear-gradient(180deg, #372b1f 0%, #2b2118 55%, #201811 100%);
-  opacity: 1;
-  transition: opacity 500ms ease;
-  touch-action: none;
-  overscroll-behavior: contain;
-  /* CSS-only backstop. If the script arms the overlay and then stops running,
-     nothing left on the page would take it down. This fires 20s after the
-     last heartbeat with no script involved. .ww-error unmatches the selector
-     so a genuine error card is never yanked away from someone reading it. */
-  animation: ww-bailout 1ms linear 20s forwards;
-}
-/* The heartbeat. The script flips this class every 6s while it is alive, and
-   a changed animation-name restarts the animation, which pushes the bailout
-   20s further out for free: no reflow, no second timer to trust. So the
-   backstop measures "the script stopped", never "the load is slow", and a
-   legitimate 40s load on a bad line is no longer yanked open at 20s. */
-html.js-loading.ww-beat #wwLoader { animation-name: ww-bailout-b; }
-html.js-loading.ww-error #wwLoader { animation: none; }
-html.js-loading.ww-ready #wwLoader { opacity: 0; pointer-events: none; }
-@keyframes ww-bailout { to { opacity: 0; visibility: hidden; pointer-events: none; } }
-@keyframes ww-bailout-b { to { opacity: 0; visibility: hidden; pointer-events: none; } }
-
-/* Sharpie is black, and black on a dark desk is nothing. The lettering goes
-   where every other word on this site goes: on a slip of the same near-white
-   stock, pure CSS so the overlay owes nothing to the assets it is waiting on. */
-.ww-slip {
-  box-sizing: border-box;
-  max-width: min(560px, 92vw);
-  padding: 42px 46px 36px;
-  transform: rotate(-1.5deg);
-  border-radius: 3px 7px 4px 6px;
-  background: linear-gradient(172deg, #faf8f0 0%, #f5f2e7 60%, #efebdd 100%);
-  box-shadow:
-    0 0 4px rgba(25, 12, 4, 0.42),
-    3px 7px 12px rgba(25, 12, 4, 0.3),
-    8px 22px 38px rgba(25, 12, 4, 0.26);
-  text-align: center;
-}
-
-.ww-mark {
-  margin: 0;
-  /* the same fallback stack css/style.css uses: this slip is the first thing
-     drawn and it must be legible before, or without, the font host */
-  font-family: "Permanent Marker", "Marker Felt", "Segoe Script", "Comic Sans MS", cursive;
-  font-weight: 400;
-  font-size: clamp(28px, 6vw, 52px);
-  line-height: 1.06;
-  letter-spacing: 0.01em;
-  color: #0e0c0a;
-  filter: url(#ink-c);
-}
-
-.ww-track {
-  width: min(260px, 62vw);
-  height: 2px;
-  margin: 34px 0 0;
-  background: rgba(244, 239, 226, 0.16);
-  overflow: hidden;
-}
-.ww-fill {
-  display: block;
-  width: 0%;
-  height: 100%;
-  background: #e6dcc6;
-  transition: width 260ms ease;
-}
-
-.ww-status {
-  margin: 15px 0 0;
-  font-family: "Space Mono", ui-monospace, Menlo, monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: rgba(244, 239, 226, 0.5);
-}
-
-.ww-err {
-  margin-top: 30px;
-  padding: 28px 32px 26px;
-  transform: rotate(1.1deg);
-  max-width: min(430px, 90vw);
-}
-.ww-err-head,
-.ww-err-body {
-  margin: 0;
-  font-family: "Special Elite", "American Typewriter", "Courier New", Courier, monospace;
-  color: #2b2115;
-}
-
-/* the spoken half of the overlay: off screen, never a layout box, and empty
-   until there is something worth saying. The visible .ww-status is not a live
-   region, so nothing is announced twice. */
-.ww-live {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  border: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-.ww-err-head { font-size: 19px; line-height: 1.35; }
-.ww-err-body { margin-top: 14px; font-size: 14px; line-height: 1.55; color: #55503f; }
-
-.ww-retry {
-  margin-top: 20px;
-  padding: 0.6rem 1.25rem;
-  font-family: "Space Mono", ui-monospace, Menlo, monospace;
-  font-size: 0.66rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #241d14;
-  background: #ece4d2;
-  border: 1px solid rgba(40, 28, 14, 0.4);
-  border-radius: 2px;
-  cursor: pointer;
-}
-.ww-retry:hover { background: #f7f0de; }
-.ww-retry:focus-visible { outline: 3px solid #b3271c; outline-offset: 3px; }
-
+html.ww-fade #board { opacity: 0; }
+html.ww-fade.ww-in #board { opacity: 1; transition: opacity 400ms ease; }
 @media (prefers-reduced-motion: reduce) {
-  html.js-loading #wwLoader { transition: none; }
-  .ww-fill { transition: none; }
+  html.ww-fade.ww-in #board { transition: none; }
 }
 </style>
+<script>
+(function () {
+  var h = document.documentElement;
+  /* ARM */
+  try { h.className += " ww-fade"; } catch (e) { return; }
+  /* Idempotent, and if classList is somehow missing it drops the arming class
+     instead, which reveals at once through the className that just worked. */
+  function show() {
+    try { h.classList.add("ww-in"); }
+    catch (e) { h.className = h.className.replace(/ ww-fade/g, ""); }
+  }
+  try {
+    setTimeout(show, 1500);                 /* the cap */
+    window.addEventListener("load", show);  /* everything already arrived */
+  } catch (e) { show(); }
+})();
+</script>
 
 <link rel="icon" href="assets/favicon-32.png" type="image/png">
 <link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
@@ -797,9 +69,9 @@ html.js-loading.ww-ready #wwLoader { opacity: 0; pointer-events: none; }
      none of it is Google's fault: a render-blocking stylesheet on a host that
      is merely SLOW to say no (captive portal, corporate proxy, DNS sinkhole,
      a region that blocks it) leaves readyState at "loading" and the compositor
-     with nothing to paint, so the visitor gets white. Not the board, not even
-     the loading slip. media="print" makes the sheet non-blocking, the onload
-     promotes it the moment it lands, and css/style.css carries a real fallback
+     with nothing to paint, so the visitor gets white rather than a board.
+     media="print" makes the sheet non-blocking, the onload promotes it the
+     moment it lands, and css/style.css carries a real fallback
      stack for all four families, so a blocked font host costs the lettering
      and nothing else. font-display: swap is already in the URL. -->
 <link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
@@ -807,7 +79,7 @@ html.js-loading.ww-ready #wwLoader { opacity: 0; pointer-events: none; }
 <noscript>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Permanent+Marker&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap">
 </noscript>
-<link rel="stylesheet" href="css/style.css?v=25">
+<link rel="stylesheet" href="css/style.css?v=26">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch waits behind the Google
      Fonts stylesheet (measured: assets start at 219ms, the font CSS lands at
@@ -816,12 +88,14 @@ html.js-loading.ww-ready #wwLoader { opacity: 0; pointer-events: none; }
 <!-- The two scripts sit at the end of <body>, so the parser only asks for them
      after 24 image requests are already holding the connection open. Measured
      on a 100 KB/s line that put the camera at 8.7s. Preloading them here puts
-     9KB of code ahead of 1.3MB of paper: the board is drivable at ~3s and the
-     progress line has something real to show for the first seconds instead of
-     nothing at all. The href must stay byte-identical to the <script> tags
-     below or the browser fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=3">
-<link rel="preload" as="script" href="js/hand.js?v=3">
+     9KB of code ahead of 1.3MB of paper. That matters more now than it did
+     behind a loading screen: the fade caps out at 1.5s, so on a slow line the
+     visitor is looking at a half-filled board and wanting to scroll it long
+     before the paper has landed. The href must stay byte-identical to the
+     script tags at the end of the body or the browser fetches each file
+     twice. -->
+<link rel="preload" as="script" href="js/board.js?v=4">
+<link rel="preload" as="script" href="js/hand.js?v=4">
 </head>
 <body>
 
@@ -860,34 +134,6 @@ html.js-loading.ww-ready #wwLoader { opacity: 0; pointer-events: none; }
   </defs>
 </svg>
 
-<!-- The overlay sits after the <defs> above on purpose: .ww-mark carries
-     filter: url(#ink-c), and a CSS filter pointing at a filter element the
-     parser has not reached yet renders the element invisible. -->
-<!-- A cover the keyboard can walk behind is not a cover, so this is a modal:
-     the script marks every other child of <body> inert while it is up, holds
-     focus in here, and hands focus back to the top of the document on reveal.
-     The accessible name comes from the visible line under the slip rather
-     than a second label nobody can see. -->
-<div id="wwLoader" role="dialog" aria-modal="true" aria-labelledby="wwStatus"
-     aria-busy="true" tabindex="-1">
-  <div class="ww-slip">
-    <p class="ww-mark">WhittWorks Studios</p>
-  </div>
-  <!-- the line is decoration; .ww-status is the visible text and the name -->
-  <div class="ww-track" id="wwTrack" aria-hidden="true"><span class="ww-fill" id="wwFill"></span></div>
-  <p class="ww-status" id="wwStatus">Loading the board</p>
-  <!-- announcements live here, not on the container: an aria-live region has
-       to be in the document before the text lands in it to be read out, and
-       the error card below unhides rather than being inserted, which several
-       screen readers never announce at all -->
-  <p class="ww-live" id="wwLive" role="status" aria-live="polite"></p>
-
-  <div class="ww-slip ww-err" id="wwError" hidden>
-    <p class="ww-err-head">The board didn't finish loading.</p>
-    <p class="ww-err-body">Part of this page never arrived from the server, so it isn't ready to show yet. Reloading usually fixes it.</p>
-    <button class="ww-retry" id="wwRetry" type="button">Try again</button>
-  </div>
-</div>
 
 <nav class="deskbar" aria-label="Primary">
   <span class="deskbar-name">WHITTWORKS STUDIOS</span>
@@ -1074,7 +320,7 @@ html.js-loading.ww-ready #wwLoader { opacity: 0; pointer-events: none; }
 
 <div class="scroll-space" aria-hidden="true"></div>
 
-<script src="js/board.js?v=3"></script>
-<script src="js/hand.js?v=3"></script>
+<script src="js/board.js?v=4"></script>
+<script src="js/hand.js?v=4"></script>
 </body>
 </html>
