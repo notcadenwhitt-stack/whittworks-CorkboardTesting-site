@@ -178,9 +178,33 @@
      ~173ms of the ~200ms it takes to actually draw a frame. While the camera
      is flying nobody is reading anything, so a .moving class collapses each
      stack to a single shadow tuned to sit where the stack's centre of mass
-     sits. The class is cleared on a short timer once scrolling settles, which
-     puts the full stacks back before the eye has anything to study. */
-  var MOVE_SETTLE = 160;
+     sits. The class is cleared on a timer once scrolling settles, which puts
+     the full stacks back before the eye has anything to study.
+
+     600 AND NOT 160, AND THAT ONE NUMBER IS THE WHOLE FIX FOR A HALF-SECOND
+     FREEZE. Collapsing the stacks is cheap. RESTORING them is not: it is a
+     re-raster of every sheet on a board that may be entirely on screen, and a
+     GPU trace puts the cost where no amount of staring at this file would have
+     found it — not on the renderer main thread at all (BeginMainFrame totals
+     219-254ms across 218 frames) but one blocked task on the GPU process,
+     SwapBuffers -> ScheduleOverlays -> WaitForCommandsToBeScheduled, 428ms,
+     waiting on raster.
+
+     The gesture that makes it hurt is the one a mouse wheel actually produces:
+     bursts of ticks separated by pauses. At 160ms the timer fires inside every
+     one of those pauses, so the visitor pays the full restore over and over
+     through a single flick. Measured on an M3 at 1512x982 dsf2, real wheel
+     events, ten bursts of six ticks with 300ms pauses:
+
+       160    p50 17.7ms   p95 882.5ms   worst 2598.5ms   31.8% of frames >100ms
+       600    p50 16.7ms   p95  18.5ms   worst  216.7ms    0.3% of frames >100ms
+
+     Nothing about the resting board changes — the restore still happens, and
+     the full stacks are still what the eye studies. It just stops happening in
+     the middle of a gesture that has not finished. Continuous scrolling was
+     never affected either way, which is exactly why every scripted-scroll
+     measurement of this page came back clean and hid the problem for weeks. */
+  var MOVE_SETTLE = 600;
   var moveTimer = null;
   var lastMove = 0;
 
