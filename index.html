@@ -38,34 +38,52 @@
 <link rel="icon" href="assets/favicon-32.png" type="image/png">
 <link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- The webfonts are the single worst thing that can happen to this page, and
-     none of it is Google's fault: a render-blocking stylesheet on a host that
-     is merely SLOW to say no (captive portal, corporate proxy, DNS sinkhole,
-     a region that blocks it) leaves readyState at "loading" and the compositor
-     with nothing to paint, so the visitor gets white rather than a board.
-     media="print" makes the sheet non-blocking, the onload promotes it the
-     moment it lands, and css/style.css carries a real fallback
-     stack for all four families, so a blocked font host costs the lettering
-     and nothing else. font-display: swap is already in the URL.
+<!-- THE WEBFONTS ARE NO LONGER SOMEONE ELSE'S HOST.
+     What used to be here was two preconnects and a stylesheet link to
+     fonts.googleapis.com, carrying a long comment about how much damage a
+     slow font host can do to a page like this one: a render-blocking sheet
+     on a host that is merely SLOW to say no (captive portal, corporate
+     proxy, DNS sinkhole, a region that blocks it) leaves readyState at
+     "loading" and the compositor with nothing to paint, so the visitor gets
+     white rather than a board. Measured against a blackholed font host with
+     scripting off, the page held a white screen for 54.6s on one machine and
+     144.1s on another. The link was defused with media="print" and an onload
+     that promoted it, and there was deliberately no <noscript> copy, because
+     a plain <noscript><link rel=stylesheet> reinstates exactly that failure
+     for the visitors least able to route around it.
 
-     There is deliberately no <noscript> copy of this link. media="print" is
-     promoted by an onload attribute, so with scripting off the webfonts never
-     arrive and the board is lettered from the fallback stacks. A plain
-     <noscript><link rel=stylesheet> would fix that and reinstate the exact
-     failure above for the visitors least able to route around it: measured
-     against a blackholed font host with scripting off, the page held a white
-     screen until Chrome gave up the connection, 54.6s on one machine and
-     144.1s on another, and painted at 0.35s once the link was gone. Four
-     families of borrowed lettering are not worth that. -->
-<link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
-      href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Permanent+Marker&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap">
+     None of that hazard is here any more, because the host is gone. The same
+     four families are served from assets/fonts/ — the identical latin woff2
+     subsets Google was sending, @font-face'd in css/style.css. There is now
+     no third-party request on this page at all, which also means Google no
+     longer receives the IP address of everyone who reads it.
+
+     The fallback stacks in css/style.css stay exactly as they were, and they
+     still matter: they are what letters the board if a font file 404s after
+     a bad deploy, and what letters it in the swap period.
+
+     Two preloads, not five. The stylesheet is in the head and discovers all
+     five faces the moment it parses, so preloading is only worth it for the
+     faces the visitor is guaranteed to be looking at in the first frame: the
+     Sharpie wordmark on the title card, and the bold Space Mono in the
+     deskbar, which is fixed chrome and on screen at every scroll position.
+     Caveat (73KB) and Special Elite (52KB) are left to CSS discovery rather
+     than made to race cork.webp, which is the one asset every other asset is
+     seen against. crossorigin is required on font preloads even same-origin,
+     or the preload is fetched in a second, uncredentialed mode and the
+     browser downloads the file twice. -->
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/permanent-marker-latin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/space-mono-700-latin.woff2">
 <link rel="stylesheet" href="css/style.css?v=35">
 <!-- the cork is the backdrop everything sits on and it is the largest file
-     left, but it is discovered from CSS, so its fetch waits behind the Google
-     Fonts stylesheet (measured: assets start at 219ms, the font CSS lands at
-     222ms). Preloading starts it at ~47ms with the rest of the head.
+     left, but it is discovered from CSS, so its fetch used to wait behind the
+     Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
+     lands at 222ms). Preloading starts it at ~47ms with the rest of the head.
+     That stylesheet is gone now and the wait with it, but the preload still
+     earns its place: cork.webp is discovered from css/style.css either way,
+     and this is what puts it in front of the parse.
 
      STARTING IT EARLY WAS NOT ENOUGH. A preload without fetchpriority lands
      in the Low tier with the other two dozen images, and on a 100 KB/s line

@@ -98,6 +98,64 @@ this site. Raw source files are not redistributed in this repo.
   and fetching it was out of scope for the pass, so the map was drawn instead.
   Recorded here so the next person does not have to re-verify it.
 
+## The webfonts (assets/fonts/) — self-hosted 2026-08-07
+The four families used to be fetched from fonts.googleapis.com at page load.
+They are now served from this repo. The files are the EXACT woff2 bytes Google
+was serving for the `latin` subset to a current Chrome: fetched from
+fonts.gstatic.com on 2026-08-07 via the URLs its css2 API returned, and copied
+in unmodified, so the lettering is byte-identical to what shipped before and
+there is nothing to re-verify visually. Subsetting was tried and rejected —
+re-subsetting the upstream TTFs from github.com/google/fonts to the same
+unicode-range with fontTools 4.60.2 produced files 3.3% LARGER (181,788 bytes
+against Google's 175,924), so Google's own encoder wins and its output is what
+ships. Only `latin` is here: Google's other slices (latin-ext, cyrillic,
+cyrillic-ext, vietnamese) hold no glyph any word on this board needs, and each
+@font-face carries Google's own unicode-range for the latin slice verbatim so a
+browser that does need a glyph outside it falls through to the stack in
+css/style.css instead of drawing a box.
+
+Licences were checked at source, not assumed. TWO OF THE FOUR ARE NOT OFL:
+
+- assets/fonts/caveat-latin.woff2 — Caveat, variable wght 400..700, v23,
+  74,572 bytes. Designer Impallari Type. SIL Open Font License 1.1.
+  Copyright 2014 The Caveat Project Authors (https://github.com/googlefonts/caveat).
+  Licence: github.com/google/fonts/blob/main/ofl/caveat/OFL.txt, shipped here as
+  assets/fonts/LICENSE-Caveat-OFL.txt.
+  From https://fonts.gstatic.com/s/caveat/v23/Wnz6HAc5bAfYB2Q7ZjYYiAzcPA.woff2
+
+- assets/fonts/permanent-marker-latin.woff2 — Permanent Marker, 400, v16,
+  29,296 bytes. Designer Font Diner. APACHE LICENSE 2.0, not OFL.
+  Copyright (c) 2010 by Font Diner, Inc. All rights reserved.
+  Licence: github.com/google/fonts/blob/main/apache/permanentmarker/LICENSE.txt,
+  shipped here as assets/fonts/LICENSE-PermanentMarker-Apache-2.0.txt (Apache 2.0
+  section 4 requires the licence text to travel with the redistributed work,
+  which is why the .txt is in the repo and not just cited in this file).
+  From https://fonts.gstatic.com/s/permanentmarker/v16/Fh4uPib9Iyv2ucM6pGQMWimMp004La2Cf5b6jlg.woff2
+
+- assets/fonts/special-elite-latin.woff2 — Special Elite, 400, v20,
+  53,040 bytes. Designer Astigmatic. APACHE LICENSE 2.0, not OFL.
+  Copyright (c) 2010 by Brian J. Bonislawsky DBA Astigmatic (AOETI).
+  Licence: github.com/google/fonts/blob/main/apache/specialelite/LICENSE.txt,
+  shipped here as assets/fonts/LICENSE-SpecialElite-Apache-2.0.txt.
+  From https://fonts.gstatic.com/s/specialelite/v20/XLYgIZbkc4JPUL5CVArUVL0ntnAOSFNuQsI.woff2
+
+- assets/fonts/space-mono-400-latin.woff2 (9,464 bytes) and
+  assets/fonts/space-mono-700-latin.woff2 (9,552 bytes) — Space Mono, v17.
+  Designer Colophon Foundry. SIL Open Font License 1.1.
+  Copyright 2016 The Space Mono Project Authors (https://github.com/googlefonts/spacemono).
+  Licence: github.com/google/fonts/blob/main/ofl/spacemono/OFL.txt, shipped here
+  as assets/fonts/LICENSE-SpaceMono-OFL.txt.
+  From https://fonts.gstatic.com/s/spacemono/v17/i7dPIFZifjKcF5UAWdDRYEF8RXi4EwQ.woff2
+  and https://fonts.gstatic.com/s/spacemono/v17/i7dMIFZifjKcF5UAWdDRaPpZUFWaHi6WZ3Q.woff2
+
+Both licences permit self-hosting and redistribution, including subsetting.
+Neither OFL font carries a Reserved Font Name, so the families keep their real
+names. Verified 2026-08-07 against the METADATA.pb and licence files in
+github.com/google/fonts (`license: "OFL"` for caveat and spacemono, `license:
+"APACHE2"` for permanentmarker and specialelite) — recorded here so the next
+person does not have to re-check, and specifically so nobody repeats the common
+assumption that everything on Google Fonts is OFL.
+
 ## Doodle art
 - All board doodles (computer, supply-and-demand chart, paper airplane, rising
   stock chart, light bulb) are original artwork drawn for this site as inline SVG
