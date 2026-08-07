@@ -20,6 +20,39 @@ this site. Raw source files are not redistributed in this repo.
 - sticky-07 — Rawpixel via Openverse, CC0 1.0,
   https://www.rawpixel.com/image/5925272/photo-image-paper-sticky-note-public-domain
 
+### KNOWN AND ACCEPTED RISK on the four Rawpixel stickies (owner decision, 2026-08-07)
+These four do NOT meet the verification standard the rest of this file is held
+to, and that is a deliberate choice rather than an oversight. Recording it
+properly so nobody re-discovers it and thinks it was missed.
+
+What was checked, 2026-08-07:
+- api.openverse.org was queried for all three foreign_landing_urls above
+  (image/6043209, image/6043191, image/5925272). Every one returns
+  creator=None and creator_url=None, source=rawpixel, provider=rawpixel,
+  license=cc0 1.0, with an attribution string of the form
+  '"Sticky note" is marked with CC0 1.0.' No original author is named anywhere.
+- rawpixel.com's own pages return HTTP 403 behind a Cloudflare challenge to a
+  normal request with full browser headers, so reading the asset's own source
+  page — which is what the project's standard requires — is not currently
+  possible at all.
+- These are modern photographs of Post-it notes with IDs in the 5.9-6.0M range,
+  so the CC0 cannot rest on copyright expiry the way Rawpixel's public-domain
+  art-print library does. It rests entirely on an unnamed uploader's grant that
+  Rawpixel restates.
+
+So the CC0 here is aggregator-asserted, with no named original author, and was
+not verifiable at source. The owner has weighed that against the cost of
+re-deriving the four notes and their variants and chosen to keep them.
+
+Blast radius if the claim is ever wrong: six shipped files, because
+css/style.css:643-646 and :658-659 bind sticky-04, sticky-05, sticky-05-pink,
+sticky-06, sticky-06-green and sticky-07. The remedy, if it is ever needed, is
+to re-derive those colours from sticky-01/02/03 (Kelly Sikkema, Unsplash, fully
+verified) with the same Pillow hue-shift already used for the -blue and -green
+variants, then rebuild the inline placeholders with tools/lqip/make_lqip.py.
+Each note carries its own aspect-ratio, four picture-area insets, a --tint and
+a base64 --lq, all of which would need re-deriving.
+
 ## Sticky note color variants
 - sticky-01-blue, sticky-02-blue, sticky-03-blue, sticky-03-green,
   sticky-05-pink, sticky-06-green — derived from the sticky-01/02/03/05/06
@@ -180,10 +213,21 @@ marketing needs the subject's permission independently of who owns the file.
   to the image and to both likenesses, and gave them for this use. Owner-confirmed
   2026-08-07. Nothing outstanding.
 - assets/caden.jpg — Caden Whitt, founder, in the .caden-polaroid
-  (index.html:183). The subject is the site owner, so the likeness side needs
-  nothing. Who took the photograph is not recorded, and a photographer normally
-  holds copyright in a portrait even when the subject commissioned it. Low risk
-  and easy to close: name the photographer here, or note that it was self-taken.
+  (index.html:183). Shot by a photographer during Caden's internship. Caden
+  holds the rights to the image, and the subject is Caden himself, so both the
+  copyright and the likeness side are covered. Owner-confirmed 2026-08-07.
+  Nothing outstanding.
+
+## The work sample (assets/) — recorded 2026-08-07
+- assets/levelup-card-900.jpg — a screenshot of levelup-men.com, printed into
+  the picture area of the work postcard (index.html:209). The site is
+  WhittWorks Studios' own client work; the client has given permission for it
+  to be shown here as a portfolio piece. Owner-confirmed 2026-08-07.
+  The Level Up wordmark, logo and marketing copy visible in the shot remain the
+  client's, and appear here only as part of a screenshot of the delivered site.
+  Two unreferenced full-size copies (levelup-card.png, levelup-desktop.png)
+  were deleted from the repo on 2026-08-07: nothing loaded them, and GitHub
+  Pages serves whatever is committed.
 
 ## Doodle art
 - All board doodles (computer, supply-and-demand chart, paper airplane, rising
