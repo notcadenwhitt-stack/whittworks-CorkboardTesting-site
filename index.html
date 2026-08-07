@@ -34,6 +34,22 @@
      out both and never the reveal alone. Past that there are two independent
      reveals, the cap and the load event, either one is sufficient, and if
      even registering them throws, the catch reveals on the spot.
+
+     WHAT THE FADE COSTS. Animating opacity on a 3600x2400 element makes the
+     compositor group the whole subtree into one buffer and raster it as a
+     unit, and every sheet of paper on that board carries a chained stack of
+     four or five drop-shadow()s. Measured in headful Chrome with the cache
+     off: the 400ms transition ran 2.2s of wall clock and the board was not
+     on screen until 3.8s, against 0.5s with the fade removed altogether.
+     The site already owns the fix: .moving collapses each stack to a single
+     tuned shadow while the camera flies, and the same rules now answer to
+     html.ww-flat, which rides in with the arming class and comes off when
+     the transition ends. Same measurement with the stacks collapsed: the
+     transition runs 0.69s and the board lands at 1.3s.
+     ww-flat only ever changes shadows, so no path through it can leave the
+     board hidden, and it is a different class on a different element from
+     board.js's .moving, so a visitor who scrolls mid-fade cannot have one
+     stripped out from under the other.
      ================================================================== -->
 <style>
 html.ww-fade #board { opacity: 0; }
@@ -46,17 +62,35 @@ html.ww-fade.ww-in #board { opacity: 1; transition: opacity 400ms ease; }
 (function () {
   var h = document.documentElement;
   /* ARM */
-  try { h.className += " ww-fade"; } catch (e) { return; }
+  try { h.className += " ww-fade ww-flat"; } catch (e) { return; }
   /* Idempotent, and if classList is somehow missing it drops the arming class
      instead, which reveals at once through the className that just worked. */
   function show() {
     try { h.classList.add("ww-in"); }
     catch (e) { h.className = h.className.replace(/ ww-fade/g, ""); }
+    /* The collapse is worth having only while the opacity is moving. The
+       board reads at rest, so at rest it gets its full stacks back: this
+       timer covers reduced motion (transition: none fires no transitionend),
+       a hidden tab, and an interrupted transition. 1200ms is three times the
+       declared fade and about twice the measured one, so transitionend
+       normally wins the race; a machine slow enough to lose it gets the full
+       stacks back early, which is only today's behaviour again. */
+    try { setTimeout(deep, 1200); } catch (e) { deep(); }
+  }
+  function deep() {
+    try { h.classList.remove("ww-flat"); }
+    catch (e) { h.className = h.className.replace(/ ww-flat/g, ""); }
   }
   try {
     setTimeout(show, 1500);                 /* the cap */
     window.addEventListener("load", show);  /* everything already arrived */
-  } catch (e) { show(); }
+    /* transitionend bubbles, so this needs no reference to an element the
+       parser has not reached yet. */
+    document.addEventListener("transitionend", function (e) {
+      if (e.target && e.target.id === "board" && e.propertyName === "opacity") deep();
+    }, true);
+    setTimeout(deep, 3000);                 /* backstop past the cap + fade */
+  } catch (e) { show(); deep(); }
 })();
 </script>
 
@@ -73,13 +107,20 @@ html.ww-fade.ww-in #board { opacity: 1; transition: opacity 400ms ease; }
      media="print" makes the sheet non-blocking, the onload promotes it the
      moment it lands, and css/style.css carries a real fallback
      stack for all four families, so a blocked font host costs the lettering
-     and nothing else. font-display: swap is already in the URL. -->
+     and nothing else. font-display: swap is already in the URL.
+
+     There is deliberately no <noscript> copy of this link. media="print" is
+     promoted by an onload attribute, so with scripting off the webfonts never
+     arrive and the board is lettered from the fallback stacks. A plain
+     <noscript><link rel=stylesheet> would fix that and reinstate the exact
+     failure above for the visitors least able to route around it: measured
+     against a blackholed font host with scripting off, the page held a white
+     screen until Chrome gave up the connection, 54.6s on one machine and
+     144.1s on another, and painted at 0.35s once the link was gone. Four
+     families of borrowed lettering are not worth that. -->
 <link rel="stylesheet" media="print" onload="this.media='all';this.onload=null"
       href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Permanent+Marker&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap">
-<noscript>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Permanent+Marker&family=Special+Elite&family=Space+Mono:wght@400;700&display=swap">
-</noscript>
-<link rel="stylesheet" href="css/style.css?v=26">
+<link rel="stylesheet" href="css/style.css?v=27">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch waits behind the Google
      Fonts stylesheet (measured: assets start at 219ms, the font CSS lands at

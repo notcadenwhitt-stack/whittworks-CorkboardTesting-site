@@ -827,7 +827,7 @@ a { color: inherit; }
   transform: scaleX(-1);
 }
 
-/* --- while the camera is flying ------------------------------------ */
+/* --- while the camera is flying, or the board is fading in ---------- */
 
 /* Every sheet on the board carries four or five chained drop-shadow()s.
    Chained is the expensive word: each one re-blurs the whole accumulated
@@ -847,18 +847,31 @@ a { color: inherit; }
 
    #cut stays on .index-card and the ink filters stay on the writing: with the
    shadows collapsed, removing either measured no gain at all, so there is no
-   reason to let the card silhouette or the letterforms shift. */
+   reason to let the card silhouette or the letterforms shift.
 
-.board.moving .index-card {
+   The opening fade wants exactly the same thing for exactly the same reason:
+   an opacity transition on the board groups the subtree into one buffer and
+   rasters the whole stack of stacks at once, which measured 2.4s against
+   250ms with no fade at all. So each rule below answers to html.ww-flat as
+   well, set by the fade script in index.html <head> and dropped when the
+   transition ends. Two owners, two classes, one set of declarations: the
+   camera writes .moving on the board, the fade writes ww-flat on <html>, and
+   a visitor who scrolls mid-fade cannot have one strip the other. */
+
+.board.moving .index-card,
+html.ww-flat .board .index-card {
   filter: url(#cut) drop-shadow(6px 15px 26px rgba(25, 12, 4, 0.68));
 }
-.board.moving .sticky::before {
+.board.moving .sticky::before,
+html.ww-flat .board .sticky::before {
   filter: drop-shadow(5px 15px 19px rgba(25, 12, 4, 0.7));
 }
-.board.moving .polaroid {
+.board.moving .polaroid,
+html.ww-flat .board .polaroid {
   filter: drop-shadow(8px 19px 24px rgba(25, 12, 4, 0.72));
 }
-.board.moving .postcard::before {
+.board.moving .postcard::before,
+html.ww-flat .board .postcard::before {
   filter: drop-shadow(8px 20px 26px rgba(25, 12, 4, 0.72));
 }
 
