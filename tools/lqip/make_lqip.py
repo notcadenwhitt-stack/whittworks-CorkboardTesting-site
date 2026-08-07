@@ -146,7 +146,17 @@ emit("pol2", "assets/paper/polaroid-frame-2.webp", 28, 60, (0.98, 0.98))
 # Left in, the blur put a pale blue border around the Level Up card.
 emit("pcf", "assets/paper/postcard-front.webp", 40, 60, (0.98, 0.98),
      rect=(0.025, 0.0478, 0.9457, 0.9044))
-emit("pcb", "assets/paper/postcard-back.webp", 40, 60, (0.98, 0.98))
+# 88px, more than twice the front's, because this is the only scan on the board
+# that is LINE WORK: the engraved POST CARD plate, two ornamental scrolls, two
+# printed rules, a full-height vertical divider, the stamp box and the owl
+# vignette. High contrast at low spatial frequency is what survives a heavy
+# downscale, and at 40px none of it did (the placeholder was a smear and all of
+# it appeared at once when the scan landed). Squint-test error against the
+# loaded card, both resampled to a common width so blur cancels: 7.81 -> 5.71
+# at 88px, 9.18 -> 7.67 at 176px, 10.69 -> 9.88 at the card's full 2108 device
+# px. 426 bytes, and first paint does not move. The front stays at 40 because
+# its picture area is painted out above, so its placeholder is only the margin.
+emit("pcb", "assets/paper/postcard-back.webp", 88, 68, (0.98, 0.98))
 emit("stamp", STAMP, 24, 60, (0.78, 0.88))
 
 for stem in ("sticky-01", "sticky-01-blue", "sticky-02", "sticky-02-blue",

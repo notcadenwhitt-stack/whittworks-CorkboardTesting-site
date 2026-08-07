@@ -37,6 +37,27 @@
    std is 19.2 at full size and 3.0 at 32px, which is to say a 32px cork
    placeholder decodes to a flat swatch and would have changed nothing at all.
 
+   AND THE RIGHT SIZE DEPENDS ON WHAT THE SCAN IS OF. postcard-back sits at
+   88px where its opposite number sits at 40px, because it is the one scan on
+   this board carrying LINE WORK: an engraved POST CARD plate, two ornamental
+   scrolls, two printed rules, a full-height vertical divider, the stamp box
+   and the owl vignette. All of it is high contrast at low spatial frequency,
+   which is exactly what survives a 16x downscale, and at 40px none of it did:
+   the placeholder was a smear and every one of those features appeared at
+   once when the scan landed 11.2s later. At 88px they are all there, in
+   place, and the scan only sharpens them. Measured by resampling BOTH the
+   placeholder and the loaded card to a common width, which strips the blur
+   out and leaves only whether the ink is where it should be: mean error
+   7.81 -> 5.71 at 88px wide (-27%), 9.18 -> 7.67 at 176px (-16%), against
+   10.69 -> 9.88 (-8%) at the card's full 2108 device px. The improvement
+   living at low frequency and not at high is the point, because what is left
+   at full resolution is the focus pull and that is what should be left. 426
+   bytes, 352 more than the 40px version and 298 more after gzip, and first
+   paint does not move: 3691ms against 3747ms at 1 Mbps over five cold loads
+   each, sd 267 and 242. postcard-front stays at 40px, because its picture
+   area is painted out (the Level Up shot covers it) so its placeholder is
+   only ever the margin and the deckle.
+
    AND THIS SHEET IS RENDER-BLOCKING, which is the other half of every size
    here. On a throttled cold load css/style.css shares the pipe with five
    preloads and gets about a sixth of it, so a kilobyte added here costs
@@ -62,14 +83,34 @@
    The flat colours are kept underneath as the last layer of each stack: four
    bytes each, and they are what paints if a data URI ever fails to decode.
 
-   NOTHING UNDER TAPE. Masking tape is translucent (tape-7 peaks at alpha
-   253, body near 228), so anything under it reads through on the FINISHED
-   board: tinting the caption tape measured a 13/255 shift over 30% of it and
-   cost the tape its show-through. It is the wrong shape for this too — the
-   two corner strips run diagonally across 42% and 19% of their boxes and the
-   largest centred box inside them is 6% and 0%. Opaque paper takes a
-   placeholder; translucent tape does not. The index cards need none: their
-   stock is already a gradient. The walnut frame keeps its flat #42342f,
+   NOTHING UNDER TAPE, AND THE REASON GENERALISES. Masking tape is
+   translucent (tape-7 peaks at alpha 253, body near 228), so anything under
+   it reads through on the FINISHED board: tinting the caption tape measured
+   a 13/255 shift over 30% of it and cost the tape its show-through. That is
+   not a fact about flat colour, it is a fact about compositing. Under a tape
+   of alpha a, any layer L resolves to a*T + (1-a)*L where the finished board
+   needs a*T + (1-a)*C, and no L makes those equal while a < 1. The obvious
+   escape, an ALPHA-PRESERVING THUMBNAIL of the tape itself, was built and
+   measured rather than argued about: laid under the real strip it turns the
+   10.6% of cork that should show through into 1.1%, and on the loaded board
+   at stop 4 that is a mean shift of 11.9 levels over 88% of the tape, max
+   158. Worse in extent than the tint it was meant to replace. It is the
+   wrong shape for this too — the two corner strips run diagonally across 42%
+   and 19% of their boxes and the largest centred box inside them is 6% and
+   0%. Opaque paper takes a placeholder; translucent tape does not, at any
+   size, opacity or alpha.
+
+   SO THE TAPE IS FETCHED FIRST INSTEAD. With no placeholder possible it was
+   arriving out of bare cork, which measured as the largest per-pixel arrival
+   anywhere on this page: 3.16% of the frame at stop 4 changing by a mean of
+   100.5 levels, +7.6s after first paint at 1 Mbps and +20.5s at 400 kbps.
+   index.html now preloads all three strips at fetchpriority high, and
+   tools/lqip/reencode_assets.py re-encoded them with lossy alpha first
+   (86,866 bytes to 41,828, native pixel dimensions untouched) so the queue
+   jump is cheap. Measured, they finish at 1.47-2.00s against a first paint
+   of 3.75s at 1 Mbps and at 3.5-4.8s against 7.58s at 400 kbps: the arrival
+   still happens, but before there is anything on screen for it to happen on.
+   The index cards need none: their stock is already a gradient. The walnut frame keeps its flat #42342f,
    because border-image has no second layer to hide a placeholder under and
    the frame is 30px of a 3660px box.
 
@@ -970,7 +1011,7 @@ a { color: inherit; }
 .postcard-back {
   --stock: url("../assets/paper/postcard-back.webp");
   --stock-tint: #e7e5db;
-  --stock-lq: url("data:image/webp;base64,UklGRpoAAABXRUJQVlA4II4AAADQBACdASooABkAPrVIn0qnJCKhqrgN+OAWiWkAzuwNz6G7NwEhnP7PnwlRQljpQAD+8L2XylbcdervnvDh9JPaD4PjZS/4iXVv2LBK8hQx14WVpBlA0OcgMOXT9K7F9nyYLpU2gouJMNaOzon9r4mJSwMl26j/rfqmGYDd4Ad/8vzuuS6mksl3j0LGAAAA");
+  --stock-lq: url("data:image/webp;base64,UklGRqIBAABXRUJQVlA4IJYBAADwCgCdASpYADcAPqFGnUumI6KhprmbWMAUCWkA0uwKnbrGV6+ZbrZrbMLcVuz4lGNrnJRcewmtkeOBuyWvpj9cp/bF4nrpxkGEQxBeagKQPqQbDNl/V80HJ5jc7WQk6+AA/vfpSGDVsI96lv7F+whNNfgoj3vCmxTPFxIbvHtNvgqQ0JUY/hkYB6cKVIZqjFB+XrXdRvl3STo00rnm7nCLpSb7Y5mjnbkTsLn7HdhdBnOrW+Z8kDrQOrUDnNAgwCTNF3Z/c7L1AssmBsDir1FTMAAjWd+SVxhRI7zWWaPDfH8eY8VwP4Vm6wruNCX878suUNgd5unRC714vdPgfh++8w+7PSnQq+zrXTH5syMACkPOPSvXGfQ8kJAl+0XnDCgz4ahow6ksdb/IKfae2ef725kqLX7FnJvdsHzfsUGb5DZxhKxiLBnMI37B4C6SauxK77PUXVqmBG8FyODe22hMygPUkS+12XpDCaz4mj2HqKXVn6uv1RHpaq+JZYHmh3KWnr9NqovAM5l9BayML61AsnG6AAAA");
   width: 720px;
   aspect-ratio: 1400 / 868;
 }

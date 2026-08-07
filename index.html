@@ -126,7 +126,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=46">
+<link rel="stylesheet" href="css/style.css?v=47">
 <!-- READING MODE, linked twice on purpose. See the header of css/reading.css.
      The media query covers narrow and short viewports; the <noscript> copy
      covers scripting being off at ANY width, which no media query can detect
@@ -151,6 +151,45 @@
      it in front of the paper, which is the right order — the cork is the one
      asset every other asset is seen against. -->
 <link rel="preload" as="image" href="assets/cork.webp" fetchpriority="high">
+<!-- The three masking-tape strips, and they are here because tape is the one
+     photographed thing on this board that cannot have a placeholder at all.
+     It is translucent, so any layer under it still reads through on the
+     FINISHED board, and that is a fact about compositing rather than about
+     flat colour: an alpha-preserving THUMBNAIL of the tape, laid under the
+     real tape, was built and measured, and it shifts 88% of the loaded tape
+     by a mean of 11.9 levels (max 158). See the tape note at the top of
+     css/style.css.
+
+     Left on CSS discovery that leaves the largest per-pixel arrival on this
+     page: at stop 4, 3.17% of the frame changing by a mean of 131 levels as
+     three strips materialise out of bare cork, seconds after the board is
+     already on screen. Nothing can soften that arrival, so it has to happen
+     before there is a board for it to arrive on. High rather than a plain
+     preload for the same reason cork.webp is high: the Low tier puts them
+     straight back among two dozen images. Measured at 1 Mbps over five cold
+     loads, tape-7 lands at 1.82s against 12.80s without these.
+
+     41KB total, and that is the other half of this. They were re-encoded with
+     lossy alpha first (86,866 bytes to 41,828, tools/lqip/reencode_assets.py),
+     which is what makes jumping them up the queue cheap: cork.webp still
+     finishes earlier than before, 14.04s against 14.28s, because the page as
+     a whole is 203KB lighter.
+
+     THE 901px GATE IS NOT OPTIONAL. It matches the media query in
+     css/style.css that decides whether .corkboard is laid out at all. Below
+     it the visitor gets the editorial, the board is display:none, and the
+     browser never asks for these files. Measured ungated at 390x844: 42,180
+     bytes downloaded and never drawn, and three "preloaded but not used"
+     console warnings on every phone load. Gated: identical to not having
+     added them. Someone tapping the sticky note into the board on a phone
+     fetches the tape then, exactly as they always have.
+
+     COST, so it is on the record: these three delay css/style.css, which is
+     render-blocking, by 687ms at 1 Mbps (7,827 to 8,514ms, n=5 each). That
+     is the price of the arrival fix, not a free win. -->
+<link rel="preload" as="image" href="assets/paper/tape-7.webp" fetchpriority="high" media="(min-width: 901px)">
+<link rel="preload" as="image" href="assets/paper/tape-3.webp" fetchpriority="high" media="(min-width: 901px)">
+<link rel="preload" as="image" href="assets/paper/tape-4.webp" fetchpriority="high" media="(min-width: 901px)">
 <!-- The two scripts sit at the end of <body>, so the parser only asks for them
      after 24 image requests are already holding the connection open. Measured
      on a 100 KB/s line that put the camera at 8.7s. Preloading them here puts

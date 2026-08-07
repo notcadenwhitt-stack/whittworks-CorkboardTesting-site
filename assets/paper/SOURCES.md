@@ -80,6 +80,21 @@ a base64 --lq, all of which would need re-deriving.
   rectangles. RGB untouched, so the picture-area insets measured in the CSS
   still land where they were measured.
 
+## Tape and work-postcard re-encode (2026-08-07)
+- tape-3, tape-4, tape-7 — encoding only, same pixels and same dimensions.
+  The alpha channel shipped lossless, which was most of their weight; it is now
+  quality 65 (RGB quality 88). 86,866 bytes to 41,828. Measured against the
+  untouched files resampled to the size the strips occupy on screen, mean
+  channel error 0.22-0.91 levels, p99 3.0-4.8. Nothing about the source or the
+  licence changes. tools/lqip/reencode_assets.py.
+- postcard-front — RGB inside the picture area only. .pc-picture covers left
+  2.5% / top 4.78% / 94.57% x 90.44% of this card opaquely on the finished
+  board, so 82% of the scan was never seen by anyone; that region is now filled
+  with the median of the margin, inset 10px, and the file goes 206,980 bytes to
+  47,742. The margin, the deckled edge and the alpha are untouched, so the
+  picture-area insets measured in the CSS still land where they were measured.
+  Same source, same public-domain status.
+
 ## Polaroid frames
 - polaroid-frame-1/2/3 — Fuzzimo "Blank Polaroid Frame Images" (scans 01, 12, 16),
   https://www.fuzzimo.com/free-hi-res-blank-polaroid-frames/
