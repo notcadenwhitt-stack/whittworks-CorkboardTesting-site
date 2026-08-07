@@ -71,6 +71,33 @@ this site. Raw source files are not redistributed in this repo.
 ## Board surfaces (pre-existing)
 - cork.jpg, wood.jpg — ambientCG, CC0 1.0.
 
+## The wall behind the board
+- assets/wall-map.webp — the blue world map the cork board hangs on. 2000x1018,
+  24,252 bytes. Applied in css/style.css as the last background layer on
+  .viewport, under a flat #233341 (the file's own mean) so the wall is the right
+  colour before the scan lands.
+  ORIGINAL ARTWORK, created 2026-08-07 for this site. No third-party rights, no
+  license obligations, nothing to attribute, nothing to verify. Not traced from,
+  derived from, sampled out of, or fitted to any third-party map file, raster or
+  vector — the coastlines are hand-authored (lon, lat) polygons written directly
+  into tools/wall-map/coasts.py, and tools/wall-map/render_wall.py projects them
+  (Miller cylindrical, 84N to 60S), fills, strokes, adds the graticule, the
+  low-frequency paper mottle and a 1.1px defocus, and writes the WebP. Running
+  `python3 tools/wall-map/render_wall.py assets/wall-map.webp` with no arguments
+  reproduces the shipped file byte for byte, which is also what makes the
+  original-artwork claim checkable rather than asserted.
+  Deliberately coarse: it renders at ~5.5px per degree of longitude, sits behind
+  the board at roughly a third of the cork's brightness, and is defocused, so
+  sub-continental accuracy would be invisible even if it were there. Read it as
+  a stylised wall map, not as reference geography.
+- Considered and NOT used: Natural Earth (https://www.naturalearthdata.com/about/terms-of-use/,
+  read 2026-08-07 — "All versions of Natural Earth raster + vector map data
+  found on this website are in the public domain", "No permission is needed to
+  use Natural Earth. Crediting the authors is unnecessary"). The licence is
+  clean and would have been fine to use; the data is simply not on this machine
+  and fetching it was out of scope for the pass, so the map was drawn instead.
+  Recorded here so the next person does not have to re-verify it.
+
 ## Doodle art
 - All board doodles (computer, supply-and-demand chart, paper airplane, rising
   stock chart, light bulb) are original artwork drawn for this site as inline SVG

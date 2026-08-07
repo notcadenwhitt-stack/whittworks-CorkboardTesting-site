@@ -161,16 +161,41 @@ a { color: inherit; }
 
 /* --- the room and the board --------------------------------------- */
 
+/* The wall the board is pinned to: a printed world map, cool and low-value so
+   it stays behind the paper. The map is original artwork rendered from
+   hand-authored coastlines (see assets/paper/SOURCES.md); the lighting is not
+   baked into it, because the light lives in the room, not on the sheet, and a
+   baked gradient would stretch with the viewport instead of staying put. */
 .viewport {
   position: fixed;
   inset: 0;
   overflow: hidden;
-  background:
-    /* soft warm spotlight falling on the wall behind the board */
-    radial-gradient(95% 75% at 50% 38%, rgba(255, 226, 180, 0.11), transparent 65%),
-    /* faint drywall texture */
+  /* wall-map.webp's own mean. Same skeleton principle as the cork and the
+     paper: the room is already the right blue on the first paint, and when the
+     scan lands it only adds continents, never a colour change. */
+  background-color: #233341;
+  background-image:
+    /* The key light, aimed to agree with the board's. .board's key is a broad
+       pool at 36% 24% of BOARD space; at stop 0 the board covers the middle of
+       the screen, which puts that pool at roughly 37%/25% of the viewport. So
+       the wall and the cork are lit from the same corner by the same distant
+       lamp. Warm light on a cool wall, which is why it reads as desaturating
+       towards neutral where it lands rather than as a yellow blob. */
+    radial-gradient(130% 112% at 37% 24%, rgba(255, 226, 180, 0.13), transparent 66%),
+    /* the same two shadow pools the board carries, at the same two corners,
+       but cool-dark instead of the board's brown: this is a blue wall, and the
+       warm cast of the room comes back over everything in .viewport::after. */
+    radial-gradient(95% 85% at 80% 98%, rgba(4, 9, 16, 0.55), transparent 62%),
+    radial-gradient(112% 92% at 2% 90%, rgba(4, 9, 16, 0.44), transparent 64%),
+    /* faint drywall texture, now reading as tooth in the paper the map is
+       printed on. High-frequency noise is free here and costs bytes in a
+       WebP, so the scan carries only the low-frequency mottle. */
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.42 0 0 0 0 0.34 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23w)'/%3E%3C/svg%3E"),
-    linear-gradient(180deg, #372b1f 0%, #2b2118 55%, #201811 100%);
+    url("../assets/wall-map.webp");
+  background-position: 0 0, 0 0, 0 0, 0 0, 50% 45%;
+  background-size: auto, auto, auto, auto, cover;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat, no-repeat;
+  background-blend-mode: soft-light, multiply, multiply, normal, normal;
 }
 
 /* darkened room corners + fine photographic grain over the whole scene */
