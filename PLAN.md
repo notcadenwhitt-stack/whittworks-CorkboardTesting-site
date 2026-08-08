@@ -33,8 +33,10 @@ real Annie quote/photo (pending her team's confirmation).
 - STOPS has 8 entries; stop 3 services (2788,722,1000x950), stop 5
   testimonial (1870,1990,1290x820). Only STOPS[0] is mirrored by the inline
   head script — other stops retune freely.
-- Cache-busting at style.css?v=52, board.js?v=10. innerText tripwires: 1387
-  board / 1707 scripted editorial (re-baseline after this work).
+- Cache-busting now at style.css?v=53, board.js?v=11 (52/10 at planning;
+  reading.css 5, editorial.css 4, hand.js 6 also bumped). innerText tripwires
+  re-baselined 2026-08-08: 1593 board / 1899 scripted editorial / 1612 reading
+  mode / 1883 no-JS (were 1387 / 1707 at planning).
 - HANDOFF traps: size papers with --sz custom property, never raw
   percentages; bump ?v= on every edited linked file.
 
@@ -107,25 +109,25 @@ text still reads small. Judge per stop by screenshot at 1440x900.
 - Live staging check after deploy (curl for new markup, then browser check).
 
 ## Build Phases
-- [ ] Phase 1: Fourth sticky + stop 3 retune (both designs)
+- [x] Phase 1: Fourth sticky + stop 3 retune (both designs)
       Done when: stop-3 screenshot shows four framed stickies; editorial
       lists four services
       Steps: clone sticky markup; place/rotate; widen STOPS[3]; add
       editorial list item; screenshot
       Covers: R1, R4; checks: A2
-- [ ] Phase 2: Annie placeholder pair + stop 5 retune (both designs)
+- [x] Phase 2: Annie placeholder pair + stop 5 retune (both designs)
       Done when: stop-5 screenshot shows both testimonials, Annie's visibly
       placeholder with zero invented words
       Steps: clone card+polaroid; data-URI photo; empty ruled lines + pencil
       note; widen STOPS[5]; editorial blockquote; screenshot
       Covers: R2, R4
-- [ ] Phase 3: Legibility sweep
+- [x] Phase 3: Legibility sweep
       Done when: every stop's screenshot passes the ink floor and reads
       comfortably at rest
       Steps: darken inks; size up within insets; tighten spans where needed;
       recapture affected stops
       Covers: R3; checks: A4
-- [ ] Phase 4: Conventions + battery
+- [x] Phase 4: Conventions + battery
       Done when: ?v= bumped on touched files; tripwires re-baselined in this
       file and HANDOFF.md; battery matches baseline
       Covers: R5, R6

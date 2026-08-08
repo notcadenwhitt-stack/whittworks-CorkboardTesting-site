@@ -33,9 +33,11 @@ board is an enhancement layered on top of it.
 | `css/style.css` 404s | tan editorial |
 | crawler | tan editorial, fully typeset |
 
-`document.body.innerText.length` is **1387** wherever the board shows and
-**1707** on the editorial. The old 1387-everywhere tripwire now means
-"1387 on the board".
+`document.body.innerText.length` is **1593** wherever the board shows and
+**1899** on the editorial — re-baselined 2026-08-08 when the approved
+events/testimonial content landed (the values were 1387/1707 before it, and
+older notes in this file still cite those numbers as measurements of their
+day). The old 1387-everywhere tripwire now means "1593 on the board".
 
 ### The four class gates, and why each exists
 
@@ -197,6 +199,47 @@ Staging: `https://notcadenwhitt-stack.github.io/whittworks-CorkboardTesting-site
 3. **A human screen-reader pass.** The AX tree and keyboard were driven
    programmatically; nobody has listened to it.
 4. Optional: `caden.jpg` photographer is recorded as unnamed; fill it in if known.
+
+## 2026-08-08: events sticky, Annie placeholder, legibility pass
+
+Executed from PLAN.md (approved 2026-08-08). What changed:
+
+- **Fourth blue service sticky** "Event Management & Coordination" at
+  (2886, 852), `paper-1 c-blue flip` so the reused scan reads as a different
+  note. Editorial services list gained the matching fourth row.
+- **Annie Meissner testimonial placeholder**: quote card at (2450, 1850) with
+  name/title typed over empty ruled lines and a graphite `.pencil-note`
+  ("quote on its way", bottom LEFT — her polaroid lies over the card's
+  bottom-right corner); polaroid at (3040, 1900) with a neutral-grey inline
+  SVG data URI for film (nothing new to 404). ZERO invented quote words, both
+  designs. Swap-in is a drop-in: photo into `.pol-photo` src, quote onto the
+  ruled lines, delete the pencil note.
+- **Tape strips are SIBLINGS of the card and polaroid**, positioned in board
+  coordinates: the card clips children (`overflow: hidden`) and both papers
+  carry filter stacks that would re-shadow anything inside. Reading mode
+  hides bare-sibling tape (`.board > .tape`).
+- **The pink mini-sticky moved** (2944, 1741) → (3150, 1430): Annie's card
+  would have covered its text. Still inside stop 4's frame.
+- **STOPS retuned**: 3 → (2745, 755, 1050x1000) frames all four stickies;
+  5 → (2362, 1768, 2200x900) frames both testimonial pairs. STOPS[0] and the
+  head-script mirror untouched.
+- **Legibility**: `.typed.small` ink #55503f → #3d382e (the old grey sat
+  under the #444 floor); `.quote-card .typed` 20 → 24px and attr 13 → 17px
+  (line-height 32 kept, so strikes stay on the ruled lines) because stop 5
+  now rests at ~0.65 zoom against the old ~1.1. `.pencil-note` is jittered
+  by hand.js (selector added).
+- Versions: style.css 53, reading.css 5, editorial.css 4, board.js 11,
+  hand.js 6. Tripwires above re-baselined (1593 board / 1899 editorial /
+  1612 reading / 1883 no-JS).
+- Battery re-run clean: no-JS wide + narrow render the editorial, 390x844
+  editorial + reading mode verified, console clean at all eight stops.
+  Pre-existing, untouched: `assets/cork.webp` preload is not media-gated, so
+  narrow viewports sometimes log a "preloaded but not used" warning and
+  fetch ~304KB the editorial never paints (same class of issue the tape
+  preloads fixed with their 901px gate).
+
+Not done, deliberately: push/deploy (owner approval pending, PLAN.md phase
+5), real Annie quote/photo (pending her team), mobile polish (still parked).
 
 ## Verification commands
 

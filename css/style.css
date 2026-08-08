@@ -595,7 +595,7 @@ a { color: inherit; }
 }
 
 .sticky-title, .sticky-note { filter: url(#ink-a); }
-.polaroid figcaption { filter: url(#ink-b); }
+.polaroid figcaption, .pencil-note { filter: url(#ink-b); }
 .pc-head, .pc-msg, .pc-msg-small, .email-link, .marker { filter: url(#ink-c); }
 .typed { filter: url(#ink-t); }
 
@@ -671,7 +671,11 @@ a { color: inherit; }
   color: #2b2115;
 }
 .typed + .typed { margin-top: 32px; }
-.typed.small { font-size: 13px; line-height: 22px; color: #55503f; }
+/* #3d382e, not the old #55503f: faded-ribbon grey sat under the #444 ink
+   floor and went illegible at the wider testimonial zoom. Still lighter
+   than the 20px strikes, so the small lines keep reading as small type
+   rather than as a second weight of the same ink. */
+.typed.small { font-size: 13px; line-height: 22px; color: #3d382e; }
 .card-head { letter-spacing: 0.2em; color: #9c3a2e; }
 
 .title-card {
@@ -696,6 +700,29 @@ a { color: inherit; }
 
 .quote-card { width: 700px; min-height: 420px; }
 .attr { margin-top: 32px; }
+
+/* The testimonial stop frames BOTH pairs now, which rests the camera at a
+   wider zoom (~0.65 against the old ~1.1). The quote cards' type steps up
+   to keep the same on-screen reading size; line-height stays 32px so the
+   strikes still sit on the cards' ruled lines. Scoped to .quote-card: the
+   about and title cards kept their zoom. */
+.quote-card .typed { font-size: 24px; }
+.quote-card .typed.small.attr { font-size: 17px; line-height: 26px; }
+
+/* Annie's placeholder card: name and title typed, then the ruled lines
+   wait for her quote. The pencil note marks the empty space as
+   intentional. Bottom LEFT: her polaroid lies over the card's bottom-right
+   corner, and the note has to stay out from under it. */
+.pencil-note {
+  position: absolute;
+  left: 46px;
+  bottom: 38px;
+  font-size: 29px;
+  /* graphite, not ballpoint: a lighter strike than the pen, held over the
+     #444 ink floor so it still reads at the stop's resting zoom */
+  color: rgba(56, 53, 46, 0.92);
+  transform: rotate(-2deg);
+}
 
 /* --- sticky notes: real photographed paper -------------------------- */
 

@@ -124,8 +124,10 @@ Break these and something real breaks.
   `js/board.js`** without a specific reason. The framing at each stop was tuned
   by eye.
 - **Visible text must stay byte-identical.** `document.body.innerText.length`
-  is exactly **1387**. Copy changes are the owner's call, not an implementation
-  detail.
+  is exactly **1593** on the board and **1899** on the editorial, re-baselined
+  2026-08-08 when the owner-approved events/testimonial content landed
+  (previously 1387/1707). Copy changes are the owner's call, not an
+  implementation detail.
 - **No `CNAME` file in the staging repo.** `CNAME` claims a custom domain for
   GitHub Pages. Both repos carrying one naming `whittworkstudios.com` is a
   conflict that can break or hijack the live site. The file belongs only in
