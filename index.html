@@ -126,7 +126,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=47">
+<link rel="stylesheet" href="css/style.css?v=48">
 <!-- READING MODE, linked twice on purpose. See the header of css/reading.css.
      The media query covers narrow and short viewports; the <noscript> copy
      covers scripting being off at ANY width, which no media query can detect
@@ -364,6 +364,26 @@
   <footer class="site-footer">
     <p class="meta">&copy; 2026 WhittWorks Studios</p>
     <p class="meta meta-end">Birmingham, Alabama</p>
+
+    <!-- The way onto the cork board, and it lives HERE rather than pinned to a
+         corner on purpose. Fixed to the viewport it was the loudest thing on
+         every screen of a page that is meant to read as a calm typeset site.
+         In the footer it is a reward for reaching the end: you find it, or you
+         never know it was there, which is the right weight for an easter egg
+         that swaps the whole design. -->
+    <button class="board-peek" type="button" aria-controls="corkboard"
+            aria-label="Open the cork board version of this site">
+      <span class="peek-note" aria-hidden="true">
+        <svg class="ink peek-face" viewBox="0 0 100 100">
+          <!-- two Sharpie dashes and a mouth that overshoots on the left, the
+               way a hand drawing quickly finishes a curve past where it meant to -->
+          <path style="--sw:7" d="M35 37 q1.5 6 0.5 11"/>
+          <path style="--sw:7" d="M65 38 q-1.5 6 -0.5 11"/>
+          <path style="--sw:6" d="M27 59 q10 19 24 18 q16 -1 22 -20"/>
+        </svg>
+      </span>
+      <span class="peek-label">the real board</span>
+    </button>
   </footer>
 </div>
 
@@ -577,20 +597,6 @@
      the .ink treatment and the #roughen displacement filter with the five
      doodles pinned to the board itself.
      ================================================================== -->
-<button class="board-peek" type="button" aria-controls="corkboard"
-        aria-label="Open the cork board version of this site">
-  <span class="peek-note" aria-hidden="true">
-    <svg class="ink peek-face" viewBox="0 0 100 100">
-      <!-- two Sharpie dashes and a mouth that overshoots on the left, the
-           way a hand drawing quickly finishes a curve past where it meant to -->
-      <path style="--sw:7" d="M35 37 q1.5 6 0.5 11"/>
-      <path style="--sw:7" d="M65 38 q-1.5 6 -0.5 11"/>
-      <path style="--sw:6" d="M27 59 q10 19 24 18 q16 -1 22 -20"/>
-    </svg>
-  </span>
-  <span class="peek-label">the real board</span>
-</button>
-
 <button class="board-exit" type="button" aria-controls="corkboard"
         aria-label="Go back to the main site">
   <span aria-hidden="true">&larr;</span> back to the site

@@ -261,6 +261,45 @@ marketing needs the subject's permission independently of who owns the file.
   that testimonial. The photograph was taken at his own event; he holds the rights
   to the image and to both likenesses, and gave them for this use. Owner-confirmed
   2026-08-07. Nothing outstanding.
+### Tone grade on two of the three photographs (2026-08-07)
+Owner-directed, chosen from a four-up comparison sheet (current / gentle /
+medium / strong); both are "strong". Reproduce with
+`python3 tools/lqip/grade_photos.py` against a clean checkout.
+
+assets/chad.jpg is NOT touched — it was approved as shot, and it is the
+reference the other two were graded against. That comparison is what made the
+complaint measurable rather than a matter of taste:
+
+    caden.jpg   mean L 176.0   5th pct 59.9   95th 255.0   sd 80.7   BEFORE
+    chad.jpg    mean L 111.4   5th pct 13.0   95th 245.0   sd 82.3   approved
+    levelup     mean L  50.1   5th pct  4.1   95th 221.0   sd 72.7   BEFORE
+
+The founder portrait read "too bright" because it had NO BLACK: its darkest
+five per cent sat at 60/255 where the approved portrait's sat at 13, so the
+suit was flat charcoal instead of navy and the frame floated 65 levels above
+the picture beside it. The cure was a black point, not less light.
+
+    caden.jpg   black 42  white 248  gamma 0.86  highlight lift 0.10
+                -> mean 159.1   5th 15.0   95th 255.0   sd 99.9
+    levelup     black 26  white 236  gamma 0.90  highlight lift 0.22
+                -> mean  44.5   5th  0.0   95th 249.1   sd 86.8
+
+The Level Up screenshot had the opposite problem: already dark, but its white
+lettering topped out at 221 and its blacks never reached zero, so the chrome
+read grey-on-grey. Blacks to zero and highlights up toward paper white; the
+black pops because the white does.
+
+The grade is baked into the JPEGs, so it reaches both designs from one file.
+Two CSS filters still sit on top per design and were deliberately left as they
+were: .pol-photo carries brightness(1.05) contrast(1.05) saturate(1.06) for the
+board's frames, and .pc-picture carries saturate(.72) contrast(.8)
+brightness(1.05) sepia(.12), which is the postcard's print treatment and is
+meant to wash. Both were re-checked by eye after grading.
+
+The inline placeholders for `caden` and `levelup` in css/style.css were
+regenerated from the graded files with tools/lqip/make_lqip.py; `chad` and every
+other entry are unchanged.
+
 - assets/caden.jpg — Caden Whitt, founder, in the .caden-polaroid
   (index.html:183). Shot by a photographer during Caden's internship. Caden
   holds the rights to the image, and the subject is Caden himself, so both the

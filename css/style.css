@@ -956,7 +956,7 @@ a { color: inherit; }
    over these well before they finish arriving. */
 .caden-polaroid .pol-photo {
   object-position: 50% 10%;
-  background: url("data:image/webp;base64,UklGRjQBAABXRUJQVlA4ICgBAAAwBwCdASobACgAPrFQokynJKMiKrgIAOAWCUAYZuXYwA0tDRoLqwVfT1/4pS7pSJoraPkSEx4SkYJzui/nzkyDUAAA/vi6KuqQR64dU2evupB+ZMRrhukhV3+K9cd6eOIQzbqTukrz7hOn/XQVBwtyblIUK6rTbgT5+lNvwQTAt9N8txWhRkljfS0/+U0slc7xvKz+ZIlRt6FxlQQ/z+c26kdgmi5D3yZJ7PXKLrpRzEfi5mpgRgfMti3f9rGj42OVA1E6lTSeAzDRz+Zr+YkJJ45pTKAtX21MqSDKzmSjEEDhz7+KuSOgbgfvgDwUly2MN4mPR6wGwbw0PFXO6Ywn2z924PP8SdJ0eVgyEM5pEiFpnyQfZ1ayHN5GeIj7qc1oJJLVit0AAA==") 50% 10% / cover no-repeat #b0b2b3;
+  background: url("data:image/webp;base64,UklGRmIBAABXRUJQVlA4IFYBAAAQBwCdASobACgAPrFQnUsnJKKhqqoA4BYJQBkPpAhwVxNHhZAnZOyrH+vTNOUZP+oqrO1H/I72wk8hbE8XA2gDAAD++LpufyhasPGUdpPwDTCHwCGd4OSv7UVcIaNfL5BZZmI11HGYoSME1d3dPdtLabKjcMi7IMuyc81PFTL6ihTjmX+h6NmvnHJJ2AJjRDOoGlByAir1GNAaAHRW+pf1klvSJYW32icZSwIEqJYsS4h8lG6sfSXy0v8UJAlldCO28r2TLtJniOIgqDmg3XwaF09zRP068mftDgfKAdGNmhuVvXLVNOUHyOTxqdRLZ3+H53TS1p1SlGqPXKFd7R/Nrrde74FbGwEjxr7izsNBL2GnfgfF2YX/AAu4/2f6ojsnufuS7cdoLIJIgi1cy+DXpcT3rIX2xeF1Yo49ec7vVh2t/y/x8Syd71v9WhKSxU9JW0eAAAA=") 50% 10% / cover no-repeat #b0b2b3;
 }
 .chad-polaroid .pol-photo {
   object-position: 50% 22%;
@@ -1045,7 +1045,7 @@ a { color: inherit; }
      median is the black and nothing else, and at 48px the headline block and
      the logo are already where they will be. The filter below grades this as
      it grades the shot. */
-  background: url("data:image/webp;base64,UklGRt4BAABXRUJQVlA4INIBAACwCACdASowAB4APrFUo04nJKMiJWgA4BYJaQDSd24K77MKZBk6AbAMYVzmvSgQakSUv2rU3q5y+YAzZR5kWxNbhtBvFJ5IArLBRZYhIAAA/vbxePJm1bfBs3hVoTGiG/rR/zxgIEPiyYRB0EOQskHyEnSC8xNXxdDV1J1B7kWf0cUbzycfPtqxqbph0/vofXslZI55bCalEneQAGHzqMcmhABjnmg8zVG/7F8/IDRAEPj8lE302pLSKVj47loTX+uRczP49RODjRHwhhB6dCoKobPez/kzvEMGmpSX6+UTtbYZaEn8YPpVz8x3MPfIyG0n8tID67lZ4MN8H9+DXr5Jp/6RADbusp8tYalNVEmBqPB1r/pcf82WzPYQ6jPcjurCiHpM2wSSIxHuYo/GqamL8U8QLti/maAfEScTyczC7/vuc37Lqph8ltXMBzpPQNQU6E1rd4r4P2oXSsXk6MDLOc3wRiEpk4ghUo+d7dfrLvpMEXYgw09ttfd3jkDaMl74/f5rmw2UfRNRhC4Q5wNkkE8iikWZ6rUaHr6niMicoAZu9035NepP4EMMRxO4Xxce8KOrHDdJ/XqEoMDXyIuPQJa+lqu+82Qk5iWMBwCY7SQA") 50% 50% / cover no-repeat #333236;
+  background: url("data:image/webp;base64,UklGRgYCAABXRUJQVlA4IPoBAADwCACdASowAB4APrFUo04nJKMiJWgA4BYJaQAOBVh2HEBpaPhXPy5zXpH2Bv1sB7S813VTI1ayV8zt/FkmefGedxwG/8OOaBoOcA+/q1uQAAD++J737+x/d6tWWfC62HudeFVRZ85WuzRQ/e9hLPOE4ito2JgvdW2rJ5w02cuw10pozf3s9pW8MSHvXicCfAoeQCly7z2YjjEF6u8GvPlGOd0cUBz+OXoPpSWAxcoa+85eeMHbJeCZ7QY3hpbP47wLKNf4/Jcw9Y8Vas3UxKnk5nT18h6QHz8/Giqymyqfp1aS5z4lLr6/zA/wAZ1nmwGg5/SRdY/fpPiUvNEN/kxf56PHGuU7mhp6LX57qfXQPkAcZQZIIiG8m/48P3+23T8t8fjivtMKtimtTmbn/+lx9gAzlt9fYT++yPwIyErrMYcP/w6NFysr4XNUjiOY3idbKZ8YTZ8Ftv/7D2xyzhkbrnjY0wyh+1G0/20ki5lilcGqGZYuvn55/Zu+exmymZks+9pP+4nhSUqr9lR8ScQg8MgohqLgJdb+yIlhlPeeG/Y4dQCvcX+1dSzLil6ePKncVdGp+VA+LJ/+pgch3Ak0dQbXyYttN/xFH1BLmHEIxYVriIg5Kpbj8IZpboM+p/UN+x7ea0JxiH1PY8zw+H2peIc9JTUTKAgAAA==") 50% 50% / cover no-repeat #333236;
   /* four-colour on uncoated stock: no monitor blacks, no monitor saturation */
   filter: saturate(0.72) contrast(0.8) brightness(1.05) sepia(0.12);
 }
@@ -1336,19 +1336,20 @@ html.js.no-board .board-peek { display: none; }
 .board-exit { display: none; }
 
 html.js .board-peek {
-  position: fixed;
-  right: max(0.9rem, env(safe-area-inset-right));
-  bottom: max(0.9rem, env(safe-area-inset-bottom));
-  z-index: 60;
-  display: flex;
+  /* IN THE FOOTER, not pinned to a corner. Fixed to the viewport this was the
+     loudest thing on every screen of a page meant to read as a calm typeset
+     site; here it is a reward for reaching the bottom. Half the size it was,
+     for the same reason. */
+  display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.55rem;
+  margin: 1.6rem 0 0.2rem;
   padding: 0;
   border: 0;
   background: none;
   cursor: pointer;
-  /* the whole control, note and label together, clears the 44px minimum
-     comfortably, so the tap target is the thing you can see */
+  /* the note itself is 31px now, so the control leans on padding to clear the
+     44px pointer-target minimum without looking bigger than it is */
   min-height: 44px;
   font: inherit;
   -webkit-tap-highlight-color: transparent;
@@ -1364,8 +1365,8 @@ html.js.board-open .board-peek { display: none; }
 .peek-note {
   position: relative;
   flex: 0 0 auto;
-  width: 62px;
-  height: 62px;
+  width: 31px;
+  height: 31px;
   /* the same photographed stock as the notes on the board, not a CSS square.
      sticky-04 is the smallest scan in the set at 3.5KB. Its own median sits
      underneath, so the note is the right yellow in the first frame and the
@@ -1375,8 +1376,8 @@ html.js.board-open .board-peek { display: none; }
     linear-gradient(#d1ce79, #d1ce79);
   transform: rotate(-4deg);
   filter:
-    drop-shadow(0 1px 1px rgba(25, 12, 4, 0.3))
-    drop-shadow(3px 7px 10px rgba(25, 12, 4, 0.32));
+    drop-shadow(0 1px 1px rgba(25, 12, 4, 0.28))
+    drop-shadow(1px 3px 5px rgba(25, 12, 4, 0.3));
   transition: transform 0.18s ease;
 }
 
@@ -1390,13 +1391,13 @@ html.js.board-open .board-peek { display: none; }
 
 .peek-label {
   font-family: var(--hand);
-  font-size: 1.05rem;
+  font-size: 0.8rem;
   line-height: 1;
   color: #2b2015;
   background: #f4efe2;
-  padding: 0.4rem 0.6rem;
+  padding: 0.25rem 0.4rem;
   transform: rotate(-1.2deg);
-  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.32);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
 }
 
 /* a note that has just been pressed lifts off the cork a little */
