@@ -1,128 +1,137 @@
-# Plan: kill the load-time zoom on the board's top-left corner
+# Plan: events service sticky, Annie testimonial placeholder, legibility pass
 
-Written 2026-08-08. Replaces the 2026-08-03 realism-pass plan, which was
-executed in full; its outcomes are recorded in HANDOFF.md.
+Approved 2026-08-08. Replaces the executed first-paint framing plan.
 
-**One-line goal:** a visitor never sees the top-left corner of the cork at 1:1
-while the page loads — the board is framed whole from its very first paint.
+**One-line goal:** the board gains a fourth service (event management) and a
+second, clearly-placeholder testimonial slot, and every piece of reading text
+on the site is comfortably legible at its resting zoom.
 
-## The bug
+## Classification
+Track: Feature — additive content on an existing, working site. Parked:
+real Annie quote/photo (pending her team's confirmation).
 
-On a wide-screen load, the inline head script sets `board-first` before
-anything paints, so the cork board is what gets laid out. But nothing writes
-`#board`'s transform except `js/board.js`, which executes at the end of
-`<body>` — and first paint waits only on stylesheets, never on end-of-body
-scripts. In that gap the 3600×2400 board paints untransformed with
-`transform-origin: 0 0`: the visitor sees the top-left corner of the cork at
-full scale, then the camera arrives and the view snaps out to the framed
-board. The owner reports it as "a zoom on the top left corner when loading."
+## Interview Ledger
+- Q1 Annie materials → placeholders until her team confirms (user)
+- Q2 plan approved (user)
 
-Reproduced 2026-08-08 in headless Chromium at 1440×900 by delaying
-`board.js` 4s: mid-gap computed transform is `none` with the board displayed;
-after load it is `translate(101.679px, 37.7863px) scale(0.343511)`.
+## Goal & Success Criteria
+- A fourth blue sticky, "Event Management & Coordination," sits in the
+  services cluster, fully framed at the services stop, in both the board and
+  the narrow-screen editorial design.
+- A second testimonial (index card + polaroid) for Annie Meissner exists as
+  an unmistakable placeholder: name and title shown, ZERO fabricated quote
+  words, neutral inline-data-URI polaroid image; framed at the testimonial
+  stop beside Chad's.
+- Every reading passage is clearly legible in a 1440x900 screenshot at its
+  stop's resting zoom; no body ink lighter than #444 on white/cream paper.
+- All load fixes hold: first-frame framing, cork underlay, fail-open paths,
+  clean console.
 
-The code has always known about this failure shape — the `board-live` gate
-exists to stop the *404* route to it ("a 3600x2400 board with nothing driving
-it ... the identical top-left-corner failure by another door"). The healthy
-load pays a shorter visit to the same corner on every load; slower
-connections stare at it for seconds.
+## Current State (verified this session)
+- Blue stickies: index.html:507-517 (board), :393-401 (editorial). Chad quote
+  card :541 (1320,1736), polaroid :546 (1990,1845).
+- STOPS has 8 entries; stop 3 services (2788,722,1000x950), stop 5
+  testimonial (1870,1990,1290x820). Only STOPS[0] is mirrored by the inline
+  head script — other stops retune freely.
+- Cache-busting at style.css?v=52, board.js?v=10. innerText tripwires: 1387
+  board / 1707 scripted editorial (re-baseline after this work).
+- HANDOFF traps: size papers with --sz custom property, never raw
+  percentages; bump ?v= on every edited linked file.
 
-## The fix
+## Scope (v1)
+The three changes, both designs, plus retuned camera framing where they land.
 
-The inline head script already decides the design before first paint and
-already knows the viewport. Let it also compute the stop-0 (whole board)
-framing and publish it as a `--first-frame` custom property on `<html>`;
-`css/style.css` holds that transform on `.board` until the camera's inline
-style takes over:
+## Out of Scope & Parked Items
+- Real Annie quote and photo — pending; swap is a drop-in (replace polaroid
+  img src, insert quote text into the ruled lines, remove the pencil note).
+- Mobile/tablet polish — still deferred.
+- Stop count, scroll mapping, pins/string, load-fix machinery: untouched.
 
-```css
-html.js.board-first .board { transform: var(--first-frame, none); }
-```
-
-The head script uses the same numbers as `STOPS[0]` in `js/board.js` — span
-3860×2620, center (1800, 1200) — and the same formula
-(`s = min(vw/3860, vh/2620)`, `translate(vw/2 − 1800s, vh/2 − 1200s)
-scale(s)`), so `board.js`'s first inline write lands on the identical matrix
-and the handoff is invisible.
+## Approach
+Sticky: clone the blue-sticky markup/CSS pattern for "Event Management &
+Coordination"; body copy (veto-able): "planning, logistics, and the tools
+that make an event run itself." Nudge cluster positions so four fit; widen
+STOPS[3] until all four rest in frame with margin. Executor's choice:
+placement, rotation.
+Annie placeholder: clone quote-card + polaroid beside Chad's. Card:
+"Annie Meissner — Director of Events & Finance, Alabama Republican Party"
+over empty ruled lines, small pencil note "quote on its way". Polaroid:
+neutral-grey inline data URI (nothing new to 404), caption Annie Meissner.
+Widen STOPS[5] to frame both. Editorial: matching service list item and an
+equally-placeholder second blockquote.
+Legibility: darken grey-ish reading inks toward near-black (typewriter) or
+deep ink (hand); bump sizes within writable insets; tighten stop spans where
+text still reads small. Judge per stop by screenshot at 1440x900.
 
 ## Requirements
+- R1: WHEN the camera rests at stop 3, all four service stickies SHALL be
+  fully in frame with margin, titles legible.
+- R2: WHEN the camera rests at stop 5, both testimonials SHALL be in frame;
+  Annie's SHALL contain zero invented quote words.
+- R3: WHEN any stop renders at 1440x900, reading-path text SHALL meet the
+  ink floor (#444 minimum on white/cream) and read comfortably.
+- R4: WHEN the site loads narrow or without JS, the editorial SHALL show the
+  new service and the placeholder testimonial.
+- R5: WHEN any linked file changes, its ?v= SHALL bump; recorded innerText
+  tripwires SHALL be re-baselined wherever documented.
+- R6: WHEN the load-fix battery reruns (no-JS, 390x844, reading mode,
+  console), results SHALL match the 2026-08-08 baseline.
 
-- R1: WHEN the board is on screen during load, at any moment from first paint
-  onward, it SHALL show the whole-board framing, never an untransformed
-  corner.
-- R2: WHEN `js/board.js` executes, its first transform SHALL equal the
-  CSS-held one (same viewport, scroll 0) so the handoff moves nothing.
-- R3: Every fail-open path SHALL behave exactly as before: scripting off →
-  editorial; `board.js` 404 → editorial at DOMContentLoaded; `style.css`
-  404 → editorial, never both designs stacked; narrow viewport → editorial
-  plus the sticky note; reading mode keeps `transform: none !important`.
-- R4: visible text SHALL be untouched: `document.body.innerText.length`
-  stays 1387 on the wide board and 1707 on the scripted editorial; console
-  SHALL stay clean on healthy loads.
-- R5: `STOPS` values, camera easing, `will-change: transform`, and the
-  `.moving`/`MOVE_SETTLE` machinery SHALL be untouched. (The stop-0 numbers
-  are *mirrored* in the head script, with cross-references both ways.)
+## Key Decisions
+- Annie's title corrected to "Director of Events & Finance" [assumed:
+  spelling fix intended — if wrong: one-line edit].
+- Widen stops 3 and 5, do not add a stop (user's scroll mapping and peek
+  audit stay frozen) [A2].
+- Deploy after screenshot approval: push corkboard-realism, rebuild staging
+  main with HANDOFF fixups (delete CNAME, insert noindex meta) [A3].
 
-## Constraints honoured
+## Edge Cases & Failure Handling
+- Placeholder polaroid is inline data URI → cannot 404.
+- Reading mode reflows both testimonials; verify the empty-ruled card does
+  not collapse oddly there.
+- Legibility edits to shared CSS → recapture every stop the selector reaches.
 
-- No new requests, no third-party anything: the fix is inline script + one
-  CSS rule.
-- Cache-busting convention: bump `?v=` on every edited linked file.
-- The head script must stay self-contained and unable to fail into a worse
-  state: if the property never gets set, `var(--first-frame, none)` is the
-  old behavior.
-
-## Edge cases considered
-
-- Resize between first paint and `board.js` arrival: framing is stale for
-  that window; the camera corrects it on execution. Strictly better than the
-  corner.
-- Scroll restoration landing at `scrollY > 0`: CSS holds stop 0, the camera
-  cuts to the restored stop on its first frame. Same class of behavior as
-  today, minus the corner.
-- Tablets (found by adversarial review, then fixed): the head script
-  originally sat above `<head>` and so read `innerWidth` before the viewport
-  meta was processed — a mobile browser answers with the 980px legacy layout
-  viewport there. On phones that is harmless (the stylesheet's real-viewport
-  `@media` gate hides the board), but a tablet whose final viewport is still
-  ≥ 901px would keep the board, held by a frame built for 980×672 — ~28%
-  small on an iPad-Pro-class screen — then snap when the camera corrected
-  it. The script therefore MOVED to just after the viewport meta, still
-  before every stylesheet: design decided pre-paint, viewport read
-  post-meta. Verified in Chromium tablet emulation (1366×1024, `isMobile`):
-  `--first-frame` now computes from the real viewport and matches the
-  camera's write. Not verifiable on real iPad Safari from this environment;
-  worst case there is the pre-move behavior, which the camera corrects.
-- The same move makes `board-first` genuinely absent on phones (it used to
-  be set from the 980px guess and merely neutralized by the CSS gate).
+## Assumptions Ledger
+| ID | Assumption | Basis | Blast radius if wrong | Check |
+|----|-----------|-------|----------------------|-------|
+| A1 | Sticky body copy draft acceptable | user veto at approval | one-line rewrite | Phase 5 |
+| A2 | Widen stops, don't add one | keeps scroll/peek machinery frozen | rework framing | Phase 1 |
+| A3 | Staging deploy OK with placeholder name/title | noindex + unlisted | pull the rebuild | Phase 5 |
+| A4 | Ink floor #444 = "not grey on white" | user granted latitude | tune per screenshot | Phase 3 |
 
 ## Verification
+- Screenshots of stops 0, 3, 5, and every legibility-touched stop at
+  1440x900, delivered to the user.
+- Console clean; innerText re-baselined and recorded; no-JS and 390x844
+  spot-checks.
+- Live staging check after deploy (curl for new markup, then browser check).
 
-- [x] Repro with `board.js` held by route interception (headless Chromium,
-      1440×900). Verified 2026-08-08: in the gap, `<html>` carries
-      `board-first` but not `board-live`, the inline transform is empty, and
-      the computed transform is already
-      `matrix(0.343511, 0, 0, 0.343511, 101.679, 37.7863)` — held by the CSS
-      variable alone. After `board.js` executes, its inline write is the
-      identical matrix. The in-gap screenshot shows the whole framed board
-      (photographs still soft under their LQIP placeholders, which is that
-      system doing its job); before the fix the same moment showed the
-      top-left corner of the cork at 1:1.
-- [x] Transform-equality sweep across viewports (2560×1440, 1440×900,
-      1280×1024, 1024×768, 901×700): CSS-held matrix == camera's first
-      matrix, component-wise. Verified 2026-08-08.
-- [x] Fail-open battery: no-JS, `board.js` 404, `style.css` 404, 390×844
-      phone viewport, reading-mode toggle (computed transform `none` beats
-      the new rule), reduced motion, scroll-during-gap. All land where
-      HANDOFF.md's table says they should. Verified 2026-08-08.
-- [x] `innerText.length` unchanged by this work: 1387 on the wide board,
-      1707 on the scripted editorial (390×844), byte-for-byte. The battery
-      also measured three states the docs never enumerated, all pre-existing
-      and none touched by this diff: 1691 no-JS editorial (the peek-note
-      label needs the `js` class), 1727 unstyled editorial (`style.css`
-      404 reveals both toggle labels), 1406 narrow reading mode (adds
-      "← BACK TO THE SITE"). Recorded here so the next tripwire reader does
-      not chase them as regressions.
-- [x] Console clean on healthy loads; the only console errors in the battery
-      were the single deliberate 404 per sabotage scenario.
-- [x] No push until the verification results above were actually observed.
+## Build Phases
+- [ ] Phase 1: Fourth sticky + stop 3 retune (both designs)
+      Done when: stop-3 screenshot shows four framed stickies; editorial
+      lists four services
+      Steps: clone sticky markup; place/rotate; widen STOPS[3]; add
+      editorial list item; screenshot
+      Covers: R1, R4; checks: A2
+- [ ] Phase 2: Annie placeholder pair + stop 5 retune (both designs)
+      Done when: stop-5 screenshot shows both testimonials, Annie's visibly
+      placeholder with zero invented words
+      Steps: clone card+polaroid; data-URI photo; empty ruled lines + pencil
+      note; widen STOPS[5]; editorial blockquote; screenshot
+      Covers: R2, R4
+- [ ] Phase 3: Legibility sweep
+      Done when: every stop's screenshot passes the ink floor and reads
+      comfortably at rest
+      Steps: darken inks; size up within insets; tighten spans where needed;
+      recapture affected stops
+      Covers: R3; checks: A4
+- [ ] Phase 4: Conventions + battery
+      Done when: ?v= bumped on touched files; tripwires re-baselined in this
+      file and HANDOFF.md; battery matches baseline
+      Covers: R5, R6
+- [ ] Phase 5: User approval, then deploy
+      Done when: user approves the screenshot set; staging serves the new
+      content
+      Steps: deliver set; on approval push corkboard-realism; rebuild
+      staging main per HANDOFF fixups; live check
+      Checks: A1, A3
