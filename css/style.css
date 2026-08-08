@@ -1325,6 +1325,33 @@ a { color: inherit; }
      fallback is the old behavior. Reading mode still wins over this rule:
      css/reading.css carries transform: none !important. */
   html.js.board-first .board { transform: var(--first-frame, none); }
+
+  /* Flat cork behind the board, exactly where the board is. During the
+     first second of a load the compositor can put the board on screen with
+     some of its tiles not yet rasterized (seen live in Opera: staircase-
+     edged gaps through the middle of the cork). An unrasterized tile draws
+     nothing of the board — not even its background-color — so no rule on
+     .board can cover this; only what is BEHIND the board can. This is a
+     positioned ::before, so it paints above .viewport's wall background and,
+     coming before .board in tree order at the same stacking level, always
+     below the board itself: it cannot cover the board, misplaced or not.
+     #bb6c27 is .board's own composite base colour (see that rule), so a
+     late tile reads as cork awaiting texture — the same progressive
+     language as the LQIP placeholders — instead of a hole showing the wall.
+     The rect comes from the same inline head script and the same numbers
+     as --first-frame; unset vars collapse it to nothing. Known residual:
+     the rect does not follow window resizes or reading mode, where it can
+     sit behind opaque content untouched — acceptable against the gap. */
+  html.js.board-first .viewport::before {
+    content: "";
+    position: absolute;
+    left: var(--board-x, -9999px);
+    top: var(--board-y, 0);
+    width: var(--board-w, 0);
+    height: var(--board-h, 0);
+    background: #bb6c27;
+    pointer-events: none;
+  }
 }
 
 /* The sticky note in the corner. Any width, camera alive: the visitor asked
