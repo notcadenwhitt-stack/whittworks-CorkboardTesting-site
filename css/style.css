@@ -1311,6 +1311,20 @@ a { color: inherit; }
      in the broken case instead of on every healthy load. */
   html.js.board-first .corkboard { display: block; }
   html.js.board-first .editorial { display: none; }
+
+  /* Hold the whole-board framing from the very first paint. The class above
+     puts the board on screen immediately, but js/board.js — the only thing
+     that ever writes this transform — executes at the end of the body, and
+     first paint does not wait for it. Untransformed, transform-origin 0 0
+     showed the visitor the top-left corner of the cork at 1:1 until the
+     script arrived: the healthy-load twin of the 404 failure described
+     above, paid briefly on every load and at length on a slow connection.
+     --first-frame is set by the same inline head script that set the class,
+     from the same numbers as STOPS[0], so the camera's first inline write
+     lands on the identical matrix and the handoff moves nothing. The
+     fallback is the old behavior. Reading mode still wins over this rule:
+     css/reading.css carries transform: none !important. */
+  html.js.board-first .board { transform: var(--first-frame, none); }
 }
 
 /* The sticky note in the corner. Any width, camera alive: the visitor asked
