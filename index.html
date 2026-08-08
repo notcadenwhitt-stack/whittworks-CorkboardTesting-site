@@ -126,7 +126,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=48">
+<link rel="stylesheet" href="css/style.css?v=49">
 <!-- READING MODE, linked twice on purpose. See the header of css/reading.css.
      The media query covers narrow and short viewports; the <noscript> copy
      covers scripting being off at ANY width, which no media query can detect
@@ -134,7 +134,7 @@
      top-left corner of a 3600x2400 board with 3 of 16 pieces reachable. -->
 <link rel="stylesheet" href="css/reading.css?v=3"
       media="(max-width: 900px), (max-height: 540px)">
-<link rel="stylesheet" href="css/editorial.css?v=1">
+<link rel="stylesheet" href="css/editorial.css?v=2">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch used to wait behind the
      Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
@@ -362,8 +362,10 @@
   </main>
 
   <footer class="site-footer">
-    <p class="meta">&copy; 2026 WhittWorks Studios</p>
-    <p class="meta meta-end">Birmingham, Alabama</p>
+    <div class="footer-meta">
+      <p class="meta">&copy; 2026 WhittWorks Studios</p>
+      <p class="meta meta-end">Birmingham, Alabama</p>
+    </div>
 
     <!-- The way onto the cork board, and it lives HERE rather than pinned to a
          corner on purpose. Fixed to the viewport it was the loudest thing on

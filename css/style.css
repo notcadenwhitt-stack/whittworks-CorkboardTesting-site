@@ -1351,6 +1351,15 @@ html.js .board-peek {
   /* the note itself is 31px now, so the control leans on padding to clear the
      44px pointer-target minimum without looking bigger than it is */
   min-height: 44px;
+
+  /* BOTTOM RIGHT, in both of the footer's layouts, which are not the same
+     layout. .site-footer is a flex ROW with space-between down to 420px, where
+     editorial.css turns it into a COLUMN with align-items: flex-start — so a
+     phone was stacking the note under the copyright at the left margin.
+     margin-left:auto answers the row, align-self answers the column, and
+     neither interferes with the other. */
+  margin-left: auto;
+  align-self: flex-end;
   font: inherit;
   -webkit-tap-highlight-color: transparent;
 }

@@ -403,11 +403,23 @@ a { color: inherit; }
 
 .site-footer {
   border-top: 1px solid var(--ink);
-  padding: clamp(1rem, 2vw, 1.5rem) var(--pad);
+  /* tighter than the bands above it: a footer is a signature, not a section */
+  padding: 0.7rem var(--pad);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+}
+
+/* The two meta lines travel together as one block so the footer stays a single
+   row at every width — copyright on the left, the sticky note on the right.
+   Side by side while there is room, stacked when there is not, but never
+   pushing the note onto a line of its own. */
+.footer-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 1.2rem;
+  min-width: 0;
 }
 
 /* --- small screens ------------------------------------------------ */
@@ -432,7 +444,10 @@ a { color: inherit; }
 }
 
 @media (max-width: 420px) {
-  .site-footer { flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+  /* the FOOTER stays a row here; only the text inside it stacks, so the
+     sticky note keeps its corner instead of dropping below the copyright */
+  .site-footer { flex-direction: row; align-items: center; gap: 0.75rem; }
+  .footer-meta { flex-direction: column; align-items: flex-start; gap: 0.15rem; }
   .site-footer .meta-end { text-align: left; }
 }
 
