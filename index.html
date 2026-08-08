@@ -1,31 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Set before ANY stylesheet is parsed, so the browser never lays out the
-     editorial and then throws it away. Everything below keys off this class:
-     no class, no cork board, and the tan editorial design is what renders.
-     One line, no dependencies, cannot fail after the fact. -->
-<script>
-/* Decide WHICH DESIGN before anything paints. This used to set only "js", and
-   the cork board additionally required "board-live", which js/board.js sets when
-   it runs at the very end of <body> — so on every wide-screen load the browser
-   laid out and PAINTED the editorial design first and swapped it a second later.
-   Measured: 1.0s of tan at 4 Mbps, 1.3s at 1 Mbps. The gate was right, its
-   timing was not.
-   So the guess is made here, from the same 901px the stylesheet uses, and it is
-   a guess this file can make instantly and correctly. js/peek.js still audits it
-   at DOMContentLoaded and drops back to the editorial if board.js never came
-   alive, which keeps the 404/CSP protection and pays the swap only in the case
-   that is actually broken. */
-(function () {
-  var d = document.documentElement;
-  d.className += " js";
-  try {
-    if (window.matchMedia && window.matchMedia("(min-width: 901px)").matches) {
-      d.className += " board-first";
-    }
-  } catch (e) {}
-})();
-</script>
 <!-- The floor, and the reason it is inline rather than in css/style.css: if
      that stylesheet 404s, every display rule on the page goes with it and BOTH
      designs render, stacked, one after the other. Measured: innerText 3116
@@ -37,6 +11,57 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* Decide WHICH DESIGN before anything paints. This used to set only "js", and
+   the cork board additionally required "board-live", which js/board.js sets when
+   it runs at the very end of <body> — so on every wide-screen load the browser
+   laid out and PAINTED the editorial design first and swapped it a second later.
+   Measured: 1.0s of tan at 4 Mbps, 1.3s at 1 Mbps. The gate was right, its
+   timing was not.
+   So the guess is made here, from the same 901px the stylesheet uses, and it is
+   a guess this file can make instantly and correctly. js/peek.js still audits it
+   at DOMContentLoaded and drops back to the editorial if board.js never came
+   alive, which keeps the 404/CSP protection and pays the swap only in the case
+   that is actually broken.
+
+   PLACEMENT IS LOAD-BEARING IN BOTH DIRECTIONS. This script sat above <head>
+   once; it must stay AFTER the viewport meta and BEFORE every stylesheet.
+   After the viewport meta, because it reads innerWidth/innerHeight (and
+   matchMedia) — before that meta is processed, a mobile browser answers with
+   the 980px legacy layout viewport, and a tablet whose real viewport keeps
+   the board would get a --first-frame built for a viewport it does not have,
+   then pay a visible snap when the camera's first write corrects it. Before
+   every stylesheet, so the design is decided before anything can be laid out
+   or painted. */
+(function () {
+  var d = document.documentElement;
+  d.className += " js";
+  try {
+    if (window.matchMedia && window.matchMedia("(min-width: 901px)").matches) {
+      d.className += " board-first";
+      /* The class puts the board on screen from the first frame, but nothing
+         writes its transform until js/board.js runs at the end of the body,
+         and first paint does not wait for end-of-body scripts. Untransformed,
+         with transform-origin 0 0, the 3600x2400 board shows its top-left
+         corner at 1:1 until the camera arrives — a blink on fast connections,
+         seconds on slow ones, and a visible zoom-out either way. So the
+         whole-board framing is computed here as well and published as
+         --first-frame; the stylesheet holds it on .board until the camera's
+         inline style takes over. Same numbers as STOPS[0] in js/board.js —
+         span 3860x2620, center 1800,1200 — and the same formula, so the
+         camera's first write lands on the identical matrix and nothing moves.
+         Retune stop 0 there and these constants must move with it. */
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var s = Math.min(vw / 3860, vh / 2620);
+      if (s > 0) {
+        d.style.setProperty("--first-frame",
+          "translate(" + (vw / 2 - 1800 * s) + "px," +
+                         (vh / 2 - 1200 * s) + "px) scale(" + s + ")");
+      }
+    }
+  } catch (e) {}
+})();
+</script>
 <title>WhittWorks Studios — Web Design &amp; Consulting</title>
 <meta name="description" content="WhittWorks Studios is the solo studio of Caden Whitt, designing and building websites and digital tools for businesses and organizations.">
 <meta name="theme-color" content="#8a6a44">
@@ -148,7 +173,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=50">
+<link rel="stylesheet" href="css/style.css?v=51">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -225,7 +250,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=9">
+<link rel="preload" as="script" href="js/board.js?v=10">
 <link rel="preload" as="script" href="js/hand.js?v=5">
 </head>
 <body>
@@ -630,7 +655,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=9"></script>
+<script src="js/board.js?v=10"></script>
 <script src="js/hand.js?v=5"></script>
 </body>
 </html>

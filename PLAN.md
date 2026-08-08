@@ -1,139 +1,128 @@
-# Plan: WhittWorks cork board realism pass, verification and polish
+# Plan: kill the load-time zoom on the board's top-left corner
 
-Approved 2026-08-03. Executes the remaining work in HANDOFF.md.
+Written 2026-08-08. Replaces the 2026-08-03 realism-pass plan, which was
+executed in full; its outcomes are recorded in HANDOFF.md.
 
-**One-line goal:** every camera stop on the cork board reads as photographed
-paper at final zoom, proven by a screenshot set the user can approve, with zero
-pushes until they do.
+**One-line goal:** a visitor never sees the top-left corner of the cork at 1:1
+while the page loads — the board is framed whole from its very first paint.
 
-Note: the dev server now runs on an auto-assigned port via the `whittworks`
-launch entry (currently 8941; another chat's server holds 8940). Always load
-pages with a unique `?v=` query string; the server sends no cache headers.
+## The bug
 
-## Interview Ledger
-- Q1 mobile scope: deferred until desktop approval (user)
-- Q2 pins/string: leave untouched, no asset searches anywhere; critique focuses
-  on sticky notes, polaroids, index cards, cork surface, postcards, in that
-  priority order (user)
-- Q3 plan approved (user)
+On a wide-screen load, the inline head script sets `board-first` before
+anything paints, so the cork board is what gets laid out. But nothing writes
+`#board`'s transform except `js/board.js`, which executes at the end of
+`<body>` — and first paint waits only on stylesheets, never on end-of-body
+scripts. In that gap the 3600×2400 board paints untransformed with
+`transform-origin: 0 0`: the visitor sees the top-left corner of the cork at
+full scale, then the camera arrives and the view snaps out to the framed
+board. The owner reports it as "a zoom on the top left corner when loading."
 
-## Goal & Success Criteria
-- All 8 camera stops screenshot-verified at 1440x900 with no text overflowing
-  its paper's writable inset
-- Each stop's target element fully in frame with visible margin at rest
-- Contact postcard back legible at zoom: message left, circled email on the
-  address lines, stamp in the corner
-- The five priority elements survive an adversarial "what reads as fake?"
-  critique, residual flaws documented rather than hidden
-- Console clean at every stop
-- Visible copy word-for-word identical before and after (user constraint)
-- Final screenshot set of all 8 stops delivered for approval; nothing pushed
+Reproduced 2026-08-08 in headless Chromium at 1440×900 by delaying
+`board.js` 4s: mid-gap computed transform is `none` with the board displayed;
+after load it is `translate(101.679px, 37.7863px) scale(0.343511)`.
 
-## Scope (v1)
-HANDOFF.md "What is left" minus mobile: zoomed verification of all 8 stops,
-contact postcard layout at zoom, camera stop framing retune, realism critique on
-the five priority elements, resulting fixes, final screenshot set.
+The code has always known about this failure shape — the `board-live` gate
+exists to stop the *404* route to it ("a 3600x2400 board with nothing driving
+it ... the identical top-left-corner failure by another door"). The healthy
+load pays a shorter visit to the same corner on every load; slower
+connections stare at it for seconds.
 
-## Out of Scope & Parked Items
-- Mobile: deferred until desktop approval (user)
-- Pins and red string: user is happy with both; untouched (user)
-- Any new asset hunt or download: forbidden (user)
-- Push to GitHub: forbidden until user approves the design (user)
-- Dropping stash@{0}: forbidden until the branch is confirmed good (HANDOFF.md)
-- Copy edits of any kind: presentation only (user)
+## The fix
 
-## Approach
-Multi-agent pass directed by the session model (manager, director, final
-checker only; no file edits by the director). Opus agents take judgment-heavy
-work: realism critique, nontrivial CSS/layout fixes on paper elements. Sonnet
-agents take mechanical work: server checks, per-stop capture, text-fit
-inspection, STOPS retuning in js/board.js. Cheapest capable model per task.
+The inline head script already decides the design before first paint and
+already knows the viewport. Let it also compute the stop-0 (whole board)
+framing and publish it as a `--first-frame` custom property on `<html>`;
+`css/style.css` holds that transform on `.board` until the camera's inline
+style takes over:
 
-Single Browser pane: browser-driving stages run serialized, one agent at a
-time. Jump to stop n (0..7) with:
-`window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * n/7)`
+```css
+html.js.board-first .board { transform: var(--first-frame, none); }
+```
 
-Executor's choice: agent count per phase, fix batching, screenshot filenames.
+The head script uses the same numbers as `STOPS[0]` in `js/board.js` — span
+3860×2620, center (1800, 1200) — and the same formula
+(`s = min(vw/3860, vh/2620)`, `translate(vw/2 − 1800s, vh/2 − 1200s)
+scale(s)`), so `board.js`'s first inline write lands on the identical matrix
+and the handoff is invisible.
 
 ## Requirements
-- R1: WHEN any of the 8 stops renders at 1440x900, all hand-lettered and typed
-  text SHALL fit inside its paper's writable inset with no overflow or clipping.
-- R2: WHEN the camera rests at a stop, the target element SHALL be fully in
-  frame with visible margin (retune STOPS spans in js/board.js where not).
-- R3: WHEN the camera rests at the contact stop, the postcard back SHALL show
-  the message on the left, the circled email on the address lines, and the
-  stamp in the corner, all legible.
-- R4: WHEN any stop is visited, the console SHALL show zero errors or warnings.
-- R5: WHEN all fixes land, visible text content SHALL be byte-identical to the
-  pre-pass extraction.
-- R6: WHEN the critique completes, each of the five priority elements SHALL
-  either pass "reads as photographed" or carry a documented, accepted residual.
-- R7: WHEN the pass completes, no push has occurred and all work sits on
-  corkboard-realism.
 
-## Key Decisions
-- Judging viewport: 1440x900 [assumed: matches the only prior careful check]
-- Cache busting: bump ?v= on the stylesheet link on every CSS edit; unique
-  query strings on every page load (HANDOFF.md trap 2)
-- New paper sizing: --sz custom property, never raw percentages on absolutely
-  positioned elements (HANDOFF.md trap 1)
-- Fixes commit incrementally on corkboard-realism [assumed: matches branch
-  pattern]
+- R1: WHEN the board is on screen during load, at any moment from first paint
+  onward, it SHALL show the whole-board framing, never an untransformed
+  corner.
+- R2: WHEN `js/board.js` executes, its first transform SHALL equal the
+  CSS-held one (same viewport, scroll 0) so the handoff moves nothing.
+- R3: Every fail-open path SHALL behave exactly as before: scripting off →
+  editorial; `board.js` 404 → editorial at DOMContentLoaded; `style.css`
+  404 → editorial, never both designs stacked; narrow viewport → editorial
+  plus the sticky note; reading mode keeps `transform: none !important`.
+- R4: visible text SHALL be untouched: `document.body.innerText.length`
+  stays 1387 on the wide board and 1707 on the scripted editorial; console
+  SHALL stay clean on healthy loads.
+- R5: `STOPS` values, camera easing, `will-change: transform`, and the
+  `.moving`/`MOVE_SETTLE` machinery SHALL be untouched. (The stop-0 numbers
+  are *mirrored* in the head script, with cross-references both ways.)
 
-## Edge Cases & Failure Handling
-- Stale serving despite query strings: restart via the whittworks launch entry
-- A fix breaks text fit on another stop (shared CSS): recapture every stop the
-  touched selector affects
-- hand.js glyph collides with a paper edge: adjust the writable inset
-  (--wx/--wy/--ww/--wh or --sz), never the text
-- Unexpected dirty files (possible second session): stop and report, do not
-  commit over them
-- Opus fix stalls after two attempts: document as residual, move on
+## Constraints honoured
 
-## Assumptions Ledger
-| ID | Assumption | Basis | Blast radius if wrong | Check |
-|----|-----------|-------|----------------------|-------|
-| A1 | 1440x900 judging viewport | prior check used it (HANDOFF.md) | recapture, minutes | user veto at approval |
-| A2 | Session-owned server on auto port is usable | started fresh this session | restart, trivial | Phase 1 |
-| A3 | Efficiency = cheapest capable model, not thinner coverage | user + ultracode | rebalance tiers | user veto |
-| A4 | Director reviews only, never edits files | user's role assignment | none | standing |
-| A5 | Incremental commits on the branch | existing commit pattern | git reset, cheap | user veto |
+- No new requests, no third-party anything: the fix is inline script + one
+  CSS rule.
+- Cache-busting convention: bump `?v=` on every edited linked file.
+- The head script must stay self-contained and unable to fail into a worse
+  state: if the property never gets set, `var(--first-frame, none)` is the
+  old behavior.
+
+## Edge cases considered
+
+- Resize between first paint and `board.js` arrival: framing is stale for
+  that window; the camera corrects it on execution. Strictly better than the
+  corner.
+- Scroll restoration landing at `scrollY > 0`: CSS holds stop 0, the camera
+  cuts to the restored stop on its first frame. Same class of behavior as
+  today, minus the corner.
+- Tablets (found by adversarial review, then fixed): the head script
+  originally sat above `<head>` and so read `innerWidth` before the viewport
+  meta was processed — a mobile browser answers with the 980px legacy layout
+  viewport there. On phones that is harmless (the stylesheet's real-viewport
+  `@media` gate hides the board), but a tablet whose final viewport is still
+  ≥ 901px would keep the board, held by a frame built for 980×672 — ~28%
+  small on an iPad-Pro-class screen — then snap when the camera corrected
+  it. The script therefore MOVED to just after the viewport meta, still
+  before every stylesheet: design decided pre-paint, viewport read
+  post-meta. Verified in Chromium tablet emulation (1366×1024, `isMobile`):
+  `--first-frame` now computes from the real viewport and matches the
+  camera's write. Not verifiable on real iPad Safari from this environment;
+  worst case there is the pre-move behavior, which the camera corrects.
+- The same move makes `board-first` genuinely absent on phones (it used to
+  be set from the 980px guess and merely neutralized by the CSS gate).
 
 ## Verification
-- Per stop n in 0..7: load with unique ?v=, jump, screenshot, read console
-- Copy freeze: document.body.innerText extracted before fixes and after, diff
-  must be empty
-- git status clean, stash@{0} intact, git log shows no push
-- Human check: user reviews the 8-stop set and approves or lists changes
 
-## Build Phases
-- [ ] Phase 1: Preflight (Sonnet)
-      Done when: server serves current files, console clean at overview,
-      baseline text extraction saved, tree state recorded
-      Steps: load with unique query string; screenshot stop 0; read console;
-      save innerText extraction and git status to scratchpad
-      Covers: R4, R5 baseline; checks: A2
-- [ ] Phase 2: Capture and inspect all 8 stops (Sonnet, serialized)
-      Done when: 8 screenshots at 1440x900 with a per-stop defect log
-      Steps: per stop: jump, screenshot, read console, log defects against
-      R1/R2/R3/R4; flag STOPS entries needing retune
-      Covers: R1, R2, R3, R4; checks: A1
-- [ ] Phase 3: Realism critique (Opus, serialized browser access)
-      Done when: ranked "reads as fake" report covering, in priority order,
-      sticky notes, polaroids, index cards, cork surface, postcards; pins and
-      string explicitly excluded
-      Steps: revisit each stop at rest zoom; judge adversarially; rank by
-      severity; propose a concrete CSS-only fix per finding
-      Covers: R6
-- [ ] Phase 4: Fixes (Opus for paper CSS, Sonnet for STOPS and mechanical)
-      Done when: every defect and finding fixed or documented as accepted
-      residual; touched stops recaptured clean; ?v= bumped; committed
-      Steps: batch by file; --sz rule for sizing; recapture affected stops per
-      batch; retune flagged STOPS spans; commit with precise file lists
-      Covers: R1, R2, R3, R6; checks: A5
-- [ ] Phase 5: Director's final check (Fable, no edits)
-      Done when: copy diff empty, git verified (no push, stash intact), final
-      8-stop set plus one zoom-out captured, summary delivered for approval
-      Steps: re-extract innerText and diff; run git checks; assemble final set;
-      report residuals honestly; request approval
-      Covers: R5, R7; checks: A4
+- [x] Repro with `board.js` held by route interception (headless Chromium,
+      1440×900). Verified 2026-08-08: in the gap, `<html>` carries
+      `board-first` but not `board-live`, the inline transform is empty, and
+      the computed transform is already
+      `matrix(0.343511, 0, 0, 0.343511, 101.679, 37.7863)` — held by the CSS
+      variable alone. After `board.js` executes, its inline write is the
+      identical matrix. The in-gap screenshot shows the whole framed board
+      (photographs still soft under their LQIP placeholders, which is that
+      system doing its job); before the fix the same moment showed the
+      top-left corner of the cork at 1:1.
+- [x] Transform-equality sweep across viewports (2560×1440, 1440×900,
+      1280×1024, 1024×768, 901×700): CSS-held matrix == camera's first
+      matrix, component-wise. Verified 2026-08-08.
+- [x] Fail-open battery: no-JS, `board.js` 404, `style.css` 404, 390×844
+      phone viewport, reading-mode toggle (computed transform `none` beats
+      the new rule), reduced motion, scroll-during-gap. All land where
+      HANDOFF.md's table says they should. Verified 2026-08-08.
+- [x] `innerText.length` unchanged by this work: 1387 on the wide board,
+      1707 on the scripted editorial (390×844), byte-for-byte. The battery
+      also measured three states the docs never enumerated, all pre-existing
+      and none touched by this diff: 1691 no-JS editorial (the peek-note
+      label needs the `js` class), 1727 unstyled editorial (`style.css`
+      404 reveals both toggle labels), 1406 narrow reading mode (adds
+      "← BACK TO THE SITE"). Recorded here so the next tripwire reader does
+      not chase them as regressions.
+- [x] Console clean on healthy loads; the only console errors in the battery
+      were the single deliberate 404 per sabotage scenario.
+- [x] No push until the verification results above were actually observed.

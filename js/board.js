@@ -82,7 +82,10 @@
     : null;
   var reduced = !!(motionQuery && motionQuery.matches);
 
-  /* Camera stops: board-space center (x, y) and the span to fit (w, h). */
+  /* Camera stops: board-space center (x, y) and the span to fit (w, h).
+     Stop 0's four numbers are mirrored by the --first-frame math in the
+     inline head script in index.html, which frames the board before this
+     file has executed. Retune stop 0 and that copy must move with it. */
   var STOPS = [
     { x: 1800, y: 1200, w: 3860, h: 2620 },  /* 0 whole board */
     { x: 1800, y: 1070, w: 1080, h: 740 },   /* 1 title card */
