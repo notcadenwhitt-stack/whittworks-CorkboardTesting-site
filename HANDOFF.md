@@ -1,158 +1,210 @@
-# Handoff: WhittWorks cork board realism pass
+# Handoff: WhittWorks Studios
 
-Written 2026-08-03. Everything below is verified against the repo and a live
-browser check unless marked otherwise.
+Rewritten 2026-08-07. The previous version was written 2026-08-03 and had gone
+badly stale — it described a single-design cork board site, said nothing had
+been pushed, and listed work that is now done. Everything below is verified
+against the repo, the live remotes and a real device unless marked otherwise.
 
-## What this project is
+Branch **`corkboard-realism`**, tip **`fdbaefe`**, working tree clean.
 
-`whittworkstudios.com` is a single-page static site (no build step) at
-`/Users/cadenwhitt/Claude Code Projects/Experimentation/Final Project/whittworks-site/`.
-Deploy is a git push to GitHub Pages, repo `notcadenwhitt-stack/whittworks-site`.
+---
 
-The design is a photorealistic cork "conspiracy board." A fixed camera starts
-zoomed out on a framed 3600x2400 board and scroll drives it through 8 stops:
-overview, title card, about + polaroid, three service sticky notes, the Level Up
-work sample, testimonial + polaroid, contact, back to overview.
+## Session intent
 
-## Current branch state — READ THIS FIRST
+The owner asked for a fresh-eyes scan for problems, expecting the cork board's
+size and detail to be the cause. It mostly was not. What followed was a
+diagnostic pass, a legal cleanup, and then a re-architecture the owner directed
+after seeing the mobile result.
 
-Work lives on branch **`corkboard-realism`**. Nothing has been pushed. `main` is
-untouched and still holds the older print-poster editorial design that is live.
+---
+
+## What this site is NOW (this is the part that changed most)
+
+**Two designs in one document.** The tan editorial design is the BASE. The cork
+board is an enhancement layered on top of it.
+
+| condition | what renders |
+|---|---|
+| wide screen + working camera | cork board |
+| phone / narrow / short viewport | tan editorial + a sticky note in the footer |
+| tap the sticky note | cork board, in reading mode |
+| scripting off, any width | tan editorial |
+| `js/board.js` 404s or CSP blocks it | tan editorial |
+| `css/style.css` 404s | tan editorial |
+| crawler | tan editorial, fully typeset |
+
+`document.body.innerText.length` is **1387** wherever the board shows and
+**1707** on the editorial. The old 1387-everywhere tripwire now means
+"1387 on the board".
+
+### The four class gates, and why each exists
+
+Set on `<html>`. Get these wrong and the site shows the wrong design or flashes.
+
+- **`js`** — inline head script. Proves a script ran. Nothing more.
+- **`board-first`** — same inline head script, from
+  `matchMedia("(min-width: 901px)")`. Decides the design BEFORE first paint.
+  This exists because gating on `board-live` alone painted the editorial first
+  and swapped ~1 second later on every wide load (measured 1.0s at 4 Mbps,
+  1.3s at 1 Mbps).
+- **`board-live`** — set by `js/board.js` ALONE, after its own guards pass.
+  Proves a camera exists. `js` was not enough: `peek.js` and the head script
+  both set it, so a 404 on `board.js` left `js` present and showed a board with
+  nothing driving it.
+- **`no-board`** — set by `js/peek.js` at DOMContentLoaded if `board-live` never
+  appeared. Removes `board-first` and hands the page back to the editorial.
+  DOMContentLoaded and NOT `setTimeout(0)`: the parser fetches `board.js` after
+  running `peek.js`, and timers fire in that gap, so a zero-delay timer reported
+  every healthy load as dead.
+
+Plus `board-open` / `board-shut` for the sticky-note toggle.
+
+There is also an inline `<style>.corkboard{display:none}</style>` in the head.
+It is the floor: if `css/style.css` 404s, every display rule goes with it and
+BOTH designs render stacked (measured innerText 3116, the whole site twice).
+
+---
+
+## Files
+
+### Created this session
+- `css/editorial.css` — the tan design, lifted from `main`. Its `:root` is
+  scoped to `.editorial` because `--paper`, `--ink` and `--red` collide with the
+  board's at different values. Zero class-name collisions between the two
+  stylesheets, which is why the rest arrived unedited.
+- `css/reading.css` — the board reflowed into a column. **Has no `@media` of its
+  own**; the gate is entirely the `media` attribute on its `<link>`. It was once
+  also linked inside `<noscript>`, back when the column was the no-JS fallback;
+  it is NOT any more, because the editorial design fills that role better. Do
+  not re-add that link.
+- `js/peek.js` — the sticky-note toggle. Deliberately separate from `board.js`
+  so the toggle survives `board.js` failing to parse.
+- `tools/lqip/reencode_assets.py` — one-shot asset re-encode.
+- `tools/lqip/grade_photos.py` — one-shot photo grade.
+
+### Modified
+- `index.html` — merged both designs, inline head script, inline display floor,
+  four font preloads, absolute `og:image`/`og:url`, sticky note in the footer.
+- `css/style.css` — Anton + Inter `@font-face`, design-switching gates,
+  sticky-note styles, `overflow: clip` on `.viewport`, `min-height` on the three
+  card rules, `border-image` slice 170→85.
+- `js/board.js` — `--camera` sentinel guard, `board-live`, `cameraActive()`,
+  reading-mode standdown, `MOVE_SETTLE` 160→**600**, nav `STOP_TARGET` map.
+- `js/hand.js` — `seedText` (textContent) split from `label` (innerText); no
+  `aria-hidden` on a wrapper containing a focusable.
+- `assets/paper/SOURCES.md` — every referenced asset now has provenance.
+- `GOALS.md` — two stale claims corrected.
+
+### Deleted
+39 unreferenced files. `assets/` went **6.1 MB → 1.8 MB**. Included every
+`-orig`/`-orig2` source scan, 5 unused Resource Boy tapes, the Fuzzimo
+originals, and `doodle-bulb-unlicensed.webp.DISABLED`.
+
+### Re-encoded in place
+```
+tape-3.webp           29,350 →  13,980     lossy alpha
+tape-4.webp           17,498 →   9,128     lossy alpha
+tape-7.webp           40,018 →  18,720     lossy alpha
+postcard-front.webp  206,980 →  47,742     82% of it is hidden behind .pc-picture
+wood.jpg              38,666 →   9,876     512→256, slice 170→85 in lockstep
+caden.jpg            105,424 →  91,938     tone grade
+levelup-card-900.jpg  66,935 →  66,763     tone grade
+```
+Referenced payload is now **40 files, 1,677,351 bytes**.
+
+---
+
+## Decisions made, with the reasoning that is expensive to re-derive
+
+- **The cork is not the problem.** 304 KB of 1.84 MB (16.25%). A counterfactual
+  rebuild at 2400x1600 transferred the same bytes. Board size 3600x2400 is
+  correct — KEEP IT. The cork is if anything too small: 1024² laid at a 1180
+  board-px tile is a 3.83x upscale at retina.
+- **`.moving` STAYS.** An early report said delete it; that was measured on a
+  host at load average 18-175 and is wrong. Removing it is 10-25x worse at p95.
+- **`MOVE_SETTLE` is 600, not 160 and not 400.** The cost is RESTORING the
+  shadow stacks, not collapsing them — a GPU-process block of 428ms, not main
+  thread. A wheel is bursts with pauses, and 160 fired inside every pause.
+  400 was tried and resonates with a 450ms cadence, worse than 160.
+- **Reading mode drops `url(#cut)`.** A WebKit bug: it painted a solid black
+  170x188pt rectangle at the viewport origin on real iPhones. Chrome never
+  reproduced it at any viewport. Desktop keeps the filter.
+- **The four Rawpixel stickies stay**, as a knowingly accepted risk. Openverse
+  returns `creator=None` for all three IDs and rawpixel.com is 403 behind
+  Cloudflare, so the owner's own "read the source page" standard cannot be met.
+  Recorded in full in `SOURCES.md`.
+- **The two `&rarr;` arrows stay in the system font.** U+2192 is absent from the
+  entire upstream Caveat family, so the only fix is shipping a modified Caveat.
+  Owner declined. Do not re-investigate; it is written up in `SOURCES.md`.
+- **Keep the LQIP placeholder system.** It solves a different problem from the
+  flash: the flash was 1.0-1.3s of the wrong design (now zero), the placeholders
+  cover the 12+ seconds of photographs still arriving.
+
+---
+
+## Traps that cost real time here
+
+1. **An emulator is not a browser.** Six days of Chrome DevTools measurement at
+   every viewport, DPR and throttle missed a black rectangle that a real iPhone
+   showed in one screenshot. Use the iOS Simulator (`xcrun simctl`, then the
+   simulator control tool) for anything visual. It reaches the host's
+   `localhost` directly, so serve variants locally and bisect.
+2. **Scripted scrolling lies.** `window.scrollTo` in a rAF loop paces itself to
+   the frame budget and reported locked 60fps for days. Real
+   `Input.dispatchMouseEvent` wheel events, in bursts with pauses, found a
+   2.6-second frame. Always drive real wheel input.
+3. **Measure on an idle machine.** Sibling agents saturating this Mac produced
+   numbers that reversed a conclusion twice. Check `uptime` before trusting any
+   timing.
+4. **`mobile=True` in CDP silently changes your viewport.** Ask for 390 and
+   viewport-meta shrink-to-fit gives you 594. Use `mobile=False` and ASSERT
+   `innerWidth` before trusting a measurement.
+5. **`offsetParent` is null for `position: fixed`.** It reports every visible
+   fixed element as hidden. Use `getClientRects().length`.
+6. **`visibility: hidden` changes `innerText`,** exactly like `display: none`
+   (measured 1387 → 1355). Only `opacity: 0`, off-screen positioning and
+   `clip-path` preserve it.
+7. **Percentage padding on absolutely positioned elements** resolves against the
+   3600px board. Use `--sz`.
+8. **Ports collide silently.** A stale server keeps a port and your new one dies
+   unheard, so you measure the wrong build. Verify what a port actually serves
+   before trusting it.
+
+---
+
+## Current state
 
 ```
-24f6672  Fix sticky sizing and per-word line breaking
-46c4f12  Photographic paper: real stickies, polaroid frames, postcards, tape
-3ce4025  Restore cork board design from stash onto its own branch
-108cd7e  (main) Use WhittWorks logo for favicon and social-share thumbnail
+whittworks-site          main only (e15a884) — the OLD editorial design, live, untouched
+CorkboardTesting         corkboard-realism fdbaefe · main 8c7259e — serving this build
+whittworkstudios.com     200, still the old design
 ```
 
-**Why commit 3ce4025 exists:** a different Claude session was running in this
-same folder overnight. At 01:39 it stashed the uncommitted cork board and reset
-to the editorial design, then committed favicon work on top. The board was
-recovered from `stash@{0}` ("cork board redesign draft (unapproved)") onto this
-branch with the favicon commit merged in. The stash still exists; do not drop it
-until this branch is confirmed good. If a second session may still be running in
-this folder, check before you start writing files.
+Staging: `https://notcadenwhitt-stack.github.io/whittworks-CorkboardTesting-site/`
 
-## The task, in the user's words
+**Per-rebuild fixups for staging, required every time:** delete `CNAME`, add
+`<meta name="robots" content="noindex, nofollow">`.
 
-The sticky notes and polaroids "look like they are supposed to be in a video
-game." CSS gradient approximations were rejected. The fix is real photographic
-assets, the way real cork and wood textures already solved the board surface.
-The user then asked for a postcard: **Level Up as a postcard front, Contact as a
-postcard back.** Also: make the handwriting feel handwritten, so no two "a"s look
-identical while still reading as one person's hand. Realism is priority one.
+---
 
-Hard constraints from the user:
-- Do not push to GitHub until they approve the design.
-- Copy stays word-for-word; only presentation changes.
-- Assets must be free and legal for commercial use.
+## Next steps
 
-## What is done
+1. **Decide whether to merge to `main`.** Nothing forces it. Production is still
+   the old design, which is also now the phone experience and the fallback.
+2. **Split the board's placeholders out of `css/style.css`** behind the same
+   901px gate. 13.2% of that 68 KB file is base64 the editorial never uses, and
+   phones load all of it on the render-blocking path.
+3. **A human screen-reader pass.** The AX tree and keyboard were driven
+   programmatically; nobody has listened to it.
+4. Optional: `caden.jpg` photographer is recorded as unnamed; fill it in if known.
 
-**Assets** — 23 processed files in `assets/paper/`, 1.6 MB total, all licenses
-recorded in `assets/paper/SOURCES.md` (read it before adding or redistributing
-anything; the Fuzzimo terms forbid re-publishing the raw scans as a resource
-pack, so never commit the source ZIP).
-
-| Asset | Count | Source | License |
-|---|---|---|---|
-| `sticky-01..07.webp` | 7 | Unsplash (Kelly Sikkema) + Rawpixel CC0 previews | Unsplash License / CC0 1.0 |
-| `polaroid-frame-1..3.webp` | 3 | Fuzzimo blank instant-film scans | free commercial, no attribution |
-| `postcard-back.webp` | 1 | Wikimedia, 1913 divided-back postcard | public domain |
-| `postcard-front.webp` | 1 | Wikimedia, 1925 white-border postcard | public domain |
-| `stamp-1.webp` | 1 | Wikimedia, 1917 Washington 2c | public domain |
-| `tape-1..8.webp` | 8 | Resource Boy masking tape PNGs | free commercial |
-| `paper-grain.webp` | 1 | ambientCG Paper002 | CC0 1.0 |
-
-Each polaroid frame has its transparent photo window measured; those numbers live
-in CSS as `--wx/--wy/--ww/--wh` per `.frame-N` class. Same idea for the postcard
-picture area.
-
-**Integration** — all in `index.html` + `css/style.css`:
-- Every sticky note renders on a real photographed note (`.paper-1` … `.paper-7`),
-  each with its own aspect ratio and measured writable insets. Doodle notes use
-  the smaller notes, two of them mirrored with `.flip` so repeats are less obvious.
-- Polaroids are scanned frames with photos positioned behind the transparent
-  window, plus a gloss layer and the caption sitting on the frame's bottom lip.
-- Work stop is now `.postcard-front`: the Level Up screenshot printed into the
-  card's picture area with print grain over it, two real tape strips at the top
-  corners, and the caption hand-written on a tape label.
-- Contact stop is `.postcard-back`: message on the left, the circled email on the
-  address lines, the 1917 stamp in the corner.
-- Index cards gained real paper fiber over the ruled-card gradients.
-- Shadows moved from `box-shadow` to layered `drop-shadow` so they follow each
-  cutout's actual silhouette.
-
-**Handwriting** — `js/hand.js` (new, loaded after `board.js`):
-- Splits hand-lettered text into `.wd` word spans containing `.ch` character
-  spans, seeded by a hash of the text so the same letters draw every visit.
-- Per character: rotation ±2.05deg, baseline ±0.05em, scale 0.968–1.032, and for
-  Caveat a real variable-weight jitter (`wght` 415–525 / 545–655 when bold) so
-  stroke thickness varies like pen pressure. Permanent Marker is static, so it
-  gets opacity variance instead.
-- Four `feTurbulence` + `feDisplacementMap` filters in `index.html` (`#ink-a/b/c`
-  for handwriting clusters, `#ink-t` lighter for typewriter text) roughen stroke
-  edges; because displacement depends on screen position, identical glyphs in
-  different places distort differently.
-- Accessibility: parent gets `aria-label` with the clean string, every generated
-  span is `aria-hidden`, so screen readers announce words not letters.
-- Font embed changed to `Caveat:wght@400..700` to get the variable axis.
-
-## Two traps that already cost time
-
-1. **Percentage padding on absolutely positioned elements resolves against the
-   containing block, which here is the 3600px board.** Sticky padding of `7%`
-   became 250px and the notes rendered thousands of pixels tall. Insets now come
-   from a `--sz` custom property (`calc(var(--pt) * var(--sz))`). If you add a new
-   paper element, set `--sz` on it, never raw percentages.
-
-2. **`python -m http.server` sends no cache headers, so the browser aggressively
-   caches `index.html` and the CSS.** A plain reload will show you stale output
-   and make you think your fix failed. Load a unique query string
-   (`http://localhost:8940/?v=<anything-new>`) to see real changes. There is a
-   `?v=3` cache-buster on the stylesheet link in `index.html`; bump it when you
-   edit CSS.
-
-## How to run and verify
+## Verification commands
 
 ```bash
-python3 -m http.server 8940 --directory "/Users/cadenwhitt/Claude Code Projects/Experimentation/Final Project/whittworks-site"
+python3 -m http.server 8941 --directory "<this directory>"
 ```
-
-In Claude Code, `preview_start` with name `whittworks` does this (configured in
-`Experimentation/.claude/launch.json`). Then jump the camera to stop *n* of 0..7:
-
+Jump the camera to stop *n* of 0..7:
 ```js
 window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * n/7)
 ```
-
-Screenshot each stop. Console should be clean (it is, as of 24f6672).
-
-## What is left
-
-1. **Zoomed verification of all 8 stops.** Only the overview has been checked
-   carefully at 1440x900. The close-up stops are where realism actually gets
-   judged, and where text fit on the new paper is most likely to be wrong.
-2. **Contact postcard layout at zoom.** The message text and circled email were
-   positioned by measurement, not by eye at final size.
-3. **Camera stop framing.** Elements changed size, so several `STOPS` entries in
-   `js/board.js` probably need their spans retuned. Pin 4 was already nudged for
-   the postcard.
-4. **A realism critique pass.** Worth having fresh eyes (or fresh agents) look at
-   final screenshots and answer "what still reads as fake?" Known suspects: the
-   pins are still pure CSS (no free photographic pin was found that cut out
-   cleanly), and the red string is still SVG.
-5. **Mobile.** Untouched and unverified.
-6. **User approval, then push.** Do not push before that.
-
-## Decisions made without asking (veto any cheaply)
-
-- Typewriter text on index cards stays typed, only lightly roughened, because a
-  real board mixes typed cards with handwritten notes.
-- Stickies stay mostly yellow with one chartreuse and one pink accent.
-- The two postcards are treated as separate physical cards from the same era, one
-  pinned picture-side out and one address-side out.
-- Doodle notes got photographic paper too, two of them mirrored.
-- Pins stayed CSS; no qualifying free photo existed.
-- Processed WebP derivatives are committed to the repo; raw source scans are not.
+Always load with a unique `?v=`; the dev server sends no cache headers.

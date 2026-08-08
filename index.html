@@ -148,12 +148,15 @@
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
 <link rel="stylesheet" href="css/style.css?v=50">
-<!-- READING MODE, linked twice on purpose. See the header of css/reading.css.
-     The media query covers narrow and short viewports; the <noscript> copy
-     covers scripting being off at ANY width, which no media query can detect
-     and which is the case that used to leave a desktop visitor looking at the
-     top-left corner of a 3600x2400 board with 3 of 16 pieces reachable. -->
-<link rel="stylesheet" href="css/reading.css?v=3"
+<!-- READING MODE: the board reflowed into a column, for narrow and short
+     viewports. The media attribute is the whole gate — this file has no @media
+     of its own, so it applies exactly when that query matches.
+     It USED to be linked a second time inside <noscript>, back when the column
+     was also the no-JS fallback. It is not any more: the editorial design below
+     is what a visitor without scripting gets, and it is a better answer than
+     the column was. Do not re-add the noscript copy; with no JS the board is
+     display:none anyway and the rules would style something nobody can see. -->
+<link rel="stylesheet" href="css/reading.css?v=4"
       media="(max-width: 900px), (max-height: 540px)">
 <link rel="stylesheet" href="css/editorial.css?v=3">
 <!-- the cork is the backdrop everything sits on and it is the largest file

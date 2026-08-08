@@ -71,22 +71,17 @@
    wrong; it behaves exactly like display:none for innerText.)
    ================================================================== 
 
-   HOW THIS FILE IS APPLIED, and why it is a separate file at all. It is
-   linked twice from index.html and the two links answer two different
-   questions:
+   HOW THIS FILE IS APPLIED. It carries no @media of its own. The gate is the
+   media attribute on its <link> in index.html:
 
      <link ... media="(max-width: 900px), (max-height: 540px)">
-     <noscript><link ...></noscript>
 
-   The first is the viewport case. The second is the no-JavaScript case, at
-   ANY viewport — and that one cannot be a media query, because "is there a
-   script running" is not something a media query can ask. Without it, a
-   desktop visitor with scripting off got the old failure: no transform is
-   ever written, the board sits at 1:1 pinned to the top-left of a fixed
-   clipped viewport, and 3 of 16 pieces are reachable. Same file, same rules,
-   no duplication to keep in sync. It is small and same-origin, so the usual
-   objection to <noscript><link rel=stylesheet> — that a slow third-party
-   host holds render hostage — does not apply here.
+   It was ALSO linked inside <noscript> for a while, when this column was the
+   no-JavaScript fallback. It is not any more. index.html now carries both
+   designs, and the tan editorial one is what renders with scripting off, at
+   any width — a complete typeset site rather than a reflowed board. Do not
+   re-add the noscript link: without JS the cork board is display:none, so
+   these rules would be styling something nobody can see.
    ================================================================== */
 
 :root { --camera-active: 0; }
