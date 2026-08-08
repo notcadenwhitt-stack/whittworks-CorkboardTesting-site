@@ -1303,15 +1303,21 @@ a { color: inherit; }
    That is the identical top-left-corner failure by another door. Require the
    proof, not the intent. */
 @media (min-width: 901px) {
-  html.js.board-live .corkboard { display: block; }
-  html.js.board-live .editorial { display: none; }
+  /* board-first is set by the inline head script, before the first paint, so
+     the board is what gets laid out rather than what replaces the editorial a
+     second later. board-live is still what KEEPS it: js/peek.js removes
+     board-first at DOMContentLoaded if js/board.js never came alive, so a 404
+     or a CSP rejection still lands on the editorial — it just pays for the swap
+     in the broken case instead of on every healthy load. */
+  html.js.board-first .corkboard { display: block; }
+  html.js.board-first .editorial { display: none; }
 }
 
 /* The sticky note in the corner. Any width, camera alive: the visitor asked
    for the board, so give them the board. Wins over the query above in both
    directions because it is more specific. */
-html.js.board-live.board-open .corkboard { display: block; }
-html.js.board-live.board-open .editorial { display: none; }
+html.js.board-open .corkboard { display: block; }
+html.js.board-open .editorial { display: none; }
 html.js.board-shut .corkboard { display: none; }
 html.js.board-shut .editorial { display: block; }
 

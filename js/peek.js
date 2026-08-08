@@ -109,6 +109,10 @@
   function auditCamera() {
     if (root.classList.contains("board-live")) return;
     root.classList.add("no-board");
+    /* board-first was an optimistic guess made in the head so the board could
+       paint without a flash. The guess was wrong: nothing ever came alive to
+       drive it, so take it back and let the editorial have the page. */
+    root.classList.remove("board-first");
     root.classList.remove("board-open");
     root.classList.add("board-shut");
     remember(false);

@@ -4,7 +4,28 @@
      editorial and then throws it away. Everything below keys off this class:
      no class, no cork board, and the tan editorial design is what renders.
      One line, no dependencies, cannot fail after the fact. -->
-<script>document.documentElement.className += " js";</script>
+<script>
+/* Decide WHICH DESIGN before anything paints. This used to set only "js", and
+   the cork board additionally required "board-live", which js/board.js sets when
+   it runs at the very end of <body> — so on every wide-screen load the browser
+   laid out and PAINTED the editorial design first and swapped it a second later.
+   Measured: 1.0s of tan at 4 Mbps, 1.3s at 1 Mbps. The gate was right, its
+   timing was not.
+   So the guess is made here, from the same 901px the stylesheet uses, and it is
+   a guess this file can make instantly and correctly. js/peek.js still audits it
+   at DOMContentLoaded and drops back to the editorial if board.js never came
+   alive, which keeps the 404/CSP protection and pays the swap only in the case
+   that is actually broken. */
+(function () {
+  var d = document.documentElement;
+  d.className += " js";
+  try {
+    if (window.matchMedia && window.matchMedia("(min-width: 901px)").matches) {
+      d.className += " board-first";
+    }
+  } catch (e) {}
+})();
+</script>
 <!-- The floor, and the reason it is inline rather than in css/style.css: if
      that stylesheet 404s, every display rule on the page goes with it and BOTH
      designs render, stacked, one after the other. Measured: innerText 3116
@@ -126,7 +147,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=49">
+<link rel="stylesheet" href="css/style.css?v=50">
 <!-- READING MODE, linked twice on purpose. See the header of css/reading.css.
      The media query covers narrow and short viewports; the <noscript> copy
      covers scripting being off at ANY width, which no media query can detect
@@ -134,7 +155,7 @@
      top-left corner of a 3600x2400 board with 3 of 16 pieces reachable. -->
 <link rel="stylesheet" href="css/reading.css?v=3"
       media="(max-width: 900px), (max-height: 540px)">
-<link rel="stylesheet" href="css/editorial.css?v=2">
+<link rel="stylesheet" href="css/editorial.css?v=3">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch used to wait behind the
      Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
@@ -604,7 +625,7 @@
   <span aria-hidden="true">&larr;</span> back to the site
 </button>
 
-<script src="js/peek.js?v=6"></script>
+<script src="js/peek.js?v=7"></script>
 <script src="js/board.js?v=9"></script>
 <script src="js/hand.js?v=5"></script>
 </body>
