@@ -54,9 +54,19 @@
       var vw = window.innerWidth, vh = window.innerHeight;
       var s = Math.min(vw / 3860, vh / 2620);
       if (s > 0) {
+        /* The 0.07px is deliberate and it is the fix for the board's lower
+           tiles sometimes hanging back unrasterized for a second: when this
+           held frame matched the camera's first write exactly, that write
+           was a computed no-op, and Opera-class engines then never got the
+           transform-change kick that makes the compositor re-prioritize and
+           fill in the rest of the layer's tiles. Seen live: staircase-edged
+           tile gaps across the board's bottom. So the held frame sits
+           0.07px high on purpose; the camera's first write is then a real
+           change — an invisible sub-pixel settle — and the old always-fires
+           invalidation path is back. Do not "clean up" the offset. */
         d.style.setProperty("--first-frame",
           "translate(" + (vw / 2 - 1800 * s) + "px," +
-                         (vh / 2 - 1200 * s) + "px) scale(" + s + ")");
+                         (vh / 2 - 1200 * s - 0.07) + "px) scale(" + s + ")");
       }
       /* The preload gets cork.webp's BYTES here early, but nothing decodes
          them until the compositor first needs the texture — and tiles whose
