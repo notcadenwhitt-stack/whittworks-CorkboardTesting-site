@@ -240,11 +240,14 @@ Executed from PLAN.md (approved 2026-08-08). What changed:
   preloads fixed with their 901px gate).
 
 **Same day, owner-directed in chat after the screenshot set:** the board
-split into panes. The WORK pane sits right — postcard at (2320, 1300),
-darker print grade (saturate .74 / contrast .86 / brightness .96, owner
-asked twice for darker), mini-sticky at (3240, 1430) — and **the cork below
-and right of the postcard is deliberately EMPTY: reserved for future
-product cards.** REVIEWS are a stacked column left of it: row 1 Chad,
+split into panes. The WORK pane sits right — postcard at (2400, 1300) with
+a genuinely dark print (saturate .78 / contrast .96 / brightness .9, and
+the ink-density ceiling halved to 0.07; the owner pushed three times toward
+the live site's near-black), the pink mini-sticky at (3095, 1705) tucked so
+its top-left quadrant covers the postcard's bottom-right corner (owner's
+requested arrangement) — and **the cork below and right of the postcard is
+deliberately EMPTY: reserved for future product cards.** The green chart
+doodle moved up to (980, 1300), clear of Chad's polaroid. REVIEWS are a stacked column left of it: row 1 Chad,
 polaroid (1240, 1450) LEFT of his quote card (1600, 1510); row 2 Annie,
 card (1300, 1955) LEFT of her blank polaroid (1940, 1925). That
 polaroid-card / card-polaroid zigzag is the owner's requested arrangement —
