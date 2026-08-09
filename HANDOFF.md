@@ -33,8 +33,15 @@ board is an enhancement layered on top of it.
 | `css/style.css` 404s | tan editorial |
 | crawler | tan editorial, fully typeset |
 
-`document.body.innerText.length` is **1487** wherever the board shows and
-**1807** on the editorial (1506 in reading mode, 1791 with no JS) —
+`document.body.innerText.length` is **1505** wherever the board shows and
+**1807** on the editorial (1474 in reading mode, 1791 with no JS) —
+re-baselined 2026-08-09 when the bottom chrome landed; the previous set was
+1487 / 1807 / 1506 / 1791 and the deltas are: +18 on the board for the new
+instruction and toggle text less the old hint text, editorial and no-JS
+unchanged because the cluster lives inside `.corkboard`, and −32 in reading
+mode because that stylesheet now `display: none`s the whole cluster where it
+used to set `opacity: 0` on the hint alone, and only display removes text.
+Older note, still true —
 re-baselined 2026-08-09 when the second testimonial was PARKED off the tip
 (see "2026-08-09" below). With the parked pair restored (branch
 `annie-wip`) the values are 1593 board / 1899 editorial, which were the
@@ -272,7 +279,54 @@ sections above.
 - Work postcard → **(2520, 1300)**: its middle (x=2920) is the midpoint of
   Chad's card's right edge (2300) and the cork's inner right edge (3540 —
   the frame border is 30px). Pink mini-sticky **(3215, 1705)** keeps the
-  corner tuck; pin 4 **(2934, 1318)**; board.js at ?v=16.
+  corner tuck; pin 4 **(2934, 1318)**; board.js at ?v=17 (this line said v=16
+  until 2026-08-09; the tree was already at 17).
+
+## 2026-08-09, later: the reduced-motion misdiagnosis, and the bottom chrome
+
+The owner moved to a new Windows machine, opened the site, and reported that
+"the scroll animation is not working at all — it is going frame by frame
+between the stopping points". **There was no bug.** Windows had animation
+effects switched off, Chrome therefore reported
+`prefers-reduced-motion: reduce`, and `js/board.js` answers that by snapping
+to the nearest stop. Verified three ways: `SPI_GETCLIENTAREAANIMATION` false
+at the OS, `matchMedia(...).matches === true` in real Chrome, and the camera
+itself — 14 distinct transforms across 15 scroll samples under
+`no-preference` against 7 under `reduce`.
+
+The lesson worth keeping: **the reduced-motion substitution is invisible and
+was unappealable.** Someone who knows this codebase read it as a defect in
+seconds. What shipped in response:
+
+- **`.board-chrome`**, a fixed bottom cluster holding the scroll instruction
+  and a new motion toggle. One place to look.
+- The hint went **0.65rem → 1.05rem** (10px → 16.8px measured), lost its
+  `aria-hidden`, and now fades on camera progress (`p > 1`) instead of
+  `scrollY > 40% of a viewport`, which used to retire the page's only
+  instruction before the first camera move had finished.
+- **The motion toggle overrides the OS in both directions**, session-scoped
+  in `sessionStorage` under `ww-motion`, and stops following OS changes once
+  used. `applyMotion()` is the single place that reconciles the camera flag,
+  the two `<html>` classes, and `aria-pressed`.
+- CSS motion suppression is now scoped to `html:not(.motion-on)` inside the
+  media query, so the toggle steers the stylesheet too, and it kills
+  `animation` as well as `transition`. With no JS the media query still
+  applies exactly as before.
+- **`assets/cork.webp`'s preload finally got its 901px gate.** Measured at
+  390x844: cork requests 1 → 0, total requests 60 → 18. This was the last
+  open item from the tape-preload work.
+- **A meta CSP** was added, with `'unsafe-inline'` accepted deliberately and
+  the reasoning written at the tag. `frame-ancestors` / `X-Frame-Options` are
+  header-only and cannot be done on Pages at all.
+- **`tools/verify/cdp.mjs`** — the headless-Chrome harness, committed at last.
+  Node 24+, zero dependencies. `node tools/verify/cdp.mjs stops|hint|toggle|
+  modes|shot`. Every prior session rebuilt this by hand.
+
+**A trap this arc paid for:** an HTML comment went in with a closing `-->`
+but no opening `<!--`, which silently parsed 642 characters of prose as body
+text in every render mode. Nothing looked wrong in a screenshot. The
+tripwires caught it immediately, which is the entire argument for keeping
+them.
 
 **Chunk-loading fix (same day, after the owner saw dark tile chunks on
 staging while scrolling).** The cork backstop behind unrasterized board
