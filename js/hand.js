@@ -24,7 +24,8 @@
   }
 
   var SELECTORS = ".sticky-title, .sticky-note, .polaroid figcaption, " +
-    ".pc-caption, .pc-head, .pc-msg, .pc-msg-small, .email-link, .marker";
+    ".pc-caption, .pc-head, .pc-msg, .pc-msg-small, .email-link, .marker, " +
+    ".pencil-note";
 
   var counter = 0;
 

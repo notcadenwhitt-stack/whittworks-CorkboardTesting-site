@@ -595,7 +595,7 @@ a { color: inherit; }
 }
 
 .sticky-title, .sticky-note { filter: url(#ink-a); }
-.polaroid figcaption { filter: url(#ink-b); }
+.polaroid figcaption, .pencil-note { filter: url(#ink-b); }
 .pc-head, .pc-msg, .pc-msg-small, .email-link, .marker { filter: url(#ink-c); }
 .typed { filter: url(#ink-t); }
 
@@ -671,7 +671,11 @@ a { color: inherit; }
   color: #2b2115;
 }
 .typed + .typed { margin-top: 32px; }
-.typed.small { font-size: 13px; line-height: 22px; color: #55503f; }
+/* #3d382e, not the old #55503f: faded-ribbon grey sat under the #444 ink
+   floor and went illegible at the wider testimonial zoom. Still lighter
+   than the 20px strikes, so the small lines keep reading as small type
+   rather than as a second weight of the same ink. */
+.typed.small { font-size: 13px; line-height: 22px; color: #3d382e; }
 .card-head { letter-spacing: 0.2em; color: #9c3a2e; }
 
 .title-card {
@@ -696,6 +700,29 @@ a { color: inherit; }
 
 .quote-card { width: 700px; min-height: 420px; }
 .attr { margin-top: 32px; }
+
+/* The testimonial stop frames BOTH pairs now, which rests the camera at a
+   wider zoom (~0.65 against the old ~1.1). The quote cards' type steps up
+   to keep the same on-screen reading size; line-height stays 32px so the
+   strikes still sit on the cards' ruled lines. Scoped to .quote-card: the
+   about and title cards kept their zoom. */
+.quote-card .typed { font-size: 24px; }
+.quote-card .typed.small.attr { font-size: 19px; line-height: 28px; }
+
+/* Annie's placeholder card: name and title typed, then the ruled lines
+   wait for her quote. The pencil note marks the empty space as
+   intentional. Bottom LEFT: her polaroid lies over the card's bottom-right
+   corner, and the note has to stay out from under it. */
+.pencil-note {
+  position: absolute;
+  left: 46px;
+  bottom: 38px;
+  font-size: 33px;
+  /* graphite, not ballpoint: a lighter strike than the pen, held over the
+     #444 ink floor so it still reads at the stop's resting zoom */
+  color: rgba(56, 53, 46, 0.92);
+  transform: rotate(-2deg);
+}
 
 /* --- sticky notes: real photographed paper -------------------------- */
 
@@ -958,6 +985,19 @@ a { color: inherit; }
   object-position: 50% 10%;
   background: url("data:image/webp;base64,UklGRmIBAABXRUJQVlA4IFYBAAAQBwCdASobACgAPrFQnUsnJKKhqqoA4BYJQBkPpAhwVxNHhZAnZOyrH+vTNOUZP+oqrO1H/I72wk8hbE8XA2gDAAD++LpufyhasPGUdpPwDTCHwCGd4OSv7UVcIaNfL5BZZmI11HGYoSME1d3dPdtLabKjcMi7IMuyc81PFTL6ihTjmX+h6NmvnHJJ2AJjRDOoGlByAir1GNAaAHRW+pf1klvSJYW32icZSwIEqJYsS4h8lG6sfSXy0v8UJAlldCO28r2TLtJniOIgqDmg3XwaF09zRP068mftDgfKAdGNmhuVvXLVNOUHyOTxqdRLZ3+H53TS1p1SlGqPXKFd7R/Nrrde74FbGwEjxr7izsNBL2GnfgfF2YX/AAu4/2f6ojsnufuS7cdoLIJIgi1cy+DXpcT3rIX2xeF1Yo49ec7vVh2t/y/x8Syd71v9WhKSxU9JW0eAAAA=") 50% 10% / cover no-repeat #b0b2b3;
 }
+/* Annie's film is a placeholder (inline SVG, see index.html). The blank
+   emulsion needs MORE physical character than a real print, not less: a
+   flat grey slab measures an order of magnitude smoother than every paper
+   around it and reads as a failed image load. The SVG carries its own
+   fiber grain and vignette; these two rules add the polaroid's grain
+   overlay at double strength and seat the film into the frame's lip. */
+.annie-polaroid::before { opacity: 0.16; }
+.annie-polaroid .pol-gloss {
+  box-shadow:
+    inset 0 0 22px rgba(58, 44, 26, 0.16),
+    inset 0 2px 6px rgba(58, 44, 26, 0.18);
+}
+
 .chad-polaroid .pol-photo {
   object-position: 50% 22%;
   background: url("data:image/webp;base64,UklGRjoCAABXRUJQVlA4IC4CAABQCwCdASohACgAPrFEnEonI6Khrjv7MOAWCWgAnTK0CYgxuxxq/LF6Kv6AdK7pqpdASv7vkJzWNoscWz/iETPT75DVuKKYscDIh28dshjfe7QQFKJyi0avt1WNMpXtHBGmzwAA/vCo6kc2bfCS40KWRSG2gdegUwc5HJCSwdldt6vvLB+yyYAqfqrI+pPDMAxGYDsyjs/4SI/YFbjx9BKTXaRHdKRPLiSJuqQlxcqNX+aSrbOF+5ylmtDmZ2MAusn5A/XiSAHPx5rxiWSODNgYTZWadNehiqnfRVbubtgzNzQ8narUz47X/8o8SnXuFDlSOGqNER8PehCoYKIG4xrPPj2x/9FUvhtcxs+iOcjn+ceOOPBxA0q6JBEN2XAC2fXjuN9rQQ46gIqRBMhNq4JbopwSuh/dyEp67Rt55AY9zyNihKj0xhE2z5nN/7Emn72+KAYftNOrkASFRsJgFdMX3HcC0daQWX8VYM2yJ4q5PZABmdvzwJ8bUyvettnMbhJTX6Zh1f4uRlhZO/ocvySiMuOzu3nR2tjbccctyzcXZlr5mDJcnOJx5CzSuaGfVkDMfHS7r70B76j5Wo2Ke+GFtAXtP9SXpmLHV4nr4CAvzcm9fwd7ullUIWd9Ce/ofq73+CQm5t3WUAa+CwvFjjZnvEjzalWZRcDBwFZcIIBQj5xrPArwDKeztVw6oNIO9cVMIV9858unuyTmBaXgSH49XOG+fReFxR52ExAAAAA=") 50% 22% / cover no-repeat #67757e;
@@ -1046,8 +1086,13 @@ a { color: inherit; }
      the logo are already where they will be. The filter below grades this as
      it grades the shot. */
   background: url("data:image/webp;base64,UklGRgYCAABXRUJQVlA4IPoBAADwCACdASowAB4APrFUo04nJKMiJWgA4BYJaQAOBVh2HEBpaPhXPy5zXpH2Bv1sB7S813VTI1ayV8zt/FkmefGedxwG/8OOaBoOcA+/q1uQAAD++J737+x/d6tWWfC62HudeFVRZ85WuzRQ/e9hLPOE4ito2JgvdW2rJ5w02cuw10pozf3s9pW8MSHvXicCfAoeQCly7z2YjjEF6u8GvPlGOd0cUBz+OXoPpSWAxcoa+85eeMHbJeCZ7QY3hpbP47wLKNf4/Jcw9Y8Vas3UxKnk5nT18h6QHz8/Giqymyqfp1aS5z4lLr6/zA/wAZ1nmwGg5/SRdY/fpPiUvNEN/kxf56PHGuU7mhp6LX57qfXQPkAcZQZIIiG8m/48P3+23T8t8fjivtMKtimtTmbn/+lx9gAzlt9fYT++yPwIyErrMYcP/w6NFysr4XNUjiOY3idbKZ8YTZ8Ftv/7D2xyzhkbrnjY0wyh+1G0/20ki5lilcGqGZYuvn55/Zu+exmymZks+9pP+4nhSUqr9lR8ScQg8MgohqLgJdb+yIlhlPeeG/Y4dQCvcX+1dSzLil6ePKncVdGp+VA+LJ/+pgch3Ak0dQbXyYttN/xFH1BLmHEIxYVriIg5Kpbj8IZpboM+p/UN+x7ea0JxiH1PY8zw+H2peIc9JTUTKAgAAA==") 50% 50% / cover no-repeat #333236;
-  /* four-colour on uncoated stock: no monitor blacks, no monitor saturation */
-  filter: saturate(0.72) contrast(0.8) brightness(1.05) sepia(0.12);
+  /* four-colour on uncoated stock: no monitor blacks, no monitor saturation.
+     Owner asked for the print darker twice (2026-08-08), pointing at the
+     live site's near-pitch page: contrast up, brightness down, and the
+     ink-density ceiling on .postcard-front::after halved to let the deep
+     ink through. Blacks now land around #20 — rich, but still a step off
+     monitor black so the card keeps reading as printed. */
+  filter: saturate(0.78) contrast(0.96) brightness(0.9) sepia(0.1);
 }
 .pc-grain {
   /* the card's print grain over the modern shot, so it reads as printed */
@@ -1066,7 +1111,10 @@ a { color: inherit; }
   opacity: 0.3;
 }
 /* ink-density ceiling: paper reflects, so the darkest ink on the card can
-   never reach the monitor black the source screenshot was captured at */
+   never reach the monitor black the source screenshot was captured at.
+   0.07, down from 0.14: the owner wanted the print darker, and the grade
+   on .pc-picture went as far as it could without crushing; the remaining
+   lift is this layer's, so it gives up half. */
 .postcard-front::after {
   content: "";
   position: absolute;
@@ -1076,7 +1124,7 @@ a { color: inherit; }
   height: 90.44%;
   z-index: 2;
   pointer-events: none;
-  background: rgba(236, 226, 203, 0.14);
+  background: rgba(236, 226, 203, 0.07);
   mix-blend-mode: screen;
 }
 .pc-caption {
@@ -1084,14 +1132,23 @@ a { color: inherit; }
   z-index: 4;
   left: 50%;
   top: calc(100% - 20px);
-  width: 440px;
+  /* 484 wide with real side padding, not the old 440/34: the strip was
+     sized to the exact glyph box, and hand.js's per-letter jitter varies
+     the line's set width a little every time an element is added ahead of
+     it in the document — measured overrunning the tape's torn right end
+     onto bare cork. The extra paper is slack for that variance; stretching
+     tape-7 ~10% is invisible on a torn strip. The padding is asymmetric
+     because the SCAN is: tape-7's torn right end reaches further into the
+     box than its left end, so equal padding set the line 28px from the
+     left tear and 2px from the right one. */
+  width: 484px;
   height: 128px;
   transform: translateX(-50%) rotate(1.2deg);
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0 34px;
+  padding: 0 68px 0 44px;
   /* NO TINT: see the tape note at the top of this file. tape-7 is
      translucent, so a colour under it would still read through on the
      finished board (measured: 13/255 over 30% of this caption). The caption

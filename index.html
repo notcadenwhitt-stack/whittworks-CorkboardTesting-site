@@ -2,7 +2,8 @@
 <html lang="en">
 <!-- The floor, and the reason it is inline rather than in css/style.css: if
      that stylesheet 404s, every display rule on the page goes with it and BOTH
-     designs render, stacked, one after the other. Measured: innerText 3116
+     designs render, stacked, one after the other. Measured 2026-08-07, before
+     the events/testimonial content landed: innerText 3116
      instead of 1387, the whole site twice. This one declaration survives that,
      because an inline style cannot fail to arrive separately from the document
      it is written in. css/style.css re-states it and then overrides it for the
@@ -200,7 +201,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=52">
+<link rel="stylesheet" href="css/style.css?v=57">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -209,9 +210,9 @@
      is what a visitor without scripting gets, and it is a better answer than
      the column was. Do not re-add the noscript copy; with no JS the board is
      display:none anyway and the rules would style something nobody can see. -->
-<link rel="stylesheet" href="css/reading.css?v=4"
+<link rel="stylesheet" href="css/reading.css?v=5"
       media="(max-width: 900px), (max-height: 540px)">
-<link rel="stylesheet" href="css/editorial.css?v=3">
+<link rel="stylesheet" href="css/editorial.css?v=5">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch used to wait behind the
      Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
@@ -277,8 +278,8 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=10">
-<link rel="preload" as="script" href="js/hand.js?v=5">
+<link rel="preload" as="script" href="js/board.js?v=16">
+<link rel="preload" as="script" href="js/hand.js?v=6">
 </head>
 <body>
 
@@ -402,6 +403,10 @@
           <h3 class="index-name">Business &amp; Technology Consulting</h3>
           <p class="index-note">Working through the decisions behind the build: tooling, workflow, and where technology is worth the investment.</p>
         </li>
+        <li class="index-row">
+          <h3 class="index-name">Event Management &amp; Coordination</h3>
+          <p class="index-note">Planning, logistics, and the tools that make an event run itself.</p>
+        </li>
       </ul>
     </section>
 
@@ -426,6 +431,10 @@
         </blockquote>
         <figcaption class="meta testimonial-attr">CHAD PREWETT &mdash; FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS <span class="nobr">CO-FOUNDER</span></figcaption>
       </figure>
+
+      <!-- RESERVED: a second testimonial figure goes here once its
+           materials are confirmed; see the reserved-cork note in the board
+           markup and HANDOFF.md. -->
     </section>
 
     <section class="band band-contact" id="contact" aria-labelledby="contact-title">
@@ -519,8 +528,16 @@
         <p class="hand sticky-note">tooling, workflow, and where technology is actually worth the investment.</p>
       </section>
 
+      <section class="sticky service-sticky paper-1 c-blue flip" style="left:2886px; top:852px; --rot:2.4deg" aria-label="Service: event management and coordination">
+        <h2 class="hand sticky-title">Event Management &amp; Coordination</h2>
+        <p class="hand sticky-note">planning, logistics, and the tools that make an event run itself.</p>
+      </section>
+
       <!-- ================= WORK: the Level Up postcard, picture side out ================= -->
-      <figure class="postcard postcard-front work-postcard" style="left:2220px; top:1300px; --rot:-2deg">
+      <!-- Centered in the work pane per the owner: the card's middle
+           (x=2920) is the midpoint of Chad's review's right edge (2300)
+           and the cork's inner right edge (3540; the frame is 30px). -->
+      <figure class="postcard postcard-front work-postcard" style="left:2520px; top:1300px; --rot:-2deg">
         <!-- no loading="lazy" here: this shot is inside the stop-0 opening view,
              and postcard-front.webp's picture area was compressed hard precisely
              because this covers it. Deferring it shows a soft card first. -->
@@ -534,21 +551,37 @@
         </figcaption>
       </figure>
 
-      <aside class="sticky mini-sticky paper-5 c-pink" style="left:2944px; top:1741px; --rot:4.2deg">
+      <!-- Tucked over the postcard's bottom-right corner: the sticky's
+           top-left quadrant lies on the card, the rest on cork. -->
+      <aside class="sticky mini-sticky paper-5 c-pink" style="left:3215px; top:1705px; --rot:4.2deg">
         <p class="hand sticky-note">more work available on request &rarr;</p>
       </aside>
 
       <!-- ================= TESTIMONIAL ================= -->
-      <section class="card index-card quote-card" style="left:1320px; top:1736px; --rot:1.6deg" aria-label="Client testimonial">
+      <!-- ============ REVIEWS: two stacked rows, left of the work pane.
+           Row 1 is Chad: polaroid LEFT, card RIGHT. Row 2 (parked): card
+           LEFT, polaroid RIGHT. The bottom-right quadrant under the work
+           postcard stays EMPTY on purpose — that cork is reserved for
+           future product cards. ============ -->
+      <section class="card index-card quote-card" style="left:1600px; top:1510px; --rot:1.6deg" aria-label="Client testimonial">
         <p class="typed">&ldquo;Quick turnaround, great design, and excellent support. He built exactly what I envisioned and was helpful from start to finish.&rdquo;</p>
-        <p class="typed small attr">&mdash; CHAD PREWETT, FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS CO-FOUNDER</p>
+        <p class="typed small attr">&mdash; CHAD PREWETT, FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS <span class="nobr">CO-FOUNDER</span></p>
       </section>
 
-      <figure class="polaroid frame-2 chad-polaroid" style="left:1990px; top:1845px; --rot:-2.6deg">
+      <figure class="polaroid frame-2 chad-polaroid" style="left:1240px; top:1450px; --rot:-2.6deg">
         <img class="pol-photo" fetchpriority="high" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760" decoding="async">
         <span class="pol-gloss" aria-hidden="true"></span>
         <figcaption class="hand">Chad Prewett</figcaption>
       </figure>
+
+      <!-- RESERVED CORK: the second testimonial (index card left, polaroid
+           right) goes here once its materials are confirmed. The complete
+           worked-out markup, coordinates, and styling notes live on the
+           local branch `annie-wip` and in HANDOFF.md under "Parked: the
+           second testimonial"; its CSS (.annie-card, .pencil-note,
+           .annie-polaroid, the reading-mode rules, the hand.js selector)
+           is still in the tree on purpose. Do not fill this space with
+           anything else. -->
 
       <!-- ================= CONTACT: postcard, address side out ================= -->
       <section class="postcard postcard-back contact-postcard" style="left:310px; top:1530px; --rot:-0.6deg" aria-label="Contact">
@@ -638,7 +671,7 @@
         </svg>
       </aside>
 
-      <aside class="sticky doodle paper-3 flip c-green" style="left:1010px; top:1440px; --rot:-3deg" aria-hidden="true">
+      <aside class="sticky doodle paper-3 flip c-green" style="left:620px; top:1120px; --rot:-3deg" aria-hidden="true">
         <svg viewBox="0 0 200 200" class="ink">
           <path style="--sw:4.4" d="M38 30 L36 164 L174 162"/>
           <path style="--sw:3.4" d="M48 148 L82 118 L102 134 L152 72"/>
@@ -682,7 +715,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=10"></script>
-<script src="js/hand.js?v=5"></script>
+<script src="js/board.js?v=16"></script>
+<script src="js/hand.js?v=6"></script>
 </body>
 </html>

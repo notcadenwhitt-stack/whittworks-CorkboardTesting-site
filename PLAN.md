@@ -1,128 +1,141 @@
-# Plan: kill the load-time zoom on the board's top-left corner
+# Plan: Clear the doodle, center Level Up in its pane, push everything except Annie
 
-Written 2026-08-08. Replaces the 2026-08-03 realism-pass plan, which was
-executed in full; its outcomes are recorded in HANDOFF.md.
+Approved 2026-08-09 in chat. Replaces the executed events/testimonial/
+legibility plan.
 
-**One-line goal:** a visitor never sees the top-left corner of the cork at 1:1
-while the page loads — the board is framed whole from its very first paint.
+**One-line goal:** the pushed site shows the split board with the postcard
+centered between Chad's review and the frame, the green doodle covering
+nothing, and bare cork where Annie's placeholder sits — while her worked-out
+placement survives locally for one-command restoration.
 
-## The bug
+## Classification
+Track: Feature — three geometry adjustments plus a content-gated deploy on a
+working site. Parked secondary asks: Annie's real quote/photo fill-in
+(deferred by the owner until her materials are verified).
 
-On a wide-screen load, the inline head script sets `board-first` before
-anything paints, so the cork board is what gets laid out. But nothing writes
-`#board`'s transform except `js/board.js`, which executes at the end of
-`<body>` — and first paint waits only on stylesheets, never on end-of-body
-scripts. In that gap the 3600×2400 board paints untransformed with
-`transform-origin: 0 0`: the visitor sees the top-left corner of the cork at
-full scale, then the camera arrives and the view snaps out to the framed
-board. The owner reports it as "a zoom on the top left corner when loading."
+## Interview Ledger
+- Q1 approve → "Run it" (owner). Count: 1.
 
-Reproduced 2026-08-08 in headless Chromium at 1440×900 by delaying
-`board.js` 4s: mid-gap computed transform is `none` with the board displayed;
-after load it is `translate(101.679px, 37.7863px) scale(0.343511)`.
+## Goal & Success Criteria
+- Green chart doodle overlaps zero papers at every stop and the overview.
+- Postcard's horizontal center at x=2920: midpoint of Chad's card right edge
+  (1600+700=2300) and the cork's inner right edge (3600 − 30px frame ≈ 3540;
+  border verified in css/style.css:444-452).
+- Pink sticky, caption strip, and pin travel with the postcard (+120); the
+  approved corner tuck is preserved (same relative offsets).
+- The pushed branch tip renders no Annie content in any surface: board,
+  editorial, reading mode, no-JS.
+- Her placement is preserved locally; when the owner next mentions her
+  review/picture, the assistant recites the stored coordinates and the owner
+  confirms or denies the fill-in. Nothing is restored or pushed before that.
+- Staging serves the new build; console clean; tripwires re-baselined.
 
-The code has always known about this failure shape — the `board-live` gate
-exists to stop the *404* route to it ("a 3600x2400 board with nothing driving
-it ... the identical top-left-corner failure by another door"). The healthy
-load pays a shorter visit to the same corner on every load; slower
-connections stare at it for seconds.
+## Current State
+- Branch corkboard-realism at ec6b710, 6 commits ahead of origin, clean.
+- Annie placeholder: card (1300,1955,−1.2°) + tape (1282,1912), blank
+  polaroid (1940,1925,2.2°) + tape (2222,1869), editorial "Quote on its
+  way." figure. CSS: .annie-card, .pencil-note, .annie-polaroid rules.
+- Postcard (2400,1300), mini sticky (3095,1705), pin 4 (2814,1318), doodle
+  (980,1300).
+- Deploy convention (HANDOFF.md): push branch, rebuild staging main from it,
+  delete CNAME, insert noindex meta above the canonical link.
 
-## The fix
+## Scope (v1)
+The three moves, the Annie trim, the WIP preservation, the push, the staging
+rebuild, the live check.
 
-The inline head script already decides the design before first paint and
-already knows the viewport. Let it also compute the stop-0 (whole board)
-framing and publish it as a `--first-frame` custom property on `<html>`;
-`css/style.css` holds that transform on `.board` until the camera's inline
-style takes over:
+## Out of Scope & Parked Items
+- Annie fill-in — parked until the owner raises it (confirm/deny gate).
+- Production repo whittworks-site (live whittworkstudios.com) — untouched.
+- Known residuals, unchanged: caden.jpg source photo, string stub near
+  sticky 1, caption arrow on its own line, ungated cork.webp preload.
 
-```css
-html.js.board-first .board { transform: var(--first-frame, none); }
-```
-
-The head script uses the same numbers as `STOPS[0]` in `js/board.js` — span
-3860×2620, center (1800, 1200) — and the same formula
-(`s = min(vw/3860, vh/2620)`, `translate(vw/2 − 1800s, vh/2 − 1200s)
-scale(s)`), so `board.js`'s first inline write lands on the identical matrix
-and the handoff is invisible.
+## Approach
+Geometry first (shared by both variants), then branch `annie-wip` to freeze
+the full version locally, then a trim commit on corkboard-realism, then
+deploy. The placeholder's CSS stays in the tree (unused, small) so
+restoration is a markup paste plus tripwire bump. Executor's choice:
+screenshot filenames.
 
 ## Requirements
+- R1: WHEN any stop renders, the doodle SHALL overlap no paper. New spot
+  (620,1120): clear of the sketch doodle (ends x 556), the about card
+  (bottom ≈950), the contact postcard (top 1530).
+- R2: WHEN the work stop renders, the postcard center SHALL sit at x=2920,
+  sticky at (3215,1705), pin 4 at (2934,1318), tuck preserved.
+- R3: WHEN the pushed tip is served, innerText SHALL contain no "ANNIE",
+  "MEISSNER", or "quote on its way" in any mode.
+- R4: WHEN the trim lands, tripwires SHALL be re-measured and re-documented
+  in HANDOFF.md and GOALS.md (annie-wip keeps 1593/1899).
+- R5: WHEN staging rebuilds, CNAME SHALL be absent and the noindex meta
+  present, and the live page SHALL serve the new markup.
 
-- R1: WHEN the board is on screen during load, at any moment from first paint
-  onward, it SHALL show the whole-board framing, never an untransformed
-  corner.
-- R2: WHEN `js/board.js` executes, its first transform SHALL equal the
-  CSS-held one (same viewport, scroll 0) so the handoff moves nothing.
-- R3: Every fail-open path SHALL behave exactly as before: scripting off →
-  editorial; `board.js` 404 → editorial at DOMContentLoaded; `style.css`
-  404 → editorial, never both designs stacked; narrow viewport → editorial
-  plus the sticky note; reading mode keeps `transform: none !important`.
-- R4: visible text SHALL be untouched: `document.body.innerText.length`
-  stays 1387 on the wide board and 1707 on the scripted editorial; console
-  SHALL stay clean on healthy loads.
-- R5: `STOPS` values, camera easing, `will-change: transform`, and the
-  `.moving`/`MOVE_SETTLE` machinery SHALL be untouched. (The stop-0 numbers
-  are *mirrored* in the head script, with cross-references both ways.)
+## Key Decisions
+- Push semantics: the pushed TIP is Annie-free; the pushed HISTORY contains
+  this week's WIP commits, and HANDOFF keeps her name/coordinates as parked
+  documentation [assumed: owner means the rendered site, not git forensics —
+  if wrong: history rewrite + force-push later].
+- WIP home: local branch `annie-wip` (never pushed) + assistant memory +
+  HANDOFF parked section.
+- STOPS[5] framing stays as-is; the empty cork below Chad reads as reserved
+  space and avoids re-retuning at restore [assumed — if wrong: one-line stop
+  tweak].
+- Postcard target uses the cork's inner edge (3540), not the board edge
+  (3600) [user's words: "edge of the right side of the cork board"].
 
-## Constraints honoured
+## Data & State Changes
+None — static site, no storage. Git: one local-only branch created.
 
-- No new requests, no third-party anything: the fix is inline script + one
-  CSS rule.
-- Cache-busting convention: bump `?v=` on every edited linked file.
-- The head script must stay self-contained and unable to fail into a worse
-  state: if the property never gets set, `var(--first-frame, none)` is the
-  old behavior.
+## Interfaces, Integrations & Credentials
+- Push over https to origin (github.com/notcadenwhitt-stack/
+  whittworks-CorkboardTesting-site). Credentials come from the macOS
+  keychain via git's credential helper; no secrets in chat or files.
+- GitHub Pages serves staging from main; deploys lag pushes by ~1 minute.
 
-## Edge cases considered
+## Edge Cases & Failure Handling
+- Push rejected (auth): stop, report; do not paste tokens anywhere.
+- Pages slow to deploy: poll the staging URL briefly; report last state
+  rather than declaring failure.
+- Tripwire mismatch after trim: re-measure, fix docs before pushing.
 
-- Resize between first paint and `board.js` arrival: framing is stale for
-  that window; the camera corrects it on execution. Strictly better than the
-  corner.
-- Scroll restoration landing at `scrollY > 0`: CSS holds stop 0, the camera
-  cuts to the restored stop on its first frame. Same class of behavior as
-  today, minus the corner.
-- Tablets (found by adversarial review, then fixed): the head script
-  originally sat above `<head>` and so read `innerWidth` before the viewport
-  meta was processed — a mobile browser answers with the 980px legacy layout
-  viewport there. On phones that is harmless (the stylesheet's real-viewport
-  `@media` gate hides the board), but a tablet whose final viewport is still
-  ≥ 901px would keep the board, held by a frame built for 980×672 — ~28%
-  small on an iPad-Pro-class screen — then snap when the camera corrected
-  it. The script therefore MOVED to just after the viewport meta, still
-  before every stylesheet: design decided pre-paint, viewport read
-  post-meta. Verified in Chromium tablet emulation (1366×1024, `isMobile`):
-  `--first-frame` now computes from the real viewport and matches the
-  camera's write. Not verifiable on real iPad Safari from this environment;
-  worst case there is the pre-move behavior, which the camera corrects.
-- The same move makes `board-first` genuinely absent on phones (it used to
-  be set from the 980px guess and merely neutralized by the CSS gate).
+## Assumptions Ledger
+| ID | Assumption | Basis | Blast radius if wrong | Check |
+|----|-----------|-------|----------------------|-------|
+| A1 | Pushed history may contain Annie WIP commits | owner's words target the rendered site | history rewrite later | owner veto |
+| A2 | Cork inner edge = 3540 | 30px border, border-box, screenshot concordance | few-px recenter | Phase 2 screenshot |
+| A3 | STOPS[5] unchanged reads as reserved space | matches work-pane story | one-line retune | Phase 3 screenshot |
+| A4 | Keychain credentials can push | prior pushes from this repo exist | push fails loudly | Phase 4 first step |
+
+## Open Items (none blocking)
+- none
 
 ## Verification
+- Headless captures at 1440x900 (stops 0, 2, 4, 5), 390x844 editorial,
+  no-JS spot check; console clean; innerText re-measured.
+- grep the pushed tip for ANNIE/MEISSNER/"quote on its way" → zero hits in
+  index.html.
+- curl staging for style.css?v= bump and absence of MEISSNER; headless
+  screenshot of the live staging URL.
 
-- [x] Repro with `board.js` held by route interception (headless Chromium,
-      1440×900). Verified 2026-08-08: in the gap, `<html>` carries
-      `board-first` but not `board-live`, the inline transform is empty, and
-      the computed transform is already
-      `matrix(0.343511, 0, 0, 0.343511, 101.679, 37.7863)` — held by the CSS
-      variable alone. After `board.js` executes, its inline write is the
-      identical matrix. The in-gap screenshot shows the whole framed board
-      (photographs still soft under their LQIP placeholders, which is that
-      system doing its job); before the fix the same moment showed the
-      top-left corner of the cork at 1:1.
-- [x] Transform-equality sweep across viewports (2560×1440, 1440×900,
-      1280×1024, 1024×768, 901×700): CSS-held matrix == camera's first
-      matrix, component-wise. Verified 2026-08-08.
-- [x] Fail-open battery: no-JS, `board.js` 404, `style.css` 404, 390×844
-      phone viewport, reading-mode toggle (computed transform `none` beats
-      the new rule), reduced motion, scroll-during-gap. All land where
-      HANDOFF.md's table says they should. Verified 2026-08-08.
-- [x] `innerText.length` unchanged by this work: 1387 on the wide board,
-      1707 on the scripted editorial (390×844), byte-for-byte. The battery
-      also measured three states the docs never enumerated, all pre-existing
-      and none touched by this diff: 1691 no-JS editorial (the peek-note
-      label needs the `js` class), 1727 unstyled editorial (`style.css`
-      404 reveals both toggle labels), 1406 narrow reading mode (adds
-      "← BACK TO THE SITE"). Recorded here so the next tripwire reader does
-      not chase them as regressions.
-- [x] Console clean on healthy loads; the only console errors in the battery
-      were the single deliberate 404 per sabotage scenario.
-- [x] No push until the verification results above were actually observed.
+## Build Phases
+- [x] Phase 1: Replace PLAN.md with this plan
+      Done when: committed on corkboard-realism
+      Steps: write file; commit
+- [x] Phase 2: Shared geometry
+      Done when: doodle at (620,1120); postcard (2520,1300), sticky
+      (3215,1705), pin 4 (2934,1318); board.js ?v=16; stops 0/2/4/5 capture
+      clean; committed
+      Covers: R1, R2; checks: A2
+- [x] Phase 3: Freeze and trim
+      Done when: branch annie-wip exists at the geometry commit; tip has no
+      Annie markup (board pair + tapes, editorial figure); reserved-cork
+      comment in place; tripwires re-measured and re-documented; captures
+      clean; committed
+      Covers: R3, R4; checks: A3
+- [ ] Phase 4: Push and rebuild staging
+      Done when: origin/corkboard-realism == local tip; staging main rebuilt
+      with CNAME deleted and noindex inserted; live URL serves the new build
+      Covers: R5; checks: A4, A1
+- [ ] Phase 5: Preserve the reminder
+      Done when: assistant memory holds annie-wip coordinates + the
+      confirm/deny protocol; final report with screenshots delivered
