@@ -43,18 +43,13 @@
   document.documentElement.classList.add("board-live");
 
   var board = document.getElementById("board");
-  /* The two sheets behind the board. Both take every transform the board
-     takes, so an unrasterised board tile shows cork at ANY zoom rather than
-     the wall. They are two elements and not one because the jobs want
-     opposite things: .board-floor is solid colour with nothing to decode, so
-     the compositor can carry it as a solid quad that cannot fail to paint,
-     while .board-underlay carries the full cork stack and therefore CAN fail
-     to paint, but matches the board pixel for pixel once it has. Merging them
-     is what let the wall show through again. See css/style.css. */
-  var backdrops = [
-    document.querySelector(".board-floor"),
-    document.querySelector(".board-underlay")
-  ].filter(Boolean);
+  /* The solid sheet behind the board. It takes every transform the board
+     takes, so an unrasterised board tile shows cork colour at ANY zoom rather
+     than the wall. There was briefly a second, cork-TEXTURED sheet here too;
+     it was deleted once photographs showed it failing in the same frames as
+     the board, because anything carrying an image has to be rasterised and can
+     therefore miss. See the .board-floor rule in css/style.css. */
+  var floor = document.querySelector(".board-floor");
   var stringsSvg = document.getElementById("strings");
   /* The bottom cluster: the scroll instruction and the motion toggle. Faded as
      one unit, because they are one piece of chrome. */
@@ -330,9 +325,7 @@
          `transform: none !important` for the case where this script is stale
          or never ran; this line is what makes the live switch clean. */
       if (board.style.transform) board.style.transform = "";
-      backdrops.forEach(function (el) {
-        if (el.style.transform) el.style.transform = "";
-      });
+      if (floor && floor.style.transform) floor.style.transform = "";
       if (hint) hint.classList.remove("faded");
       return;
     }
@@ -375,7 +368,7 @@
     var t =
       "translate(" + (vw / 2 - x * s) + "px," + (vh / 2 - y * s) + "px) scale(" + s + ")";
     board.style.transform = t;
-    for (var bi = 0; bi < backdrops.length; bi++) backdrops[bi].style.transform = t;
+    if (floor) floor.style.transform = t;
 
     /* Fade on PROGRESS, not on pixels. This was `scrollY > vh * 0.4`, which
        retired the page's only instruction after 40% of one viewport — before

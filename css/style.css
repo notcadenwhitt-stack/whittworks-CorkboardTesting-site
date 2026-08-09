@@ -547,16 +547,25 @@ a { color: inherit; }
     3px 8px 22px rgba(0, 0, 0, 0.5);
 }
 
-/* The board's entire cork paint job, SHARED with the backstop sheet behind
-   it. The underlay used to be flat #bb6c27, which stopped a missing tile
-   reading as the wall but drew a visible straight seam against every tile
-   that HAD rasterized (flat orange against textured cork — the "chunks" on
-   the opening frame). With the identical stack on both elements, whatever
-   a board tile fails to draw, the sheet behind it draws the same pixels:
-   the LQIP composite before cork.webp decodes, the real cork after. Both
-   elements are the same 3600x2400 box at the same origin under the same
-   transform, so every layer, gradient and offset lands pixel-identical. */
-.board, .board-underlay {
+/* The board's entire cork paint job.
+
+   This rule was shared with a second element, .board-underlay, which carried
+   an identical copy of the stack so that a board tile which failed to draw
+   would show the same cork from the sheet behind it. It was deleted
+   2026-08-09 because 67 photographs of the failure proved it never once did
+   that job. Every frame where board tiles were missing showed FLAT colour in
+   the gap, not cork — because a layer carrying five background images has to
+   be rasterised exactly like the board does, and it was missing the same
+   tiles at the same moment for the same reason. It cost a full duplicate
+   3600x2400 composited layer, doubling the raster work per frame, to solve a
+   seam it could not reach.
+
+   What replaced it is .board-floor: solid colour, nothing to decode, so the
+   compositor can carry it as a quad that cannot fail. It cannot show cork
+   texture in a gap — nothing can, that is the lesson — but it is free, and
+   halving the composited layer count is the thing that actually reduces how
+   often a gap appears at all. */
+.board {
   /* not cork.webp's raw median (#af7441): the CSS lays the scan over itself
      at two sizes and soft-lights the upper one, which lifts contrast and
      saturation. This is the median of softlight(cork@890, cork@1180) from
@@ -1524,75 +1533,45 @@ html.motion-off *::after {
      fallback is the old behavior. Reading mode still wins over this rule:
      css/reading.css carries transform: none !important. */
   html.js.board-first .board,
-  html.js.board-first .board-underlay,
   html.js.board-first .board-floor { transform: var(--first-frame, none); }
 
-  /* Flat cork behind the board, WHEREVER THE CAMERA IS. During a load —
-     and during a fast scroll at retina density — the compositor can put
-     the board on screen with some tiles not yet rasterized (staircase-
-     edged gaps through the cork, seen live on staging twice now). An
-     unrasterized tile draws nothing of the board — not even its
-     background-color — so no rule on .board can cover this; only what is
-     BEHIND the board can. This used to be a fixed screen rect on
-     .viewport::before, sized by the head script to the FIRST frame only.
-     That covered the load moment and nothing else: at every zoomed stop
-     the viewport's edge bands sat over bare wall, exactly where fresh
-     tiles rasterize mid-gesture, so a hard wheel scroll flashed dark
-     chunks at the edges. Now it is a real element in board space — same
-     origin, same border-box size, same transform as .board. One solid
-     colour, so the compositor draws it as a solid quad with no tiles of
-     its own to miss. The head script's --first-frame holds it through
-     first paint (rule above) and js/board.js writes it the identical
-     matrix on every camera frame. DOM order — before .board, same
-     stacking level — keeps it permanently underneath. Its paint comes from
-     the shared `.board, .board-underlay` background rule next to .board:
-     the full cork stack, so a late tile shows the same pixels the board
-     would have drawn there — LQIP composite before cork.webp decodes, real
-     cork after — and the tile seam itself disappears. No background here:
-     a shorthand would reset that shared stack. */
-  .board-underlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 3600px;
-    height: 2400px;
-    transform-origin: 0 0;
-    will-change: transform;
-    pointer-events: none;
-  }
-
   /* ================================================================
-     THE FLOOR, and why the underlay above was not enough
+     THE FLOOR — the only backstop, and the only one that can work
      ================================================================
-     Round one of this fix made .board-underlay a flat #bb6c27 sheet and the
-     reasoning was exactly right: "one solid colour, so the compositor draws
-     it as a solid quad with no tiles of its own to miss." Round two then
-     gave that same element .board's ENTIRE background stack to kill the seam
-     between flat orange and textured cork — and in doing so took the solid-
-     quad property away. A layer carrying background images has to be
-     rasterised like any other, so its tiles miss exactly when the board's
-     tiles miss, and a gap falls through both to the wall.
+     An unrasterised tile draws nothing of the board, not even its
+     background-color, so no rule on .board can cover a gap. Only something
+     BEHIND the board can. This is that thing, and it is deliberately the
+     dumbest possible element: solid colour, no image, no blend, no gradient.
+     Nothing to decode means nothing to rasterise, which means the compositor
+     can carry it as a solid-colour quad that cannot fail to paint.
 
-     Photographed 2026-08-09 in Opera on macOS: rectangular blocks of the
-     board's lower half simply absent, world map showing through. That is the
-     round-one failure, returned by the round-two cure.
+     THREE ATTEMPTS GOT HERE, AND THE DEAD ENDS ARE WORTH KEEPING:
 
-     So the two jobs get two elements, because they want opposite things:
+     1. .viewport::before, a fixed screen rect sized by the head script to the
+        FIRST frame only. Covered the load and nothing else — at every zoomed
+        stop the viewport's edge bands sat over bare wall, exactly where fresh
+        tiles rasterise mid-gesture.
+     2. A flat sheet in board space. Correct, and it worked — but it drew a
+        visible straight seam against tiles that HAD rasterised, flat orange
+        against textured cork.
+     3. That same sheet given .board's entire background stack, to kill the
+        seam. This is the one that looked clever and was wrong. Handing it
+        five background images took away the exact property that made it work:
+        it now had to be rasterised like anything else, so it missed the same
+        tiles at the same instant as the board, and the gap fell through both.
 
-       .board-floor      solid colour ONLY — no image, no blend, no gradient.
-                         Nothing to decode, nothing to raster, so the
-                         compositor can carry it as a solid-colour quad and it
-                         cannot fail to paint. This is what stops the wall.
-       .board-underlay   the full shared cork stack. Once rasterised it is
-                         pixel-identical to the board, so no seam is visible.
-                         When it has not rasterised yet, the floor below shows
-                         through instead of the wall.
+     67 photographs of the live failure settled it. Every frame with missing
+     board tiles showed FLAT colour in the gap — never cork. The textured
+     backstop never once did the job it cost a full duplicate 3600x2400
+     composited layer to do. It was deleted.
 
-     Order: floor, then underlay, then board. Each covers the one below only
-     where it has actually painted. Do not merge these back together — that is
-     the round-two mistake, and it is the reason this file has a rule saying
-     never to give .board-underlay a background shorthand. The colour here is
-     the same measured median the shared rule uses. */
+     So: a gap will always show flat colour. Nothing can paint texture into a
+     region the rasteriser has not reached. Accept that, keep the backstop
+     free, and spend the budget on making gaps rarer instead — which is what
+     halving the composited layer count does. The colour is the measured
+     median of the loaded cork render, so the flat patch is at least the right
+     hue. Do NOT give this element a background-image to "improve" it. That is
+     attempt 3, and it is how the bug comes back. */
   .board-floor {
     position: absolute;
     top: 0;
