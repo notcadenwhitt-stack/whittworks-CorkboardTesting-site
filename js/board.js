@@ -104,7 +104,7 @@
     { x: 741,  y: 494 },  /* 1 about */
     { x: 1236, y: 636 },  /* 2 caden polaroid */
     { x: 2547, y: 335 },  /* 3 services s1 */
-    { x: 2814, y: 1318 }, /* 4 work postcard */
+    { x: 2934, y: 1318 }, /* 4 work postcard */
     { x: 1977, y: 1523 }, /* 5 quote card (reviews row 1, right) */
     { x: 1430, y: 1466 }, /* 6 chad polaroid (reviews row 1, left) */
     { x: 694,  y: 1544 }, /* 7 contact */

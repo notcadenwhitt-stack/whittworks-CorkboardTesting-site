@@ -277,7 +277,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=15">
+<link rel="preload" as="script" href="js/board.js?v=16">
 <link rel="preload" as="script" href="js/hand.js?v=6">
 </head>
 <body>
@@ -539,7 +539,10 @@
       </section>
 
       <!-- ================= WORK: the Level Up postcard, picture side out ================= -->
-      <figure class="postcard postcard-front work-postcard" style="left:2400px; top:1300px; --rot:-2deg">
+      <!-- Centered in the work pane per the owner: the card's middle
+           (x=2920) is the midpoint of Chad's review's right edge (2300)
+           and the cork's inner right edge (3540; the frame is 30px). -->
+      <figure class="postcard postcard-front work-postcard" style="left:2520px; top:1300px; --rot:-2deg">
         <!-- no loading="lazy" here: this shot is inside the stop-0 opening view,
              and postcard-front.webp's picture area was compressed hard precisely
              because this covers it. Deferring it shows a soft card first. -->
@@ -555,7 +558,7 @@
 
       <!-- Tucked over the postcard's bottom-right corner: the sticky's
            top-left quadrant lies on the card, the rest on cork. -->
-      <aside class="sticky mini-sticky paper-5 c-pink" style="left:3095px; top:1705px; --rot:4.2deg">
+      <aside class="sticky mini-sticky paper-5 c-pink" style="left:3215px; top:1705px; --rot:4.2deg">
         <p class="hand sticky-note">more work available on request &rarr;</p>
       </aside>
 
@@ -694,7 +697,7 @@
         </svg>
       </aside>
 
-      <aside class="sticky doodle paper-3 flip c-green" style="left:980px; top:1300px; --rot:-3deg" aria-hidden="true">
+      <aside class="sticky doodle paper-3 flip c-green" style="left:620px; top:1120px; --rot:-3deg" aria-hidden="true">
         <svg viewBox="0 0 200 200" class="ink">
           <path style="--sw:4.4" d="M38 30 L36 164 L174 162"/>
           <path style="--sw:3.4" d="M48 148 L82 118 L102 134 L152 72"/>
@@ -738,7 +741,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=15"></script>
+<script src="js/board.js?v=16"></script>
 <script src="js/hand.js?v=6"></script>
 </body>
 </html>
