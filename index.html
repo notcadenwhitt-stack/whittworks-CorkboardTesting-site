@@ -193,7 +193,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=59">
+<link rel="stylesheet" href="css/style.css?v=60">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -202,7 +202,7 @@
      is what a visitor without scripting gets, and it is a better answer than
      the column was. Do not re-add the noscript copy; with no JS the board is
      display:none anyway and the rules would style something nobody can see. -->
-<link rel="stylesheet" href="css/reading.css?v=6"
+<link rel="stylesheet" href="css/reading.css?v=7"
       media="(max-width: 900px), (max-height: 540px)">
 <link rel="stylesheet" href="css/editorial.css?v=5">
 <!-- the cork is the backdrop everything sits on and it is the largest file
@@ -270,7 +270,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=17">
+<link rel="preload" as="script" href="js/board.js?v=18">
 <link rel="preload" as="script" href="js/hand.js?v=6">
 </head>
 <body>
@@ -478,7 +478,31 @@
     </ul>
   </nav>
 
-  <p class="scroll-hint" aria-hidden="true">scroll to inspect the board &darr;</p>
+  <!-- Bottom chrome: the one place a visitor looks to learn how this page
+       works. Two controls, one cluster.
+
+       The HINT is not decorative and is no longer aria-hidden. It is the only
+       thing on the page that says the camera is driven by scrolling; a visitor
+       who misses it reads eight fixed compositions and tries to click between
+       them. It was 0.65rem — smaller than every other word on the page — and
+       it faded out after 40% of one viewport height, which is before anybody
+       has scrolled far enough to connect the gesture to the result. Both are
+       fixed below: it is body-sized now, and it holds until the camera has
+       actually passed a stop.
+
+       The MOTION button exists because prefers-reduced-motion silently
+       replaces the whole camera with hard cuts between stops, and nothing on
+       screen said so. The site's own owner opened it on a machine with Windows
+       animation effects off and reported the site as broken. A visitor gets
+       the same picture with less context. The OS preference is still the
+       default and still correct; this only lets a person disagree with it in
+       either direction, which WCAG 2.3.3 asks for anyway. -->
+  <div class="board-chrome">
+    <p class="scroll-hint">Scroll to move around the board <span aria-hidden="true">&darr;</span></p>
+    <button type="button" class="motion-toggle" aria-pressed="true">
+      <span class="motion-dot" aria-hidden="true"></span>Smooth motion
+    </button>
+  </div>
 
   <div class="viewport">
     <div class="board-underlay" aria-hidden="true"></div>
@@ -708,7 +732,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=17"></script>
+<script src="js/board.js?v=18"></script>
 <script src="js/hand.js?v=6"></script>
 </body>
 </html>

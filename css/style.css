@@ -344,24 +344,96 @@ a { color: inherit; }
   }
 }
 
-.scroll-hint {
+/* --- bottom chrome: the scroll hint and the motion toggle ----------- */
+
+/* One cluster, centred, because they answer the same question: how do I drive
+   this page. The container takes no pointer events so it never eats a click
+   meant for the board; the button opts back in. */
+.board-chrome {
   position: fixed;
-  bottom: 16px;
+  bottom: 18px;
   left: 50%;
-  transform: translateX(-50%) rotate(0.5deg);
+  transform: translateX(-50%);
   z-index: 50;
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #f4efe2;
-  background: rgba(25, 19, 12, 0.55);
-  padding: 0.4rem 0.9rem;
-  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: calc(100vw - 2rem);
   transition: opacity 0.4s;
   pointer-events: none;
 }
-.scroll-hint.faded { opacity: 0; }
+.board-chrome.faded { opacity: 0; }
+
+/* WAS 0.65rem — about 10px, smaller than every other word on the page, on a
+   55%-opaque plate whose contrast depended on whichever bit of cork happened
+   to sit behind it. This is the page's only instruction, so it is now body
+   sized on a near-opaque plate that holds its contrast anywhere on the board.
+   Rotation dropped: a tilt reads as decoration, and this is not decoration. */
+.scroll-hint {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f7f3e8;
+  background: rgba(18, 13, 8, 0.94);
+  padding: 0.55rem 1.05rem;
+  border-radius: 3px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+/* The arrow drifts so the eye catches the cluster in peripheral vision, which
+   is the whole job. It is suppressed under reduced motion below — a moving
+   element is exactly what that preference exists to remove, and a hint that
+   triggers the symptom would be self-defeating. */
+.scroll-hint span {
+  display: inline-block;
+  animation: hint-nudge 1.9s ease-in-out infinite;
+}
+@keyframes hint-nudge {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(4px); }
+}
+
+.motion-toggle {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f7f3e8;
+  background: rgba(18, 13, 8, 0.94);
+  border: 1px solid rgba(247, 243, 232, 0.35);
+  padding: 0.5rem 0.85rem;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+.motion-toggle:hover { border-color: rgba(247, 243, 232, 0.7); }
+.motion-toggle:focus-visible {
+  outline: 3px solid #ffd479;
+  outline-offset: 2px;
+}
+
+/* The dot is the at-a-glance state. aria-pressed carries the same fact for
+   anyone not looking at it, so the colour is never the only signal. */
+.motion-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #7fd18b;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45) inset;
+}
+.motion-toggle[aria-pressed="false"] .motion-dot { background: #8a8378; }
 
 /* --- the room and the board --------------------------------------- */
 
@@ -1332,8 +1404,32 @@ a { color: inherit; }
    board.js, which reads this same query and snaps the camera to the nearest
    of the eight stops instead of gliding between them. Read the two together;
    neither one is the whole answer. */
+/* Motion suppression, in two halves so the in-page toggle can genuinely
+   override the OS in BOTH directions rather than only steering the camera.
+
+   The media query is the base and stays authoritative with no JS: nothing sets
+   .motion-on in that case, so a reduced-motion visitor gets the suppression
+   whatever happens to js/board.js. When the visitor explicitly asks for motion,
+   board.js adds .motion-on and the suppression lifts. When they explicitly
+   refuse it on a machine that never asked, board.js adds .motion-off and the
+   same suppression applies with no media query involved.
+
+   `animation` joins `transition` here. It was absent because the page had no
+   keyframes to suppress; the scroll hint's arrow is the first, and a drifting
+   element is a stronger vestibular trigger than any transition on this page. */
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
+  html:not(.motion-on) *,
+  html:not(.motion-on) *::before,
+  html:not(.motion-on) *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+html.motion-off *,
+html.motion-off *::before,
+html.motion-off *::after {
+  transition: none !important;
+  animation: none !important;
 }
 
 /* ==================================================================
