@@ -1381,31 +1381,38 @@ a { color: inherit; }
      lands on the identical matrix and the handoff moves nothing. The
      fallback is the old behavior. Reading mode still wins over this rule:
      css/reading.css carries transform: none !important. */
-  html.js.board-first .board { transform: var(--first-frame, none); }
+  html.js.board-first .board,
+  html.js.board-first .board-underlay { transform: var(--first-frame, none); }
 
-  /* Flat cork behind the board, exactly where the board is. During the
-     first second of a load the compositor can put the board on screen with
-     some of its tiles not yet rasterized (seen live in Opera: staircase-
-     edged gaps through the middle of the cork). An unrasterized tile draws
-     nothing of the board — not even its background-color — so no rule on
-     .board can cover this; only what is BEHIND the board can. This is a
-     positioned ::before, so it paints above .viewport's wall background and,
-     coming before .board in tree order at the same stacking level, always
-     below the board itself: it cannot cover the board, misplaced or not.
-     #bb6c27 is .board's own composite base colour (see that rule), so a
-     late tile reads as cork awaiting texture — the same progressive
-     language as the LQIP placeholders — instead of a hole showing the wall.
-     The rect comes from the same inline head script and the same numbers
-     as --first-frame; unset vars collapse it to nothing. Known residual:
-     the rect does not follow window resizes or reading mode, where it can
-     sit behind opaque content untouched — acceptable against the gap. */
-  html.js.board-first .viewport::before {
-    content: "";
+  /* Flat cork behind the board, WHEREVER THE CAMERA IS. During a load —
+     and during a fast scroll at retina density — the compositor can put
+     the board on screen with some tiles not yet rasterized (staircase-
+     edged gaps through the cork, seen live on staging twice now). An
+     unrasterized tile draws nothing of the board — not even its
+     background-color — so no rule on .board can cover this; only what is
+     BEHIND the board can. This used to be a fixed screen rect on
+     .viewport::before, sized by the head script to the FIRST frame only.
+     That covered the load moment and nothing else: at every zoomed stop
+     the viewport's edge bands sat over bare wall, exactly where fresh
+     tiles rasterize mid-gesture, so a hard wheel scroll flashed dark
+     chunks at the edges. Now it is a real element in board space — same
+     origin, same border-box size, same transform as .board. One solid
+     colour, so the compositor draws it as a solid quad with no tiles of
+     its own to miss. The head script's --first-frame holds it through
+     first paint (rule above) and js/board.js writes it the identical
+     matrix on every camera frame. DOM order — before .board, same
+     stacking level — keeps it permanently underneath. #bb6c27 is .board's
+     own composite base colour (see that rule), so a late tile reads as
+     cork awaiting texture — the same progressive language as the LQIP
+     placeholders — instead of a hole showing the wall. */
+  .board-underlay {
     position: absolute;
-    left: var(--board-x, -9999px);
-    top: var(--board-y, 0);
-    width: var(--board-w, 0);
-    height: var(--board-h, 0);
+    top: 0;
+    left: 0;
+    width: 3600px;
+    height: 2400px;
+    transform-origin: 0 0;
+    will-change: transform;
     background: #bb6c27;
     pointer-events: none;
   }
