@@ -1124,12 +1124,15 @@ a { color: inherit; }
   z-index: 4;
   left: 50%;
   top: calc(100% - 20px);
-  /* 484 wide with 56px side padding, not the old 440/34: the strip was
+  /* 484 wide with real side padding, not the old 440/34: the strip was
      sized to the exact glyph box, and hand.js's per-letter jitter varies
      the line's set width a little every time an element is added ahead of
      it in the document — measured overrunning the tape's torn right end
      onto bare cork. The extra paper is slack for that variance; stretching
-     tape-7 ~10% is invisible on a torn strip. */
+     tape-7 ~10% is invisible on a torn strip. The padding is asymmetric
+     because the SCAN is: tape-7's torn right end reaches further into the
+     box than its left end, so equal padding set the line 28px from the
+     left tear and 2px from the right one. */
   width: 484px;
   height: 128px;
   transform: translateX(-50%) rotate(1.2deg);
@@ -1137,7 +1140,7 @@ a { color: inherit; }
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 0 56px;
+  padding: 0 68px 0 44px;
   /* NO TINT: see the tape note at the top of this file. tape-7 is
      translucent, so a colour under it would still read through on the
      finished board (measured: 13/255 over 30% of this caption). The caption
