@@ -1524,7 +1524,8 @@ html.motion-off *::after {
      fallback is the old behavior. Reading mode still wins over this rule:
      css/reading.css carries transform: none !important. */
   html.js.board-first .board,
-  html.js.board-first .board-underlay { transform: var(--first-frame, none); }
+  html.js.board-first .board-underlay,
+  html.js.board-first .board-floor { transform: var(--first-frame, none); }
 
   /* Flat cork behind the board, WHEREVER THE CAMERA IS. During a load —
      and during a fast scroll at retina density — the compositor can put
@@ -1555,6 +1556,50 @@ html.motion-off *::after {
     left: 0;
     width: 3600px;
     height: 2400px;
+    transform-origin: 0 0;
+    will-change: transform;
+    pointer-events: none;
+  }
+
+  /* ================================================================
+     THE FLOOR, and why the underlay above was not enough
+     ================================================================
+     Round one of this fix made .board-underlay a flat #bb6c27 sheet and the
+     reasoning was exactly right: "one solid colour, so the compositor draws
+     it as a solid quad with no tiles of its own to miss." Round two then
+     gave that same element .board's ENTIRE background stack to kill the seam
+     between flat orange and textured cork — and in doing so took the solid-
+     quad property away. A layer carrying background images has to be
+     rasterised like any other, so its tiles miss exactly when the board's
+     tiles miss, and a gap falls through both to the wall.
+
+     Photographed 2026-08-09 in Opera on macOS: rectangular blocks of the
+     board's lower half simply absent, world map showing through. That is the
+     round-one failure, returned by the round-two cure.
+
+     So the two jobs get two elements, because they want opposite things:
+
+       .board-floor      solid colour ONLY — no image, no blend, no gradient.
+                         Nothing to decode, nothing to raster, so the
+                         compositor can carry it as a solid-colour quad and it
+                         cannot fail to paint. This is what stops the wall.
+       .board-underlay   the full shared cork stack. Once rasterised it is
+                         pixel-identical to the board, so no seam is visible.
+                         When it has not rasterised yet, the floor below shows
+                         through instead of the wall.
+
+     Order: floor, then underlay, then board. Each covers the one below only
+     where it has actually painted. Do not merge these back together — that is
+     the round-two mistake, and it is the reason this file has a rule saying
+     never to give .board-underlay a background shorthand. The colour here is
+     the same measured median the shared rule uses. */
+  .board-floor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3600px;
+    height: 2400px;
+    background-color: #bb6c27;
     transform-origin: 0 0;
     will-change: transform;
     pointer-events: none;

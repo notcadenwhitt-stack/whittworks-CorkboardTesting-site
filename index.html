@@ -236,7 +236,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=62">
+<link rel="stylesheet" href="css/style.css?v=63">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -245,7 +245,7 @@
      is what a visitor without scripting gets, and it is a better answer than
      the column was. Do not re-add the noscript copy; with no JS the board is
      display:none anyway and the rules would style something nobody can see. -->
-<link rel="stylesheet" href="css/reading.css?v=7"
+<link rel="stylesheet" href="css/reading.css?v=8"
       media="(max-width: 900px), (max-height: 540px)">
 <link rel="stylesheet" href="css/editorial.css?v=5">
 <!-- the cork is the backdrop everything sits on and it is the largest file
@@ -322,7 +322,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=19">
+<link rel="preload" as="script" href="js/board.js?v=20">
 <link rel="preload" as="script" href="js/hand.js?v=6">
 </head>
 <body>
@@ -557,6 +557,11 @@
   </div>
 
   <div class="viewport">
+    <!-- Floor first, then underlay, then the board. The floor is solid colour
+         only so the compositor never has to rasterise it and it cannot fail to
+         paint; the underlay carries the full cork stack so no seam shows once
+         it has. See the .board-floor rule in css/style.css. -->
+    <div class="board-floor" aria-hidden="true"></div>
     <div class="board-underlay" aria-hidden="true"></div>
     <main class="board" id="board">
 
@@ -784,7 +789,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=19"></script>
+<script src="js/board.js?v=20"></script>
 <script src="js/hand.js?v=6"></script>
 </body>
 </html>
