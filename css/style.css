@@ -460,6 +460,18 @@ a { color: inherit; }
     /* frame casts onto the wall, light from upper left */
     10px 34px 90px rgba(0, 0, 0, 0.62),
     3px 8px 22px rgba(0, 0, 0, 0.5);
+}
+
+/* The board's entire cork paint job, SHARED with the backstop sheet behind
+   it. The underlay used to be flat #bb6c27, which stopped a missing tile
+   reading as the wall but drew a visible straight seam against every tile
+   that HAD rasterized (flat orange against textured cork — the "chunks" on
+   the opening frame). With the identical stack on both elements, whatever
+   a board tile fails to draw, the sheet behind it draws the same pixels:
+   the LQIP composite before cork.webp decodes, the real cork after. Both
+   elements are the same 3600x2400 box at the same origin under the same
+   transform, so every layer, gradient and offset lands pixel-identical. */
+.board, .board-underlay {
   /* not cork.webp's raw median (#af7441): the CSS lays the scan over itself
      at two sizes and soft-lights the upper one, which lifts contrast and
      saturation. This is the median of softlight(cork@890, cork@1180) from
@@ -1401,10 +1413,12 @@ a { color: inherit; }
      its own to miss. The head script's --first-frame holds it through
      first paint (rule above) and js/board.js writes it the identical
      matrix on every camera frame. DOM order — before .board, same
-     stacking level — keeps it permanently underneath. #bb6c27 is .board's
-     own composite base colour (see that rule), so a late tile reads as
-     cork awaiting texture — the same progressive language as the LQIP
-     placeholders — instead of a hole showing the wall. */
+     stacking level — keeps it permanently underneath. Its paint comes from
+     the shared `.board, .board-underlay` background rule next to .board:
+     the full cork stack, so a late tile shows the same pixels the board
+     would have drawn there — LQIP composite before cork.webp decodes, real
+     cork after — and the tile seam itself disappears. No background here:
+     a shorthand would reset that shared stack. */
   .board-underlay {
     position: absolute;
     top: 0;
@@ -1413,7 +1427,6 @@ a { color: inherit; }
     height: 2400px;
     transform-origin: 0 0;
     will-change: transform;
-    background: #bb6c27;
     pointer-events: none;
   }
 }
