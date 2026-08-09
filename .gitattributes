@@ -1,0 +1,19 @@
+# Line endings. This project has been worked on from macOS and from Windows,
+# and git on Windows warned on every single commit that it was about to rewrite
+# LF to CRLF in the working copy. Left alone, the first commit made without
+# core.autocrlf set the way the previous machine had it rewrites whole files and
+# buries a one-line change in a thousand-line diff.
+#
+# `text=auto eol=lf` fixes the repository side: everything git decides is text
+# is stored with LF regardless of which machine wrote it. Existing files are NOT
+# rewritten by adding this — that would need `git add --renormalize .`, which is
+# deliberately not done here so this commit stays reviewable.
+* text=auto eol=lf
+
+# Binary, so git never inspects or converts them.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.woff2 binary
+*.ico binary

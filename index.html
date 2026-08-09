@@ -126,6 +126,30 @@
      change from paint to photograph — read the top of css/style.css.
      ================================================================== -->
 
+<!-- Content Security Policy, as a meta because GitHub Pages serves static
+     files and cannot set response headers. Defence in depth rather than a fix
+     for a known hole: this page takes no user input, has no forms, makes no
+     network calls, and embeds nothing third-party, so there is no injection
+     path today. What the policy buys is that if one ever appears — a
+     compromised host, a bad deploy, a future embed — an injected external
+     script or exfiltration attempt is refused by the browser.
+
+     'unsafe-inline' is present for scripts and styles and that IS a real
+     weakening, stated plainly rather than hidden. The alternative is hashing
+     the inline head script, and that script is edited often; a stale hash
+     would silently block it, drop `board-first`, and hand every wide visitor
+     the editorial design with nothing in the console tying it to this line.
+     The trade is deliberate: keep the origin lock, accept inline.
+
+     img-src allows data: because the LQIP placeholders and the neutral
+     polaroid film are base64 URIs. connect-src is 'none' because nothing on
+     this page fetches anything, ever.
+
+     NOT AVAILABLE HERE: frame-ancestors and X-Frame-Options are header-only —
+     a meta CSP cannot carry frame-ancestors, and meta X-Frame-Options is
+     ignored by every browser. Clickjacking protection therefore needs a host
+     that can set headers, which Pages is not. Recorded, not solved. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'none'; base-uri 'self'; form-action 'none'; object-src 'none'">
 <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://whittworkstudios.com/">
 <link rel="icon" href="assets/favicon-32.png" type="image/png">
@@ -194,7 +218,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=59">
+<link rel="stylesheet" href="css/style.css?v=60">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -203,7 +227,7 @@
      is what a visitor without scripting gets, and it is a better answer than
      the column was. Do not re-add the noscript copy; with no JS the board is
      display:none anyway and the rules would style something nobody can see. -->
-<link rel="stylesheet" href="css/reading.css?v=6"
+<link rel="stylesheet" href="css/reading.css?v=7"
       media="(max-width: 900px), (max-height: 540px)">
 <link rel="stylesheet" href="css/editorial.css?v=5">
 <!-- the cork is the backdrop everything sits on and it is the largest file
@@ -221,7 +245,16 @@
      connection open for the whole load and finishing next to last. High puts
      it in front of the paper, which is the right order — the cork is the one
      asset every other asset is seen against. -->
-<link rel="preload" as="image" href="assets/cork.webp" fetchpriority="high">
+<!-- THE 901px GATE, added 2026-08-09, for the same reason the three tape
+     preloads below carry one. This link had none, so every phone fetched the
+     single largest asset on the site — 304KB of cork — to paint the editorial
+     design, which never references it, and logged a "preloaded but not used"
+     warning for the trouble. The decode warmer in the head script was already
+     inside the min-width:901px branch, so the bytes were the only thing
+     crossing the wire ungated. Below 901px .corkboard is display:none and the
+     stylesheet never asks for the texture; someone tapping the sticky note
+     into the board on a phone fetches it then, exactly as before. -->
+<link rel="preload" as="image" href="assets/cork.webp" fetchpriority="high" media="(min-width: 901px)">
 <!-- The three masking-tape strips, and they are here because tape is the one
      photographed thing on this board that cannot have a placeholder at all.
      It is translucent, so any layer under it still reads through on the
@@ -271,7 +304,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=17">
+<link rel="preload" as="script" href="js/board.js?v=18">
 <link rel="preload" as="script" href="js/hand.js?v=6">
 </head>
 <body>
@@ -479,7 +512,31 @@
     </ul>
   </nav>
 
-  <p class="scroll-hint" aria-hidden="true">scroll to inspect the board &darr;</p>
+  <!-- Bottom chrome: the one place a visitor looks to learn how this page
+       works. Two controls, one cluster.
+
+       The HINT is not decorative and is no longer aria-hidden. It is the only
+       thing on the page that says the camera is driven by scrolling; a visitor
+       who misses it reads eight fixed compositions and tries to click between
+       them. It was 0.65rem — smaller than every other word on the page — and
+       it faded out after 40% of one viewport height, which is before anybody
+       has scrolled far enough to connect the gesture to the result. Both are
+       fixed below: it is body-sized now, and it holds until the camera has
+       actually passed a stop.
+
+       The MOTION button exists because prefers-reduced-motion silently
+       replaces the whole camera with hard cuts between stops, and nothing on
+       screen said so. The site's own owner opened it on a machine with Windows
+       animation effects off and reported the site as broken. A visitor gets
+       the same picture with less context. The OS preference is still the
+       default and still correct; this only lets a person disagree with it in
+       either direction, which WCAG 2.3.3 asks for anyway. -->
+  <div class="board-chrome">
+    <p class="scroll-hint">Scroll to move around the board <span aria-hidden="true">&darr;</span></p>
+    <button type="button" class="motion-toggle" aria-pressed="true">
+      <span class="motion-dot" aria-hidden="true"></span>Smooth motion
+    </button>
+  </div>
 
   <div class="viewport">
     <div class="board-underlay" aria-hidden="true"></div>
@@ -709,7 +766,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=17"></script>
+<script src="js/board.js?v=18"></script>
 <script src="js/hand.js?v=6"></script>
 </body>
 </html>
