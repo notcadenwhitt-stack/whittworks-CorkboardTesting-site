@@ -161,8 +161,14 @@ async function motion(s, mode) {
   });
 }
 
+/* Every load gets a unique query. The local dev server above sends no-store so
+   it does not need one, but the Pages CDN happily serves a stale copy for
+   minutes after a build reports "built" — long enough to conclude a correct
+   deploy shipped nothing. Cheap insurance, so it is unconditional. */
+let nav = 0;
 async function goto(s, url) {
   s.console.length = 0;
+  url += (url.includes("?") ? "&" : "?") + "cb=" + (++nav) + "-" + process.pid;
   await s.send("Page.navigate", { url });
   await new Promise((ok) => {
     const h = (e) => {

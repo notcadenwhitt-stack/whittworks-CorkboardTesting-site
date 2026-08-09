@@ -364,7 +364,17 @@ a { color: inherit; }
   transition: opacity 0.4s;
   pointer-events: none;
 }
-.board-chrome.faded { opacity: 0; }
+/* `visibility: hidden` as well as opacity, and it is not belt-and-braces. At
+   opacity 0 this cluster is still visible to the compositor, still in layout,
+   and still a live layer stacked above a 41-megapixel board that is being
+   transformed every frame. Hiding it takes it out of compositing entirely for
+   the rest of the visit, which is most of the visit. It leaves the
+   accessibility tree at the same moment, which is correct: the instruction has
+   stopped applying by then. Measured at scroll 0 the cluster is NOT faded, so
+   the innerText tripwires are unaffected — but note that visibility, unlike
+   opacity, does change innerText, so anything measuring further down the
+   runway will see the shorter number. */
+.board-chrome.faded { opacity: 0; visibility: hidden; }
 
 /* WAS 0.65rem — about 10px, smaller than every other word on the page, on a
    55%-opaque plate whose contrast depended on whichever bit of cork happened
@@ -387,17 +397,20 @@ a { color: inherit; }
   pointer-events: none;
 }
 
-/* The arrow drifts so the eye catches the cluster in peripheral vision, which
-   is the whole job. It is suppressed under reduced motion below — a moving
-   element is exactly what that preference exists to remove, and a hint that
-   triggers the symptom would be self-defeating. */
+/* REMOVED 2026-08-09, same day it shipped: the arrow used to drift on an
+   `infinite` keyframe animation to catch the eye in peripheral vision. It cost
+   more than it bought. `document.getAnimations()` showed hint-nudge in state
+   "running" at every scroll position INCLUDING after the cluster had faded to
+   opacity 0 — an always-on compositor animation on a fixed layer stacked above
+   a 3600x2400 board that is itself being transformed on every camera frame,
+   for the entire session, to move an arrow nobody could see. The owner
+   reported new grit between stops on the same build that introduced it.
+
+   The size, weight and contrast above are what make this readable; the drift
+   was decoration on top of a fix that had already worked. Kept as a plain
+   inline-block so the arrow still sits on the text baseline. */
 .scroll-hint span {
   display: inline-block;
-  animation: hint-nudge 1.9s ease-in-out infinite;
-}
-@keyframes hint-nudge {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(4px); }
 }
 
 .motion-toggle {
