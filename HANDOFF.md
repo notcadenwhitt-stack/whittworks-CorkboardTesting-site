@@ -63,7 +63,8 @@ Plus `board-open` / `board-shut` for the sticky-note toggle.
 
 There is also an inline `<style>.corkboard{display:none}</style>` in the head.
 It is the floor: if `css/style.css` 404s, every display rule goes with it and
-BOTH designs render stacked (measured innerText 3116, the whole site twice).
+BOTH designs render stacked (measured 2026-08-07, before the
+events/testimonial content: innerText 3116, the whole site twice).
 
 ---
 

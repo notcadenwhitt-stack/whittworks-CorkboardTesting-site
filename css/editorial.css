@@ -363,8 +363,10 @@ a { color: inherit; }
 
 /* The second testimonial is a placeholder until Annie's team confirms her
    quote and photo: no photo, and a status line where the quote will go —
-   set apart from the real quotes so nobody reads it as one. */
-.testimonial-pending .testimonial-quote p {
+   set apart from the real quotes so nobody reads it as one. The line is a
+   <p class="testimonial-quote pending-line">, not a blockquote (see
+   index.html), so it is styled directly rather than via a descendant p. */
+.testimonial-pending .pending-line {
   font-size: clamp(1.05rem, 1rem + 0.6vw, 1.4rem);
   font-style: italic;
 }
