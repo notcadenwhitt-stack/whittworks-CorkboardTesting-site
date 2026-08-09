@@ -40,6 +40,24 @@
   try {
     if (window.matchMedia && window.matchMedia("(min-width: 901px)").matches) {
       d.className += " board-first";
+      /* WARMING. The first rasterisation of this board is the most expensive
+         one it will ever do — every tile cold, cork.webp possibly still
+         decoding, and the full drop-shadow stacks costing 173ms of the ~200ms
+         a genuine frame takes. Tiles that miss that budget draw nothing, which
+         is the "chunks" the owner has reported twice. This class collapses the
+         stacks for the load only; css/style.css hangs the same collapsed
+         filters off it that .moving uses, and js/board.js removes it once the
+         load has settled.
+
+         Set HERE and not from board.js, which is the whole point: board.js
+         runs at the end of <body>, long after the first tiles have already
+         rasterised at full cost. To make the first raster cheap the class has
+         to exist before anything paints, which only this script can do.
+
+         If board.js never runs, js/peek.js takes the page back to the
+         editorial design and these selectors — all scoped under .board —
+         match nothing. A stranded warming class is inert. */
+      d.className += " warming";
       /* The class puts the board on screen from the first frame, but nothing
          writes its transform until js/board.js runs at the end of the body,
          and first paint does not wait for end-of-body scripts. Untransformed,
@@ -217,7 +235,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=61">
+<link rel="stylesheet" href="css/style.css?v=62">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -303,7 +321,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=18">
+<link rel="preload" as="script" href="js/board.js?v=19">
 <link rel="preload" as="script" href="js/hand.js?v=6">
 </head>
 <body>
@@ -765,7 +783,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=18"></script>
+<script src="js/board.js?v=19"></script>
 <script src="js/hand.js?v=6"></script>
 </body>
 </html>

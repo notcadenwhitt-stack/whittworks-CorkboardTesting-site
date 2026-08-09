@@ -1390,18 +1390,39 @@ a { color: inherit; }
    reason to let the card silhouette or the letterforms shift.
 
    These rules used to answer to an html.ww-flat class as well, for an opening
-   fade that no longer exists. The camera is the only owner now. */
+   fade that no longer exists.
 
-.board.moving .index-card {
+   AND THEY ANSWER TO ONE AGAIN, 2026-08-09, for a different reason than that
+   fade had. `html.warming` is set by the inline head script and removed by
+   js/board.js once the load has settled. The problem it addresses is the one
+   the owner kept reporting as "chunks": the very first rasterisation of this
+   board is the single most expensive one it ever does — every tile is cold,
+   cork.webp may still be decoding, and the full shadow stacks are 173ms of
+   the ~200ms it takes to raster a frame. Tiles that miss that budget draw
+   nothing, and the visitor watches the board arrive in pieces.
+
+   Collapsing the stacks for the load makes those first rasters cheap, and it
+   is free in a way it would not be later: nobody is studying shadow softness
+   on a board that is still assembling itself, and the swap back to the full
+   stacks was already tuned to land on each stack's centre of mass, which is
+   why it does not read as a flicker. This is the lever that was identified
+   during the chunk work and left unshipped. The camera still owns .moving;
+   warming only owns the load. */
+
+.board.moving .index-card,
+html.warming .board .index-card {
   filter: url(#cut) drop-shadow(6px 15px 26px rgba(25, 12, 4, 0.68));
 }
-.board.moving .sticky::before {
+.board.moving .sticky::before,
+html.warming .board .sticky::before {
   filter: drop-shadow(5px 15px 19px rgba(25, 12, 4, 0.7));
 }
-.board.moving .polaroid {
+.board.moving .polaroid,
+html.warming .board .polaroid {
   filter: drop-shadow(8px 19px 24px rgba(25, 12, 4, 0.72));
 }
-.board.moving .postcard::before {
+.board.moving .postcard::before,
+html.warming .board .postcard::before {
   filter: drop-shadow(8px 20px 26px rgba(25, 12, 4, 0.72));
 }
 
