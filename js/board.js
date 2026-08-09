@@ -91,8 +91,8 @@
     { x: 1800, y: 1070, w: 1080, h: 740 },   /* 1 title card */
     { x: 926,  y: 803,  w: 1340, h: 900 },   /* 2 about + polaroid */
     { x: 2745, y: 765,  w: 1050, h: 1000 },  /* 3 services cluster, four stickies */
-    { x: 2660, y: 1587, w: 1420, h: 1060 },  /* 4 work photo */
-    { x: 2362, y: 1768, w: 2200, h: 900 },   /* 5 testimonials: chad + annie */
+    { x: 2750, y: 1600, w: 1420, h: 1060 },  /* 4 work pane: postcard + room below for future products */
+    { x: 1690, y: 1910, w: 1200, h: 1010 },  /* 5 reviews: chad row over annie row */
     { x: 700,  y: 1783, w: 1040, h: 650 },   /* 6 contact card */
     { x: 1800, y: 1200, w: 3860, h: 2620 }   /* 7 pull back out */
   ];
@@ -104,9 +104,9 @@
     { x: 741,  y: 494 },  /* 1 about */
     { x: 1236, y: 636 },  /* 2 caden polaroid */
     { x: 2547, y: 335 },  /* 3 services s1 */
-    { x: 2634, y: 1318 }, /* 4 work postcard */
-    { x: 1697, y: 1749 }, /* 5 quote card */
-    { x: 2180, y: 1861 }, /* 6 chad polaroid */
+    { x: 2734, y: 1318 }, /* 4 work postcard */
+    { x: 1977, y: 1523 }, /* 5 quote card (reviews row 1, right) */
+    { x: 1430, y: 1466 }, /* 6 chad polaroid (reviews row 1, left) */
     { x: 694,  y: 1544 }, /* 7 contact */
     { x: 3092, y: 2078 }, /* 8 stray pin, nothing under it */
     { x: 442,  y: 268 }   /* 9 stray pin */
@@ -115,7 +115,7 @@
   /* empty holes from whatever hung here before */
   var HOLES = [
     { x: 980, y: 1490 }, { x: 2350, y: 470 }, { x: 3210, y: 890 },
-    { x: 1540, y: 2210 }, { x: 260, y: 780 }, { x: 2900, y: 2240 }
+    { x: 2620, y: 2140 }, { x: 260, y: 780 }, { x: 2900, y: 2240 }
   ];
 
   var STRINGS = [

@@ -1086,8 +1086,11 @@ a { color: inherit; }
      the logo are already where they will be. The filter below grades this as
      it grades the shot. */
   background: url("data:image/webp;base64,UklGRgYCAABXRUJQVlA4IPoBAADwCACdASowAB4APrFUo04nJKMiJWgA4BYJaQAOBVh2HEBpaPhXPy5zXpH2Bv1sB7S813VTI1ayV8zt/FkmefGedxwG/8OOaBoOcA+/q1uQAAD++J737+x/d6tWWfC62HudeFVRZ85WuzRQ/e9hLPOE4ito2JgvdW2rJ5w02cuw10pozf3s9pW8MSHvXicCfAoeQCly7z2YjjEF6u8GvPlGOd0cUBz+OXoPpSWAxcoa+85eeMHbJeCZ7QY3hpbP47wLKNf4/Jcw9Y8Vas3UxKnk5nT18h6QHz8/Giqymyqfp1aS5z4lLr6/zA/wAZ1nmwGg5/SRdY/fpPiUvNEN/kxf56PHGuU7mhp6LX57qfXQPkAcZQZIIiG8m/48P3+23T8t8fjivtMKtimtTmbn/+lx9gAzlt9fYT++yPwIyErrMYcP/w6NFysr4XNUjiOY3idbKZ8YTZ8Ftv/7D2xyzhkbrnjY0wyh+1G0/20ki5lilcGqGZYuvn55/Zu+exmymZks+9pP+4nhSUqr9lR8ScQg8MgohqLgJdb+yIlhlPeeG/Y4dQCvcX+1dSzLil6ePKncVdGp+VA+LJ/+pgch3Ak0dQbXyYttN/xFH1BLmHEIxYVriIg5Kpbj8IZpboM+p/UN+x7ea0JxiH1PY8zw+H2peIc9JTUTKAgAAA==") 50% 50% / cover no-repeat #333236;
-  /* four-colour on uncoated stock: no monitor blacks, no monitor saturation */
-  filter: saturate(0.72) contrast(0.8) brightness(1.05) sepia(0.12);
+  /* four-colour on uncoated stock: no monitor blacks, no monitor saturation.
+     Owner asked for the print darker (2026-08-08): brightness down from
+     1.05, contrast up from 0.8 — still short of monitor black, so it keeps
+     reading as printed rather than backlit. */
+  filter: saturate(0.74) contrast(0.86) brightness(0.96) sepia(0.12);
 }
 .pc-grain {
   /* the card's print grain over the modern shot, so it reads as printed */

@@ -239,6 +239,20 @@ Executed from PLAN.md (approved 2026-08-08). What changed:
   fetch ~304KB the editorial never paints (same class of issue the tape
   preloads fixed with their 901px gate).
 
+**Same day, owner-directed in chat after the screenshot set:** the board
+split into panes. The WORK pane sits right — postcard at (2320, 1300),
+darker print grade (saturate .74 / contrast .86 / brightness .96, owner
+asked twice for darker), mini-sticky at (3240, 1430) — and **the cork below
+and right of the postcard is deliberately EMPTY: reserved for future
+product cards.** REVIEWS are a stacked column left of it: row 1 Chad,
+polaroid (1240, 1450) LEFT of his quote card (1600, 1510); row 2 Annie,
+card (1300, 1955) LEFT of her blank polaroid (1940, 1925). That
+polaroid-card / card-polaroid zigzag is the owner's requested arrangement —
+keep it. PINS 4/5/6 moved with their papers (the freeze on pins meant the
+system, not pinning a moved paper to empty cork); strings follow pins
+automatically. STOPS 4/5 retuned; stop 5 now rests near 0.89 zoom, so the
+quote-card type bumps from earlier today still land well.
+
 Not done, deliberately: push/deploy (owner approval pending, PLAN.md phase
 5), real Annie quote/photo (pending her team), mobile polish (still parked).
 
