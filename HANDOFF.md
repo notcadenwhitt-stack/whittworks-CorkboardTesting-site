@@ -285,8 +285,16 @@ through first paint and written the identical matrix as `.board` by
 js/board.js on every camera frame (verified: transforms equal and rects
 zero-delta at five scroll positions). A solid-colour layer has no tiles of
 its own to miss. The head script no longer publishes `--board-x/y/w/h`;
-reading mode hides the underlay. Any remaining late tile now reads as flat
-cork awaiting texture at ANY zoom, never as the wall.
+reading mode hides the underlay. Second round, after the owner still saw
+chunks on the opening frame: a flat-colour sheet stops the WALL showing but
+draws a visible seam against every tile that HAS rasterized (flat orange vs
+textured cork). The underlay now shares .board's ENTIRE background stack
+(one grouped rule, `.board, .board-underlay` — do not give the underlay a
+background shorthand, it would reset the stack): before cork.webp decodes
+both sides of a tile seam show the identical LQIP composite, after it they
+show identical real cork, so a late tile stops being visible at all, at any
+zoom, forever. Verified: computed background image/position/size/blend/
+colour byte-identical between the two elements.
 
 **Parked: Annie Meissner's testimonial.** The owner wants bare cork there
 until her quote and photo are confirmed real. DO NOT restore or push it
