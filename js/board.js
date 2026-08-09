@@ -405,7 +405,28 @@
 
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onResize);
-  window.addEventListener("load", function () { measure(); update(); });
+  window.addEventListener("load", function () {
+    measure();
+    update();
+
+    /* End the warm-up. The inline head script set html.warming so the board's
+       first, coldest rasters could be drawn with collapsed shadow stacks; by
+       `load` every asset has arrived and the expensive frames are behind us,
+       so the full stacks come back.
+
+       MOVE_SETTLE after load, not on it, and for the reason MOVE_SETTLE exists
+       at all: restoring the stacks is a re-raster of every sheet on screen,
+       measured as a 428ms blocked task on the GPU process. Doing that in the
+       same turn as the load event stacks it on top of whatever else the
+       browser is finishing. One settle-length of quiet first, and it lands on
+       an idle machine.
+
+       If the visitor is already scrolling by then, .moving is on the board and
+       owns the collapse anyway, so this hands over rather than fighting. */
+    setTimeout(function () {
+      document.documentElement.classList.remove("warming");
+    }, MOVE_SETTLE);
+  });
 
   /* The preference is not a load-time constant. Someone can turn it on from
      the OS while the page is open — that is in fact when they are most likely
