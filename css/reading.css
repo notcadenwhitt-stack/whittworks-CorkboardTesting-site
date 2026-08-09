@@ -198,7 +198,8 @@
 
 /* The camera's cork backstop is a 3600x2400 sheet in board space; the
    column has no camera and no board space, so it goes too. */
-.board-underlay { display: none; }
+.board-underlay,
+.board-floor { display: none; }
 
 /* Annie's card is one typed line over deliberately empty ruled lines. The
    height:auto above would collapse it to a label; keep enough card for the
