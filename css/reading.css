@@ -190,11 +190,15 @@
 .sticky { --sz: 100%; width: 100%; padding: 1.6rem 1.4rem 2rem; }
 .polaroid { width: 100%; max-width: 22rem; }
 
-/* The two tape strips holding Annie's placeholder pair are SIBLINGS of the
-   paper they hold, positioned in board coordinates (see index.html for
+/* The two tape strips holding the parked testimonial pair are SIBLINGS of
+   the paper they hold, positioned in board coordinates (see index.html for
    why). In this column those coordinates mean nothing, so they go. The
    work postcard's tape is children of the card and stays. */
 .board > .tape { display: none; }
+
+/* The camera's cork backstop is a 3600x2400 sheet in board space; the
+   column has no camera and no board space, so it goes too. */
+.board-underlay { display: none; }
 
 /* Annie's card is one typed line over deliberately empty ruled lines. The
    height:auto above would collapse it to a label; keep enough card for the

@@ -58,23 +58,16 @@
         d.style.setProperty("--first-frame",
           "translate(" + (vw / 2 - 1800 * s) + "px," +
                          (vh / 2 - 1200 * s) + "px) scale(" + s + ")");
-        /* The board's screen rectangle, for the cork-colored underlay that
-           css/style.css paints on .viewport::before. During the first
-           second of a load the compositor can show the board with some of
-           its tiles not yet rasterized — seen live on staging as staircase-
-           edged gaps where the dark wall read through the middle of the
-           cork. Tiles that are not rasterized draw NOTHING of the board, so
-           no rule on .board can fill them; the only thing that can is
-           whatever sits behind the board, and behind the board was the
-           wall. Now behind the board is a flat #bb6c27 rectangle (the
-           board's own composite base colour) exactly where the board is,
-           so a late tile reads as cork awaiting texture, in the same
-           progressive language as the LQIP placeholders, instead of a hole
-           in the site. Same numbers as --first-frame above. */
-        d.style.setProperty("--board-x", (vw / 2 - 1800 * s) + "px");
-        d.style.setProperty("--board-y", (vh / 2 - 1200 * s) + "px");
-        d.style.setProperty("--board-w", (3600 * s) + "px");
-        d.style.setProperty("--board-h", (2400 * s) + "px");
+        /* The cork-colored backstop behind the board (.board-underlay in
+           css/style.css) needs no numbers from here: it lives in board
+           space, --first-frame above holds it through first paint, and
+           js/board.js writes it the same matrix as the board on every
+           camera frame after that. This script used to publish the board's
+           first-frame screen rect (--board-x/y/w/h) for a fixed-position
+           ::before version of that backstop; that covered the load moment
+           only and left the viewport's edge bands over bare wall at every
+           zoomed stop — which is where fresh tiles rasterize during a hard
+           wheel scroll, seen live on staging as dark chunks at the edges. */
       }
       /* The preload gets cork.webp's BYTES here early, but nothing decodes
          them until the compositor first needs the texture — and tiles whose
@@ -200,7 +193,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=57">
+<link rel="stylesheet" href="css/style.css?v=58">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -209,7 +202,7 @@
      is what a visitor without scripting gets, and it is a better answer than
      the column was. Do not re-add the noscript copy; with no JS the board is
      display:none anyway and the rules would style something nobody can see. -->
-<link rel="stylesheet" href="css/reading.css?v=5"
+<link rel="stylesheet" href="css/reading.css?v=6"
       media="(max-width: 900px), (max-height: 540px)">
 <link rel="stylesheet" href="css/editorial.css?v=5">
 <!-- the cork is the backdrop everything sits on and it is the largest file
@@ -277,7 +270,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=16">
+<link rel="preload" as="script" href="js/board.js?v=17">
 <link rel="preload" as="script" href="js/hand.js?v=6">
 </head>
 <body>
@@ -488,6 +481,7 @@
   <p class="scroll-hint" aria-hidden="true">scroll to inspect the board &darr;</p>
 
   <div class="viewport">
+    <div class="board-underlay" aria-hidden="true"></div>
     <main class="board" id="board">
 
       <svg class="strings" id="strings" viewBox="0 0 3600 2400" aria-hidden="true"></svg>
@@ -714,7 +708,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=16"></script>
+<script src="js/board.js?v=17"></script>
 <script src="js/hand.js?v=6"></script>
 </body>
 </html>

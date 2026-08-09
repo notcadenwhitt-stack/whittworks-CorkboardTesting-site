@@ -43,6 +43,10 @@
   document.documentElement.classList.add("board-live");
 
   var board = document.getElementById("board");
+  /* The solid-cork sheet behind the board. It gets every transform the
+     board gets, so unrasterized board tiles show cork at ANY zoom, not
+     only at the first frame (see .board-underlay in css/style.css). */
+  var underlay = document.querySelector(".board-underlay");
   var stringsSvg = document.getElementById("strings");
   var hint = document.querySelector(".scroll-hint");
 
@@ -278,6 +282,7 @@
          `transform: none !important` for the case where this script is stale
          or never ran; this line is what makes the live switch clean. */
       if (board.style.transform) board.style.transform = "";
+      if (underlay && underlay.style.transform) underlay.style.transform = "";
       if (hint) hint.classList.remove("faded");
       return;
     }
@@ -317,8 +322,10 @@
     if (visH < BH) { y = Math.max(visH / 2, Math.min(BH - visH / 2, y)); }
     else { y = BH / 2; }
 
-    board.style.transform =
+    var t =
       "translate(" + (vw / 2 - x * s) + "px," + (vh / 2 - y * s) + "px) scale(" + s + ")";
+    board.style.transform = t;
+    if (underlay) underlay.style.transform = t;
 
     if (hint) hint.classList.toggle("faded", window.scrollY > vh * 0.4);
   }

@@ -274,6 +274,20 @@ sections above.
   the frame border is 30px). Pink mini-sticky **(3215, 1705)** keeps the
   corner tuck; pin 4 **(2934, 1318)**; board.js at ?v=16.
 
+**Chunk-loading fix (same day, after the owner saw dark tile chunks on
+staging while scrolling).** The cork backstop behind unrasterized board
+tiles used to be a fixed screen rect (`.viewport::before`, sized by the
+head script to the FIRST frame only), so every zoomed stop left the
+viewport's edge bands over bare wall — exactly where fresh tiles rasterize
+during a hard wheel gesture at retina density. It is now `.board-underlay`:
+a real 3600x2400 solid-cork element in board space, held by `--first-frame`
+through first paint and written the identical matrix as `.board` by
+js/board.js on every camera frame (verified: transforms equal and rects
+zero-delta at five scroll positions). A solid-colour layer has no tiles of
+its own to miss. The head script no longer publishes `--board-x/y/w/h`;
+reading mode hides the underlay. Any remaining late tile now reads as flat
+cork awaiting texture at ANY zoom, never as the wall.
+
 **Parked: Annie Meissner's testimonial.** The owner wants bare cork there
 until her quote and photo are confirmed real. DO NOT restore or push it
 without the owner explicitly confirming — the agreed protocol is: when the
