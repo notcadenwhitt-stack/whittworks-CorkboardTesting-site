@@ -118,15 +118,15 @@ None — static site, no storage. Git: one local-only branch created.
   screenshot of the live staging URL.
 
 ## Build Phases
-- [ ] Phase 1: Replace PLAN.md with this plan
+- [x] Phase 1: Replace PLAN.md with this plan
       Done when: committed on corkboard-realism
       Steps: write file; commit
-- [ ] Phase 2: Shared geometry
+- [x] Phase 2: Shared geometry
       Done when: doodle at (620,1120); postcard (2520,1300), sticky
       (3215,1705), pin 4 (2934,1318); board.js ?v=16; stops 0/2/4/5 capture
       clean; committed
       Covers: R1, R2; checks: A2
-- [ ] Phase 3: Freeze and trim
+- [x] Phase 3: Freeze and trim
       Done when: branch annie-wip exists at the geometry commit; tip has no
       Annie markup (board pair + tapes, editorial figure); reserved-cork
       comment in place; tripwires re-measured and re-documented; captures

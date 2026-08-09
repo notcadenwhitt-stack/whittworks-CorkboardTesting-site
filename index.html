@@ -431,15 +431,9 @@
         <figcaption class="meta testimonial-attr">CHAD PREWETT &mdash; FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS <span class="nobr">CO-FOUNDER</span></figcaption>
       </figure>
 
-      <!-- Placeholder until Annie's team confirms her quote and photo. No
-           invented words: the slot names whose voice it is and says the
-           quote is coming. A <p>, NOT a <blockquote>: the status line is
-           not a quotation, and marking it as one announced "quote" to
-           screen readers with the pending note as its body. -->
-      <figure class="testimonial testimonial-pending" aria-label="Testimonial placeholder for Annie Meissner">
-        <p class="testimonial-quote pending-line">Quote on its way.</p>
-        <figcaption class="meta testimonial-attr">ANNIE MEISSNER &mdash; DIRECTOR OF EVENTS &amp; FINANCE, ALABAMA REPUBLICAN PARTY</figcaption>
-      </figure>
+      <!-- RESERVED: a second testimonial figure goes here once its
+           materials are confirmed; see the reserved-cork note in the board
+           markup and HANDOFF.md. -->
     </section>
 
     <section class="band band-contact" id="contact" aria-labelledby="contact-title">
@@ -564,7 +558,7 @@
 
       <!-- ================= TESTIMONIAL ================= -->
       <!-- ============ REVIEWS: two stacked rows, left of the work pane.
-           Row 1 is Chad: polaroid LEFT, card RIGHT. Row 2 is Annie: card
+           Row 1 is Chad: polaroid LEFT, card RIGHT. Row 2 (parked): card
            LEFT, polaroid RIGHT. The bottom-right quadrant under the work
            postcard stays EMPTY on purpose — that cork is reserved for
            future product cards. ============ -->
@@ -579,35 +573,14 @@
         <figcaption class="hand">Chad Prewett</figcaption>
       </figure>
 
-      <!-- Annie's slot is a PLACEHOLDER until her team confirms materials:
-           name and title over empty ruled lines, a pencil note where the
-           quote will go, blank film in the polaroid. The swap-in is a
-           drop-in: her photograph into .pol-photo's src, the quote onto the
-           ruled lines, delete the pencil note. When the real photo lands,
-           follow the other two polaroids' convention in css/style.css: give
-           .annie-polaroid .pol-photo an object-position for the crop and a
-           tiny base64 LQIP background at the same position/cover, so the
-           print resolves in like the others instead of popping.
-           The two tape strips are SIBLINGS, not children, on purpose. The
-           card clips children at its edge (overflow: hidden), and both the
-           card and the polaroid carry filter stacks that would re-shadow
-           and re-cut anything inside them. The work postcard's tape avoids
-           this because .postcard keeps its shadows on ::before; these two
-           get the same effect by sitting next to the paper they hold, at
-           board coordinates. Reading mode hides bare-sibling tape. -->
-      <section class="card index-card quote-card annie-card" style="left:1300px; top:1955px; --rot:-1.2deg" aria-label="Testimonial placeholder for Annie Meissner">
-        <p class="typed">ANNIE MEISSNER</p>
-        <p class="typed">DIRECTOR OF EVENTS &amp; FINANCE,<br>ALABAMA REPUBLICAN PARTY</p>
-        <p class="hand pencil-note">quote on its way</p>
-      </section>
-      <span class="tape tape-tl2" style="left:1282px; top:1912px" aria-hidden="true"></span>
-
-      <figure class="polaroid frame-1 annie-polaroid" style="left:1940px; top:1925px; --rot:2.2deg">
-        <img class="pol-photo" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='625' height='760'%3E%3Cdefs%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.40 0 0 0 0 0.36 0 0 0 0.22 0'/%3E%3C/filter%3E%3CradialGradient id='v' cx='50%25' cy='46%25' r='72%25'%3E%3Cstop offset='62%25' stop-color='%23b6b2aa'/%3E%3Cstop offset='100%25' stop-color='%23a8a49b'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='625' height='760' fill='url(%23v)'/%3E%3Crect width='625' height='760' filter='url(%23g)'/%3E%3C/svg%3E" alt="Placeholder for Annie Meissner's photograph" width="625" height="760" decoding="async">
-        <span class="pol-gloss" aria-hidden="true"></span>
-        <figcaption class="hand">Annie Meissner</figcaption>
-      </figure>
-      <span class="tape tape-tr2" style="left:2222px; top:1869px" aria-hidden="true"></span>
+      <!-- RESERVED CORK: the second testimonial (index card left, polaroid
+           right) goes here once its materials are confirmed. The complete
+           worked-out markup, coordinates, and styling notes live on the
+           local branch `annie-wip` and in HANDOFF.md under "Parked: the
+           second testimonial"; its CSS (.annie-card, .pencil-note,
+           .annie-polaroid, the reading-mode rules, the hand.js selector)
+           is still in the tree on purpose. Do not fill this space with
+           anything else. -->
 
       <!-- ================= CONTACT: postcard, address side out ================= -->
       <section class="postcard postcard-back contact-postcard" style="left:310px; top:1530px; --rot:-0.6deg" aria-label="Contact">

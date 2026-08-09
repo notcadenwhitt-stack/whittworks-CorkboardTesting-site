@@ -33,11 +33,15 @@ board is an enhancement layered on top of it.
 | `css/style.css` 404s | tan editorial |
 | crawler | tan editorial, fully typeset |
 
-`document.body.innerText.length` is **1593** wherever the board shows and
-**1899** on the editorial — re-baselined 2026-08-08 when the approved
-events/testimonial content landed (the values were 1387/1707 before it, and
-older notes in this file still cite those numbers as measurements of their
-day). The old 1387-everywhere tripwire now means "1593 on the board".
+`document.body.innerText.length` is **1487** wherever the board shows and
+**1807** on the editorial (1506 in reading mode, 1791 with no JS) —
+re-baselined 2026-08-09 when the second testimonial was PARKED off the tip
+(see "2026-08-09" below). With the parked pair restored (branch
+`annie-wip`) the values are 1593 board / 1899 editorial, which were the
+2026-08-08 baselines; before that content existed at all they were
+1387/1707, and older notes in this file cite those numbers as measurements
+of their day. The old 1387-everywhere tripwire now means "1487 on the
+board".
 
 ### The four class gates, and why each exists
 
@@ -258,6 +262,32 @@ quote-card type bumps from earlier today still land well.
 
 Not done, deliberately: push/deploy (owner approval pending, PLAN.md phase
 5), real Annie quote/photo (pending her team), mobile polish (still parked).
+
+## 2026-08-09: final geometry, and the second testimonial parked
+
+Owner-approved plan (PLAN.md). Coordinates here supersede the 2026-08-08
+sections above.
+
+- Green chart doodle → **(620, 1120)**: open cork, overlaps nothing.
+- Work postcard → **(2520, 1300)**: its middle (x=2920) is the midpoint of
+  Chad's card's right edge (2300) and the cork's inner right edge (3540 —
+  the frame border is 30px). Pink mini-sticky **(3215, 1705)** keeps the
+  corner tuck; pin 4 **(2934, 1318)**; board.js at ?v=16.
+
+**Parked: Annie Meissner's testimonial.** The owner wants bare cork there
+until her quote and photo are confirmed real. DO NOT restore or push it
+without the owner explicitly confirming — the agreed protocol is: when the
+owner next mentions her review/picture, recite the stored placement, then
+fill in only on their yes. The full working version lives on the local-only
+branch **`annie-wip`** (at the "Move the doodle…" commit). Placement, for
+the recital: card `(1300, 1955, −1.2°)` with sibling tape `(1282, 1912)`;
+blank polaroid `(1940, 1925, 2.2°)` with sibling tape `(2222, 1869)`;
+editorial figure `.testimonial-pending` after Chad's. All the CSS is still
+in the tree (.annie-card, .pencil-note, .annie-polaroid, reading-mode
+rules, the hand.js `.pencil-note` selector), so restoration is pasting the
+markup back at the two RESERVED comments in index.html, re-baselining the
+tripwires to 1593/1899, and swapping in the real photo per the polaroid
+LQIP/object-position convention.
 
 ## Verification commands
 
