@@ -126,6 +126,30 @@
      change from paint to photograph — read the top of css/style.css.
      ================================================================== -->
 
+<!-- Content Security Policy, as a meta because GitHub Pages serves static
+     files and cannot set response headers. Defence in depth rather than a fix
+     for a known hole: this page takes no user input, has no forms, makes no
+     network calls, and embeds nothing third-party, so there is no injection
+     path today. What the policy buys is that if one ever appears — a
+     compromised host, a bad deploy, a future embed — an injected external
+     script or exfiltration attempt is refused by the browser.
+
+     'unsafe-inline' is present for scripts and styles and that IS a real
+     weakening, stated plainly rather than hidden. The alternative is hashing
+     the inline head script, and that script is edited often; a stale hash
+     would silently block it, drop `board-first`, and hand every wide visitor
+     the editorial design with nothing in the console tying it to this line.
+     The trade is deliberate: keep the origin lock, accept inline.
+
+     img-src allows data: because the LQIP placeholders and the neutral
+     polaroid film are base64 URIs. connect-src is 'none' because nothing on
+     this page fetches anything, ever.
+
+     NOT AVAILABLE HERE: frame-ancestors and X-Frame-Options are header-only —
+     a meta CSP cannot carry frame-ancestors, and meta X-Frame-Options is
+     ignored by every browser. Clickjacking protection therefore needs a host
+     that can set headers, which Pages is not. Recorded, not solved. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'none'; base-uri 'self'; form-action 'none'; object-src 'none'">
 <link rel="canonical" href="https://whittworkstudios.com/">
 <link rel="icon" href="assets/favicon-32.png" type="image/png">
 <link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
@@ -220,7 +244,16 @@
      connection open for the whole load and finishing next to last. High puts
      it in front of the paper, which is the right order — the cork is the one
      asset every other asset is seen against. -->
-<link rel="preload" as="image" href="assets/cork.webp" fetchpriority="high">
+<!-- THE 901px GATE, added 2026-08-09, for the same reason the three tape
+     preloads below carry one. This link had none, so every phone fetched the
+     single largest asset on the site — 304KB of cork — to paint the editorial
+     design, which never references it, and logged a "preloaded but not used"
+     warning for the trouble. The decode warmer in the head script was already
+     inside the min-width:901px branch, so the bytes were the only thing
+     crossing the wire ungated. Below 901px .corkboard is display:none and the
+     stylesheet never asks for the texture; someone tapping the sticky note
+     into the board on a phone fetches it then, exactly as before. -->
+<link rel="preload" as="image" href="assets/cork.webp" fetchpriority="high" media="(min-width: 901px)">
 <!-- The three masking-tape strips, and they are here because tape is the one
      photographed thing on this board that cannot have a placeholder at all.
      It is translucent, so any layer under it still reads through on the
