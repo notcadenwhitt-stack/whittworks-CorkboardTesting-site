@@ -231,12 +231,36 @@ whole job.
       unchanged; and the Level Up caption still sits on its tape after the `hand.js`
       re-roll caused by deleting a `.marker` element, checked on a screenshot.
       Tripwires 1450/1814/1469/1798 -> 1387/1814/1406/1798, arithmetic in `HANDOFF.md`.
-- [ ] **Phase 6: The stapled navy trim**  <- NEXT
-      Four narrow strips in board coordinates at the cork's inner edge. Dark navy near
-      `#1b2739`, roughly 60-70 board pixels wide, wavy on the inner edge only, small
-      staples around 22 board pixels. Background trim, not a focal point. Papers stack
-      above the strips.
-- [ ] **Phase 7: The form sheet**
+- [x] **Phase 6: The stapled navy trim**
+      DONE 2026-08-18. Four `<svg class="trim">` strips, 65 board pixels, flat `#1b2739`,
+      wavy on the inner edge only with four DIFFERENT wave sequences, and a reusable
+      `#staple-glyph` symbol at about 22 board pixels at irregular intervals. No
+      gradient, shadow, filter, or blend mode anywhere in it: this shipped straight after
+      two rounds of stripping render cost out of the page and none goes back for
+      decoration. Authored as the FIRST children of `.board`, before the strings, so
+      papers (z-index 3) and pins (7) stack above with no z-index needed.
+      Coordinate note worth keeping: `.board` is `box-sizing: content-box` with a 30px
+      walnut border, so its absolutely-positioned children live in a 0..3600 by 0..2400
+      space that IS the cork, with the frame outside it. A child at left:0 top:0 is flush
+      inside the frame.
+      THREE corrections the executor made to the brief, all verified:
+      (1) the bottom strip's nominal 2335-2400 box overlaps BOTH reserved cork rectangles,
+      which end at y2370. The box was kept but the fill path was set back inside it so the
+      painted navy reaches only y2374, 4px clear. Proven with `isPointInFill()` sampled on
+      a 10px grid across both reserved rectangles: zero hits.
+      (2) the right strip's inner boundary at x3535 is already 5px inside the product-card
+      rectangle's x3540 edge, so its wave is tapered shallower across y1900-2370 only.
+      Also zero hits.
+      (3) the brief claimed the pink `.mini-sticky` overlaps the right strip at x3542.
+      Measured live, its right edge is about x3484 and the painted navy starts near x3538,
+      so there is a small gap of bare cork, not an overlap. No overlap was manufactured.
+      The brief was also wrong that stop 6 brings trim into view; measured, stop 0 is the
+      only one of the eight stops that frames any trim edge at all.
+      Verified: tripwires unchanged at 1387/1814/1406/1798, `cdp.mjs stops` unchanged, all
+      four strips `aria-hidden` with no `data-zone-stop`, and the trim resolves to 0x0 in
+      the column layout automatically because `.corkboard` is already `display:none` there.
+
+- [ ] **Phase 7: The form sheet**  <- NEXT
       Relocate two doodle stickies, place the form in the freed cork above the contact
       postcard, retune stop 6, write `privacy.html`.
 - [ ] **Phase 8: Wire Formspree**

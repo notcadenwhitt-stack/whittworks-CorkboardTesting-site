@@ -666,6 +666,29 @@ a { color: inherit; }
   box-shadow: 0 1.5px 1px rgba(255, 230, 190, 0.28);
 }
 
+/* --- stapled navy trim (Phase 6) -----------------------------------
+   Positioned in the same board-pixel space as every other .board child;
+   see the long comment at the markup in index.html for the shape, the
+   colour, the staple symbol, and why the bottom and right strips are not
+   the plan's flat 65px band everywhere (both would otherwise paint into
+   the reserved cork the owner has asked kept bare). No z-index here:
+   .card/.sticky/.polaroid/.postcard below all carry z-index:3 and .pin
+   carries z-index:7, so the trim's default auto stacking already sits
+   under every paper and pin on the board. Document order (first children
+   of .board, before .strings) is what settles it for elements that carry
+   no z-index of their own, which is the only such overlap on the board:
+   the pink portfolio sticky's ~7px lap onto the right strip. */
+.trim { position: absolute; }
+.trim-top    { left: 0px;    top: 0px;      width: 3600px; height: 65px; }
+.trim-bottom { left: 0px;    top: 2335px;   width: 3600px; height: 65px; }
+.trim-left   { left: 0px;    top: 0px;      width: 65px;   height: 2400px; }
+.trim-right  { left: 3535px; top: 0px;      width: 65px;   height: 2400px; }
+/* #1b2739: a shade deeper than .viewport's own #233341 (the wall map's
+   measured mean blue, css/style.css:466), so the trim reads as navy paper
+   on the cork and not as a gap the wall shows through. Flat fill only -
+   no gradient, no drop-shadow, no filter, no blend mode, no box-shadow. */
+.trim-fill { fill: #1b2739; }
+
 /* --- shared paper physics ----------------------------------------- */
 
 .card, .sticky, .polaroid, .postcard {
