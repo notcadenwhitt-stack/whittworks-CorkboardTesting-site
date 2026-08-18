@@ -25,13 +25,29 @@ whole job.
 
 ## Phase checklist
 
-- [ ] **Phase 1: Remove the bottom chrome and the motion override**  <- NEXT
-      Delete `.board-chrome` (`index.html:551-556`) and its CSS
-      (`css/style.css:384-455`). Delete the motion override entirely from
-      `js/board.js`: `motionBtn`, `storedMotion`, `storeMotion`, `override`, and the
-      `motion-on`/`motion-off` classes. Keep `osReduced()` and the live `matchMedia`
-      listener. Also record the baseline referenced byte count here, for Phase 9.
-- [ ] **Phase 2: Copy pass and the Portfolio rename, in both designs**
+- [x] **Phase 1: Remove the bottom chrome and the motion override**
+      DONE 2026-08-18. `.board-chrome`, `.scroll-hint`, `.motion-toggle`, `.motion-dot`,
+      the `motion-on`/`motion-off` classes, the `ww-motion` sessionStorage override, and
+      the hint's fade logic are all gone from `index.html`, `css/style.css`,
+      `css/reading.css`, and `js/board.js`. 228 lines deleted, 37 added. The
+      reduced-motion media query now applies to `*` unconditionally; `osReduced()` and
+      the live `matchMedia` listener survive, so the OS setting is read live and remains
+      the only authority.
+      Verified: the nine removed identifiers return zero grep hits; `js/board.js` passes
+      a syntax check; screenshots at stops 0, 2, 4, and 6 show nothing fixed at the
+      bottom; `cdp.mjs stops` output is byte-identical to a pre-edit worktree at
+      `be7e9d9`, so the 14/15 and 7/8 sampling numbers are pre-existing and not a
+      regression; tripwires moved 1505 -> 1455 on the board and nowhere else, which is
+      exactly the 50 characters of deleted chrome text.
+      **Byte baseline for Phase 9: 1,842,182 bytes across 47 referenced files**,
+      measured by summing `index.html`, `404.html`, every file in `css/` and `js/`, and
+      every local asset they reference. Re-run the same method in Phase 9.
+      One extra fix beyond the brief: `onMotionChange` still read the deleted `override`
+      variable, which would have thrown a `ReferenceError` the moment a visitor changed
+      the OS setting mid-visit. Neither the syntax check nor the harness would have
+      caught it, because neither fires a live `matchMedia` change.
+
+- [ ] **Phase 2: Copy pass and the Portfolio rename, in both designs**  <- NEXT
       Four "Work" labels, the pink sticky becomes a mailto link, four service stickies
       capitalized, one missing comma, one polaroid caption. Re-measure all four
       tripwires.
@@ -100,3 +116,5 @@ node tools/verify/cdp.mjs shot 0    # screenshot at a stop -> tools/verify/out/
 - 2026-08-18: owner decided the motion escape hatch can go entirely, and specified the
   frame: dark navy, wavy, narrow, very small staples, background trim rather than a
   focal point. Plan updated.
+- 2026-08-18: Phase 1 complete. Bottom chrome and motion override deleted, verified
+  against a pre-edit worktree, tripwires re-baselined in HANDOFF.md. Not pushed.

@@ -216,9 +216,9 @@
 
      Space Mono 400 joins for the reason the original rule already gives:
      .deskbar a sets no font-weight, so the four nav links render at 400, not
-     the 700 that was being preloaded, and .scroll-hint uses the same face.
-     Both are fixed chrome, on screen at every scroll position, in the first
-     frame. It is 9.5KB, the smallest font on the page.
+     the 700 that was being preloaded. The deskbar is fixed chrome, on
+     screen at every scroll position, in the first frame. It is 9.5KB, the
+     smallest font on the page.
 
      Special Elite stays on CSS discovery: it letters the index cards, which
      are photographed paper the eye reaches after the board composes, and its
@@ -528,32 +528,6 @@
       <li><a href="#" data-stop="6">Contact</a></li>
     </ul>
   </nav>
-
-  <!-- Bottom chrome: the one place a visitor looks to learn how this page
-       works. Two controls, one cluster.
-
-       The HINT is not decorative and is no longer aria-hidden. It is the only
-       thing on the page that says the camera is driven by scrolling; a visitor
-       who misses it reads eight fixed compositions and tries to click between
-       them. It was 0.65rem — smaller than every other word on the page — and
-       it faded out after 40% of one viewport height, which is before anybody
-       has scrolled far enough to connect the gesture to the result. Both are
-       fixed below: it is body-sized now, and it holds until the camera has
-       actually passed a stop.
-
-       The MOTION button exists because prefers-reduced-motion silently
-       replaces the whole camera with hard cuts between stops, and nothing on
-       screen said so. The site's own owner opened it on a machine with Windows
-       animation effects off and reported the site as broken. A visitor gets
-       the same picture with less context. The OS preference is still the
-       default and still correct; this only lets a person disagree with it in
-       either direction, which WCAG 2.3.3 asks for anyway. -->
-  <div class="board-chrome">
-    <p class="scroll-hint">Scroll to move around the board <span aria-hidden="true">&darr;</span></p>
-    <button type="button" class="motion-toggle" aria-pressed="true">
-      <span class="motion-dot" aria-hidden="true"></span>Smooth motion
-    </button>
-  </div>
 
   <div class="viewport">
     <!-- The backstop. Solid colour only, so the compositor never has to

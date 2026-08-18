@@ -33,14 +33,22 @@ board is an enhancement layered on top of it.
 | `css/style.css` 404s | tan editorial |
 | crawler | tan editorial, fully typeset |
 
-`document.body.innerText.length` is **1505** wherever the board shows and
+`document.body.innerText.length` is **1455** wherever the board shows and
 **1807** on the editorial (1474 in reading mode, 1791 with no JS) —
-re-baselined 2026-08-09 when the bottom chrome landed; the previous set was
-1487 / 1807 / 1506 / 1791 and the deltas are: +18 on the board for the new
-instruction and toggle text less the old hint text, editorial and no-JS
-unchanged because the cluster lives inside `.corkboard`, and −32 in reading
-mode because that stylesheet now `display: none`s the whole cluster where it
-used to set `opacity: 0` on the hint alone, and only display removes text.
+re-baselined 2026-08-18 when the bottom chrome was DELETED (PLAN.md Phase 1);
+the previous set was 1505 / 1807 / 1474 / 1791. The only delta is −50 on the
+board, which is exactly the removed "Scroll to move around the board" hint
+plus the "Smooth motion" button label. Editorial and no-JS are unchanged
+because that cluster lived inside `.corkboard`, and reading mode is unchanged
+because its stylesheet was already `display: none`-ing the whole cluster, so
+that text was never in its count.
+
+Older note, still true — re-baselined 2026-08-09 when the bottom chrome
+landed; the set before that was 1487 / 1807 / 1506 / 1791, and the deltas
+were +18 on the board for the instruction and toggle text less the old hint
+text, and −32 in reading mode when that stylesheet moved from `opacity: 0` on
+the hint alone to `display: none` on the whole cluster, because only display
+removes text.
 Older note, still true —
 re-baselined 2026-08-09 when the second testimonial was PARKED off the tip
 (see "2026-08-09" below). With the parked pair restored (branch

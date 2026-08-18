@@ -322,8 +322,3 @@
 /* no camera means no runway to drive it with */
 .scroll-space { height: 0; }
 
-/* the hint points at a gesture that no longer does anything */
-/* Reading mode scrolls the document, not a camera, so the whole bottom cluster
-   is a lie here: there is nothing to move around and no motion to toggle.
-   Hiding the wrapper covers both controls at once. */
-.board-chrome { display: none; }

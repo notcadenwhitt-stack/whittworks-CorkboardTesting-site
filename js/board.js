@@ -51,16 +51,12 @@
      therefore miss. See the .board-floor rule in css/style.css. */
   var floor = document.querySelector(".board-floor");
   var stringsSvg = document.getElementById("strings");
-  /* The bottom cluster: the scroll instruction and the motion toggle. Faded as
-     one unit, because they are one piece of chrome. */
-  var hint = document.querySelector(".board-chrome");
-  var motionBtn = document.querySelector(".motion-toggle");
 
   /* ==================================================================
      PREFERS-REDUCED-MOTION
      ==================================================================
      The CSS media query at the end of style.css only ever killed
-     transitions, and this page's transitions are a fading hint. The motion
+     transitions, and this page has almost none left worth killing. The motion
      that actually matters is right here: a 3600x2400 layer translated and
      scaled continuously under the scroll, 41 megapixels of it sweeping and
      zooming across the whole viewport. Large-area zoom and parallax are a
@@ -92,42 +88,25 @@
     : null;
 
   /* ==================================================================
-     THE VISITOR CAN DISAGREE WITH THE OS, IN EITHER DIRECTION
+     THE OS SETTING IS THE ONLY AUTHORITY
      ==================================================================
-     Honouring prefers-reduced-motion is right and stays the default. What was
-     missing is that the substitution is INVISIBLE: the snap mode above is a
-     considered composition, but on screen it is indistinguishable from a page
-     whose animation is broken. This site's own owner hit exactly that — a new
-     Windows machine with animation effects switched off, and the report that
-     came back was "the scroll animation is not working at all". Someone who
-     knows the codebase read hard cuts as a defect in seconds. A visitor has no
-     chance, and their conclusion is that the site is broken, not that it is
-     considerate.
+     prefers-reduced-motion decides this outright; there is no way for a
+     visitor to disagree with it from inside the page. Snap mode above is a
+     considered composition, but on screen a hard cut between stops still
+     reads like broken animation to someone who has not opened dev tools —
+     this site's own owner mistook it for exactly that on a machine with
+     Windows animation effects switched off. That risk is accepted rather
+     than worked around: no in-page control exists to correct it, so the OS
+     preference is the whole of the decision.
 
-     So the preference becomes a default rather than a verdict. An explicit
-     choice wins over the OS and is remembered for the visit; with no explicit
-     choice, the OS still decides and still tracks live. sessionStorage and not
-     localStorage matches js/peek.js: the choice belongs to this visit. The
-     try/catch matches it too, because Safari in private mode throws on access
-     and a storage failure must not cost the control.
-
-     The classes exist so the toggle steers CSS as well as the camera. The
-     stylesheet's suppression is scoped to html:not(.motion-on) inside the media
-     query, so with no JS at all a reduced-motion visitor still gets it.
+     It is not a load-time constant, though. Someone can flip the setting
+     while the page is open — a scroll animation is exactly the kind of thing
+     a visitor reaches for that control halfway through, mid-zoom — so the
+     query below is read live via a change listener further down this file,
+     and the camera repaints into the other mode on the spot.
      ================================================================== */
-  var MOTION_KEY = "ww-motion";
-  function storedMotion() {
-    try { return sessionStorage.getItem(MOTION_KEY); } catch (e) { return null; }
-  }
-  function storeMotion(v) {
-    try { sessionStorage.setItem(MOTION_KEY, v); } catch (e) {}
-  }
-
-  var override = storedMotion();
-  if (override !== "on" && override !== "off") override = null;
-
   function osReduced() { return !!(motionQuery && motionQuery.matches); }
-  var reduced = override ? override === "off" : osReduced();
+  var reduced = osReduced();
 
   /* Camera stops: board-space center (x, y) and the span to fit (w, h).
      Stop 0's four numbers are mirrored by the --first-frame math in the
@@ -326,7 +305,6 @@
          or never ran; this line is what makes the live switch clean. */
       if (board.style.transform) board.style.transform = "";
       if (floor && floor.style.transform) floor.style.transform = "";
-      if (hint) hint.classList.remove("faded");
       return;
     }
 
@@ -369,15 +347,6 @@
       "translate(" + (vw / 2 - x * s) + "px," + (vh / 2 - y * s) + "px) scale(" + s + ")";
     board.style.transform = t;
     if (floor) floor.style.transform = t;
-
-    /* Fade on PROGRESS, not on pixels. This was `scrollY > vh * 0.4`, which
-       retired the page's only instruction after 40% of one viewport — before
-       the camera has finished its first move, so the words vanish while the
-       visitor is still working out what the gesture did. Keyed to p instead,
-       it holds until the camera has actually arrived at stop 1, which is the
-       first moment the connection has been demonstrated rather than claimed.
-       It also comes back on the way up, for anyone still lost. */
-    if (hint) hint.classList.toggle("faded", p > 1);
   }
 
   /* rAF entry point. update() itself stays pure so the first paint can call
@@ -437,17 +406,10 @@
      query is read live and the board repaints into the other mode on the
      spot. addListener is the pre-2021 Safari spelling of the same thing. */
   /* One place that turns the current preference into everything downstream:
-     the camera's own flag, the two <html> classes the stylesheet reads, and
-     the button's pressed state. Called on load, on OS change, and on click, so
-     those four can never disagree with each other. */
+     the camera's own flag. Called on load and on OS change, so the flag can
+     never disagree with the query it comes from. */
   function applyMotion() {
-    reduced = override ? override === "off" : osReduced();
-
-    var root = document.documentElement;
-    root.classList.toggle("motion-on", override === "on");
-    root.classList.toggle("motion-off", override === "off");
-
-    if (motionBtn) motionBtn.setAttribute("aria-pressed", reduced ? "false" : "true");
+    reduced = osReduced();
 
     if (reduced && moveTimer !== null) {
       /* drop a collapse that was armed by the mode we just left, so the
@@ -460,10 +422,6 @@
   }
 
   function onMotionChange() {
-    /* An explicit choice outranks the OS for the rest of the visit. Without
-       this guard, flipping the system setting would silently overwrite a
-       decision the visitor made on purpose. */
-    if (override) return;
     applyMotion();
   }
   if (motionQuery) {
@@ -474,13 +432,6 @@
     }
   }
 
-  if (motionBtn) {
-    motionBtn.addEventListener("click", function () {
-      override = reduced ? "on" : "off";
-      storeMotion(override);
-      applyMotion();
-    });
-  }
   applyMotion();
 
   /* Which piece of paper each nav link is really pointing at. The camera path
