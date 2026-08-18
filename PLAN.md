@@ -126,7 +126,7 @@ sheet's paper texture, and the easing on the sticker's hover.
 | R6 | WHEN the kebab is pressed, THE SYSTEM SHALL open a dropdown listing About, Services, Portfolio, Reviews, Contact, and Whole Board; Escape SHALL close it and focus SHALL be trapped while open. | Keyboard walkthrough |
 | R7 | THE SYSTEM SHALL replace the center notecard with a circular sticker: white ring, black inner disc, logo slot. Clicking it SHALL return the camera to the whole board. | Screenshot plus click test |
 | R8 | THE SYSTEM SHALL render narrow dark-navy strips with a wavy inner edge, stapled by small staples along all four inner edges of the cork, in board space, obscuring no paper and reading as background trim rather than a focal point. | Screenshot at stop 0, judged against "does the eye land on it first" |
-| R9 | THE SYSTEM SHALL collect Name (required), Email (required, format-checked), Phone (optional, consent notice attached), and Project description (required, 20 characters minimum). | Submit with each field empty in turn |
+| R9 | THE SYSTEM SHALL collect Name (required), Email (required, format-checked), Phone (optional, consent notice attached), Project description (required, 20 characters minimum), and How did you find me (optional). | Submit with each field empty in turn |
 | R10 | WHEN the form is submitted, THE SYSTEM SHALL POST to Formspree and show a paper acknowledgement; on failure it SHALL show the error and a `mailto:` link carrying the typed content. | One live submit, one submit with the network offline |
 | R11 | THE SYSTEM SHALL label the portfolio section "Portfolio" in both designs, and "More portfolio available on request" SHALL be a `mailto:caden@whittworkstudios.com` link. | Grep for "Work" as a label returns nothing; click opens the composer |
 | R12 | THE SYSTEM SHALL use correct capitalization and grammar in every visible string, in both designs. | Full copy read-through against the checked list |
@@ -301,7 +301,14 @@ leave for Formspree.
 
 ## Open Items (none blocking)
 
-- **Logo file.** Not ready. The sticker ships the interim `W` from `assets/favicon.svg`
+- **Logo file.** CONFIRMED NOT READY, 2026-08-18 (user). The sticker ships the interim
+  mark; swapping in the real one later replaces the contents of one inline `<svg>` and
+  touches neither the ring nor the disc.
+- **Smoothness.** The owner deferred any further motion-performance work until the whole
+  project is built (user, 2026-08-18). Two passes already shipped in Phase 4c; the next
+  untouched lever is the board's own 7-layer blended cork background, which is held back
+  because collapsing it during motion risks a visible colour shift when it returns.
+- **Logo file, original note.** Not ready. The sticker ships the interim `W` from `assets/favicon.svg`
   (path `M11 17 L21 47 L32 26 L43 47 L53 17`, no fill, stroke `#FFA92B`,
   `stroke-width` 7 on a 64x64 viewBox, round caps and joins), inline so it stays sharp
   at every zoom and costs no request. Keep the markup shaped so the real logo replaces
@@ -465,7 +472,9 @@ phone.
       - Relocate the two doodle stickies at (301,1129) and (642,1143) to open cork.
       - Place the form sheet in the freed rectangle, clear of both reserved areas.
       - Fields: Name, Email, Phone with the consent notice, Project description,
-        honeypot.
+        How did you find me (optional, user 2026-08-18), honeypot.
+      - Budget and timeline are explicitly NOT collected (user declined them 2026-08-18).
+        Do not add them.
       - Native constraint validation plus inline messages; focus moves to the first
         invalid field.
       - Retune stop 6 to frame the form and the postcard together.

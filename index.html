@@ -238,7 +238,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=69">
+<link rel="stylesheet" href="css/style.css?v=71">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -324,7 +324,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=27">
+<link rel="preload" as="script" href="js/board.js?v=28">
 <link rel="preload" as="script" href="js/hand.js?v=6">
 </head>
 <body>
@@ -529,10 +529,34 @@
        below instead of being crammed in next to it. The uppercase look is
        text-transform, not the words themselves: the accessible name (and
        the innerText tripwire js/peek.js's neighbor script checks) has to
-       stay "WhittWorks Studios" in mixed case. -->
-  <nav class="deskbar" aria-label="Primary">
-    <span class="deskbar-name">WhittWorks Studios</span>
-  </nav>
+       stay "WhittWorks Studios" in mixed case.
+
+       Phase 5: this is now an <h1>, not a <span>. Deleting the centre
+       notecard's .marker heading below removed the board layout's only
+       top-level heading, so the strip's name is promoted to fill that
+       role. (The editorial design keeps its own separate <h1 class="wordmark">
+       further down this file; only one design is ever displayed at a
+       time, so two <h1>s in one document is already this codebase's
+       pattern, not a new one.) Every property the browser's default <h1>
+       styling would otherwise add — margin, font-weight — is either
+       already zeroed by the global reset above or set explicitly on
+       .deskbar-name, so the strip reads pixel-identical to the old <span>.
+
+       The kicker line below it is the first of the notecard's two typed
+       lines, promoted here for the same reason. The second line, "Caden
+       Whitt, Founder · whittworkstudios.com", is deliberately NOT carried
+       over: that credit already lives on the founder polaroid's caption a
+       few sections down, and the domain is the site the visitor is
+       already reading this on. -->
+  <!-- A <header>, not a <nav>. It was a nav when it carried the four section
+       links; Phase 3 moved those into the kebab dropdown below and Phase 5
+       gave this the <h1> and the kicker, which left an element announcing
+       itself as primary navigation while containing no links at all. The nav
+       landmark moved to the dropdown, where the links actually are. -->
+  <header class="deskbar">
+    <h1 class="deskbar-name">WhittWorks Studios</h1>
+    <p class="deskbar-kicker">Web Design &amp; Consulting &middot; Est. 2026</p>
+  </header>
 
   <!-- The four links that used to live in the deskbar, plus Reviews and a
        way back to the opening view, now live behind this kebab instead of
@@ -543,6 +567,11 @@
        links to a camera stop and does not need to learn anything new to
        reach these. The icon is drawn to the owner's own description of it,
        three rows of one dot and one dash each. -->
+  <!-- The real primary navigation: the button and the list it controls, kept
+       together inside one landmark so a visitor browsing by landmark finds
+       the menu rather than the title strip. Both children are position:fixed
+       in their own right, so this wrapper adds a landmark and nothing else. -->
+  <nav class="board-nav" aria-label="Primary">
   <button class="board-menu-btn" type="button" aria-haspopup="true"
           aria-expanded="false" aria-controls="board-menu" aria-label="Open the menu">
     <svg class="board-menu-icon" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
@@ -562,6 +591,7 @@
     <li><a href="#" data-stop="6">Contact</a></li>
     <li><a href="#" data-stop="0">Whole Board</a></li>
   </ul>
+  </nav>
 
   <div class="viewport">
     <!-- The backstop. Solid colour only, so the compositor never has to
@@ -575,10 +605,44 @@
 
       <svg class="strings" id="strings" viewBox="0 0 3600 2400" aria-hidden="true"></svg>
 
-      <!-- ================= TITLE ================= -->
-      <section class="card index-card title-card" style="left:1400px; top:800px; --rot:-1.5deg" aria-label="WhittWorks Studios">
-        <h1 class="marker">WhittWorks<br>Studios</h1>
-        <p class="typed small">WEB DESIGN &amp; CONSULTING &middot; EST. 2026<br>CADEN WHITT, FOUNDER &middot; WHITTWORKSTUDIOS.COM</p>
+      <!-- ================= STICKER (interim mark) =================
+           Replaces the ruled index card that used to carry "WhittWorks
+           Studios" in marker plus two typed lines; both lines moved up to
+           the deskbar (name -> <h1>, first line -> kicker) and the second
+           line was dropped, see the comment at the deskbar for why.
+
+           Three nested parts so a real logo can drop in later by touching
+           only the innermost one: this <section> IS the white ring (.card
+           gives it position/z-index/rotate, .sticker paints it white and
+           circular and is exactly the ring's outer edge); .sticker-disc is
+           the black disc centred inside it; and the <svg> is the logo
+           slot. The owner does not have his real mark yet, so the interim
+           chevron from assets/favicon.svg ships here instead, inlined
+           (not <img>) so it stays crisp at every camera zoom and costs no
+           extra request. That file's own <rect> background is dropped:
+           .sticker-disc already supplies the black behind it.
+           TO SWAP IN THE REAL LOGO LATER: replace only the contents of the
+           <svg class="sticker-mark"> below. Leave .sticker and
+           .sticker-disc alone.
+
+           data-zone-stop="0" returns the camera to the whole board on
+           click, same as the other nine zone targets. Deliberately a
+           <section>, not a <button>, and no tabindex: js/board.js's
+           delegated handler bails out on
+           a[href], button, input, select, textarea, label, [tabindex],
+           and the other nine zone papers already established pointer-only
+           zone clicks as a deliberate decision (the kebab's "Whole Board"
+           entry is the keyboard path). aria-label gives it the accessible
+           name "WhittWorks Studios"; aria-hidden on the disc and the mark
+           keeps the decoration out of the accessibility tree, and neither
+           holds any text node, so neither contributes to innerText
+           either. -->
+      <section class="card sticker" data-zone-stop="0" style="left:1570px; top:810px; width:520px; height:520px; --rot:1.5deg" aria-label="WhittWorks Studios">
+        <div class="sticker-disc" aria-hidden="true">
+          <svg class="sticker-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <path d="M11 17 L21 47 L32 26 L43 47 L53 17" fill="none" stroke="#FFA92B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
       </section>
 
       <!-- ================= ABOUT ================= -->
@@ -797,7 +861,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=27"></script>
+<script src="js/board.js?v=28"></script>
 <script src="js/hand.js?v=6"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them

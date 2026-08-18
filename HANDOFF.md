@@ -33,8 +33,21 @@ board is an enhancement layered on top of it.
 | `css/style.css` 404s | tan editorial |
 | crawler | tan editorial, fully typeset |
 
-`document.body.innerText.length` is **1483** wherever the board shows and
-**1814** on the editorial (1502 in reading mode, 1798 with no JS) —
+`document.body.innerText.length` is **1387** wherever the board shows and
+**1814** on the editorial (1406 in reading mode, 1798 with no JS) —
+re-baselined 2026-08-18 across Phases 3 and 5. Phase 3 took the board and
+reading counts down 33: the four old nav labels (About, Services, Portfolio,
+Contact) moved into a dropdown that is `display: none` when closed, so their
+text correctly leaves the rendered count until the menu is opened. Phase 5 took
+another 63: the centre notecard became a circular sticker, which removed its
+marker heading "WhittWorks Studios" (already duplicated by the title strip) and
+the founder/domain line "CADEN WHITT, FOUNDER · WHITTWORKSTUDIOS.COM", which
+was deliberately dropped because the founder is named on the polaroid caption
+and the domain is the site itself. The notecard's other line survives verbatim
+as the title strip's kicker, so it nets to zero.
+
+Superseded values, kept for the arithmetic: **1483** board /
+**1814** editorial (1502 reading, 1798 no JS) —
 re-baselined 2026-08-18 after the Phase 2 copy pass; the set before it was
 1455 / 1807 / 1474 / 1791. Every character of the four deltas is accounted
 for. Board and reading mode both gain +28: the added comma (+1), "Caden —

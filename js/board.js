@@ -114,7 +114,7 @@
      file has executed. Retune stop 0 and that copy must move with it. */
   var STOPS = [
     { x: 1800, y: 1200, w: 3860, h: 2620 },  /* 0 whole board */
-    { x: 1800, y: 1070, w: 1080, h: 740 },   /* 1 title card */
+    { x: 1830, y: 1070, w: 900,  h: 700 },   /* 1 circular sticker */
     { x: 926,  y: 803,  w: 1340, h: 900 },   /* 2 about + polaroid */
     { x: 2745, y: 765,  w: 1050, h: 1000 },  /* 3 services cluster, four stickies */
     { x: 2800, y: 1600, w: 1420, h: 1000 },  /* 4 work pane: postcard + room below for future products */

@@ -304,18 +304,49 @@ a { color: inherit; }
 
 /* The whole reason this strip exists now: one headline, sized to be the
    loudest thing on the board without turning the strip into a banner.
-   Anton at these weights reads bold enough that font-weight is not needed.
-   Uppercase is text-transform on purpose, not the HTML text, so the
-   accessible name and the tripwires js/peek.js's neighbor script checks
-   both keep reading "WhittWorks Studios" in mixed case. */
+   Anton at these weights reads bold enough that a heavier weight is not
+   needed. Uppercase is text-transform on purpose, not the HTML text, so
+   the accessible name and the tripwires js/peek.js's neighbor script
+   checks both keep reading "WhittWorks Studios" in mixed case.
+
+   Phase 5: this element became an <h1> (see index.html for why). Margin
+   is already zeroed by the global "h1, h2, p, figure { margin: 0; }" reset
+   near the top of this file, and font-size is set explicitly below, so
+   neither needed a reset here. font-weight DOES: a bare <h1> carries the
+   UA stylesheet's bold, and Anton ships no true bold face, so the browser
+   would have faked one by thickening the strokes (font synthesis) instead
+   of leaving them as drawn. Pinned to 400 so the strip renders exactly as
+   it did as a <span>. */
 .deskbar-name {
   display: block;
   font-family: var(--display);
   font-size: clamp(1.35rem, 2.6vw, 2.05rem);
+  font-weight: 400;
   line-height: 1;
   letter-spacing: 0.01em;
   text-transform: uppercase;
   color: var(--ink);
+}
+
+/* The kicker: the notecard's first typed line, promoted here in Phase 5.
+   Small and set in --mono, the same face the strip's neighbor (the kebab
+   dropdown, .board-menu a below) already uses for supporting text, so the
+   strip stays a strip and does not grow into a banner. Left in normal
+   case on purpose: the copy is deliberately Title Case, not the shouting
+   uppercase .deskbar-name gets from text-transform. */
+.deskbar-kicker {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  /* .deskbar sets white-space:nowrap for the headline's benefit; the
+     kicker is a much longer string at a much smaller size and can outrun
+     the strip's max-width on a phone, so it opts back into wrapping
+     rather than inheriting that and spilling past the paper. */
+  white-space: normal;
+  text-align: center;
 }
 
 /* The kebab: same paper, same shadow as the deskbar strip so the two read
@@ -659,7 +690,7 @@ a { color: inherit; }
 
 .sticky-title, .sticky-note { filter: url(#ink-a); }
 .polaroid figcaption, .pencil-note { filter: url(#ink-b); }
-.pc-head, .pc-msg, .pc-msg-small, .email-link, .marker { filter: url(#ink-c); }
+.pc-head, .pc-msg, .pc-msg-small, .email-link { filter: url(#ink-c); }
 .typed { filter: url(#ink-t); }
 
 /* --- index cards (real 5x3 proportions) ---------------------------- */
@@ -741,23 +772,49 @@ a { color: inherit; }
 .typed.small { font-size: 13px; line-height: 22px; color: #3d382e; }
 .card-head { letter-spacing: 0.2em; color: #9c3a2e; }
 
-.title-card {
-  width: 800px;
-  min-height: 480px;
-  text-align: center;
-  padding-top: 92px;
+/* --- the circular sticker (Phase 5) --------------------------------
+   Replaces .title-card and .marker above, which carried the ruled index
+   card that used to sit here. It is deliberately not an .index-card: a
+   pressed-on sticker is printed and laminated, not torn paper, so none of
+   that family's #cut silhouette or paper-grain background belongs here.
+
+   The <section> itself IS the white ring: .card (shared with every other
+   paper on the board) gives it position/z-index/rotate, and this rule
+   makes it a plain white circle sized 520px, the geometry the section's
+   inline style also states in board pixels. .sticker-disc, sized 452px
+   (520 minus 34px on every side), is flexed to dead centre inside it,
+   which is what reads as a 34px ring. See index.html for the full
+   nesting comment, including how to swap in the owner's real logo later. */
+.sticker {
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: #fdfdf8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter:
+    drop-shadow(0 0 3px rgba(25, 12, 4, 0.35))
+    drop-shadow(2px 5px 8px rgba(25, 12, 4, 0.3))
+    drop-shadow(6px 15px 26px rgba(25, 12, 4, 0.34));
 }
 
-.marker {
-  font-family: var(--marker);
-  font-weight: 400;
-  font-size: 88px;
-  line-height: 1.04;
-  letter-spacing: 0.01em;
-  color: #0e0c0a;
+.sticker-disc {
+  width: 452px;
+  height: 452px;
+  border-radius: 50%;
+  background: #0c0a09;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.title-card .typed.small { margin-top: 38px; }
+/* ~55% of the 452px disc, matching the proportions of the interim mark
+   inlined from assets/favicon.svg. */
+.sticker-mark {
+  width: 249px;
+  height: 249px;
+}
 
 .about-card { width: 720px; }
 
@@ -1436,7 +1493,6 @@ html.warming .board .postcard::before {
 .board.moving .pc-msg,
 .board.moving .pc-msg-small,
 .board.moving .email-link,
-.board.moving .marker,
 .board.moving .typed,
 .board.moving .ink,
 .board.moving .circle-ink,
@@ -1448,7 +1504,6 @@ html.warming .board .pc-head,
 html.warming .board .pc-msg,
 html.warming .board .pc-msg-small,
 html.warming .board .email-link,
-html.warming .board .marker,
 html.warming .board .typed,
 html.warming .board .ink,
 html.warming .board .circle-ink {

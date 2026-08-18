@@ -205,10 +205,33 @@ whole job.
       screenshot is visually indistinguishable from the still one, and the tripwires are
       unchanged at 1450/1814/1469/1798.
 
-- [ ] **Phase 5: The circular sticker replaces the center notecard**  <- NEXT
-      White ring, black disc, interim `W`. Pin 0 stays at (1783, 815) so no string
-      moves. Retune stop 1.
-- [ ] **Phase 6: The stapled navy trim**
+- [x] **Phase 5: The circular sticker replaces the center notecard**
+      DONE 2026-08-18. The centre index card is now a 520px circular sticker at
+      (1570, 810): white ring, 452px black disc, and the interim `W` from
+      `assets/favicon.svg` inline on the disc at about 55%. Three nested parts on
+      purpose, so the real logo replaces the contents of one `<svg>` and touches neither
+      the ring nor the disc. It carries `data-zone-stop="0"`, so clicking it returns to
+      the whole board; it is a plain `<section>` with no `tabindex`, because the zone
+      handler bails on buttons and focusable elements, and the dropdown's "Whole Board"
+      entry is the keyboard path.
+      Pin 0 stays at (1783, 815); every red string originates there and moving it would
+      drag all of them. Stop 1 retuned to `{ x: 1830, y: 1070, w: 900, h: 700 }`.
+      The board's only `<h1>` lived inside that card, so the title strip's name became
+      the `<h1>` and gained the kicker "Web Design & Consulting · Est. 2026". The card's
+      other line, "CADEN WHITT, FOUNDER · WHITTWORKSTUDIOS.COM", was deliberately dropped:
+      the founder is already the polaroid's caption and the domain is the site itself.
+      Do not restore it.
+      One defect found and fixed during review, introduced across Phases 3 and 5: the
+      strip was still `<nav aria-label="Primary">` while holding no links, and the actual
+      menu sat outside any landmark. The strip is a `<header>` now and the nav landmark
+      wraps the kebab and its list, where the links actually are.
+      Verified: two `<h1>` tags, one per design; the sticker is a SECTION with
+      `data-zone-stop="0"` and no `tabindex`; the menu still opens, moves focus to the
+      first entry, closes on Escape and returns focus to the button; `cdp.mjs stops`
+      unchanged; and the Level Up caption still sits on its tape after the `hand.js`
+      re-roll caused by deleting a `.marker` element, checked on a screenshot.
+      Tripwires 1450/1814/1469/1798 -> 1387/1814/1406/1798, arithmetic in `HANDOFF.md`.
+- [ ] **Phase 6: The stapled navy trim**  <- NEXT
       Four narrow strips in board coordinates at the cork's inner edge. Dark navy near
       `#1b2739`, roughly 60-70 board pixels wide, wavy on the inner edge only, small
       staples around 22 board pixels. Background trim, not a focal point. Papers stack
@@ -221,6 +244,17 @@ whole job.
 - [ ] **Phase 9: Efficiency and review pass**
       Byte count against the Phase 1 baseline, judges per stop, keyboard walkthrough.
 - [ ] **Phase 10: Deploy to staging, on the owner's say-so only**
+
+## Owner decisions, 2026-08-18
+
+- No logo yet. The sticker ships the interim `W`; swapping in the real mark later
+  replaces the contents of one inline `<svg>`.
+- The form gets an OPTIONAL "How did you find me?" field. Budget and timeline were
+  explicitly declined; do not add them.
+- Further smoothness work waits until the whole project is built. Two performance passes
+  already shipped (Phase 4c). The next untouched lever is the board's 7-layer blended
+  cork background, held back because collapsing it during motion risks a visible colour
+  shift when it returns.
 
 ## Waiting on the owner
 
