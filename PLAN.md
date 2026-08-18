@@ -99,12 +99,14 @@ the reduced-motion handling, and the reading-mode fallback all keep working beca
 none of them learn anything new. A click is just a fifth way to reach a stop the
 site could already reach.
 
-The bottom chrome disappears, but the motion override inside it does not: the
-"Smooth motion" control moves into the new kebab dropdown. That control exists
-because the owner himself opened the site on a machine with Windows animation
-effects off and reported it as broken (verified: the comment at
-`index.html:540-550`). Deleting the button outright would restore that exact
-failure with no way out of it.
+The bottom chrome disappears, and the motion override inside it goes with it. That
+control exists because the owner opened the site on a machine with Windows animation
+effects off and saw the camera hard-cut with nothing explaining why (verified: the
+comment at `index.html:540-550`). He decided on 2026-08-18 to drop it anyway, and the
+reasoning holds: that failure was ugly because a hard cut mid-scroll reads as a broken
+page, and this board is becoming primarily click-driven, where a cut between two
+composed framings reads as a deliberate jump. The OS setting becomes the sole
+authority, which is the WCAG default position.
 
 Copy is authored twice in this codebase, so every copy edit lands in both the board
 markup and the editorial markup, and the `innerText` tripwires get re-measured after.
@@ -121,9 +123,9 @@ sheet's paper texture, and the easing on the sticker's hover.
 | R3 | WHEN a visitor clicks a zone's paper on the board, THE SYSTEM SHALL move the camera to that zone's stop. | Five scripted clicks, transform compared to the stop's matrix |
 | R4 | WHEN a visitor clicks a real link inside a zone, THE SYSTEM SHALL follow the link and SHALL NOT move the camera. | Click the Level Up caption, the circled email, and the portfolio sticky |
 | R5 | THE SYSTEM SHALL render a centered "WhittWorks Studios" title on the top strip, and a kebab button at the top right. | Screenshot at three viewport widths |
-| R6 | WHEN the kebab is pressed, THE SYSTEM SHALL open a dropdown listing About, Services, Portfolio, Reviews, Contact, Whole Board, and the motion control; Escape SHALL close it and focus SHALL be trapped while open. | Keyboard walkthrough |
+| R6 | WHEN the kebab is pressed, THE SYSTEM SHALL open a dropdown listing About, Services, Portfolio, Reviews, Contact, and Whole Board; Escape SHALL close it and focus SHALL be trapped while open. | Keyboard walkthrough |
 | R7 | THE SYSTEM SHALL replace the center notecard with a circular sticker: white ring, black inner disc, logo slot. Clicking it SHALL return the camera to the whole board. | Screenshot plus click test |
-| R8 | THE SYSTEM SHALL render paper strips stapled along all four inner edges of the cork, in board space, obscuring no paper. | Screenshot at stop 0 |
+| R8 | THE SYSTEM SHALL render narrow dark-navy strips with a wavy inner edge, stapled by small staples along all four inner edges of the cork, in board space, obscuring no paper and reading as background trim rather than a focal point. | Screenshot at stop 0, judged against "does the eye land on it first" |
 | R9 | THE SYSTEM SHALL collect Name (required), Email (required, format-checked), Phone (optional, consent notice attached), and Project description (required, 20 characters minimum). | Submit with each field empty in turn |
 | R10 | WHEN the form is submitted, THE SYSTEM SHALL POST to Formspree and show a paper acknowledgement; on failure it SHALL show the error and a `mailto:` link carrying the typed content. | One live submit, one submit with the network offline |
 | R11 | THE SYSTEM SHALL label the portfolio section "Portfolio" in both designs, and "More portfolio available on request" SHALL be a `mailto:caden@whittworkstudios.com` link. | Grep for "Work" as a label returns nothing; click opens the composer |
@@ -139,11 +141,14 @@ sheet's paper texture, and the easing on the sticker's hover.
 - **Scrolling stays; clicking is added on top** (user, Q1).
 - **Clicks reuse the deskbar's `window.scrollTo` path**, so the camera learns nothing
   new (verified: `js/board.js:496-521`).
-- **The motion override moves into the kebab dropdown** rather than being deleted,
-  because the owner personally hit the failure it exists to prevent (verified:
-  `index.html:540-550`).
+- **The motion override is deleted outright, not relocated** (user, 2026-08-18).
+  The OS `prefers-reduced-motion` setting becomes the only authority. Accepted
+  consequence: on a machine with animation effects off, the camera cuts between stops
+  with no in-page way to turn gliding back on.
 - **The stapled frame lives in board space**, at the cork's inner edge, so it reads as
-  stapled to the board and zooms with it [A1].
+  stapled to the board and zooms with it [A1]. It is **dark navy, narrow, and wavy
+  along its inner edge, with small staples** (user, 2026-08-18). Its job is to absorb
+  the empty cork margin around the papers, not to draw the eye.
 - **The center notecard's tagline moves to the top strip** as a kicker under the
   title, since the sticker has no room for it [A2].
 - **The form sheet goes in the freed cork above the contact postcard**, and the two
@@ -225,7 +230,7 @@ leave for Formspree.
 | Camera not active (reading mode, narrow viewport) | A zone click falls back to `scrollIntoView`, exactly as the deskbar links do today |
 | Click lands on a link inside a zone | The link wins; the camera does not move |
 | Click lands on the sticker | Camera returns to stop 0 |
-| `prefers-reduced-motion: reduce` | Camera cuts between stops, as today; the dropdown's motion control still overrides in either direction |
+| `prefers-reduced-motion: reduce` | Camera cuts between stops, as today. No in-page override exists any more; the OS setting is the only authority |
 | Form submitted with invalid email | Inline message under the field, focus moves there, nothing is sent |
 | Formspree errors or the network is down | Error paper with a working `mailto:` fallback carrying the typed content |
 | Honeypot filled | Silently accepted, never sent |
@@ -234,9 +239,11 @@ leave for Formspree.
 ## Risks, Landmines & Adaptations
 
 - **Deleting the "Smooth motion" button restores a failure the owner personally hit**
-  (verified: `index.html:540-550`). Adaptation: the control moves into the kebab
-  dropdown instead of being deleted. Phase 1 does not remove the behavior, only the
-  bottom chrome.
+  (verified: `index.html:540-550`). The owner accepted this on 2026-08-18. Residual
+  risk: a visitor with OS animations off gets hard cuts and no override. Mitigation:
+  because the board becomes click-driven, a cut lands on a composed framing rather
+  than mid-sweep, which is the case that read as broken. Phase 9 judges one stop-to-
+  stop click with reduced-motion emulated, to confirm the cut reads as deliberate.
 - **Copy is authored twice.** A one-sided edit leaves the two designs disagreeing.
   Adaptation: Phase 2 edits both and re-measures all four `innerText` tripwires.
 - **`js/hand.js` jitter is document-order dependent**: adding any lettered element
@@ -262,13 +269,14 @@ leave for Formspree.
 
 | ID | Assumption | Basis | Blast radius if wrong | Check |
 |----|-----------|-------|----------------------|-------|
-| A1 | "Stapled to the edge of the board" means board space, not a fixed screen frame | The owner's own words say board, not window | Move the strips to fixed chrome, about an hour | Phase 6 screenshot |
+| A1 | The strip is roughly 60-70 board pixels wide, navy near `#1b2739`, anchored to the wall's own `#233341` (verified: `css/style.css:478`), with a gentle wave on the inner edge only | The owner asked for dark navy, wavy, small, and not a focal point; the wall's blue is the palette the site already owns | Retint or resize the strip, minutes | Phase 6 screenshot |
 | A2 | The notecard's tagline belongs on the top strip once the sticker replaces it | The sticker has no room and the owner wants a title up top anyway | Print it on another paper, minutes | Phase 5 |
 | A3 | The form fits the free cork above the contact postcard, with the two doodles moved | Measured: that rectangle is 850x540 once the doodles relocate | Place the form elsewhere and retune stop 6, about an hour | Phase 7 |
 | A4 | An inline phone consent notice suffices, no checkbox | Replies to inbound inquiries are solicited contact | Add a required checkbox, one field | Phase 7 |
 | A5 | A honeypot plus Formspree filtering is enough spam defense | Low-volume studio site | Enable Formspree's reCAPTCHA, no code change | Phase 8 |
 | A6 | Formspree's free tier covers the volume | Named service, plan limits unread | Paid tier or another service | Owner's account |
 | A7 | The dropdown should carry Reviews and Whole Board, which the deskbar omits today | Stops 5 and 0 exist and are tuned | Drop two entries | Phase 3 |
+| A9 | Small staples means roughly 22 board pixels wide, about half the size a staple would be on a full-size sheet | The owner asked for "very small"; below this they stop reading as staples at stop 0 | Resize one value | Phase 6 screenshot |
 | A8 | Clicking a zone should not also be possible on the editorial page | The editorial has no camera | Nothing; the fallback already handles it | Phase 4 |
 
 ## Open Items (none blocking)
@@ -306,17 +314,20 @@ phone.
 
 ## Build Phases
 
-- [ ] Phase 1: Remove the bottom chrome, keep the motion override
+- [ ] Phase 1: Remove the bottom chrome and the motion override
       Done when: screenshots at stops 0, 2, 4, and 6 show nothing fixed at the bottom
-      of the window, and the motion preference still round-trips through
-      `localStorage` with the OS setting still the default.
+      of the window, `prefers-reduced-motion` emulation still produces cuts, and no
+      reference to `motion-toggle`, `motion-on`, `motion-off`, or the stored override
+      survives a grep of the tree.
       Steps:
       - Delete `.board-chrome` and its two children from `index.html:551-556`.
       - Delete `.scroll-hint` and `.motion-toggle` rules from `css/style.css:384-455`.
-      - Keep `storedMotion`, `storeMotion`, `applyMotion`, and `onMotionChange` in
-        `js/board.js`; detach only the button binding, leaving a named function
-        Phase 3 rebinds to the dropdown's control.
+      - In `js/board.js`, delete `motionBtn`, `storedMotion`, `storeMotion`, the
+        `override` variable, and the button binding. Keep `osReduced()` and the live
+        `matchMedia` listener, and let `reduced` read the OS setting alone.
+      - Delete the `motion-on` and `motion-off` class rules wherever they are styled.
       - Delete the hint's fade logic in `update()` and anything that only served it.
+      - Record the baseline referenced byte count for Phase 9 to compare against.
       Covers: R1; checks: none
 
 - [ ] Phase 2: Copy pass and the Portfolio rename, in both designs
@@ -342,14 +353,14 @@ phone.
 
 - [ ] Phase 3: The title strip and the kebab dropdown
       Done when: the title is centered and legible at 1280, 1440, and 1920 wide, the
-      kebab opens a dropdown of seven entries, each entry drives the camera, Escape
+      kebab opens a dropdown of six entries, each entry drives the camera, Escape
       closes it, and a tab walkthrough never escapes the open menu.
       Steps:
       - Restructure `.deskbar`: centered, enlarged "WhittWorks Studios" with the
         notecard's tagline beneath it as a kicker.
       - Kebab button at the top right, drawn as three rows of one dot plus one dash.
       - Dropdown as paper chrome: About, Services, Portfolio, Reviews, Contact,
-        Whole Board, then the motion control moved from Phase 1.
+        Whole Board. Six entries, no motion control.
       - Reuse the existing `data-stop` handler for every entry.
       - `aria-haspopup`, `aria-expanded`, Escape, outside click, close on selection.
       Covers: R5, R6, R14; checks: A2, A7
@@ -380,17 +391,28 @@ phone.
       - Confirm the editorial page is unaffected.
       Covers: R7; checks: A2
 
-- [ ] Phase 6: The stapled paper frame
-      Done when: a screenshot at stop 0 shows paper strips with staples along all four
-      inner edges of the cork, no paper is obscured, and the strips zoom with the board.
+- [ ] Phase 6: The stapled navy trim
+      Done when: a screenshot at stop 0 shows a narrow dark-navy strip with a wavy
+      inner edge running all four inner edges of the cork, small staples along it, no
+      paper obscured, the strip zooming with the board, and a judge asked "what does
+      your eye land on first" naming a paper rather than the trim.
       Steps:
       - Four strips positioned in board coordinates at the cork's inner edge, as
-        siblings of the papers, never children.
-      - Staple glyphs as one reusable inline SVG symbol, placed at intervals with a
-        per-staple rotation.
-      - Papers keep a higher stacking order, so the pink portfolio sticky reads as
-        lying on the strip rather than under it.
-      Covers: R8; checks: A1
+        siblings of the papers, never children of one.
+      - Width roughly 60-70 board pixels [A1]. Fill a dark navy near `#1b2739`,
+        anchored to the wall's own `#233341` (verified: `css/style.css:478`) but a
+        shade deeper, so it reads as navy paper on cork and not as a gap showing the
+        wall through the board.
+      - The outer edge sits flush against the wooden frame; the inner edge is a gentle
+        wave, authored as one SVG path per side, amplitude small enough that the strip
+        never varies by more than about a third of its width.
+      - Staples as one reusable inline SVG symbol, roughly 22 board pixels wide [A9],
+        placed at irregular intervals with a small per-staple rotation.
+      - Papers keep a higher stacking order, so the pink portfolio sticky at
+        x 3236-3514 reads as lying on the strip rather than under it.
+      - Matte, unlit, and low contrast against the cork. This is trim filling the empty
+        cork margin, not a feature.
+      Covers: R8; checks: A1, A9
 
 - [ ] Phase 7: The form sheet
       Done when: every field validates as specified, all label and input text measures

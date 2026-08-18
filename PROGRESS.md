@@ -25,27 +25,30 @@ whole job.
 
 ## Phase checklist
 
-- [ ] **Phase 1: Remove the bottom chrome, keep the motion override**  <- NEXT
+- [ ] **Phase 1: Remove the bottom chrome and the motion override**  <- NEXT
       Delete `.board-chrome` (`index.html:551-556`) and its CSS
-      (`css/style.css:384-455`). Keep the motion functions in `js/board.js`; detach
-      only the button binding so Phase 3 can rebind it to the dropdown.
-      Also record the baseline referenced byte count here, for Phase 9.
+      (`css/style.css:384-455`). Delete the motion override entirely from
+      `js/board.js`: `motionBtn`, `storedMotion`, `storeMotion`, `override`, and the
+      `motion-on`/`motion-off` classes. Keep `osReduced()` and the live `matchMedia`
+      listener. Also record the baseline referenced byte count here, for Phase 9.
 - [ ] **Phase 2: Copy pass and the Portfolio rename, in both designs**
       Four "Work" labels, the pink sticky becomes a mailto link, four service stickies
       capitalized, one missing comma, one polaroid caption. Re-measure all four
       tripwires.
 - [ ] **Phase 3: The title strip and the kebab dropdown**
-      Centered title with the notecard's tagline as a kicker, kebab top right, seven
-      dropdown entries including the motion control moved from Phase 1.
+      Centered title with the notecard's tagline as a kicker, kebab top right, six
+      dropdown entries: About, Services, Portfolio, Reviews, Contact, Whole Board.
 - [ ] **Phase 4: Clickable zones**
       Delegated click handler on `#board`, reusing the deskbar's `window.scrollTo`
       path. Links inside zones must win over the zone click.
 - [ ] **Phase 5: The circular sticker replaces the center notecard**
       White ring, black disc, interim `W`. Pin 0 stays at (1783, 815) so no string
       moves. Retune stop 1.
-- [ ] **Phase 6: The stapled paper frame**
-      Four strips in board coordinates at the cork's inner edge, staples as one
-      reusable symbol, papers stacked above the strips.
+- [ ] **Phase 6: The stapled navy trim**
+      Four narrow strips in board coordinates at the cork's inner edge. Dark navy near
+      `#1b2739`, roughly 60-70 board pixels wide, wavy on the inner edge only, small
+      staples around 22 board pixels. Background trim, not a focal point. Papers stack
+      above the strips.
 - [ ] **Phase 7: The form sheet**
       Relocate two doodle stickies, place the form in the freed cork above the contact
       postcard, retune stop 6, write `privacy.html`.
@@ -75,8 +78,8 @@ whole job.
   x 2400-3540 y 1900-2370 (future product cards).
 - Never screenshot through the in-app browser pane. It returns black images when
   hidden. Use `tools/verify/cdp.mjs`.
-- Never delete the motion override behavior. The owner personally hit the failure it
-  prevents; the control moves into the dropdown, it does not disappear.
+- The motion override is gone by the owner's decision (2026-08-18). Do not
+  reintroduce it. The OS `prefers-reduced-motion` setting is the only authority.
 
 ## Verification commands
 
@@ -94,3 +97,6 @@ node tools/verify/cdp.mjs shot 0    # screenshot at a stop -> tools/verify/out/
   that stale branch is why an earlier session wrongly concluded the two bottom pills
   came from a browser extension. They are real elements at `index.html:551-556`.
   Branch `board-edits` cut, new plan written, Phase 1 not started.
+- 2026-08-18: owner decided the motion escape hatch can go entirely, and specified the
+  frame: dark navy, wavy, narrow, very small staples, background trim rather than a
+  focal point. Plan updated.
