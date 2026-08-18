@@ -492,90 +492,90 @@
   };
 
   /* ==================================================================
-     DIRECT FLIGHT TO A STOP
+     DIRECT FLIGHT TO A STOP, RUN ON THE COMPOSITOR
      ==================================================================
-     The camera is a pure function of scroll position, which is exactly why
-     reaching a stop by animating scroll was wrong: the camera had no choice
-     but to VISIT every stop in between. Clicking Contact from the opening
-     frame toured About, Services, Portfolio and Reviews on the way, which the
-     owner correctly called out as unwanted.
+     Two problems were solved here, and the second one is the reason this is
+     a CSS transition rather than a requestAnimationFrame tween.
 
-     So scroll is now set INSTANTLY, and the flight owns the visual motion
-     instead. Scroll still carries the resting state, so nothing downstream of
-     it changes and the wheel keeps walking the whole board continuously; the
-     only thing that moved is who draws the frames between two framings. The
-     path is the straight line from one composition to the other, which is
-     what makes it short.
+     FIRST, the tour. The camera is a pure function of scroll position, so
+     reaching a stop by animating scroll meant the camera had to VISIT every
+     stop on the way: clicking Contact from the opening frame toured About,
+     Services, Portfolio and Reviews. Scroll is therefore set INSTANTLY now,
+     carrying only the resting state, and the flight owns the visual motion
+     along the straight line between two framings.
 
-     FLY_MS is the one number worth turning. At 0 the whole thing becomes a
-     hard cut, handled in goToStop before any of this runs.
+     SECOND, the lag. Writing a new transform from JS every frame looks like
+     the obvious way to animate that line, and it is unusably slow here.
+     .board is 3600x2400 with will-change: transform, and every frame of the
+     flight hands the compositor a DIFFERENT SCALE. A composited layer has to
+     be re-rasterised whenever its scale changes, so that is 41 megapixels of
+     paper texture, filter stacks and blend modes re-rastered sixty times a
+     second. It dropped so many frames that the owner read the result as a
+     teleport even after the easing was fixed.
+
+     A CSS transition avoids the whole problem: Chrome rasterises the layer
+     once and animates the existing texture on the compositor thread, off the
+     main thread entirely. The cost is that type goes slightly soft during the
+     flight and snaps sharp when it lands, which is the normal trade and is
+     invisible next to dropped frames.
+
+     The easing below is a smooth ease-in-out. Note that it deliberately does
+     NOT reuse ease(): that function carries a 0.22 DWELL at each end so the
+     camera rests at a stop while the wheel carries you past it, which is
+     right for scrolling and, applied to a flight, deletes the ease-in and
+     ease-out and leaves a lunge in the middle.
      ================================================================== */
+  /* The one dial worth turning. At 0 goToStop takes the hard-cut branch
+     instead, which is also the path reduced motion takes. */
   var FLY_MS = 760;
+  var FLY_EASE = "cubic-bezier(0.45, 0, 0.15, 1)";
   var flying = false;
+  var flyTimer = null;
 
-  /* flyEase is NOT ease(). ease() carries a 0.22 DWELL at both ends, which is
-     right for the scroll mapping (the camera is meant to REST at a stop while
-     the wheel carries you through the dead zone either side of it) and badly
-     wrong for a flight. Applied to a flight it pins the first and last 22% of
-     the duration to a constant, which deletes the ease-in and the ease-out and
-     leaves a lunge in the middle: at 520ms that was 114ms frozen, a 292ms dash
-     covering a fourfold zoom, then 114ms frozen. The owner read it, correctly,
-     as a teleport.
-
-     So the flight gets its own curve: smootherstep across the WHOLE duration,
-     which starts from rest, accelerates, and arrives at rest. The board is
-     large and the zoom between the whole board and a zone is roughly fourfold,
-     so the duration is generous too; a fast zoom over that range reads as a
-     cut no matter how well eased. */
-  function flyEase(u) {
-    return u * u * u * (u * (u * 6 - 15) + 10); /* smootherstep, no dwell */
+  function setFlyTransition(on) {
+    var v = on ? "transform " + FLY_MS + "ms " + FLY_EASE : "";
+    board.style.transition = v;
+    if (floor) floor.style.transition = v;
   }
 
-  var flyFrom = null, flyTo = null, flyT0 = 0, flyRAF = 0;
+  /* Land: drop the transition, hand the camera back to scroll, and prove the
+     resting frame is the one scroll draws at this offset rather than trusting
+     the flight's own last frame to have been close enough. */
+  function landFlight() {
+    if (!flying) return;
+    flying = false;
+    if (flyTimer !== null) { clearTimeout(flyTimer); flyTimer = null; }
+    board.removeEventListener("transitionend", onFlyEnd);
+    setFlyTransition(false);
+    update();
+  }
 
-  /* Cancel with resync=true when the visitor took over and the camera must
-     land wherever scroll now says it is; with false when a caller is about to
-     take the camera somewhere itself. */
+  function onFlyEnd(e) {
+    /* Only this element's own transform. Papers inside the board have their
+       own transitions, and a bubbled one from any of them would land the
+       flight early. */
+    if (e.target !== board || e.propertyName !== "transform") return;
+    landFlight();
+  }
+
+  /* Cancel with resync=true when the visitor took over and the camera must go
+     wherever scroll now says it is; with false when a caller is about to take
+     the camera somewhere itself. Either way the in-flight transform is frozen
+     to whatever is on screen at this instant before the transition comes off,
+     or dropping it would snap the board back to the flight's start value. */
   function cancelFlight(resync) {
     if (!flying) return;
     flying = false;
-    if (flyRAF) { window.cancelAnimationFrame(flyRAF); flyRAF = 0; }
-    flyFrom = flyTo = null;
-    if (resync) update();
-  }
+    if (flyTimer !== null) { clearTimeout(flyTimer); flyTimer = null; }
+    board.removeEventListener("transitionend", onFlyEnd);
 
-  function flyStep(ts) {
-    if (!flying) return;
-    if (!flyT0) flyT0 = ts;
-
-    var u = (ts - flyT0) / FLY_MS;
-    if (u > 1) u = 1;
-    var f = flyEase(u);
-
-    /* Same shadow-stack collapse a scroll gesture gets, and for the same
-       reason: these are the frames that need to be cheap to draw. */
-    markMoving();
-
-    writeFraming(
-      lerp(flyFrom.x, flyTo.x, f),
-      lerp(flyFrom.y, flyTo.y, f),
-      /* log space, matching how scroll ramps scale, or a long flight would
-         accelerate through the middle of the zoom */
-      Math.exp(lerp(Math.log(flyFrom.s), Math.log(flyTo.s), f))
-    );
-
-    if (u < 1) {
-      flyRAF = window.requestAnimationFrame(flyStep);
-      return;
+    var frozen = getComputedStyle(board).transform;
+    setFlyTransition(false);
+    if (frozen && frozen !== "none") {
+      board.style.transform = frozen;
+      if (floor) floor.style.transform = frozen;
     }
-
-    /* Landed. update() is called rather than trusted-equal: it PROVES the
-       resting frame is the one scroll draws at this offset, instead of the
-       flight's own last frame merely being close to it. */
-    flying = false;
-    flyRAF = 0;
-    flyFrom = flyTo = null;
-    update();
+    if (resync) update();
   }
 
   /* goToStop(stop): everything a[data-stop] click used to do inline, pulled
@@ -635,12 +635,31 @@
        there would land on the destination instantly and there would be no
        flight left to watch. */
     flying = true;
-    flyFrom = from;
-    flyTo = to;
-    flyT0 = 0;
+
+    /* Pin the current frame with NO transition first. A transition needs a
+       definite start value to interpolate from, and the browser will only use
+       one it has actually recorded. */
+    setFlyTransition(false);
+    writeFraming(from.x, from.y, from.s);
+
     window.scrollTo({ top: target, behavior: "auto" });
+
+    /* Force a style flush so the start value above is committed before the
+       transition is armed. Without this the browser coalesces both writes and
+       sees only the destination, so nothing animates at all. */
+    void board.offsetWidth;
+
+    /* Same shadow-stack collapse a scroll gesture gets, for the same reason:
+       these are the frames that have to be cheap to draw. */
     markMoving();
-    flyRAF = window.requestAnimationFrame(flyStep);
+    setFlyTransition(true);
+    writeFraming(to.x, to.y, to.s);
+
+    board.addEventListener("transitionend", onFlyEnd);
+    /* Backstop. transitionend never fires when the two framings are identical,
+       which happens whenever somebody clicks the zone they are already in, and
+       flying would otherwise stay up forever and deafen every scroll event. */
+    flyTimer = setTimeout(landFlight, FLY_MS + 150);
   }
 
   /* Nav links jump the camera to a stop. Selector widened from
