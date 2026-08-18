@@ -153,6 +153,30 @@ whole job.
       one scroll alone produces at that offset, and a mid-flight wheel cancels cleanly and
       stays stable. Plain scrolling untouched: `cdp.mjs stops` and the tripwires are
       unchanged.
+      TWO follow-up fixes after the owner looked at it, both worth remembering:
+      (1) the flight first reused `ease()`, which carries a 0.22 DWELL at each end so the
+      camera RESTS at a stop while the wheel carries you past it. Applied to a flight that
+      deletes the ease-in and the ease-out and leaves a lunge in the middle: at 520ms it
+      was 114ms frozen, a 292ms dash across a fourfold zoom, then 114ms frozen. NEVER
+      reuse `ease()` for anything that is not the scroll mapping; the flight has its own
+      `FLY_EASE`.
+      (2) the flight then ran as a `requestAnimationFrame` tween and was unusably laggy.
+      `.board` is 3600x2400 with `will-change: transform`, and a composited layer must be
+      RE-RASTERISED whenever its scale changes, so every frame re-rendered 41 megapixels
+      of paper texture, filter stacks and blend modes. It is a CSS transition now, which
+      Chrome runs on the compositor thread from a single raster. Type goes slightly soft
+      mid-flight and snaps sharp on landing, which is the normal trade.
+      Two load-bearing details in that transition. The start frame is written with the
+      transition OFF and committed with a forced reflow (`void board.offsetWidth`) before
+      the transition is armed, or the browser coalesces both writes, sees only the
+      destination, and nothing animates. And a backstop timer is required because
+      `transitionend` never fires when the two framings are identical, which happens
+      whenever somebody clicks the zone they are already in; without it `flying` stays up
+      and deafens every scroll event.
+      A third trap, self-inflicted: replacing the tween block also deleted its
+      `var FLY_MS` and `var flying` declarations. Under `"use strict"` the first
+      assignment threw and clicking did nothing at all, with a clean console at load.
+      `scrollY` coming back 0 instead of 9257 is what caught it.
 
 - [ ] **Phase 5: The circular sticker replaces the center notecard**  <- NEXT
       White ring, black disc, interim `W`. Pin 0 stays at (1783, 815) so no string
