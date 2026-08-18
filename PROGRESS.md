@@ -178,6 +178,33 @@ whole job.
       assignment threw and clicking did nothing at all, with a clean console at load.
       `scrollY` coming back 0 instead of 9257 is what caught it.
 
+- [x] **Phase 4c: Motion performance pass**
+      DONE 2026-08-18, after the owner reported the whole site feeling slow and asked for
+      it to hold up on weak machines. His hypothesis was oversized images; measured and
+      ruled out (nothing over 2MP, whole asset set under 1.8MB). The cost is all runtime
+      rendering on a 3600x2400 layer that is 34.6 million device pixels, about 132MB, at
+      2x.
+      Measured cost WHILE MOVING, before -> after:
+      SVG filters 32 -> 0, mix-blend-mode elements 16 -> 0, filter passes 73 -> 24,
+      background layers 123 -> 98. At rest every one of them returns, unchanged.
+      What came off, and why it is safe: every SVG filter here is an `feTurbulence`
+      feeding an `feDisplacementMap` (`#cut` torn edges, `#ink-a`..`#ink-t` pen tremor,
+      `#roughen`), which is procedural Perlin noise generated PER PIXEL and re-run
+      whenever rasterisation scale changes. `mix-blend-mode` on the six grain and ink
+      overlays forced backdrop readback, which defeats the single-texture path a
+      transform animation depends on. And the largest single group of filters turned out
+      to be the pins: ten of them, each with a `blur(1px)` highlight and a `blur(3px)`
+      shadow, so twenty blur passes for decoration a few pixels wide. The strings SVG
+      carried a drop-shadow across the full 3600x2400.
+      What deliberately STAYED: the papers' own drop-shadows, because losing them
+      mid-flight reads as the board going flat, which is worse than a dropped frame; and
+      the photo colour grades on `.pol-photo` and `.pc-picture`, since the Level Up card's
+      grade was tuned by the owner across three rounds.
+      All of it hangs off the existing `.board.moving` class plus `html.warming`, so the
+      same collapse covers scrolling, flights, and initial load. Verified: a forced-moving
+      screenshot is visually indistinguishable from the still one, and the tripwires are
+      unchanged at 1450/1814/1469/1798.
+
 - [ ] **Phase 5: The circular sticker replaces the center notecard**  <- NEXT
       White ring, black disc, interim `W`. Pin 0 stays at (1783, 815) so no string
       moves. Retune stop 1.

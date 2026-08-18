@@ -1455,6 +1455,69 @@ html.warming .board .circle-ink {
   filter: none;
 }
 
+/* ==================================================================
+   NO BACKDROP BLENDING WHILE THE BOARD IS MOVING
+   ==================================================================
+   mix-blend-mode is the other half of the cost, and the more damaging half
+   for compositing specifically. An element that blends with its backdrop
+   cannot be drawn on its own: the browser has to read back what is behind it
+   and combine the two, which forces the whole group to be re-rendered
+   together and defeats the single-texture path a transform animation depends
+   on. Measured while moving: 15 elements were doing this.
+
+   Every one of them is grain or ink texture. .sticky::after, .polaroid::before
+   and .postcard-back::after are paper tooth; .pc-grain and
+   .postcard-front::after are print grain on the Level Up card; .circle-ink is
+   the ballpoint ring around the address, which multiplies so the ink darkens
+   what it crosses.
+
+   None of it survives being looked at on paper that is sweeping and scaling
+   across a viewport, so the texture overlays come out entirely for the
+   duration and the ink ring merely stops blending. Everything returns the
+   instant the camera settles, which is the only time any of it reads. */
+.board.moving .sticky::after,
+.board.moving .polaroid::before,
+.board.moving .postcard-back::after,
+.board.moving .postcard-front::after,
+.board.moving .pc-grain,
+html.warming .board .sticky::after,
+html.warming .board .polaroid::before,
+html.warming .board .postcard-back::after,
+html.warming .board .postcard-front::after,
+html.warming .board .pc-grain {
+  display: none;
+}
+
+/* The ring is real ink, not texture, so it stays on screen and only gives up
+   the blend. Losing it outright would read as the circle flickering off. */
+.board.moving .circle-ink,
+html.warming .board .circle-ink {
+  mix-blend-mode: normal;
+}
+
+/* ==================================================================
+   NO BLUR PASSES WHILE THE BOARD IS MOVING
+   ==================================================================
+   The single largest group of filters left during a move was, unexpectedly,
+   the pins: ten of them, each with a blur(1px) highlight and a blur(3px)
+   shadow on its own pseudo-element, so twenty separate blur passes for
+   decoration a few pixels across. The strings carry a drop-shadow too, and
+   that one is applied across the whole 3600x2400 SVG.
+
+   Both are polish that only reads on a still board. They come off while it
+   moves. The papers KEEP their drop-shadows deliberately: those carry the
+   sense of sheets lifted off the cork, and losing them mid-flight would read
+   as the whole board going flat, which is a much worse artefact than a
+   dropped frame. */
+.board.moving .pin::before,
+.board.moving .pin::after,
+.board.moving .strings,
+html.warming .board .pin::before,
+html.warming .board .pin::after,
+html.warming .board .strings {
+  filter: none;
+}
+
 /* The caption keeps its shadow, which is cheap, and loses only the tremor. */
 .board.moving .pc-caption,
 html.warming .board .pc-caption {
