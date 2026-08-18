@@ -1383,7 +1383,10 @@ a { color: inherit; }
 
 .board.moving .index-card,
 html.warming .board .index-card {
-  filter: url(#cut) drop-shadow(6px 15px 26px rgba(25, 12, 4, 0.68));
+  /* drop-shadow only. url(#cut) used to ride along here, which meant the
+     single most expensive filter on the page was applied precisely when the
+     board was moving. See the block below. */
+  filter: drop-shadow(6px 15px 26px rgba(25, 12, 4, 0.68));
 }
 .board.moving .sticky::before,
 html.warming .board .sticky::before {
@@ -1396,6 +1399,66 @@ html.warming .board .polaroid {
 .board.moving .postcard::before,
 html.warming .board .postcard::before {
   filter: drop-shadow(8px 20px 26px rgba(25, 12, 4, 0.72));
+}
+
+/* ==================================================================
+   NO PROCEDURAL FILTERS WHILE THE BOARD IS MOVING
+   ==================================================================
+   Every filter this site draws its handmade look with is an feTurbulence
+   feeding an feDisplacementMap: #cut for torn paper edges, #ink-a through
+   #ink-t for pen tremor, #roughen for the doodles and the circled address.
+   feTurbulence is procedural Perlin noise generated PER PIXEL, and a filtered
+   element has to be re-rendered from scratch every time its rasterisation
+   scale changes.
+
+   That is exactly what a camera move does. Measured on the shipped board:
+   32 elements carry one of these filters, inside a 3600x2400 layer that is
+   34.6 million device pixels on a 2x display. Re-running procedural noise
+   across that on every frame of a zoom is the single largest cost on the
+   page, and it is the reason a correctly written, correctly eased flight
+   still dropped enough frames to read as a teleport.
+
+   None of it is perceptible while the board is moving. Pen tremor of two
+   displacement pixels and a torn edge of three cannot be read on paper that
+   is sweeping and scaling across the viewport. So the filters come off for
+   the duration and return the instant the camera settles, which is the only
+   time anybody could see them. The same applies during warming, when the
+   board is still assembling itself.
+
+   The shadow stacks above already collapse on this same class and for the
+   same reason; this is the other half of that idea, and the more expensive
+   half by a long way. */
+.board.moving .sticky-title,
+.board.moving .sticky-note,
+.board.moving .polaroid figcaption,
+.board.moving .pencil-note,
+.board.moving .pc-head,
+.board.moving .pc-msg,
+.board.moving .pc-msg-small,
+.board.moving .email-link,
+.board.moving .marker,
+.board.moving .typed,
+.board.moving .ink,
+.board.moving .circle-ink,
+html.warming .board .sticky-title,
+html.warming .board .sticky-note,
+html.warming .board .polaroid figcaption,
+html.warming .board .pencil-note,
+html.warming .board .pc-head,
+html.warming .board .pc-msg,
+html.warming .board .pc-msg-small,
+html.warming .board .email-link,
+html.warming .board .marker,
+html.warming .board .typed,
+html.warming .board .ink,
+html.warming .board .circle-ink {
+  filter: none;
+}
+
+/* The caption keeps its shadow, which is cheap, and loses only the tremor. */
+.board.moving .pc-caption,
+html.warming .board .pc-caption {
+  filter: drop-shadow(2px 5px 5px rgba(30, 15, 5, 0.3));
 }
 
 /* --- reduced motion / no-JS fallback ------------------------------- */
