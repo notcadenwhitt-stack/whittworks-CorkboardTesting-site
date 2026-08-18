@@ -256,6 +256,12 @@
   --hand: "Caveat", "Bradley Hand", "Segoe Script", "Comic Sans MS", cursive;
   --typed: "Special Elite", "American Typewriter", "Courier New", Courier, monospace;
   --mono: "Space Mono", ui-monospace, Menlo, "Consolas", monospace;
+  /* Anton's @font-face is above; css/editorial.css already names this stack
+     as --display for the tan design, but the board never loads that
+     stylesheet, so the deskbar title needs its own copy of the same
+     variable. Kept byte-identical to css/editorial.css:43 on purpose: one
+     face, one fallback order, regardless of which design is on screen. */
+  --display: "Anton", "Arial Narrow", Impact, sans-serif;
 }
 
 *,
@@ -290,57 +296,112 @@ a { color: inherit; }
   left: 50%;
   transform: translateX(-50%) rotate(-0.4deg);
   z-index: 50;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 0.55rem 1.1rem;
+  padding: 0.5rem 1.2rem;
   background: #f4efe2;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
   white-space: nowrap;
 }
 
+/* The whole reason this strip exists now: one headline, sized to be the
+   loudest thing on the board without turning the strip into a banner.
+   Anton at these weights reads bold enough that font-weight is not needed.
+   Uppercase is text-transform on purpose, not the HTML text, so the
+   accessible name and the tripwires js/peek.js's neighbor script checks
+   both keep reading "WhittWorks Studios" in mixed case. */
 .deskbar-name {
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  display: block;
+  font-family: var(--display);
+  font-size: clamp(1.35rem, 2.6vw, 2.05rem);
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--ink);
 }
 
-.deskbar ul { display: flex; gap: 1.1rem; }
+/* The kebab: same paper, same shadow as the deskbar strip so the two read
+   as one piece of hardware, rotated the OTHER way so they do not look like
+   a single machine-aligned bar that got cut in half. */
+.board-menu-btn {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 51;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: #f4efe2;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+  transform: rotate(0.6deg);
+  cursor: pointer;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
 
-.deskbar a {
+.board-menu-icon { width: 22px; height: 22px; fill: var(--ink); }
+
+/* The dropdown itself: a paper sheet hanging under the button, right-aligned
+   to it. Hidden by default; js/menu.js is what adds and removes .is-open,
+   the same way js/peek.js owns board-open/board-shut rather than leaving a
+   state class for two scripts to fight over. */
+.board-menu {
+  position: fixed;
+  top: 62px;
+  right: 14px;
+  z-index: 51;
+  display: none;
+  flex-direction: column;
+  min-width: 160px;
+  padding: 0.4rem 0;
+  background: #f4efe2;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+}
+.board-menu.is-open { display: flex; }
+
+.board-menu a {
+  display: block;
+  padding: 0.5rem 1rem;
   font-family: var(--mono);
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   text-decoration: none;
+  white-space: nowrap;
 }
-.deskbar a:hover { color: var(--red); }
+.board-menu a:hover { color: var(--red); }
 
-/* small screens: the bar's desktop metrics (455.9px) outrun a phone
-   viewport, so below tablet width we tighten padding/gap/type and let
-   the bar size itself to the viewport instead of overflowing it. desktop
-   (>=900px, well above this query) is untouched. */
+/* small screens: the bar's desktop metrics outrun a phone viewport, so
+   below tablet width we tighten the strip and shrink the kebab to match.
+   desktop (>=900px, well above this query) is untouched. */
 @media (max-width: 700px) {
   .deskbar {
     top: 10px;
-    gap: 0.6rem;
-    padding: 0.4rem 0.55rem;
-    max-width: calc(100vw - 20px);
+    padding: 0.35rem 0.75rem;
+    /* leaves room on the right for the kebab, which sits outside .deskbar
+       and would otherwise sit on top of a full-width centered strip */
+    max-width: calc(100vw - 66px);
   }
 
   .deskbar-name {
-    font-size: 0.5rem;
-    letter-spacing: 0.06em;
+    font-size: clamp(1rem, 4.6vw, 1.35rem);
   }
 
-  .deskbar ul { gap: 0.5rem; }
+  .board-menu-btn {
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+  }
 
-  .deskbar a {
-    font-size: 0.5rem;
-    letter-spacing: 0.06em;
-    display: inline-block;
-    padding: 0.55rem 0.05rem;
+  .board-menu-icon { width: 18px; height: 18px; }
+
+  .board-menu {
+    top: 50px;
+    right: 10px;
+    min-width: 140px;
   }
 }
 

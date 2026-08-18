@@ -68,10 +68,37 @@ whole job.
       caption still sits on its tape strip with margin at both ends after the jitter
       re-roll, checked on a screenshot at stop 4 rather than assumed.
 
-- [ ] **Phase 3: The title strip and the kebab dropdown**  <- NEXT
-      Centered title with the notecard's tagline as a kicker, kebab top right, six
-      dropdown entries: About, Services, Portfolio, Reviews, Contact, Whole Board.
-- [ ] **Phase 4: Clickable zones**
+- [x] **Phase 3: The title strip and the kebab dropdown**
+      DONE 2026-08-18. `.deskbar` now carries only the title, set in Anton via a new
+      `--display` var in `css/style.css`'s `:root`, uppercased in CSS and left mixed-case
+      in the HTML so the accessible name and the tripwire stay right. New
+      `.board-menu-btn` fixed at the top right drawing three rows of one dot plus one
+      dash, and a `.board-menu` paper dropdown of six entries: About 2, Services 3,
+      Portfolio 4, Reviews 5, Contact 6, Whole Board 0. New `js/menu.js`, modeled on
+      `js/peek.js`. `js/board.js`'s selector widened from `.deskbar a[data-stop]` to
+      `a[data-stop]`, which is the entire wiring; no new camera code.
+      No kicker was added here on purpose. The tagline arrives in Phase 5 with the
+      sticker. Until then the title and the centre notecard both read "WhittWorks
+      Studios"; that duplication is expected and Phase 5 removes the notecard.
+      Verified: both scripts pass a syntax check; all six entries carry their stops; real
+      clicks and key events driven through headless Chrome confirm `aria-expanded` flips,
+      focus lands on the first entry, Escape closes and restores focus to the button, an
+      outside click closes, choosing Contact closes the menu AND moves the camera, and
+      Tab wraps at both ends; `cdp.mjs stops` unchanged from baseline; the stop-0
+      screenshot shows the title as the headline, the strip still a strip, and the kebab
+      clear at the top right.
+      Tripwires 1483/1814/1502/1798 -> 1450/1814/1469/1798. Board and reading each fell
+      by exactly 33, which is the four old nav labels (About 5, Services 8, Portfolio 9,
+      Contact 7 = 29) plus one newline each. A closed dropdown is `display: none`, so
+      that text correctly leaves `innerText` until the menu opens.
+      One defect fixed after the handoff: `STOP_TARGET`, the fallback that runs when the
+      camera is inactive (reading mode), mapped only stops 2/3/4/6, so the two new
+      entries were silent no-ops there. Added stop 5 -> `.quote-card`, and stop 0 now
+      scrolls to the top of the column, tested before the lookup because 0 is a real
+      index that would otherwise read as a missing key. All five fallback selectors
+      verified to resolve to real elements.
+
+- [ ] **Phase 4: Clickable zones**  <- NEXT
       Delegated click handler on `#board`, reusing the deskbar's `window.scrollTo`
       path. Links inside zones must win over the zone click.
 - [ ] **Phase 5: The circular sticker replaces the center notecard**
@@ -137,6 +164,12 @@ node tools/verify/cdp.mjs shot 0    # screenshot at a stop -> tools/verify/out/
   against a pre-edit worktree, tripwires re-baselined in HANDOFF.md.
 - 2026-08-18: Phase 2 complete. Portfolio rename in both designs, pink sticky is now a
   mail link, grammar and capitalization fixed, tripwires re-baselined.
-- 2026-08-18: push still blocked. The owner's token authenticates as
-  notcadenwhitt-stack but returns 403 on this repo, so it lacks write access. Nothing
-  is cached in the keychain, so there is no stale credential to clear.
+- 2026-08-18: push unblocked. A re-scoped token is cached in the macOS keychain, so
+  pushes work from any session on this machine. `board-edits` is on origin, and
+  `board-rebuild` is confirmed NOT on the remote and must stay that way.
+- 2026-08-18: Formspree endpoint confirmed live. A GET to
+  `https://formspree.io/f/xyegnvzd` returns 405 Method Not Allowed, which is a POST-only
+  route answering; a bad form id returns 404. Which inbox it delivers to is still
+  unproven, and only Phase 8's real submission can prove that.
+- 2026-08-18: Phase 3 complete. Anton title, kebab dropdown, six wired entries, and the
+  reading-mode fallback map completed.

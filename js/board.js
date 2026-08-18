@@ -437,21 +437,40 @@
   /* Which piece of paper each nav link is really pointing at. The camera path
      below reaches it by stop index; reading mode has no stops, no runway and
      therefore a maxScroll of 0, so every link would have scrolled to the top
-     of the page and looked broken. Same four destinations either way. */
+     of the page and looked broken. Same destinations either way.
+
+     All SIX of the dropdown's stops are mapped, not just the four the old
+     deskbar exposed. An entry that silently does nothing is worse than one
+     that is absent: the visitor presses Reviews, the menu closes, and the
+     page sits still, which reads as a broken link rather than as a mode that
+     does not have zones. Stop 0 has no paper of its own to reach for, so it
+     is handled separately below by going to the top of the document, which is
+     what "the whole board" means once the board is a column. */
   var STOP_TARGET = {
     2: ".about-card",
     3: ".service-sticky",
     4: ".work-postcard",
+    5: ".quote-card",
     6: ".contact-postcard"
   };
 
-  /* Nav links jump the camera to a stop. */
-  document.querySelectorAll(".deskbar a[data-stop]").forEach(function (link) {
+  /* Nav links jump the camera to a stop. Selector widened from
+     ".deskbar a[data-stop]" so this also drives the kebab dropdown's
+     links now that they live outside .deskbar; nothing else in the
+     document carries data-stop. */
+  document.querySelectorAll("a[data-stop]").forEach(function (link) {
     link.addEventListener("click", function (e) {
       e.preventDefault();
       var stop = parseInt(link.getAttribute("data-stop"), 10);
 
       if (!cameraActive()) {
+        /* "Whole board" has no single paper to scroll to, so it means the top
+           of the column. Checked before the lookup because 0 is a real stop
+           index and would otherwise fall through as a missing key. */
+        if (stop === 0) {
+          window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+          return;
+        }
         var target = document.querySelector(STOP_TARGET[stop] || "");
         if (target) {
           target.scrollIntoView({

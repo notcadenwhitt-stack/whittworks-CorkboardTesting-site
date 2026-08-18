@@ -150,7 +150,20 @@ sheet's paper texture, and the easing on the sticker's hover.
   along its inner edge, with small staples** (user, 2026-08-18). Its job is to absorb
   the empty cork margin around the papers, not to draw the eye.
 - **The center notecard's tagline moves to the top strip** as a kicker under the
-  title, since the sticker has no room for it [A2].
+  title, since the sticker has no room for it [A2]. It arrives in **Phase 5**, not
+  Phase 3: the notecard still holds that sentence until the sticker replaces it, and
+  printing it in both places would duplicate the copy on screen for two phases.
+- **The board's title is set in Anton**, the site's own display face, whose
+  `@font-face` is already declared in `css/style.css:214` (verified). Cost: a
+  12,004-byte font fetch on the board path, because the editorial that was Anton's only
+  consumer is `display: none` there. Permanent Marker would have cost zero new bytes but
+  sits in `js/hand.js`'s selector list, so it would re-roll every hand-lettered glyph on
+  the board and put the Level Up caption back at risk. 12KB is the cheaper side of that
+  trade, and smaller than four of the five fonts the board already fetches.
+- **The dropdown is wired by widening one selector**, not by new camera code:
+  `js/board.js` reads `a[data-stop]` instead of `.deskbar a[data-stop]`, so the six
+  entries drive the existing, already-debugged handler (verified: real clicks in
+  headless Chrome move the camera).
 - **The form sheet goes in the freed cork above the contact postcard**, and the two
   doodle stickies now sitting there relocate to open cork [A3].
 - **Stop 6 is retuned** to frame the form and the postcard together [A3].
@@ -210,7 +223,10 @@ leave for Formspree.
 - **Formspree**, one POST from the browser to `https://formspree.io/f/xyegnvzd`,
   `Accept: application/json`, body as `FormData`. The endpoint id is public by design
   and ships in the repo; it is not a secret and needs no environment variable
-  (user, supplied 2026-08-17).
+  (user, supplied 2026-08-17, re-confirmed 2026-08-18). The endpoint is live: a GET
+  returns `405 Method Not Allowed`, which is a POST-only route answering, where a
+  non-existent form id returns 404 (verified: `curl`, 2026-08-18). So A6 is now only
+  about the free tier's volume, not about whether the form exists.
 - **`mailto:caden@whittworkstudios.com`**, used by the portfolio sticky, the contact
   postcard's circled address, and the form's failure path.
 - **Phone consent copy**, printed under the optional phone field: "Optional. By giving
@@ -274,7 +290,7 @@ leave for Formspree.
 | A3 | The form fits the free cork above the contact postcard, with the two doodles moved | Measured: that rectangle is 850x540 once the doodles relocate | Place the form elsewhere and retune stop 6, about an hour | Phase 7 |
 | A4 | An inline phone consent notice suffices, no checkbox | Replies to inbound inquiries are solicited contact | Add a required checkbox, one field | Phase 7 |
 | A5 | A honeypot plus Formspree filtering is enough spam defense | Low-volume studio site | Enable Formspree's reCAPTCHA, no code change | Phase 8 |
-| A6 | Formspree's free tier covers the volume | Named service, plan limits unread | Paid tier or another service | Owner's account |
+| A6 | Formspree's free tier covers the volume | Named service, plan limits unread. The endpoint itself is confirmed live (verified: GET returns 405, a POST-only route answering) | Paid tier or another service | Phase 8's live submit |
 | A7 | The dropdown should carry Reviews and Whole Board, which the deskbar omits today | Stops 5 and 0 exist and are tuned | Drop two entries | Phase 3 |
 | A9 | Small staples means roughly 22 board pixels wide, about half the size a staple would be on a full-size sheet | The owner asked for "very small"; below this they stop reading as staples at stop 0 | Resize one value | Phase 6 screenshot |
 | A8 | Clicking a zone should not also be possible on the editorial page | The editorial has no camera | Nothing; the fallback already handles it | Phase 4 |
@@ -356,11 +372,15 @@ phone.
       kebab opens a dropdown of six entries, each entry drives the camera, Escape
       closes it, and a tab walkthrough never escapes the open menu.
       Steps:
-      - Restructure `.deskbar`: centered, enlarged "WhittWorks Studios" with the
-        notecard's tagline beneath it as a kicker.
+      - Restructure `.deskbar`: centered, enlarged "WhittWorks Studios" in Anton.
+        NO kicker here; the tagline arrives in Phase 5 with the sticker, so the same
+        sentence is never printed twice on screen.
       - Kebab button at the top right, drawn as three rows of one dot plus one dash.
       - Dropdown as paper chrome: About, Services, Portfolio, Reviews, Contact,
         Whole Board. Six entries, no motion control.
+      - Map ALL six stops in `js/board.js`'s `STOP_TARGET` fallback, which is what runs
+        when the camera is inactive. It covered only 2/3/4/6, so Reviews and Whole Board
+        were silent no-ops in reading mode.
       - Reuse the existing `data-stop` handler for every entry.
       - `aria-haspopup`, `aria-expanded`, Escape, outside click, close on selection.
       Covers: R5, R6, R14; checks: A2, A7
