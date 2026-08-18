@@ -510,8 +510,27 @@
      FLY_MS is the one number worth turning. At 0 the whole thing becomes a
      hard cut, handled in goToStop before any of this runs.
      ================================================================== */
-  var FLY_MS = 520;
+  var FLY_MS = 760;
   var flying = false;
+
+  /* flyEase is NOT ease(). ease() carries a 0.22 DWELL at both ends, which is
+     right for the scroll mapping (the camera is meant to REST at a stop while
+     the wheel carries you through the dead zone either side of it) and badly
+     wrong for a flight. Applied to a flight it pins the first and last 22% of
+     the duration to a constant, which deletes the ease-in and the ease-out and
+     leaves a lunge in the middle: at 520ms that was 114ms frozen, a 292ms dash
+     covering a fourfold zoom, then 114ms frozen. The owner read it, correctly,
+     as a teleport.
+
+     So the flight gets its own curve: smootherstep across the WHOLE duration,
+     which starts from rest, accelerates, and arrives at rest. The board is
+     large and the zoom between the whole board and a zone is roughly fourfold,
+     so the duration is generous too; a fast zoom over that range reads as a
+     cut no matter how well eased. */
+  function flyEase(u) {
+    return u * u * u * (u * (u * 6 - 15) + 10); /* smootherstep, no dwell */
+  }
+
   var flyFrom = null, flyTo = null, flyT0 = 0, flyRAF = 0;
 
   /* Cancel with resync=true when the visitor took over and the camera must
@@ -531,7 +550,7 @@
 
     var u = (ts - flyT0) / FLY_MS;
     if (u > 1) u = 1;
-    var f = ease(u);
+    var f = flyEase(u);
 
     /* Same shadow-stack collapse a scroll gesture gets, and for the same
        reason: these are the frames that need to be cheap to draw. */
