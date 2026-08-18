@@ -395,8 +395,27 @@ phone.
       - Bail out when `e.target.closest("a, button")` matches, so links win.
       - Reuse the deskbar's exact `window.scrollTo` path, including the
         `cameraActive()` false branch that falls back to `scrollIntoView`.
-      - Give each target a pointer cursor, a `focus-visible` outline, `tabindex`, and
-        an accessible name; Enter and Space activate.
+      - Pointer cursor only: `cursor: zoom-in` on the zone, `cursor: pointer` on real
+        links inside it. NO hover transform; these papers carry filter and shadow
+        stacks, several clip their children, and some are held by tape strips that are
+        positioned siblings rather than children, so a hover transform would slide a
+        paper out from under its own tape.
+      - DELIBERATELY NO `tabindex` and no button role on the papers, reversing this
+        plan's earlier line. Two of the ten contain real links (`.work-postcard` holds
+        the Level Up caption anchor, `.contact-postcard` the circled email), and a
+        button's content is treated as its label and may not contain interactive
+        descendants, so a button role on either is invalid ARIA. Ten new tab stops
+        whose only effect is re-framing the camera would also sit ahead of the three
+        real links a keyboard visitor is there to reach. The kebab dropdown built in
+        Phase 3 already reaches all six framings by keyboard, so the FUNCTION is
+        keyboard-operable and the click is a redundant pointer shortcut to it. WCAG
+        2.1.1 asks for the functionality to be reachable, not for every redundant
+        pointer affordance to carry a tab stop.
+      - Escape returns to the whole board. Beyond the original plan, added because zone
+        clicks otherwise leave the scroll wheel and the menu as the only ways back out.
+        It checks the kebab's `aria-expanded` and stands down while the menu is open,
+        rather than relying on `stopPropagation` from `js/menu.js`, whose Escape handler
+        is registered later and so fires second.
       Covers: R2, R3, R4, R14; checks: A8
 
 - [ ] Phase 5: The circular sticker replaces the center notecard

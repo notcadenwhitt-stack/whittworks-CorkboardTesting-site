@@ -98,10 +98,32 @@ whole job.
       index that would otherwise read as a missing key. All five fallback selectors
       verified to resolve to real elements.
 
-- [ ] **Phase 4: Clickable zones**  <- NEXT
-      Delegated click handler on `#board`, reusing the deskbar's `window.scrollTo`
-      path. Links inside zones must win over the zone click.
-- [ ] **Phase 5: The circular sticker replaces the center notecard**
+- [x] **Phase 4: Clickable zones**
+      DONE 2026-08-18. Ten papers carry `data-zone-stop` and one delegated listener on
+      `#board` moves the camera: About card and founder polaroid -> 2, all four service
+      stickies -> 3, Level Up print -> 4, quote card and Chad's polaroid -> 5, contact
+      postcard -> 6. The existing nav-link handler body was first extracted into
+      `goToStop(stop)` as a pure refactor, so paper clicks, dropdown entries, and Escape
+      all run the identical path and cannot drift apart.
+      Escape returns to the whole board (beyond the original plan). It checks the kebab's
+      `aria-expanded` and stands down while the menu is open, rather than relying on
+      `stopPropagation` from `js/menu.js`: that handler is registered later and therefore
+      fires second, so it could not shout over one that had already moved the camera.
+      NO `tabindex` and no button role on the papers, reversing PLAN.md's earlier line.
+      Reasons are in a long comment in `js/board.js`; the short version is that two of
+      the ten contain real links so a button role would be invalid ARIA, ten new tab
+      stops would sit ahead of the three links a keyboard visitor wants, and the Phase 3
+      dropdown already makes all six framings keyboard-reachable.
+      Verified with real events driven through headless Chrome, with `window.scrollTo`
+      stubbed to record the handler's decision and a capture-phase `preventDefault` so
+      nothing could navigate: all seven zone clicks land on their exact expected offset
+      ((stop/7) x maxScroll of 10800, so 3086/4629/6171/7714/9257); the Level Up caption
+      link, the circled email, the pink sticky, bare cork, a doodle, and a pin all leave
+      the camera untouched; Escape with the menu closed goes to 0 and with the menu open
+      does nothing. Tripwires unchanged at 1450/1814/1469/1798 and `cdp.mjs stops`
+      unchanged, both correct since this phase adds attributes and CSS, not visible text.
+
+- [ ] **Phase 5: The circular sticker replaces the center notecard**  <- NEXT
       White ring, black disc, interim `W`. Pin 0 stays at (1783, 815) so no string
       moves. Retune stop 1.
 - [ ] **Phase 6: The stapled navy trim**
@@ -138,6 +160,14 @@ whole job.
   x 2400-3540 y 1900-2370 (future product cards).
 - Never screenshot through the in-app browser pane. It returns black images when
   hidden. Use `tools/verify/cdp.mjs`.
+- **Never dispatch a click on a `mailto:` link in the harness.** Headless Chrome still
+  hands the URL to the OS default mail client, which opened Outlook on the owner's
+  machine mid-session on 2026-08-18. There are three of them on this page: the circled
+  address on the contact postcard, the pink portfolio sticky, and the form's failure
+  fallback once it exists. To test that a link wins over a zone click, register a
+  capture-phase listener that calls `preventDefault()` BEFORE dispatching, and stub
+  `window.scrollTo` to record the decision rather than letting anything navigate. See
+  the Phase 4 entry for the working recipe.
 - The motion override is gone by the owner's decision (2026-08-18). Do not
   reintroduce it. The OS `prefers-reduced-motion` setting is the only authority.
 
@@ -173,3 +203,6 @@ node tools/verify/cdp.mjs shot 0    # screenshot at a stop -> tools/verify/out/
   unproven, and only Phase 8's real submission can prove that.
 - 2026-08-18: Phase 3 complete. Anton title, kebab dropdown, six wired entries, and the
   reading-mode fallback map completed.
+- 2026-08-18: Phase 4 complete. Ten clickable papers, Escape backs out to the whole
+  board. A verification step written for this phase told a subagent to click the page's
+  mailto links, which opened the owner's Outlook. Never do that; see "Never do these".

@@ -1676,3 +1676,18 @@ html.js .board-peek:active .peek-note { transform: rotate(-4deg) scale(0.97); }
 @media (prefers-reduced-motion: reduce) {
   .peek-note { transition: none; }
 }
+
+/* Zone clicks (js/board.js): the cursor change IS the whole affordance, on
+   purpose. Every one of these papers carries its own filter/drop-shadow
+   stack, several clip their children, and the tape strips holding some of
+   them down are separate, positioned siblings in board coordinates rather
+   than children of the paper. A hover transform on the paper would slide it
+   out from under its own tape and force a re-shadow of clipped content on
+   every hover, which is a worse cost for a subtler win than just telling the
+   pointer what a click here does. So: cursor only, nothing that moves. */
+[data-zone-stop] { cursor: zoom-in; }
+
+/* A real link inside a marked paper (the Level Up caption, the circled
+   email) must still look like a link on hover, not like the zone around it,
+   or the cursor lies about what the click is about to do. */
+[data-zone-stop] a[href] { cursor: pointer; }

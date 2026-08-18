@@ -238,7 +238,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=65">
+<link rel="stylesheet" href="css/style.css?v=66">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -324,7 +324,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=23">
+<link rel="preload" as="script" href="js/board.js?v=24">
 <link rel="preload" as="script" href="js/hand.js?v=6">
 </head>
 <body>
@@ -582,35 +582,35 @@
       </section>
 
       <!-- ================= ABOUT ================= -->
-      <section class="card index-card about-card" style="left:360px; top:484px; --rot:1.2deg" aria-label="About">
+      <section class="card index-card about-card" data-zone-stop="2" style="left:360px; top:484px; --rot:1.2deg" aria-label="About">
         <p class="typed card-head">ABOUT</p>
         <p class="typed">Hey, I'm Caden! At WhittWorks Studios we do it all. From speedy web design to consulting and more, we've got you covered.</p>
         <p class="typed">When I am not building websites, I am traveling the world, hosting a plethora of different events, or diving into new experiences. I am studying Economics at Troy University, and I'd love to help with anything you need in the business or tech world!</p>
       </section>
 
-      <figure class="polaroid frame-1 caden-polaroid" style="left:1060px; top:620px; --rot:3.3deg">
+      <figure class="polaroid frame-1 caden-polaroid" data-zone-stop="2" style="left:1060px; top:620px; --rot:3.3deg">
         <img class="pol-photo" fetchpriority="high" src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200" decoding="async">
         <span class="pol-gloss" aria-hidden="true"></span>
         <figcaption class="hand">Caden Whitt, Founder</figcaption>
       </figure>
 
       <!-- ================= SERVICES ================= -->
-      <section class="sticky service-sticky paper-1 c-blue" style="left:2400px; top:326px; --rot:-2.1deg" aria-label="Service: web design and development">
+      <section class="sticky service-sticky paper-1 c-blue" data-zone-stop="3" style="left:2400px; top:326px; --rot:-2.1deg" aria-label="Service: web design and development">
         <h2 class="hand sticky-title">Custom Website Design &amp; Development</h2>
         <p class="hand sticky-note">First wireframe to launch day. A site that fits how your organization actually works.</p>
       </section>
 
-      <section class="sticky service-sticky paper-2 c-blue" style="left:2774px; top:452px; --rot:1.4deg" aria-label="Service: site management and hosting">
+      <section class="sticky service-sticky paper-2 c-blue" data-zone-stop="3" style="left:2774px; top:452px; --rot:1.4deg" aria-label="Service: site management and hosting">
         <h2 class="hand sticky-title">Site Management &amp; Hosting Setup</h2>
         <p class="hand sticky-note">Domains, hosting, and deploys set up properly, so the site stays live and current after launch.</p>
       </section>
 
-      <section class="sticky service-sticky paper-3 c-blue" style="left:2512px; top:726px; --rot:-3.3deg" aria-label="Service: business and technology consulting">
+      <section class="sticky service-sticky paper-3 c-blue" data-zone-stop="3" style="left:2512px; top:726px; --rot:-3.3deg" aria-label="Service: business and technology consulting">
         <h2 class="hand sticky-title">Business &amp; Tech Consulting</h2>
         <p class="hand sticky-note">Tooling, workflow, and where technology is actually worth the investment.</p>
       </section>
 
-      <section class="sticky service-sticky paper-1 c-blue flip" style="left:2886px; top:852px; --rot:2.4deg" aria-label="Service: event management and coordination">
+      <section class="sticky service-sticky paper-1 c-blue flip" data-zone-stop="3" style="left:2886px; top:852px; --rot:2.4deg" aria-label="Service: event management and coordination">
         <h2 class="hand sticky-title">Event Management &amp; Coordination</h2>
         <p class="hand sticky-note">Planning, logistics, and the tools that make an event run itself.</p>
       </section>
@@ -619,7 +619,7 @@
       <!-- Centered in the work pane per the owner: the card's middle
            (x=2920) is the midpoint of Chad's review's right edge (2300)
            and the cork's inner right edge (3540; the frame is 30px). -->
-      <figure class="postcard postcard-front work-postcard" style="left:2520px; top:1300px; --rot:-2deg">
+      <figure class="postcard postcard-front work-postcard" data-zone-stop="4" style="left:2520px; top:1300px; --rot:-2deg">
         <!-- no loading="lazy" here: this shot is inside the stop-0 opening view,
              and postcard-front.webp's picture area was compressed hard precisely
              because this covers it. Deferring it shows a soft card first. -->
@@ -645,12 +645,12 @@
            LEFT, polaroid RIGHT. The bottom-right quadrant under the work
            postcard stays EMPTY on purpose — that cork is reserved for
            future product cards. ============ -->
-      <section class="card index-card quote-card" style="left:1600px; top:1510px; --rot:1.6deg" aria-label="Client testimonial">
+      <section class="card index-card quote-card" data-zone-stop="5" style="left:1600px; top:1510px; --rot:1.6deg" aria-label="Client testimonial">
         <p class="typed">&ldquo;Quick turnaround, great design, and excellent support. He built exactly what I envisioned and was helpful from start to finish.&rdquo;</p>
         <p class="typed small attr">&mdash; CHAD PREWETT, FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS <span class="nobr">CO-FOUNDER</span></p>
       </section>
 
-      <figure class="polaroid frame-2 chad-polaroid" style="left:1240px; top:1450px; --rot:-2.6deg">
+      <figure class="polaroid frame-2 chad-polaroid" data-zone-stop="5" style="left:1240px; top:1450px; --rot:-2.6deg">
         <img class="pol-photo" fetchpriority="high" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760" decoding="async">
         <span class="pol-gloss" aria-hidden="true"></span>
         <figcaption class="hand">Chad Prewett</figcaption>
@@ -666,7 +666,7 @@
            anything else. -->
 
       <!-- ================= CONTACT: postcard, address side out ================= -->
-      <section class="postcard postcard-back contact-postcard" style="left:310px; top:1530px; --rot:-0.6deg" aria-label="Contact">
+      <section class="postcard postcard-back contact-postcard" data-zone-stop="6" style="left:310px; top:1530px; --rot:-0.6deg" aria-label="Contact">
         <h2 class="hand pc-head">Have something you want built?</h2>
         <p class="hand pc-msg">Reach out for design and consulting availability.</p>
         <img class="pc-stamp" src="assets/paper/stamp-1.webp" alt="" width="320" height="344" decoding="async">
@@ -797,7 +797,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=23"></script>
+<script src="js/board.js?v=24"></script>
 <script src="js/hand.js?v=6"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them

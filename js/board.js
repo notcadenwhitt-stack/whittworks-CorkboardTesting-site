@@ -454,6 +454,40 @@
     6: ".contact-postcard"
   };
 
+  /* goToStop(stop): everything a[data-stop] click used to do inline, pulled
+     out under its own name so a second entry point can reach the identical
+     path instead of copying it. Two more callers arrive in this same phase
+     (a click on a piece of paper, and Escape backing out to stop 0), and a
+     pure refactor here means neither of them can drift from what the nav
+     links have already done correctly. Nothing below changed behaviour. */
+  function goToStop(stop) {
+    if (!cameraActive()) {
+      /* "Whole board" has no single paper to scroll to, so it means the top
+         of the column. Checked before the lookup because 0 is a real stop
+         index and would otherwise fall through as a missing key. */
+      if (stop === 0) {
+        window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+        return;
+      }
+      var target = document.querySelector(STOP_TARGET[stop] || "");
+      if (target) {
+        target.scrollIntoView({
+          behavior: reduced ? "auto" : "smooth",
+          block: "start"
+        });
+      }
+      return;
+    }
+
+    window.scrollTo({
+      top: (stop / (STOPS.length - 1)) * maxScroll,
+      /* a smooth scroll in reduced mode would drag the snap through every
+         stop between here and there, which is the one thing worse than the
+         zoom it replaced: a burst of hard cuts instead of one. Land on it. */
+      behavior: reduced ? "auto" : "smooth"
+    });
+  }
+
   /* Nav links jump the camera to a stop. Selector widened from
      ".deskbar a[data-stop]" so this also drives the kebab dropdown's
      links now that they live outside .deskbar; nothing else in the
@@ -461,34 +495,97 @@
   document.querySelectorAll("a[data-stop]").forEach(function (link) {
     link.addEventListener("click", function (e) {
       e.preventDefault();
-      var stop = parseInt(link.getAttribute("data-stop"), 10);
-
-      if (!cameraActive()) {
-        /* "Whole board" has no single paper to scroll to, so it means the top
-           of the column. Checked before the lookup because 0 is a real stop
-           index and would otherwise fall through as a missing key. */
-        if (stop === 0) {
-          window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
-          return;
-        }
-        var target = document.querySelector(STOP_TARGET[stop] || "");
-        if (target) {
-          target.scrollIntoView({
-            behavior: reduced ? "auto" : "smooth",
-            block: "start"
-          });
-        }
-        return;
-      }
-
-      window.scrollTo({
-        top: (stop / (STOPS.length - 1)) * maxScroll,
-        /* a smooth scroll in reduced mode would drag the snap through every
-           stop between here and there, which is the one thing worse than the
-           zoom it replaced: a burst of hard cuts instead of one. Land on it. */
-        behavior: reduced ? "auto" : "smooth"
-      });
+      goToStop(parseInt(link.getAttribute("data-stop"), 10));
     });
+  });
+
+  /* ==================================================================
+     ZONE CLICKS: a piece of paper moves the camera the same way a nav
+     link does
+     ==================================================================
+     One listener on #board, delegated, rather than one per paper: papers
+     get added, removed, and re-tuned on this board often enough (see the
+     parked second testimonial above) that a matching set of ten individual
+     listeners would be one more thing to keep in sync with the markup.
+
+     Order inside the handler matters:
+       1. A real control inside the clicked element always wins, checked
+          first and returned on before anything else runs. .work-postcard
+          contains the Level Up caption's <a>, .contact-postcard contains
+          the circled email's <a>, and the pink .mini-sticky is nothing BUT
+          a mailto link (which is exactly why it is not in the zone list
+          below at all). Without this check a click meant for one of those
+          links would also re-frame the camera underneath it.
+       2. Only then is [data-zone-stop] looked up. e.target.closest finds
+          it whether the click landed on the paper itself or on a text node
+          inside it, the same way it finds the interactive elements above.
+       3. Bare cork (no data-zone-stop ancestor) does nothing; #board is not
+          itself a target.
+     No preventDefault: a div has no default action worth cancelling, and
+     calling it on an event that does not need it is a documented way to
+     interfere with focus handling for zero benefit. */
+  board.addEventListener("click", function (e) {
+    if (e.target.closest("a[href], button, input, select, textarea, label, [tabindex]")) return;
+    var paper = e.target.closest("[data-zone-stop]");
+    if (!paper) return;
+    goToStop(parseInt(paper.getAttribute("data-zone-stop"), 10));
+  });
+
+  /* ==================================================================
+     WHY THESE PAPERS GET NO tabindex AND NO ACCESSIBLE NAME
+     ==================================================================
+     PLAN.md's Phase 4 outline calls for making each zone target focusable,
+     with an accessible name, so Enter/Space activate it the way a button
+     would. Deliberately not done here, for two concrete reasons:
+
+     1. Two of the ten ARE containers for real links: .work-postcard holds
+        the Level Up caption anchor, .contact-postcard holds the circled
+        email anchor. A button's accessible content is treated as its
+        label and may not contain interactive descendants, so giving either
+        of these a button role would be invalid ARIA. Making them merely
+        focusable with no role instead announces as nothing a keyboard or
+        screen-reader visitor can act on.
+     2. tabindex on all ten papers would insert ten new tab stops whose
+        only effect is re-framing the camera, and they would sit ahead of
+        the three real links (Level Up, the mailto sticky, the email
+        address) that a keyboard visitor is actually there to reach.
+
+     The kebab dropdown already reaches all six framings, including Whole
+     Board, and was built and verified for keyboard use in Phase 3. The
+     underlying FUNCTION this click adds is therefore already keyboard-
+     operable; the zone click is a redundant pointer shortcut to it, not a
+     second path to something the keyboard could not otherwise reach.
+     WCAG 2.1.1 asks for the functionality to be reachable by keyboard, not
+     for every redundant pointer affordance to carry its own tab stop. */
+
+  /* ==================================================================
+     ESCAPE RETURNS TO THE WHOLE BOARD
+     ==================================================================
+     Beyond the original Phase 4 plan, added because it follows directly
+     from adding zone clicks: once a visitor can click INTO a zone, the
+     scroll wheel and the kebab menu are the only ways back OUT, and Escape
+     already means "back out" everywhere else on this page (it closes the
+     dropdown). Extending that same meaning to the camera keeps one escape
+     hatch instead of adding a second, different one.
+
+     This must not fight js/menu.js, which registers its own Escape handler
+     on document but only for the lifetime of an open menu: added in its
+     open(), removed in its close(). This handler, by contrast, is
+     registered once, here, at load. That ordering is exactly why
+     stopPropagation from inside menu.js would not reliably help: listeners
+     on one target fire in the order they were registered, so this handler
+     -- registered first, at load -- would already have run and moved the
+     camera before menu.js's handler ever got a chance to call
+     stopPropagation on it. Rather than have menu.js try to shout over a
+     handler that has already fired, this handler instead checks the
+     menu's own open/closed state -- aria-expanded is the flag menu.js
+     already maintains for exactly this -- and does nothing while the menu
+     is open, leaving menu.js's own handler to close it uncontested. */
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    var menuBtn = document.querySelector(".board-menu-btn");
+    if (menuBtn && menuBtn.getAttribute("aria-expanded") === "true") return;
+    goToStop(0);
   });
 
   /* Drive the camera once, immediately. Nothing waits on the fade: the board
