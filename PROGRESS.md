@@ -47,11 +47,28 @@ whole job.
       the OS setting mid-visit. Neither the syntax check nor the harness would have
       caught it, because neither fires a live `matchMedia` change.
 
-- [ ] **Phase 2: Copy pass and the Portfolio rename, in both designs**  <- NEXT
-      Four "Work" labels, the pink sticky becomes a mailto link, four service stickies
-      capitalized, one missing comma, one polaroid caption. Re-measure all four
-      tripwires.
-- [ ] **Phase 3: The title strip and the kebab dropdown**
+- [x] **Phase 2: Copy pass and the Portfolio rename, in both designs**
+      DONE 2026-08-18. Thirteen copy edits in `index.html` plus one CSS rule. The
+      Portfolio rename covers the editorial nav, the editorial band id and heading, the
+      editorial note, the deskbar label, and the pink board sticky. The sticky is now a
+      `mailto:caden@whittworkstudios.com` link, authored as an anchor INSIDE the
+      `<p class="hand sticky-note">` rather than as the note itself: `js/hand.js:124`
+      only leaves its letter-wrapper exposed to assistive tech when the element contains
+      a focusable descendant, and the comment there documents a real WCAG 4.1.2 failure
+      fixed by exactly this arrangement. Grammar: a missing comma in both copies of the
+      About paragraph, "Caden — founder" to "Caden Whitt, Founder" (which also removes
+      an em dash), and all four service stickies capitalized, with the second rewritten
+      from a subjectless fragment into a sentence.
+      Class names were deliberately NOT renamed. `band-work`, `work-note`, and
+      `work-postcard` are internal and out of scope; `js/board.js:444` still maps stop 4
+      to `.work-postcard`.
+      Verified: zero grep hits for any "Work" label or lowercase hand-lettered note;
+      tripwires 1455/1807/1474/1791 -> 1483/1814/1502/1798, with every character of all
+      four deltas individually accounted for (see `HANDOFF.md`); and the Level Up
+      caption still sits on its tape strip with margin at both ends after the jitter
+      re-roll, checked on a screenshot at stop 4 rather than assumed.
+
+- [ ] **Phase 3: The title strip and the kebab dropdown**  <- NEXT
       Centered title with the notecard's tagline as a kicker, kebab top right, six
       dropdown entries: About, Services, Portfolio, Reviews, Contact, Whole Board.
 - [ ] **Phase 4: Clickable zones**
@@ -117,4 +134,9 @@ node tools/verify/cdp.mjs shot 0    # screenshot at a stop -> tools/verify/out/
   frame: dark navy, wavy, narrow, very small staples, background trim rather than a
   focal point. Plan updated.
 - 2026-08-18: Phase 1 complete. Bottom chrome and motion override deleted, verified
-  against a pre-edit worktree, tripwires re-baselined in HANDOFF.md. Not pushed.
+  against a pre-edit worktree, tripwires re-baselined in HANDOFF.md.
+- 2026-08-18: Phase 2 complete. Portfolio rename in both designs, pink sticky is now a
+  mail link, grammar and capitalization fixed, tripwires re-baselined.
+- 2026-08-18: push still blocked. The owner's token authenticates as
+  notcadenwhitt-stack but returns 403 on this repo, so it lacks write access. Nothing
+  is cached in the keychain, so there is no stale credential to clear.

@@ -33,12 +33,22 @@ board is an enhancement layered on top of it.
 | `css/style.css` 404s | tan editorial |
 | crawler | tan editorial, fully typeset |
 
-`document.body.innerText.length` is **1455** wherever the board shows and
-**1807** on the editorial (1474 in reading mode, 1791 with no JS) —
-re-baselined 2026-08-18 when the bottom chrome was DELETED (PLAN.md Phase 1);
-the previous set was 1505 / 1807 / 1474 / 1791. The only delta is −50 on the
-board, which is exactly the removed "Scroll to move around the board" hint
-plus the "Smooth motion" button label. Editorial and no-JS are unchanged
+`document.body.innerText.length` is **1483** wherever the board shows and
+**1814** on the editorial (1502 in reading mode, 1798 with no JS) —
+re-baselined 2026-08-18 after the Phase 2 copy pass; the set before it was
+1455 / 1807 / 1474 / 1791. Every character of the four deltas is accounted
+for. Board and reading mode both gain +28: the added comma (+1), "Caden —
+founder" becoming "Caden Whitt, Founder" (+5), the second service sticky
+being rewritten from a fragment into a sentence (+12), the pink sticky
+becoming "More portfolio available on request" (+5), and the deskbar label
+becoming "Portfolio" (+5). Editorial and both no-JS legs gain +7: the nav
+label (+5), "Featured Work" collapsing to "Portfolio" (−4), the editorial
+note (+5), and the comma (+1).
+
+Earlier note — re-baselined 2026-08-18 when the bottom chrome was DELETED
+(PLAN.md Phase 1); the set before that was 1505 / 1807 / 1474 / 1791, and the
+only delta was −50 on the board, which is exactly the removed "Scroll to move
+around the board" hint plus the "Smooth motion" button label. Editorial and no-JS are unchanged
 because that cluster lived inside `.corkboard`, and reading mode is unchanged
 because its stylesheet was already `display: none`-ing the whole cluster, so
 that text was never in its count.

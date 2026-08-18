@@ -837,6 +837,12 @@ a { color: inherit; }
   text-align: center;
 }
 .mini-sticky .sticky-note { font-size: 30px; margin: 0; }
+.mini-sticky .sticky-note a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.mini-sticky .sticky-note a:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
 
 .doodle {
   --sz: 280px;
