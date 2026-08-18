@@ -296,44 +296,50 @@
       .getPropertyValue("--camera-active").trim() !== "0";
   }
 
-  function update() {
-    if (!cameraActive()) {
-      /* Clear anything a previous frame wrote, or the column inherits a
-         transform from whichever stop the camera was resting on when the
-         window crossed the threshold. The stylesheet also carries
-         `transform: none !important` for the case where this script is stale
-         or never ran; this line is what makes the live switch clean. */
-      if (board.style.transform) board.style.transform = "";
-      if (floor && floor.style.transform) floor.style.transform = "";
-      return;
-    }
-
-    var vw = window.innerWidth;
-    var vh = window.innerHeight;
+  /* progressNow(): where the scroll position says the camera is, on the same
+     0..STOPS.length-1 scale the stops are indexed by. One reader, so the
+     flight below and update() can never disagree about the current frame. */
+  function progressNow() {
     var max = maxScroll;
     var p = max > 0 ? (window.scrollY / max) * (STOPS.length - 1) : 0;
-    p = Math.max(0, Math.min(STOPS.length - 1, p));
+    return Math.max(0, Math.min(STOPS.length - 1, p));
+  }
 
-    var x, y, s;
+  /* framingFor(p): the composition at a progress value, as a plain
+     { x, y, s }. Lifted out of update() unchanged so the flight below can ask
+     for the very frame update() would draw, both for where a flight begins
+     and for where it has to land. Nothing about the maths moved. */
+  function framingFor(p) {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
 
     if (reduced) {
       /* Nearest stop, taken whole. No lerp on x/y and no exp/log ramp on
          scale, so there is no in-between frame to sit through: the view is
          one of the eight compositions and then it is the next one. */
       var stop = STOPS[Math.round(p)];
-      x = stop.x;
-      y = stop.y;
-      s = scaleFor(stop, vw, vh);
-    } else {
-      var i = Math.min(Math.floor(p), STOPS.length - 2);
-      var f = ease(p - i);
-      var a = STOPS[i], b = STOPS[i + 1];
-
-      x = lerp(a.x, b.x, f);
-      y = lerp(a.y, b.y, f);
-      /* log-space scale so long zooms feel even */
-      s = Math.exp(lerp(Math.log(scaleFor(a, vw, vh)), Math.log(scaleFor(b, vw, vh)), f));
+      return { x: stop.x, y: stop.y, s: scaleFor(stop, vw, vh) };
     }
+
+    var i = Math.min(Math.floor(p), STOPS.length - 2);
+    var f = ease(p - i);
+    var a = STOPS[i], b = STOPS[i + 1];
+
+    return {
+      x: lerp(a.x, b.x, f),
+      y: lerp(a.y, b.y, f),
+      /* log-space scale so long zooms feel even */
+      s: Math.exp(lerp(Math.log(scaleFor(a, vw, vh)), Math.log(scaleFor(b, vw, vh)), f))
+    };
+  }
+
+  /* writeFraming(): clamp the requested centre onto the cork, then publish
+     one transform to the board and its floor. EVERY writer of #board's
+     transform goes through here, so the clamp cannot be bypassed by a new
+     caller and the two elements cannot drift apart. */
+  function writeFraming(x, y, s) {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
 
     /* keep the camera on the cork: clamp view to board bounds */
     var BW = 3600, BH = 2400;
@@ -347,6 +353,22 @@
       "translate(" + (vw / 2 - x * s) + "px," + (vh / 2 - y * s) + "px) scale(" + s + ")";
     board.style.transform = t;
     if (floor) floor.style.transform = t;
+  }
+
+  function update() {
+    if (!cameraActive()) {
+      /* Clear anything a previous frame wrote, or the column inherits a
+         transform from whichever stop the camera was resting on when the
+         window crossed the threshold. The stylesheet also carries
+         `transform: none !important` for the case where this script is stale
+         or never ran; this line is what makes the live switch clean. */
+      if (board.style.transform) board.style.transform = "";
+      if (floor && floor.style.transform) floor.style.transform = "";
+      return;
+    }
+
+    var f = framingFor(progressNow());
+    writeFraming(f.x, f.y, f.s);
   }
 
   /* rAF entry point. update() itself stays pure so the first paint can call
@@ -363,6 +385,10 @@
   }
 
   function onScroll() {
+    /* The instant jump inside goToStop fires this. Ignoring it while a flight
+       is up is what lets the flight own the motion: repainting from the new
+       scroll position here would draw the destination immediately. */
+    if (flying) return;
     markMoving();
     if (!ticking) {
       ticking = true;
@@ -371,11 +397,22 @@
   }
 
   function onResize() {
+    /* maxScroll and every scaleFor result change here, so a tween captured
+       against the old viewport is stale the moment the window moves. */
+    cancelFlight(false);
     measure();
     onScroll();
   }
 
+  /* Hand control back the instant the visitor reaches for the wheel, rather
+     than making them wait out a flight they have changed their mind about.
+     Bound to wheel and touchstart and NOT to scroll, because the programmatic
+     jump above fires scroll too and the two cannot be told apart there. */
+  function onUserScrollIntent() { cancelFlight(true); }
+
   window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("wheel", onUserScrollIntent, { passive: true });
+  window.addEventListener("touchstart", onUserScrollIntent, { passive: true });
   window.addEventListener("resize", onResize);
   window.addEventListener("load", function () {
     measure();
@@ -454,6 +491,74 @@
     6: ".contact-postcard"
   };
 
+  /* ==================================================================
+     DIRECT FLIGHT TO A STOP
+     ==================================================================
+     The camera is a pure function of scroll position, which is exactly why
+     reaching a stop by animating scroll was wrong: the camera had no choice
+     but to VISIT every stop in between. Clicking Contact from the opening
+     frame toured About, Services, Portfolio and Reviews on the way, which the
+     owner correctly called out as unwanted.
+
+     So scroll is now set INSTANTLY, and the flight owns the visual motion
+     instead. Scroll still carries the resting state, so nothing downstream of
+     it changes and the wheel keeps walking the whole board continuously; the
+     only thing that moved is who draws the frames between two framings. The
+     path is the straight line from one composition to the other, which is
+     what makes it short.
+
+     FLY_MS is the one number worth turning. At 0 the whole thing becomes a
+     hard cut, handled in goToStop before any of this runs.
+     ================================================================== */
+  var FLY_MS = 520;
+  var flying = false;
+  var flyFrom = null, flyTo = null, flyT0 = 0, flyRAF = 0;
+
+  /* Cancel with resync=true when the visitor took over and the camera must
+     land wherever scroll now says it is; with false when a caller is about to
+     take the camera somewhere itself. */
+  function cancelFlight(resync) {
+    if (!flying) return;
+    flying = false;
+    if (flyRAF) { window.cancelAnimationFrame(flyRAF); flyRAF = 0; }
+    flyFrom = flyTo = null;
+    if (resync) update();
+  }
+
+  function flyStep(ts) {
+    if (!flying) return;
+    if (!flyT0) flyT0 = ts;
+
+    var u = (ts - flyT0) / FLY_MS;
+    if (u > 1) u = 1;
+    var f = ease(u);
+
+    /* Same shadow-stack collapse a scroll gesture gets, and for the same
+       reason: these are the frames that need to be cheap to draw. */
+    markMoving();
+
+    writeFraming(
+      lerp(flyFrom.x, flyTo.x, f),
+      lerp(flyFrom.y, flyTo.y, f),
+      /* log space, matching how scroll ramps scale, or a long flight would
+         accelerate through the middle of the zoom */
+      Math.exp(lerp(Math.log(flyFrom.s), Math.log(flyTo.s), f))
+    );
+
+    if (u < 1) {
+      flyRAF = window.requestAnimationFrame(flyStep);
+      return;
+    }
+
+    /* Landed. update() is called rather than trusted-equal: it PROVES the
+       resting frame is the one scroll draws at this offset, instead of the
+       flight's own last frame merely being close to it. */
+    flying = false;
+    flyRAF = 0;
+    flyFrom = flyTo = null;
+    update();
+  }
+
   /* goToStop(stop): everything a[data-stop] click used to do inline, pulled
      out under its own name so a second entry point can reach the identical
      path instead of copying it. Two more callers arrive in this same phase
@@ -479,13 +584,44 @@
       return;
     }
 
-    window.scrollTo({
-      top: (stop / (STOPS.length - 1)) * maxScroll,
-      /* a smooth scroll in reduced mode would drag the snap through every
-         stop between here and there, which is the one thing worse than the
-         zoom it replaced: a burst of hard cuts instead of one. Land on it. */
-      behavior: reduced ? "auto" : "smooth"
-    });
+    var target = (stop / (STOPS.length - 1)) * maxScroll;
+
+    /* A hard cut, for the two cases that must not animate at all. Reduced
+       motion already means "compose, then compose the next one", and FLY_MS
+       at 0 is the switch for anyone who wants that behaviour outright. */
+    if (reduced || FLY_MS <= 0) {
+      cancelFlight(false);
+      window.scrollTo({ top: target, behavior: "auto" });
+      update();
+      return;
+    }
+
+    /* Where the camera is RIGHT NOW, read before scroll moves anywhere. Taken
+       through framingFor rather than from a stop index, so a click landing
+       mid-gesture flies from the frame actually on screen instead of jumping
+       to the nearest stop first. */
+    var from = framingFor(progressNow());
+
+    /* And where it is going, from the SAME function, so the flight's last
+       frame is byte-identical to the frame scroll draws at `target` and the
+       handoff back to the wheel is invisible. Reading STOPS[stop] directly
+       would be subtly wrong at the final stop, where framingFor clamps i and
+       evaluates f = 1 rather than indexing i + 1. */
+    var to = framingFor(stop);
+
+    cancelFlight(false);
+
+    /* flying goes up BEFORE scroll moves. The jump below fires a scroll
+       event, and onScroll has to ignore it: repainting from the new position
+       there would land on the destination instantly and there would be no
+       flight left to watch. */
+    flying = true;
+    flyFrom = from;
+    flyTo = to;
+    flyT0 = 0;
+    window.scrollTo({ top: target, behavior: "auto" });
+    markMoving();
+    flyRAF = window.requestAnimationFrame(flyStep);
   }
 
   /* Nav links jump the camera to a stop. Selector widened from

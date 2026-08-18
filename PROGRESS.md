@@ -123,6 +123,37 @@ whole job.
       does nothing. Tripwires unchanged at 1450/1814/1469/1798 and `cdp.mjs stops`
       unchanged, both correct since this phase adds attributes and CSS, not visible text.
 
+- [x] **Phase 4b: Clicks fly straight to a zone instead of touring**
+      DONE 2026-08-18, on owner feedback: clicking a zone animated `scrollY`, and since
+      the camera is a pure function of scroll it VISITED every stop in between. Clicking
+      Contact from the opening frame toured About, Services, Portfolio and Reviews.
+      Fixed by inverting who owns the motion. `update()` was first split into
+      `progressNow()`, `framingFor(p)` and `writeFraming(x, y, s)` as a pure refactor
+      (confirmed behavior-neutral against both harness checks before anything was built
+      on it). `goToStop` now sets scroll INSTANTLY, so the resting state is correct
+      immediately, then tweens the camera along the straight line between the two
+      framings over `FLY_MS` (520ms), x and y with `lerp` and scale in log space to match
+      how scroll ramps it. Set `FLY_MS` to 0 for a hard cut; reduced motion already takes
+      that path.
+      Both framings come from `framingFor`, not from `STOPS[n]`, so the flight's last
+      frame is byte-identical to the frame scroll draws at that offset. That matters at
+      the last stop, where `framingFor` clamps `i` and evaluates `f = 1` rather than
+      indexing `i + 1`.
+      `onScroll` returns early while flying, because the instant jump fires a scroll event
+      that would otherwise paint the destination and leave no flight to watch. A `wheel`
+      or `touchstart` cancels the flight and resyncs, bound to those rather than to
+      `scroll` because the programmatic jump fires `scroll` too and the two cannot be told
+      apart there. `onResize` cancels as well, since `maxScroll` and every `scaleFor`
+      result change with the viewport.
+      Verified by sampling the transform every frame of a real flight and recovering the
+      board-space centre from each matrix: 34 frames, centre-x starts at 1800 (whole
+      board), never exceeds 1800, ends at 700 (contact). The stops it used to tour sit at
+      2745 and 2800, so the old behavior would have shown a maximum near 2800. `scrollY`
+      lands exactly on 9257 as expected, the landing transform is string-identical to the
+      one scroll alone produces at that offset, and a mid-flight wheel cancels cleanly and
+      stays stable. Plain scrolling untouched: `cdp.mjs stops` and the tripwires are
+      unchanged.
+
 - [ ] **Phase 5: The circular sticker replaces the center notecard**  <- NEXT
       White ring, black disc, interim `W`. Pin 0 stays at (1783, 815) so no string
       moves. Retune stop 1.
@@ -204,5 +235,6 @@ node tools/verify/cdp.mjs shot 0    # screenshot at a stop -> tools/verify/out/
 - 2026-08-18: Phase 3 complete. Anton title, kebab dropdown, six wired entries, and the
   reading-mode fallback map completed.
 - 2026-08-18: Phase 4 complete. Ten clickable papers, Escape backs out to the whole
-  board. A verification step written for this phase told a subagent to click the page's
+  board. Owner then reported the click sweeping through every intervening section, so
+  4b replaced the animated scroll with a direct camera flight. FLY_MS is the one dial. A verification step written for this phase told a subagent to click the page's
   mailto links, which opened the owner's Outlook. Never do that; see "Never do these".

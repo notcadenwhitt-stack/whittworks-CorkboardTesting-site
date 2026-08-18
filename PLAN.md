@@ -139,8 +139,12 @@ sheet's paper texture, and the easing on the sticker's hover.
 
 - **Edit in place, never rewrite** (user, 2026-08-18).
 - **Scrolling stays; clicking is added on top** (user, Q1).
-- **Clicks reuse the deskbar's `window.scrollTo` path**, so the camera learns nothing
-  new (verified: `js/board.js:496-521`).
+- **Clicks set scroll instantly and fly the camera directly** (user, 2026-08-18, after
+  seeing the first version). Animating scroll made the camera tour every intervening
+  stop, because the camera is a pure function of scroll. Scroll now carries only the
+  resting state; a 520ms tween owns the visual motion and takes the straight line between
+  the two framings. `FLY_MS = 0` turns it into a hard cut, which is also the path reduced
+  motion takes.
 - **The motion override is deleted outright, not relocated** (user, 2026-08-18).
   The OS `prefers-reduced-motion` setting becomes the only authority. Accepted
   consequence: on a machine with animation effects off, the camera cuts between stops
