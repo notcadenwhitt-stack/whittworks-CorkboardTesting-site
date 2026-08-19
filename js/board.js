@@ -649,8 +649,15 @@
      that texture it RE-rasterises at intervals, and every one of those is a
      stall plus a visible pop. The owner described it exactly: "big zoom, click,
      little zoom, click, little zoom, stabilise". A shorter flight spans fewer
-     of those intervals, so it collects fewer clicks. */
-  var FLY_MS = 430;
+     of those intervals, so it collects fewer clicks.
+
+     Raised 430 -> 600 once the zone framings widened. The re-raster count is
+     driven mostly by how far the SCALE travels, not by how long the trip
+     takes, and widening stops 2-5 cut the range from 0.34-1.00 down to
+     0.34-0.75. A third less range is a third fewer thresholds to cross, which
+     is the headroom this slower, easier pace is spending. Go much past this
+     and the clicks come back. */
+  var FLY_MS = 600;
   /* A SYMMETRIC ease-in-out. The previous value here, cubic-bezier(0.45, 0,
      0.15, 1), had its second control point at x=0.15, BEFORE the first at
      x=0.45, which back-loads the curve badly: measured, it covered 20% of the
