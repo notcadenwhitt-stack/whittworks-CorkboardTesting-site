@@ -303,8 +303,26 @@
       return;
     }
     moveTimer = null;
-    board.classList.remove("moving");
-    document.documentElement.classList.remove("board-moving-scene");
+
+    /* Putting the detail back is the single most expensive frame this page
+       ever draws: every procedural ink filter, every backdrop blend, every
+       blur and the full shadow stacks all return at once, across whatever the
+       camera is currently framing. On a fixed timer that frame lands 170ms
+       after a 430ms flight has visibly finished, which reads as the board
+       lagging right at the moment it should feel settled.
+
+       requestIdleCallback hands it to the browser to place in a gap instead.
+       Nothing about the picture depends on when it happens, only that it does,
+       so there is no reason to insist on a particular millisecond. The 400ms
+       timeout is the backstop for a main thread so busy that no idle period
+       ever arrives, and the fallback covers Safari, which still ships no
+       requestIdleCallback. */
+    var restore = function () {
+      board.classList.remove("moving");
+      document.documentElement.classList.remove("board-moving-scene");
+    };
+    if (window.requestIdleCallback) window.requestIdleCallback(restore, { timeout: 400 });
+    else setTimeout(restore, 60);
   }
 
   function markMoving() {
