@@ -612,7 +612,15 @@
      ================================================================== */
   /* The one dial worth turning. At 0 goToStop takes the hard-cut branch
      instead, which is also the path reduced motion takes. */
-  var FLY_MS = 760;
+  /* 760 -> 430. This is not a taste knob any more, it is the re-raster count.
+     The board is 3600x2400, so at a zone's scale on a 2x display a sharp
+     texture is roughly 7200x4800, about 138MB. Chrome cannot hold one that big
+     for the length of an animation, so instead of rasterising once and scaling
+     that texture it RE-rasterises at intervals, and every one of those is a
+     stall plus a visible pop. The owner described it exactly: "big zoom, click,
+     little zoom, click, little zoom, stabilise". A shorter flight spans fewer
+     of those intervals, so it collects fewer clicks. */
+  var FLY_MS = 430;
   /* A SYMMETRIC ease-in-out. The previous value here, cubic-bezier(0.45, 0,
      0.15, 1), had its second control point at x=0.15, BEFORE the first at
      x=0.45, which back-loads the curve badly: measured, it covered 20% of the
