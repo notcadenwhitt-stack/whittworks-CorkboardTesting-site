@@ -33,7 +33,15 @@ board is an enhancement layered on top of it.
 | `css/style.css` 404s | tan editorial |
 | crawler | tan editorial, fully typeset |
 
-`document.body.innerText.length` is **1694** wherever the board shows and
+`document.body.innerText.length` is **1688** wherever the board shows and
+**1812** on the editorial (**1707** in reading mode, **1796** with no JS) —
+re-baselined 2026-08-19 when two doodle stickies were deleted to clear space
+around the centre sticker. The board and reading counts each fall 6, which is
+the four axis labels (S, D, P, Q) on the supply-and-demand doodle plus the two
+dollar signs on the paper aeroplane. Editorial and no-JS are unchanged, since
+doodles live only on the board.
+
+Superseded: **1694** board and
 **1812** on the editorial (**1713** in reading mode, **1796** with no JS) —
 re-baselined 2026-08-18 at Phase 9's review, which found three em dashes the
 Phase 2 copy pass had missed, all of them in the EDITORIAL design only. Two

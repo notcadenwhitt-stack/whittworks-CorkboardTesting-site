@@ -141,10 +141,10 @@
   var STOPS = [
     { x: 1800, y: 1200, w: 3860, h: 2620 },  /* 0 whole board */
     { x: 1800, y: 1200, w: 900,  h: 700 },   /* 1 circular sticker, on board centre */
-    { x: 926,  y: 803,  w: 1785, h: 1200 },  /* 2 about + polaroid */
+    { x: 926,  y: 613,  w: 1785, h: 1200 },  /* 2 about + polaroid, lifted 190 with them */
     { x: 2745, y: 765,  w: 1260, h: 1200 },  /* 3 services cluster, four stickies */
     { x: 2800, y: 1600, w: 1704, h: 1200 },  /* 4 work pane: postcard + room below for future products */
-    { x: 1690, y: 1910, w: 1428, h: 1200 },  /* 5 reviews: chad row over annie row */
+    { x: 1640, y: 1910, w: 1428, h: 1200 },  /* 5 reviews: chad row over annie row */
     /* 6 contact: Phase 7 retuned this to frame the new form sheet AND the
        postcard together, not the postcard alone. Their combined extent is
        NOT the two papers' nominal left/top/width/height added up: both
@@ -164,17 +164,21 @@
   /* Pins: board-space points. Strings run pin to pin with a little sag. */
   /* pins land where a hand put them, not dead center */
   var PINS = [
-    { x: 1753, y: 945 },  /* 0 sticker. Moves WITH the sticker: every string on
-                             the board originates here, so leaving it behind
-                             would strand all four of them on bare cork. Same
-                             offset inside the sticker as before, 213px in and
-                             5px down from its top-left. */
-    { x: 741,  y: 494 },  /* 1 about */
-    { x: 1236, y: 636 },  /* 2 caden polaroid */
+    /* 0 sticker. CENTRED on the sticker's vertical axis, not carried over from
+       the old notecard's hand-placed pin. The sticker spans x1540-2060 so its
+       centreline is 1800, which is also the board's centre; sitting 47px left
+       of that read as skewed on a circle in a way it never did on a rectangle.
+       y955 puts it just inside the top edge, where a pin would bite.
+
+       Every string on the board originates here, so this pin and the sticker
+       have to move together or all four strings strand on bare cork. */
+    { x: 1800, y: 955 },
+    { x: 741,  y: 304 },  /* 1 about, lifted 190 with the card */
+    { x: 1236, y: 446 },  /* 2 caden polaroid, lifted 190 with it */
     { x: 2547, y: 335 },  /* 3 services s1 */
     { x: 2934, y: 1318 }, /* 4 work postcard */
     { x: 1977, y: 1523 }, /* 5 quote card (reviews row 1, right) */
-    { x: 1430, y: 1466 }, /* 6 chad polaroid (reviews row 1, left) */
+    { x: 1309, y: 1466 }, /* 6 chad polaroid, moved left with it */
     { x: 694,  y: 1544 }, /* 7 contact */
     { x: 3092, y: 2078 }, /* 8 stray pin, nothing under it */
     { x: 442,  y: 268 },  /* 9 stray pin */
