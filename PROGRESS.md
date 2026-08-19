@@ -379,6 +379,26 @@ whole job.
       Byte count against the Phase 1 baseline of 1,842,182 across 47 files, judges per
       stop, keyboard walkthrough.
 
+## THE CAMERA COORDINATE BUG, found 2026-08-19
+
+`.board` carries the walnut frame as a CSS `border`, and its `transform` moves the
+WHOLE element, border included. Every paper on it is positioned INSIDE that border.
+So a paper's y and a camera stop's y were never the same number: they differed by
+exactly the border width, and every stop framed that far off.
+
+At 30px it read as slack in the tuning. Thickening the walnut to 96px shifted every
+stop 66 further and pushed the contact form's Send row out of frame, which is how it
+surfaced. Measured before the fix: stop 6 declares centre y 1489, the actual visible
+centre was 1393.
+
+`writeFraming()` now adds the border to x and y when composing the transform, read
+from the element's computed style rather than hard-coded, so changing the frame again
+cannot silently reopen this. Verified: stop 6's visible board rect is now exactly
+y 964-2014, which is what its numbers say, and the Send row is inside it.
+
+Same family as the string bug: two coordinate systems that looked identical while the
+border was thin.
+
 ## FINAL ZOOM SETTINGS, signed off 2026-08-19. Change these together, not singly.
 
     js/board.js   FLY_MS       750          flight duration

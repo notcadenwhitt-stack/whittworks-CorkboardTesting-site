@@ -140,7 +140,7 @@
      Restore point for the previous framings: tag known-good-zoom-20260819. */
   var STOPS = [
     { x: 1800, y: 1200, w: 3860, h: 2620 },  /* 0 whole board */
-    { x: 1830, y: 1070, w: 900,  h: 700 },   /* 1 circular sticker */
+    { x: 1800, y: 1200, w: 900,  h: 700 },   /* 1 circular sticker, on board centre */
     { x: 926,  y: 803,  w: 1785, h: 1200 },  /* 2 about + polaroid */
     { x: 2745, y: 765,  w: 1260, h: 1200 },  /* 3 services cluster, four stickies */
     { x: 2800, y: 1600, w: 1704, h: 1200 },  /* 4 work pane: postcard + room below for future products */
@@ -164,7 +164,11 @@
   /* Pins: board-space points. Strings run pin to pin with a little sag. */
   /* pins land where a hand put them, not dead center */
   var PINS = [
-    { x: 1783, y: 815 },  /* 0 title */
+    { x: 1753, y: 945 },  /* 0 sticker. Moves WITH the sticker: every string on
+                             the board originates here, so leaving it behind
+                             would strand all four of them on bare cork. Same
+                             offset inside the sticker as before, 213px in and
+                             5px down from its top-left. */
     { x: 741,  y: 494 },  /* 1 about */
     { x: 1236, y: 636 },  /* 2 caden polaroid */
     { x: 2547, y: 335 },  /* 3 services s1 */
@@ -476,8 +480,18 @@
     if (visH < BH) { y = Math.max(visH / 2, Math.min(BH - visH / 2, y)); }
     else { y = BH / 2; }
 
+    /* The board's transform moves the WHOLE element, border included, but every
+       paper on it is positioned inside that border, so a paper's y and the
+       camera's y were never the same number. The frame width is the gap: at
+       30px it read as slack in the tuning, and thickening the walnut to 96
+       shifted every stop 66 further and pushed the contact form's Send row out
+       of frame. Adding the border here puts the camera and the papers in one
+       coordinate space, so a stop's numbers mean what they say. Read from the
+       element rather than hard-coded, or the next frame change reopens this. */
+    var edge = parseFloat(getComputedStyle(board).borderLeftWidth) || 0;
     var t =
-      "translate(" + (vw / 2 - x * s) + "px," + (vh / 2 - y * s) + "px) scale(" + s + ")";
+      "translate(" + (vw / 2 - (x + edge) * s) + "px," +
+                     (vh / 2 - (y + edge) * s) + "px) scale(" + s + ")";
     board.style.transform = t;
     if (floor) floor.style.transform = t;
   }
