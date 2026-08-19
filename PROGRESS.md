@@ -297,13 +297,36 @@ whole job.
       link reaches it. Tripwires 1387/1814/1406/1798 -> 1694/1814/1713/1798, +244 on the
       two board-driven renders only.
 
-- [ ] **Phase 8: Wire Formspree**  <- NEXT
-      `https://formspree.io/f/xyegnvzd`. One test submission.
-      **CSP WARNING for this phase:** `index.html`'s CSP still has `connect-src 'none'`,
-      which blocks `fetch`. Wiring a fetch POST requires `connect-src https://formspree.io`
-      or the request dies silently in the console.
-- [ ] **Phase 9: Efficiency and review pass**
-      Byte count against the Phase 1 baseline, judges per stop, keyboard walkthrough.
+- [x] **Phase 8: Wire Formspree**
+      DONE 2026-08-18. New `js/form.js` POSTs the form to
+      `https://formspree.io/f/xyegnvzd` with `Accept: application/json` so the visitor
+      stays on the board instead of landing on Formspree's confirmation page. Pure
+      enhancement: the form's own `action`/`method` still work if the script is blocked,
+      missing, or throws, and the handler stands down entirely when `fetch` or `FormData`
+      is absent. It also cannot run on an invalid form, because the browser does not fire
+      `submit` when its own constraint validation fails.
+      CSP widened by exactly one origin: `connect-src 'none'` -> `connect-src
+      https://formspree.io`. Without that the fetch dies silently. The stale comment above
+      the CSP was rewritten to match.
+      A `#cf-status` line with `role="status"` sits OUTSIDE the form, because success
+      hides the whole form and a status inside it would vanish with it. Hidden at rest, so
+      the tripwires do not move.
+      Failure path tested by forcing a rejected fetch: the form STAYS on screen so nothing
+      typed is lost, the button re-enables, and the fallback is a `mailto:` link built
+      after the failure from the values in hand, carrying name, email, phone, how they
+      found the studio, and the full project description. Verified the typed text really
+      is in the link.
+      The honeypot short-circuits before any request: a filled `_gotcha` gets the same
+      acknowledgement a person gets and nothing is sent.
+      LIVE TEST SENT ONCE, 2026-08-18, every field reading "TEST SUBMISSION, ignore".
+      Formspree accepted it and the success state rendered. Owner to confirm receipt; a
+      brand-new Formspree form sends an activation email on first submission rather than
+      the message itself.
+      Tripwires unchanged at 1694/1814/1713/1798, `cdp.mjs stops` unchanged.
+
+- [ ] **Phase 9: Efficiency and review pass**  <- NEXT
+      Byte count against the Phase 1 baseline of 1,842,182 across 47 files, judges per
+      stop, keyboard walkthrough.
 - [ ] **Phase 10: Deploy to staging, on the owner's say-so only**
 
 ## Owner decisions, 2026-08-18

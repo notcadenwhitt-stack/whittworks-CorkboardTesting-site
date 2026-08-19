@@ -160,10 +160,12 @@
      The trade is deliberate: keep the origin lock, accept inline.
 
      img-src allows data: because the LQIP placeholders and the neutral
-     polaroid film are base64 URIs. connect-src is 'none' because nothing on
-     this page fetches anything, ever (still true: Phase 7's form is a plain
-     HTML POST, not a script-driven request; Phase 8's AJAX wiring is what
-     will need to widen this).
+     polaroid film are base64 URIs. connect-src names formspree.io and nothing
+     else: js/form.js POSTs the contact form there so the visitor is not thrown
+     onto Formspree's own confirmation page, and that is the only request this
+     site makes to anywhere. It was 'none' until Phase 8 widened it by exactly
+     one origin. form-action names the same origin for the no-JS path, where
+     the browser navigates to it directly.
 
      form-action WAS 'none', and Phase 7 is the reason it no longer is. The
      contact form's no-JS fallback is a real <form method="POST"
@@ -177,7 +179,7 @@
      a meta CSP cannot carry frame-ancestors, and meta X-Frame-Options is
      ignored by every browser. Clickjacking protection therefore needs a host
      that can set headers, which Pages is not. Recorded, not solved. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src https://formspree.io; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
 <link rel="canonical" href="https://whittworkstudios.com/">
 <link rel="icon" href="assets/favicon-32.png" type="image/png">
 <link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
@@ -248,7 +250,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=73">
+<link rel="stylesheet" href="css/style.css?v=74">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -985,6 +987,13 @@
             <p class="cf-privacy">Read the <a href="privacy.html">Privacy Policy</a>.</p>
           </div>
         </form>
+
+        <!-- Sits OUTSIDE the form, because js/form.js hides the whole form on
+             success and a status message inside it would go with it. role=status
+             plus aria-live=polite so a screen reader hears the outcome without
+             the focus being yanked; hidden until there is something to say, so
+             it contributes nothing to either layout's innerText at rest. -->
+        <p class="cf-status" id="cf-status" role="status" aria-live="polite" hidden></p>
       </section>
 
       <!-- ================= CONTACT: postcard, address side out ================= -->
@@ -1135,5 +1144,6 @@
      document by the time it runs. It does not know what a "stop" or a
      "camera" is, only how to read and annotate one form's own validity. -->
 <script src="js/validate.js?v=1" defer></script>
+<script src="js/form.js?v=1" defer></script>
 </body>
 </html>

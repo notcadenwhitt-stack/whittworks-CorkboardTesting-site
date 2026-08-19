@@ -1757,6 +1757,21 @@ html.warming .board .pc-caption {
   filter: drop-shadow(2px 5px 5px rgba(30, 15, 5, 0.3));
 }
 
+/* The contact form's outcome line. Sits on the sheet under the button when
+   there is something to say and is `hidden` otherwise, so it adds nothing to
+   either layout's innerText at rest. Typed face, matching the rest of the
+   sheet; the failure state borrows the same red the circled address uses,
+   because it is the one colour on this board that already means "look here". */
+.cf-status {
+  margin: 10px 0 0;
+  font-family: var(--typed);
+  font-size: 19px;
+  line-height: 1.45;
+  color: #2b2015;
+}
+.cf-status-error { color: var(--red); }
+.cf-status a { color: inherit; }
+
 /* --- reduced motion / no-JS fallback ------------------------------- */
 
 /* This rule is the small half of honouring the preference and it is worth
