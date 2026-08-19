@@ -615,9 +615,25 @@ html.cork-ready .board {
 
 .strings {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  /* EXPLICIT board units, never inset:0 with percentages. This element has to
+     occupy exactly the same 3600x2400 coordinate space the pins are positioned
+     in, because js/board.js draws both from one PINS array and the viewBox is
+     0 0 3600 2400.
+
+     It did not. With `inset: 0; width: 100%; height: 100%` the box resolved to
+     3408x2208, short by exactly 192 in each axis, which is twice .board's
+     border. preserveAspectRatio then fitted the 3600-wide viewBox inside that
+     undersized element: every string coordinate came out scaled by 0.92 and
+     shifted 48 units across, so the far end of a long string missed its pin by
+     over 200 board pixels while the pins themselves sat where they belonged.
+
+     It was always wrong. The frame was 30px, so the error was 60 units and
+     read as artistic slack. Thickening the frame to 96 tripled it and the
+     owner, correctly, said the strings connect to nothing. */
+  left: 0;
+  top: 0;
+  width: 3600px;
+  height: 2400px;
   pointer-events: none;
   /* ABOVE the papers (z-index 3) and BELOW the pins (7). Both alternatives
      were tried and both read as unattached, for opposite reasons. Underneath

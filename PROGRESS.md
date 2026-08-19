@@ -379,6 +379,29 @@ whole job.
       Byte count against the Phase 1 baseline of 1,842,182 across 47 files, judges per
       stop, keyboard walkthrough.
 
+## THE STRING BUG, found 2026-08-19 (read this before touching .strings)
+
+`.strings` was sized with `position: absolute; inset: 0; width: 100%; height: 100%`
+and that box resolved to **3408x2208**, short by exactly 192 in each axis, which is
+twice `.board`'s border width. The viewBox is `0 0 3600 2400`, so
+`preserveAspectRatio` fitted a 3600-wide coordinate system inside a 3408-wide element:
+every string coordinate came out scaled by 0.92 and shifted 48 units sideways, while the
+pins, laid out with plain `left`/`top`, sat where they belonged. Measured error at the
+far end of a long string: 73.7 screen pixels, over 200 board pixels.
+
+It was ALWAYS wrong. With the old 30px frame the error was 60 units and read as
+artistic slack. Thickening the frame to 96px tripled it, which is why the owner
+suddenly said the strings connect to nothing. He was right and two earlier "fixes"
+(re-stacking, then reducing sag) were both treating symptoms.
+
+Fixed by giving `.strings` explicit board units: `left: 0; top: 0; width: 3600px;
+height: 2400px`. Verified: every string endpoint now lands 0.0 screen pixels from its
+pin's centre, measured by converting each path's start and end through
+`getScreenCTM()` and comparing against every pin's rendered centre.
+
+NEVER size this element with percentages or `inset`. It must occupy exactly the same
+coordinate space the pins do, because `js/board.js` draws both from one PINS array.
+
 ## Third post-deploy round, 2026-08-19
 
 - **The flight easing was the "choppy zoom", not performance.** `FLY_EASE` was
