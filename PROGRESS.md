@@ -379,6 +379,29 @@ whole job.
       Byte count against the Phase 1 baseline of 1,842,182 across 47 files, judges per
       stop, keyboard walkthrough.
 
+## Third post-deploy round, 2026-08-19
+
+- **The flight easing was the "choppy zoom", not performance.** `FLY_EASE` was
+  `cubic-bezier(0.45, 0, 0.15, 1)`, whose second control point sits at x=0.15, BEFORE the
+  first at x=0.45. Measured, that curve covers 20% of the distance in the first quarter
+  of the duration, 60% more in the next quarter, then crawls through the last 20% for
+  half the duration. The owner described it unprompted as "a brief pause, then a quick
+  zoom, then a stutter before it's done", which is that curve read off a screen.
+  Now `cubic-bezier(0.42, 0, 0.58, 1)`: symmetric, 50% of the way at 50% of the time,
+  no abrupt change of speed. **Do not put a control point out of order again.**
+- **The strings.** Two wrong fixes before the right one, so the reasoning is worth
+  keeping. It is NOT geometry: every strung pin lands inside a paper and `.pin`'s
+  `margin: -15px` centres each pin exactly on its path endpoint. It was NOT stacking
+  either, though stacking made it worse in both directions: at `z-index: 1` a string
+  vanishes under a sheet for its entire final approach and surfaces only as stubs between
+  papers, so no endpoint is visible at all; at 6 it stays continuous into its pin and the
+  pin, one layer up, covers the join.
+  The actual cause was the SAG. It was `24 + dist * 0.055`, which on a typical 1090px run
+  puts 84 board pixels of droop in the curve, so the line arrives at its pin from a steep
+  angle well below the straight path and reads as a squiggle that happens to pass near a
+  pin. Now `10 + dist * 0.02`, about a third: still string rather than wire, but taut
+  enough that each line visibly runs pin to pin.
+
 ## Second post-deploy round, 2026-08-19
 
 - **The strings looked "connected to nothing".** Not a geometry bug: a probe confirmed

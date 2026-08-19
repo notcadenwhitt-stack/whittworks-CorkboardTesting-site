@@ -198,7 +198,14 @@
     var a = PINS[s[0]], b = PINS[s[1]];
     var dx = b.x - a.x, dy = b.y - a.y;
     var dist = Math.sqrt(dx * dx + dy * dy);
-    var sag = 24 + dist * 0.055;
+    /* Taut, not swagged. This was 24 + dist * 0.055, which on a typical
+       1090px run put 84 board pixels of droop into the curve: enough that the
+       line arrived at its pin from a steep angle, well below the straight
+       path between the two, and read as a decorative squiggle that happened
+       to pass near a pin rather than a string pulled between two of them. The
+       owner's report was that they "are connected to nothing". A little sag
+       still says string rather than wire; this is about a third of it. */
+    var sag = 10 + dist * 0.02;
     var d = "M" + a.x + " " + a.y +
       " Q" + (a.x + dx / 2) + " " + (a.y + dy / 2 + sag) +
       " " + b.x + " " + b.y;
@@ -606,7 +613,15 @@
   /* The one dial worth turning. At 0 goToStop takes the hard-cut branch
      instead, which is also the path reduced motion takes. */
   var FLY_MS = 760;
-  var FLY_EASE = "cubic-bezier(0.45, 0, 0.15, 1)";
+  /* A SYMMETRIC ease-in-out. The previous value here, cubic-bezier(0.45, 0,
+     0.15, 1), had its second control point at x=0.15, BEFORE the first at
+     x=0.45, which back-loads the curve badly: measured, it covered 20% of the
+     distance in the first quarter of the duration, then 60% of it in the next
+     quarter, then crawled through the last 20% for half the duration. The
+     owner described exactly that, unprompted, as "a brief pause, then a quick
+     zoom, then a stutter before it's done". This one is 50% of the way at 50%
+     of the time, and never changes speed abruptly. */
+  var FLY_EASE = "cubic-bezier(0.42, 0, 0.58, 1)";
   var flying = false;
   var flyTimer = null;
 

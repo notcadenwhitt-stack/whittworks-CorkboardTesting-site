@@ -619,15 +619,14 @@ html.cork-ready .board {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  /* BEHIND the papers (they sit at z-index 3), not over them. At 6 the string
-     ran across the top of every sheet it passed, which reads as a red line
-     drawn on the photograph rather than as something holding paper down: the
-     owner's report was that the strings "are connected to nothing". Running
-     underneath, a string disappears beneath a sheet and re-emerges on open
-     cork, and the only place it ends is at a pin that is itself sitting on
-     top. Same geometry, correct reading. It also removes a full-board
-     translucent layer from the overdraw over every paper. */
-  z-index: 1;
+  /* ABOVE the papers (z-index 3) and BELOW the pins (7). Both alternatives
+     were tried and both read as unattached, for opposite reasons. Underneath
+     at z-index 1, a string vanishes beneath a sheet for its whole final
+     approach and surfaces only as stubs between papers, so no endpoint is ever
+     visible. Over the top it stays continuous all the way into its pin, and
+     the pin, one layer higher, covers the join. What actually made them read
+     as floating was never the stacking; it was the sag. See js/board.js. */
+  z-index: 6;
   filter: drop-shadow(6px 11px 5px rgba(25, 8, 2, 0.38));
 }
 
