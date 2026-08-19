@@ -253,7 +253,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=75">
+<link rel="stylesheet" href="css/style.css?v=77">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -339,7 +339,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=30">
+<link rel="preload" as="script" href="js/board.js?v=31">
 <link rel="preload" as="script" href="js/hand.js?v=7">
 </head>
 <body>
@@ -384,9 +384,6 @@
          gets it back. The symbol's own "up" is its crown; a <use> that leaves
          it unrotated bites downward, which is why the top strip below uses it
          plain and the other three rotate it to face their own outer edge. -->
-    <symbol id="staple-glyph" viewBox="0 0 22 14">
-      <path fill="#868c92" d="M2,1 H20 V4 H2 Z M2,4 H5 V13 H2 Z M17,4 H20 V13 H17 Z"/>
-    </symbol>
   </defs>
 </svg>
 
@@ -629,115 +626,10 @@
     <div class="board-floor" aria-hidden="true"></div>
     <main class="board" id="board">
 
-      <!-- ================= STAPLED NAVY TRIM (Phase 6) =================
-           Four strips of paper stapled along the cork's own inner edge, one
-           per side, sized in the same 0-3600 by 0-2400 board space every
-           other child of .board lives in: .board is content-box with a 30px
-           border, so a child at left:0/top:0 already sits flush against the
-           inside of the walnut frame with no offset to account for.
-
-           FIRST CHILDREN, BEFORE THE STRINGS SVG, ON PURPOSE. Every paper
-           below carries z-index:3 (.card, .sticky, .polaroid, .postcard) and
-           the pins carry z-index:7, so stacking order alone would already
-           put every one of them above a trim strip that sets no z-index at
-           all. Document order is the belt to that stacking-order braces: it
-           is what makes the pink portfolio sticky (paper-5, left:3215px,
-           --sz:260px) read as lying ON the right strip rather than under it
-           at their ~7px overlap, checked on a screenshot rather than assumed.
-
-           NO data-zone-stop, and aria-hidden="true" on every strip. This is
-           decoration with nothing to click: js/board.js's delegated handler
-           (see the comment at its listener) only ever acts on the nearest
-           [data-zone-stop] ancestor, so a click anywhere on the trim finds
-           none, falls through, and does exactly what a click on bare cork
-           does today - nothing.
-
-           COLOUR: #1b2739 everywhere, flat, no gradient/shadow/filter/blend.
-           Anchored to .viewport's own #233341 (css/style.css:466, the wall
-           map's measured mean blue) but a shade deeper, so the trim reads as
-           navy paper sitting ON the cork rather than as a gap the wall shows
-           through. Matte on purpose: the owner has just had two rounds of
-           render cost stripped out of this page and none of it comes back
-           for a decoration.
-
-           SHAPE: each strip is one inline SVG with a single filled <path>.
-           The edge against the frame is a straight line; the edge facing the
-           cork is a handful of cubic-bezier wave segments, amplitude kept to
-           roughly 8-9 board px off its own mean (well inside the "about a
-           third of the strip's width" ceiling) so it reads as a hand-torn
-           deckle rather than bunting. The four paths use different sample
-           points on purpose, so no two sides look rotated copies of the same
-           wave.
-
-           TWO OF THE FOUR ARE NOT THE FULL 65px band, and that is a
-           deliberate departure from the plan's flat 65px-everywhere spec,
-           found and fixed here rather than shipped and caught later:
-
-           - BOTTOM overlaps BOTH reserved rectangles if drawn at the full
-             depth. The strip's own box is y:2335-2400; the parked
-             testimonial (x1240-2340) and the future product cards
-             (x2400-3540) both run down to y2370, which sits 30px inside
-             that box, not near its edge. Because those two rectangles
-             together span x1240-3540 - 64% of the board's width - tapering
-             the strip in and out around them would zig-zag five times
-             across one edge and read as broken, not hand-cut. So the whole
-             bottom strip's fill sits back from its own inner boundary,
-             painted only from about local-y 39-51 (wave) out to the frame at
-             local-y 65: a uniformly thinner ribbon, board-y 2374 at its
-             deepest reach, 4px clear of y2370 everywhere. Its staples are
-             placed at the x positions where that measured clear enough to
-             hold one (see the per-strip comments below).
-           - RIGHT tapers narrower only across roughly its bottom fifth
-             (board-y 1900-2370), because the future-product-cards rectangle
-             runs to x3540 and the strip's own nominal inner boundary sits at
-             x3535 - 5px inside it before any wave is even applied. Elsewhere
-             along its 2400px run the strip keeps the full band; only the
-             stretch that actually overlaps the reserved rectangle draws
-             shallower, bottoming out at board-x 3545+, comfortably clear.
-
-           TOP and LEFT collide with neither rectangle (both reserved zones
-           start at y1900+ or x1240+, nowhere near a 65px band against the
-           top or left frame) and ship at the full depth the plan specified.
-
-           STAPLES: one <symbol id="staple-glyph"> defined once in the shared
-           defs SVG above body, <use>'d here at ~22 board px wide. Each one
-           is rotated so its crown faces its strip's own outer edge: 0deg
-           unrotated already faces down-into-cork on the top strip's native
-           orientation... no rotation needed there; 180deg for bottom, -90deg
-           for left, 90deg for right, each with a few degrees of individual
-           jitter added on top so no two look stamped from the same die.
-           Intervals are irregular by hand, not computed, for the same
-           reason. All are placed close enough to their strip's outer edge
-           that they sit inside the fill at every sampled point along the
-           wave, including the two tapered strips above. -->
-
-      <svg class="trim trim-top" viewBox="0 0 3600 65" aria-hidden="true" focusable="false">
-        <path class="trim-fill" d="M0,0 H3600 V53 C3362,53 3118,58 2880,58 C2642,58 2398,49 2160,49 C1922,49 1678,63 1440,63 C1202,63 958,50 720,50 C482,50 238,60 0,60 Z"/>
-        <use href="#staple-glyph" x="169" y="3" width="22" height="14" transform="rotate(-4 180 10)"/>
-        <use href="#staple-glyph" x="1339" y="3" width="22" height="14" transform="rotate(3 1350 10)"/>
-        <use href="#staple-glyph" x="2389" y="3" width="22" height="14" transform="rotate(-2 2400 10)"/>
-        <use href="#staple-glyph" x="3289" y="3" width="22" height="14" transform="rotate(5 3300 10)"/>
-      </svg>
-
-      <svg class="trim trim-bottom" viewBox="0 0 3600 65" aria-hidden="true" focusable="false">
-        <path class="trim-fill" d="M0,65 H3600 V46 C3362,46 3118,42 2880,42 C2642,42 2398,48 2160,48 C1922,48 1678,40 1440,40 C1202,40 958,50 720,50 C482,50 238,44 0,44 Z"/>
-        <use href="#staple-glyph" x="139" y="51" width="22" height="14" transform="rotate(178 150 58)"/>
-        <use href="#staple-glyph" x="1489" y="51" width="22" height="14" transform="rotate(183 1500 58)"/>
-        <use href="#staple-glyph" x="2889" y="51" width="22" height="14" transform="rotate(176 2900 58)"/>
-        <use href="#staple-glyph" x="3439" y="51" width="22" height="14" transform="rotate(182 3450 58)"/>
-      </svg>
-
-      <svg class="trim trim-left" viewBox="0 0 65 2400" aria-hidden="true" focusable="false">
-        <path class="trim-fill" d="M0,0 V2400 H55 C55,2242 47,2078 47,1920 C47,1762 61,1598 61,1440 C61,1282 51,1118 51,960 C51,802 64,638 64,480 C64,322 45,158 45,0 Z"/>
-        <use href="#staple-glyph" x="1" y="293" width="22" height="14" transform="rotate(-87 12 300)"/>
-        <use href="#staple-glyph" x="1" y="1693" width="22" height="14" transform="rotate(-96 12 1700)"/>
-      </svg>
-
-      <svg class="trim trim-right" viewBox="0 0 65 2400" aria-hidden="true" focusable="false">
-        <path class="trim-fill" d="M65,0 V2400 H18 C18,2284 15,2166 15,2050 C15,1951 10,1849 10,1750 C10,1569 16,1382 16,1200 C16,1002 3,798 3,600 C3,402 10,198 10,0 Z"/>
-        <use href="#staple-glyph" x="42" y="243" width="22" height="14" transform="rotate(85 53 250)"/>
-        <use href="#staple-glyph" x="42" y="2043" width="22" height="14" transform="rotate(94 53 2050)"/>
-      </svg>
+      <!-- The navy stapled trim that ran around the cork was removed on the
+           owner's call: a thick walnut frame reads heavier and better than a
+           paper ribbon. Its replacement is .board's own border, thickened in
+           css/style.css, so there is no element here to stand in its place. -->
 
       <svg class="strings" id="strings" viewBox="0 0 3600 2400" aria-hidden="true"></svg>
 
@@ -1131,7 +1023,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=30"></script>
+<script src="js/board.js?v=31"></script>
 <script src="js/hand.js?v=7"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them

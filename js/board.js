@@ -366,9 +366,38 @@
      one transform to the board and its floor. EVERY writer of #board's
      transform goes through here, so the clamp cannot be bypassed by a new
      caller and the two elements cannot drift apart. */
+  /* Below this scale the board's handmade detail is physically too small to
+     resolve, so it is not drawn at all. See setFar. */
+  var FAR_SCALE = 0.6;
+  var isFar = null;
+
+  /* The expensive part of this page is not the camera, it is restoring 32
+     procedural ink filters, 16 backdrop blends and 20 blur passes when the
+     board settles. Tying that to motion alone put the whole cost at the END of
+     a zoom OUT, which is the one framing where every paper is on screen at once
+     and therefore every effect has to be rasterised together. The owner saw it
+     exactly there: a pause, then the picture snapping into focus.
+
+     Scale is the better gate. At the whole-board framing the board draws at
+     about a third of size, where two displacement pixels of pen tremor and a
+     three-pixel torn edge cannot be resolved on any display. So they stay off
+     until the camera is close enough for them to mean something, and the
+     settle after a zoom out has nothing expensive left to do.
+
+     Measured at 1440x900: the whole board rests at 0.34 and every zone stop
+     lands between 0.86 and 1.29, so 0.6 separates them with room either side
+     and no stop sits near the boundary. */
+  function setFar(s) {
+    var far = s < FAR_SCALE;
+    if (far === isFar) return;   /* only touch the DOM when it actually flips */
+    isFar = far;
+    board.classList.toggle("far", far);
+  }
+
   function writeFraming(x, y, s) {
     var vw = window.innerWidth;
     var vh = window.innerHeight;
+    setFar(s);
 
     /* keep the camera on the cork: clamp view to board bounds */
     var BW = 3600, BH = 2400;

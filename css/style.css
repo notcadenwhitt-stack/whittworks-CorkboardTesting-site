@@ -506,7 +506,12 @@ a { color: inherit; }
      over the 170px slice, same as the whole file), so the frame is walnut
      from the first paint and the scan only adds grain. This was transparent,
      which let cork read through the frame until wood.jpg landed. */
-  border: 30px solid #42342f;
+  /* Thickened 30 -> 96 on the owner's call, replacing the navy paper trim that
+     used to run inside it: a heavy walnut frame reads better and carries more
+     weight than a ribbon. The wood scan is 256px square and the slice below is
+     85, so at 96px the texture renders near 1:1 instead of the 3x oversupply it
+     sat at when the lip was 30. */
+  border: 96px solid #42342f;
   /* The slice and the source size move together or not at all: 170/512 and
      85/256 are the same fraction (0.3320), so this samples exactly the same
      band of grain it always did. A stale 170 against a 256px source would read
@@ -514,7 +519,7 @@ a { color: inherit; }
      bytes) because it fills a 30 board-px lip: even at the closest stop on a
      retina panel that is ~83 device px, so 512 was a 6x oversupply and 256 is
      still 3x. It is the one asset on the page measurably over-provisioned. */
-  border-image: url("../assets/wood.jpg") 85 / 30px round;
+  border-image: url("../assets/wood.jpg") 85 / 96px round;
   box-shadow:
     /* cork sits recessed behind the frame lip */
     inset 0 3px 0 rgba(255, 230, 190, 0.14),
@@ -658,28 +663,6 @@ a { color: inherit; }
   box-shadow: 0 1.5px 1px rgba(255, 230, 190, 0.28);
 }
 
-/* --- stapled navy trim (Phase 6) -----------------------------------
-   Positioned in the same board-pixel space as every other .board child;
-   see the long comment at the markup in index.html for the shape, the
-   colour, the staple symbol, and why the bottom and right strips are not
-   the plan's flat 65px band everywhere (both would otherwise paint into
-   the reserved cork the owner has asked kept bare). No z-index here:
-   .card/.sticky/.polaroid/.postcard below all carry z-index:3 and .pin
-   carries z-index:7, so the trim's default auto stacking already sits
-   under every paper and pin on the board. Document order (first children
-   of .board, before .strings) is what settles it for elements that carry
-   no z-index of their own, which is the only such overlap on the board:
-   the pink portfolio sticky's ~7px lap onto the right strip. */
-.trim { position: absolute; }
-.trim-top    { left: 0px;    top: 0px;      width: 3600px; height: 65px; }
-.trim-bottom { left: 0px;    top: 2335px;   width: 3600px; height: 65px; }
-.trim-left   { left: 0px;    top: 0px;      width: 65px;   height: 2400px; }
-.trim-right  { left: 3535px; top: 0px;      width: 65px;   height: 2400px; }
-/* #1b2739: a shade deeper than .viewport's own #233341 (the wall map's
-   measured mean blue, css/style.css:466), so the trim reads as navy paper
-   on the cork and not as a gap the wall shows through. Flat fill only -
-   no gradient, no drop-shadow, no filter, no blend mode, no box-shadow. */
-.trim-fill { fill: #1b2739; }
 
 /* --- shared paper physics ----------------------------------------- */
 
@@ -1676,7 +1659,18 @@ html.warming .board .pc-msg-small,
 html.warming .board .email-link,
 html.warming .board .typed,
 html.warming .board .ink,
-html.warming .board .circle-ink {
+html.warming .board .circle-ink,
+.board.far .sticky-title,
+.board.far .sticky-note,
+.board.far .polaroid figcaption,
+.board.far .pencil-note,
+.board.far .pc-head,
+.board.far .pc-msg,
+.board.far .pc-msg-small,
+.board.far .email-link,
+.board.far .typed,
+.board.far .ink,
+.board.far .circle-ink {
   filter: none;
 }
 
@@ -1709,7 +1703,12 @@ html.warming .board .sticky::after,
 html.warming .board .polaroid::before,
 html.warming .board .postcard-back::after,
 html.warming .board .postcard-front::after,
-html.warming .board .pc-grain {
+html.warming .board .pc-grain,
+.board.far .sticky::after,
+.board.far .polaroid::before,
+.board.far .postcard-back::after,
+.board.far .postcard-front::after,
+.board.far .pc-grain {
   display: none;
 }
 
@@ -1739,12 +1738,16 @@ html.warming .board .circle-ink {
 .board.moving .strings,
 html.warming .board .pin::before,
 html.warming .board .pin::after,
-html.warming .board .strings {
+html.warming .board .strings,
+.board.far .pin::before,
+.board.far .pin::after,
+.board.far .strings {
   filter: none;
 }
 
 /* The caption keeps its shadow, which is cheap, and loses only the tremor. */
 .board.moving .pc-caption,
+.board.far .pc-caption,
 html.warming .board .pc-caption {
   filter: drop-shadow(2px 5px 5px rgba(30, 15, 5, 0.3));
 }

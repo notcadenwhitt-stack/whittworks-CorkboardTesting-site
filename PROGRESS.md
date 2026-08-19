@@ -379,6 +379,31 @@ whole job.
       Byte count against the Phase 1 baseline of 1,842,182 across 47 files, judges per
       stop, keyboard walkthrough.
 
+## Post-deploy round, 2026-08-19
+
+- **The navy trim is gone.** The owner disliked it and asked for a thick solid walnut
+  border instead. The four `.trim` SVGs, the `#staple-glyph` symbol and all the `.trim`
+  CSS were deleted, and `.board`'s own frame went from `border: 30px` to `border: 96px`
+  with the border-image slice re-fitted (`85 / 96px round`). The wood scan is 256px and
+  the slice is 85, so at 96px it renders near 1:1 instead of the 3x oversupply it sat at
+  when the lip was 30. Do not reintroduce a paper trim.
+- **Expensive effects are now gated on ZOOM LEVEL, not just motion.** This is the fix for
+  the owner's report that a zoom OUT would "buffer, then click into place" at the very
+  end. Tying the collapse to `.moving` alone put the entire restore cost at the end of a
+  zoom out, which is the one framing where every paper is on screen at once and so every
+  filter has to be rasterised together.
+  `js/board.js` now sets a `far` class on `.board` when the camera's scale drops below
+  `FAR_SCALE` (0.6), toggled only when it actually flips rather than every frame, and the
+  three collapse blocks in `css/style.css` list `.board.far` alongside `.board.moving`.
+  Measured at 1440x900: the whole board rests at 0.34 and every zone stop lands between
+  0.86 and 1.29, so 0.6 separates them with no stop near the boundary.
+  Effect at the whole-board framing: SVG filters 31 -> 3, mix-blend elements 16 -> 1,
+  blur passes 22 -> 0. Zoomed in, all of it returns. Screenshots at stop 0 and stop 2
+  confirm the board looks identical at distance and keeps its full ink tremor up close,
+  which is the premise: two displacement pixels cannot be resolved at a third of scale.
+  Papers KEEP their drop-shadows at far zoom on purpose; losing those reads as the board
+  going flat.
+
 ## Owner decisions, 2026-08-18
 
 - No logo yet. The sticker ships the interim `W`; swapping in the real mark later
