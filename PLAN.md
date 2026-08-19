@@ -139,6 +139,11 @@ sheet's paper texture, and the easing on the sticker's hover.
 
 - **Edit in place, never rewrite** (user, 2026-08-18).
 - **Scrolling stays; clicking is added on top** (user, Q1).
+- **Zone framings rest at scale 0.75, except Contact at 0.857** (user, signed off
+  2026-08-19). Widening stops 2-5 cut each zone's texture from 105-132MB to ~74MB and
+  is what made the zoom feel good. Contact stays closer because the form's type fails
+  the 15 CSS px floor below 0.857. Final motion settings and the reasoning behind each
+  are recorded in `PROGRESS.md` under "FINAL ZOOM SETTINGS".
 - **Clicks set scroll instantly and fly the camera directly** (user, 2026-08-18, after
   seeing the first version). Animating scroll made the camera tour every intervening
   stop, because the camera is a pure function of scroll. Scroll now carries only the

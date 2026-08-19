@@ -379,6 +379,37 @@ whole job.
       Byte count against the Phase 1 baseline of 1,842,182 across 47 files, judges per
       stop, keyboard walkthrough.
 
+## FINAL ZOOM SETTINGS, signed off 2026-08-19. Change these together, not singly.
+
+    js/board.js   FLY_MS       750          flight duration
+    js/board.js   FLY_EASE     cubic-bezier(0.42, 0, 0.58, 1)   both directions
+    js/board.js   FLY_EASE_IN  same as FLY_EASE
+    js/board.js   FAR_SCALE    0.6
+    js/board.js   STOPS 2-5    widened so each rests at scale 0.75
+    js/board.js   STOP 6       left at 0.857 (see below)
+    css/style.css MOVE_SETTLE consumer: settle() must refuse to run while flying
+
+WHY EACH VALUE IS WHAT IT IS, so nobody re-litigates it by feel:
+
+- **Stops 2-5 rest at 0.75, not 0.9-1.0.** The board needs a texture of
+  3600 x scale x devicePixelRatio to draw sharply, so the resting scale sets how
+  much the compositor re-rasters mid-flight. 0.75 puts each zone at ~74MB against
+  105-132MB before. This is the single change that made the zoom feel good.
+- **Stop 6 (Contact) is deliberately closer at 0.857.** The form's labels and
+  inputs are 19 board px and clear the 15 CSS px legibility floor ONLY at that
+  scale; at 0.75 they render at 14.25 and fail. Do not "fix" the inconsistency.
+- **FLY_MS 750 is not near a ceiling.** An earlier test said 750 was clicky and
+  660 was safe. That reading was WRONG: settle() was still firing mid-flight, so
+  at 750ms against a 600ms settle the most expensive frame on the page landed 80%
+  of the way through every move. Once settle was taught to wait for the landing,
+  750 became smooth. **If clicks ever return, check settle before touching this.**
+- **Both directions share one curve now.** Zoom in briefly had its own lazier
+  opening to hide the allocation spike that only zooming IN pays (out is cheap:
+  the board is already drawn large and the compositor just shrinks it). Measured,
+  that curve peaked at 2.06x the average speed and did so 63% of the way through,
+  against 1.72x dead-centre for the shared one, and the owner felt the difference
+  as jerk. Most of what it was hiding was the settle bug.
+
 ## RESOLVED 2026-08-19: the zoom, and what actually fixed it
 
 The owner confirmed the zoom is smooth. Four things were wrong and they were fixed in
