@@ -655,9 +655,14 @@
      driven mostly by how far the SCALE travels, not by how long the trip
      takes, and widening stops 2-5 cut the range from 0.34-1.00 down to
      0.34-0.75. A third less range is a third fewer thresholds to cross, which
-     is the headroom this slower, easier pace is spending. Go much past this
-     and the clicks come back. */
-  var FLY_MS = 750;
+     is the headroom this slower, easier pace is spending.
+
+     THE CEILING IS MEASURED, not guessed. At these framings 600ms is smooth
+     and 750ms brings the clicks back, tested on the owner's own machine. 660
+     is a deliberate step under that edge. If the framings ever tighten again
+     this number has to come down with them, because the two are the same
+     budget spent differently. */
+  var FLY_MS = 660;
   /* A SYMMETRIC ease-in-out. The previous value here, cubic-bezier(0.45, 0,
      0.15, 1), had its second control point at x=0.15, BEFORE the first at
      x=0.45, which back-loads the curve badly: measured, it covered 20% of the
