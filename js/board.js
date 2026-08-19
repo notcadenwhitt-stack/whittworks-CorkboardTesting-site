@@ -698,7 +698,14 @@
      of the duration against 4.6%, so the drawing finishes while almost
      nothing is moving and the eye has nothing to catch on. */
   var FLY_EASE = "cubic-bezier(0.42, 0, 0.58, 1)";
-  var FLY_EASE_IN = "cubic-bezier(0.62, 0, 0.62, 1)";
+  /* Softened from cubic-bezier(0.62, 0, 0.62, 1), which bought its lazy
+     opening at the price of a lurch: measured against a perfectly even move,
+     it peaked at 2.06x the average speed and did so 63% of the way through,
+     while the exit curve peaks at a gentler 1.72x dead in the middle. That
+     20% faster, off-centre peak is what the owner felt as jerky. This one
+     peaks at 1.91x at 53%, so it still opens more slowly than the exit, which
+     is the point of having its own curve at all, without the surge. */
+  var FLY_EASE_IN = "cubic-bezier(0.50, 0, 0.55, 1)";
   var flying = false;
   var flyTimer = null;
 
