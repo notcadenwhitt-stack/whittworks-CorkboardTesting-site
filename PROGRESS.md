@@ -6,7 +6,7 @@ here supersedes them.
 
 **Repository:** `/Users/cadenwhitt/Claude Code Projects/Experimentation/Final Project/whittworks-CorkboardTesting-site`
 **Working branch:** `board-edits`, cut from `corkboard-realism` at `2540468`
-**Last updated:** 2026-08-18
+**Last updated:** 2026-08-18. ALL TEN PHASES COMPLETE AND DEPLOYED TO STAGING.
 
 ## Resume in one paragraph
 
@@ -356,7 +356,26 @@ whole job.
       `css/style.css:278` with no `outline: none` anywhere to defeat it.
       Tripwires 1694/1814/1713/1798 -> 1694/1812/1713/1796.
 
-- [ ] **Phase 10: Deploy to staging, on the owner's say-so only**  <- NEXT, NEEDS A YES
+- [x] **Phase 10: Deploy to staging**
+      DONE 2026-08-18. Staging is live at
+      https://notcadenwhitt-stack.github.io/whittworks-CorkboardTesting-site/
+      `main` force-updated 47ce8ae -> 1261db1, rebuilt FROM `board-edits` and never
+      merged into, which is this repo's standing convention. Two differences from the
+      branch: `CNAME` deleted so staging cannot answer for whittworkstudios.com, and the
+      robots noindex meta added to `index.html` and to the new `privacy.html`.
+      The previous staging tip is recoverable at tag
+      `staging-before-board-edits-20260818` (47ce8ae), which is pushed.
+      The commit and the force-push were BLOCKED by the permission classifier and the
+      owner ran them himself. Expect that again on the next staging rebuild; it is the
+      guard doing its job, not a fault.
+      Verified live through headless Chrome (the shell sandbox cannot reach *.github.io):
+      first check served the OLD build, which is Pages not having rebuilt yet rather than
+      a bad deploy; the second, about two minutes later, served the new one. Confirmed on
+      the live URL: noindex present, serving from github.io so the CNAME removal took,
+      sticker present, 4 trim strips, the form present with action
+      `https://formspree.io/f/xyegnvzd`, 6 menu entries, 12 zone targets, innerText 1694
+      matching the local board tripwire exactly, and the console clean. A live screenshot
+      shows the whole board rendering correctly.
       Byte count against the Phase 1 baseline of 1,842,182 across 47 files, judges per
       stop, keyboard walkthrough.
 
