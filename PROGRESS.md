@@ -379,6 +379,37 @@ whole job.
       Byte count against the Phase 1 baseline of 1,842,182 across 47 files, judges per
       stop, keyboard walkthrough.
 
+## RESOLVED 2026-08-19: the zoom, and what actually fixed it
+
+The owner confirmed the zoom is smooth. Four things were wrong and they were fixed in
+this order; only the last two were the ones he could feel.
+
+1. `ease()` reused for the flight. It carries a 0.22 DWELL at both ends, right for the
+   scroll mapping and wrong for a flight, where it deletes the ease-in and ease-out.
+2. A `requestAnimationFrame` tween re-rasterising a 3600x2400 layer every frame. Moved
+   to a CSS transition so the compositor owns it.
+3. `FLY_EASE` was `cubic-bezier(0.45, 0, 0.15, 1)`, whose control points are out of
+   order in x. Measured: 20% of the distance in the first quarter of the duration, 60%
+   more in the next quarter, then a crawl. The owner called it "a brief pause, then a
+   quick zoom, then a stutter". Now `cubic-bezier(0.42, 0, 0.58, 1)`.
+4. **The one that finished it: FLY_MS 760 -> 430.** The board needs roughly a 132MB
+   texture to draw sharply at a zone's scale on a 2x display (218MB at stop 1). Chrome
+   will not hold one that big for the length of an animation, so it RE-rasterises at
+   intervals, and each one is a stall plus a visible pop. The owner described the result
+   as "big zoom, click, little zoom, click, little zoom, stabilise". A flight's duration
+   is therefore the number of intervals it spans; a shorter one collects fewer.
+   **If this ever regresses, look at FLY_MS before looking at render cost.**
+
+The three render-cost passes (Phase 4c and the two post-deploy rounds) were still worth
+keeping, and the page is genuinely cheaper for them, but none of them was the thing he
+was seeing. Diagnose the animation before optimising the paint.
+
+Texture cost per stop at 1440x900 on a 2x display, for reference:
+stop 0 scale 0.34 = 16MB, stop 6 0.86 = 97MB, stops 3/4 0.90 = 107MB, stop 2 1.00 =
+132MB, stop 1 1.29 = 218MB. Widening the zone framings by about a fifth would roughly
+halve these; offered to the owner and not taken, because it changes how close each zone
+sits.
+
 ## THE STRING BUG, found 2026-08-19 (read this before touching .strings)
 
 `.strings` was sized with `position: absolute; inset: 0; width: 100%; height: 100%`
