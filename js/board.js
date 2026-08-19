@@ -657,7 +657,7 @@
      0.34-0.75. A third less range is a third fewer thresholds to cross, which
      is the headroom this slower, easier pace is spending. Go much past this
      and the clicks come back. */
-  var FLY_MS = 600;
+  var FLY_MS = 750;
   /* A SYMMETRIC ease-in-out. The previous value here, cubic-bezier(0.45, 0,
      0.15, 1), had its second control point at x=0.15, BEFORE the first at
      x=0.45, which back-loads the curve badly: measured, it covered 20% of the
