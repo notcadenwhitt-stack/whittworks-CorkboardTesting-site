@@ -482,6 +482,12 @@ a { color: inherit; }
   background-blend-mode: soft-light, multiply, multiply, normal, normal, normal;
 }
 
+/* Hidden while the camera moves. This is a full-viewport layer sitting over
+   the board at z-index 40, so every frame of a flight composites it again on
+   top of everything below. Fine grain and a corner vignette are exactly the
+   two things nobody can resolve on a board that is sweeping and scaling. */
+.board-moving-scene .viewport::after { display: none; }
+
 /* darkened room corners + fine photographic grain over the whole scene */
 .viewport::after {
   content: "";
@@ -586,6 +592,25 @@ a { color: inherit; }
   background-blend-mode: soft-light, multiply, multiply, soft-light, normal, soft-light, normal;
 }
 
+/* The two --cork-lq layers exist to cover the board before cork.webp decodes,
+   and the 1180 layer above them is `normal` and opaque, so the instant the real
+   scan lands they are invisible. Invisible is not free: they stay in the stack
+   as two more blended layers to composite across 3600x2400 every time this
+   layer rasterises, which is every scale change the camera makes. js/board.js
+   adds cork-ready once the image has actually decoded, and the stack drops from
+   seven layers to five with nothing to see. */
+html.cork-ready .board {
+  background-image:
+    radial-gradient(140% 120% at 36% 24%, rgba(255, 240, 210, 0.22), rgba(128, 110, 90, 0) 72%),
+    radial-gradient(90% 80% at 78% 96%, rgba(50, 28, 10, 0.5), rgba(128, 110, 90, 0) 62%),
+    radial-gradient(115% 95% at 2% 86%, rgba(45, 26, 10, 0.42), rgba(128, 110, 90, 0) 64%),
+    url("../assets/cork.webp"),
+    url("../assets/cork.webp");
+  background-position: 0 0, 0 0, 0 0, 380px 610px, 0 0;
+  background-size: auto, auto, auto, 890px 890px, 1180px 1180px;
+  background-blend-mode: soft-light, multiply, multiply, soft-light, normal;
+}
+
 /* --- red string + pins -------------------------------------------- */
 
 .strings {
@@ -594,9 +619,24 @@ a { color: inherit; }
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 6;
+  /* BEHIND the papers (they sit at z-index 3), not over them. At 6 the string
+     ran across the top of every sheet it passed, which reads as a red line
+     drawn on the photograph rather than as something holding paper down: the
+     owner's report was that the strings "are connected to nothing". Running
+     underneath, a string disappears beneath a sheet and re-emerges on open
+     cork, and the only place it ends is at a pin that is itself sitting on
+     top. Same geometry, correct reading. It also removes a full-board
+     translucent layer from the overdraw over every paper. */
+  z-index: 1;
   filter: drop-shadow(6px 11px 5px rgba(25, 8, 2, 0.38));
 }
+
+/* The string's own shadow is a full-board filter pass, and at a distance it
+   resolves to nothing. Off while the board is moving or far away, with the
+   other procedural work. */
+.board.moving .strings,
+.board.far .strings,
+html.warming .board .strings { filter: none; }
 
 /* two-ply yarn: dark core with a lit strand over it */
 .strings .string-core {
@@ -1592,23 +1632,37 @@ a { color: inherit; }
    warming only owns the load. */
 
 .board.moving .index-card,
-html.warming .board .index-card {
+html.warming .board .index-card,
+.board.far .index-card {
   /* drop-shadow only. url(#cut) used to ride along here, which meant the
      single most expensive filter on the page was applied precisely when the
      board was moving. See the block below. */
-  filter: drop-shadow(6px 15px 26px rgba(25, 12, 4, 0.68));
+  /* box-shadow, not drop-shadow. A drop-shadow filter derives its shape from
+     the element's rendered alpha, so it has to render the element first and
+     then blur that result; box-shadow follows the border box and is close to
+     free. These papers are plain rectangles while moving anyway, because
+     url(#cut)'s torn edge is off in this same state, so the two are visually
+     interchangeable here and only one of them costs a filter pass. */
+  filter: none;
+  box-shadow: 6px 15px 26px rgba(25, 12, 4, 0.68);
 }
 .board.moving .sticky::before,
-html.warming .board .sticky::before {
-  filter: drop-shadow(5px 15px 19px rgba(25, 12, 4, 0.7));
+html.warming .board .sticky::before,
+.board.far .sticky::before {
+  filter: none;
+  box-shadow: 5px 15px 19px rgba(25, 12, 4, 0.7);
 }
 .board.moving .polaroid,
-html.warming .board .polaroid {
-  filter: drop-shadow(8px 19px 24px rgba(25, 12, 4, 0.72));
+html.warming .board .polaroid,
+.board.far .polaroid {
+  filter: none;
+  box-shadow: 8px 19px 24px rgba(25, 12, 4, 0.72);
 }
 .board.moving .postcard::before,
-html.warming .board .postcard::before {
-  filter: drop-shadow(8px 20px 26px rgba(25, 12, 4, 0.72));
+html.warming .board .postcard::before,
+.board.far .postcard::before {
+  filter: none;
+  box-shadow: 8px 20px 26px rgba(25, 12, 4, 0.72);
 }
 
 /* ==================================================================

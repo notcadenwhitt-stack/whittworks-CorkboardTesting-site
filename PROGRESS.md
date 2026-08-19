@@ -379,6 +379,35 @@ whole job.
       Byte count against the Phase 1 baseline of 1,842,182 across 47 files, judges per
       stop, keyboard walkthrough.
 
+## Second post-deploy round, 2026-08-19
+
+- **The strings looked "connected to nothing".** Not a geometry bug: a probe confirmed
+  every strung pin (0-7 and 10) lands inside a paper, and `.pin`'s `margin: -15px`
+  centres each pin exactly on the path endpoint. It was STACKING. `.strings` sat at
+  `z-index: 6` against papers at `3`, so every string drew across the TOP of every sheet
+  it passed, which reads as a red line on the photograph rather than something holding
+  paper down. `.strings` is `z-index: 1` now: a string disappears under a sheet,
+  re-emerges on open cork, and only ever ends at a pin sitting on top. It also removes a
+  full-board translucent layer from the overdraw.
+- **Third performance pass**, after the owner said it was better but still struggling:
+  (1) `.strings`' own full-board drop-shadow is off while moving or far.
+  (2) `.viewport::after`, the room's grain and vignette, is a full-viewport composite
+  ABOVE the board, so it re-composites over everything on every frame of a flight. It is
+  `display: none` while moving. It lives outside `.board`, so `js/board.js` mirrors the
+  moving state onto the root element as `board-moving-scene`.
+  (3) The board's two `--cork-lq` placeholder background layers are covered by an opaque
+  layer the moment `cork.webp` decodes, but stayed in the stack as two more blended
+  layers to composite across 3600x2400 on every rasterisation. `js/board.js` now signals
+  `cork-ready` on `decode()` (not `onload`, which fires before the bitmap is ready) and
+  the stack drops 7 layers -> 5.
+  (4) Paper shadows use `box-shadow` instead of `filter: drop-shadow` while moving OR
+  far. drop-shadow derives its shape from rendered alpha, so it renders the element then
+  blurs that result; box-shadow follows the border box. The papers are plain rectangles
+  in exactly these states anyway, because `url(#cut)`'s torn edge is already off.
+  Measured at 1440x2 DPR. Whole-board resting state: filter passes 25 -> 8, SVG filters
+  0, blur passes 0, board background layers 7 -> 5. During a close-up move: filter passes
+  24 -> 8. Tripwires and stops unchanged; stop 0 screenshot visually intact.
+
 ## Post-deploy round, 2026-08-19
 
 - **The navy trim is gone.** The owner disliked it and asked for a thick solid walnut

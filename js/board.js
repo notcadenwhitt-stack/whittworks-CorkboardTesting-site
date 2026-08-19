@@ -42,6 +42,20 @@
      ================================================================== */
   document.documentElement.classList.add("board-live");
 
+  /* Announce when cork.webp has actually DECODED, not merely arrived. Until
+     then the board paints from two inlined placeholder layers; after it, those
+     two are covered by an opaque layer and are pure composite cost on every
+     rasterisation. css/style.css drops them under html.cork-ready. decode()
+     rather than onload because onload fires before the bitmap is ready, and a
+     catch because a failed decode must leave the placeholders in place. */
+  (function () {
+    var cork = new Image();
+    cork.src = "assets/cork.webp";
+    var ready = function () { document.documentElement.classList.add("cork-ready"); };
+    if (cork.decode) cork.decode().then(ready).catch(function () {});
+    else cork.onload = ready;
+  })();
+
   var board = document.getElementById("board");
   /* The solid sheet behind the board. It takes every transform the board
      takes, so an unrasterised board tile shows cork colour at ANY zoom rather
@@ -283,6 +297,7 @@
     }
     moveTimer = null;
     board.classList.remove("moving");
+    document.documentElement.classList.remove("board-moving-scene");
   }
 
   function markMoving() {
@@ -300,6 +315,11 @@
     lastMove = Date.now();
     if (moveTimer === null) {
       board.classList.add("moving");
+      /* The room's grain-and-vignette overlay lives on .viewport::after, which
+         is an ANCESTOR of .board, so .board.moving cannot reach it. This
+         mirror on the root element is how that full-viewport composite gets
+         switched off for the length of a move. */
+      document.documentElement.classList.add("board-moving-scene");
       moveTimer = setTimeout(settle, MOVE_SETTLE);
     }
   }
