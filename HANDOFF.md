@@ -34,7 +34,17 @@ board is an enhancement layered on top of it.
 | crawler | tan editorial, fully typeset |
 
 `document.body.innerText.length` is **1694** wherever the board shows and
-**1814** on the editorial (**1713** in reading mode, **1798** with no JS) —
+**1812** on the editorial (**1713** in reading mode, **1796** with no JS) —
+re-baselined 2026-08-18 at Phase 9's review, which found three em dashes the
+Phase 2 copy pass had missed, all of them in the EDITORIAL design only. Two
+were standing in for commas ("CADEN WHITT — FOUNDER" and "CHAD PREWETT — FORMER
+AUBURN...") and cost one character each to fix; the third was a pair of
+separators in the Level Up link, swapped for the middot this site already uses,
+at no change in length. Board and reading are untouched because none of the
+three lived there. The board's quote attribution keeps its LEADING em dash: that
+is an attribution mark in a typewriter composition, not prose.
+
+Superseded: **1814** editorial and **1798** no-JS, with the board at
 re-baselined 2026-08-18 at Phase 7. Board and reading each gained 244, the same
 delta because they render the same nodes: the form sheet's heading, its five
 labels, the phone consent notice, the Send button and the privacy line.

@@ -324,10 +324,41 @@ whole job.
       the message itself.
       Tripwires unchanged at 1694/1814/1713/1798, `cdp.mjs stops` unchanged.
 
-- [ ] **Phase 9: Efficiency and review pass**  <- NEXT
+- [x] **Phase 9: Efficiency and review pass**
+      DONE 2026-08-18. TWO parts.
+      EFFICIENCY: Phase 5 deleted the only element on `index.html` set in Permanent
+      Marker, but the face was still declared in `style.css` AND preloaded at high
+      priority, so every visit fetched 29KB to letter nothing. Removed from the preload,
+      the `@font-face`, the `--marker` property, `hand.js`'s selector list, and a dead
+      `reading.css` rule. The FILE stays in `assets/` because `404.html` still uses it and
+      carries its own `@font-face`.
+      Measured against `be7e9d9`, counting only what `index.html` pulls in:
+      uncompressed 1,836,268 -> 1,870,695 (+34,427); over the wire 1,714,091 ->
+      1,707,374 (-6,717). The raw figure grew because this branch added a form, a menu,
+      click-to-zoom, validation and a privacy page, all source text. The wire figure is
+      what Pages serves and it FELL: dropping the font more than paid for the new code.
+      REVIEW: an independent judge looked at all eight stops, the phone layout at several
+      scroll positions, `privacy.html` and `404.html` at both widths, and the console
+      throughout. Console clean everywhere. It found two copy defects, and checking them
+      turned up a third:
+      `index.html:454` still read "CADEN WHITT — FOUNDER" with a literal em dash, which
+      is why a `&mdash;` grep had missed it; `:504` had the same em-dash-for-comma in
+      Chad's editorial attribution; and `:494`'s Level Up link used a pair of em dashes as
+      separators. All three were EDITORIAL-only, which is how the Phase 2 pass missed
+      them. Fixed to commas and to the middot this site already uses.
+      The board's quote attribution at `:850` KEEPS its leading em dash on purpose: that
+      is an attribution mark in a typewriter composition, not prose, and `.attr` carries
+      no `text-transform`, so its uppercase is authored and deliberate.
+      Judged NOT worth chasing: a faint mark after "CO-FOUNDER" at stop 5. It sits at the
+      edge of an ink-filtered glyph and reads as a filter artifact, not a stray character.
+      Keyboard: 12 tab stops in sensible document order, the `_gotcha` honeypot correctly
+      OUT of the tab order via `tabindex="-1"`, and `:focus-visible` set universally at
+      `css/style.css:278` with no `outline: none` anywhere to defeat it.
+      Tripwires 1694/1814/1713/1798 -> 1694/1812/1713/1796.
+
+- [ ] **Phase 10: Deploy to staging, on the owner's say-so only**  <- NEXT, NEEDS A YES
       Byte count against the Phase 1 baseline of 1,842,182 across 47 files, judges per
       stop, keyboard walkthrough.
-- [ ] **Phase 10: Deploy to staging, on the owner's say-so only**
 
 ## Owner decisions, 2026-08-18
 
