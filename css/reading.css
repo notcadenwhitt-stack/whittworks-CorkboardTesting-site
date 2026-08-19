@@ -185,7 +185,6 @@
   height: auto;
   padding-top: 2.6rem;
 }
-.title-card .marker { font-size: 11cqw; }
 
 .sticky { --sz: 100%; width: 100%; padding: 1.6rem 1.4rem 2rem; }
 .polaroid { width: 100%; max-width: 22rem; }
