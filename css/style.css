@@ -1393,6 +1393,161 @@ a { color: inherit; }
 }
 .email-link:hover { color: var(--red); }
 
+/* --- the intake form sheet (Phase 7) -------------------------------
+   .contact-form is a modifier on .card.index-card, the same pattern as
+   .about-card and .quote-card just above: the base class carries the
+   position/rotate physics, the torn-paper #cut silhouette, the ruled-paper
+   background and the drop-shadow stack, and this rule only overrides the
+   width/height (which the markup also states inline, in board pixels, the
+   same as every other paper) and the padding, which needs to be tighter
+   than an index card's default 62/40/26 to leave room for two rows of
+   fields, a consent line, and a textarea inside a 510px-tall sheet.
+
+   Deliberately typed, not handwritten: none of the classes below appear in
+   js/hand.js's SELECTORS list, so this sheet cannot shift the seed every
+   later jittered element on the board draws from. --typed (Special Elite)
+   throughout keeps it reading as one more piece of paper on the desk, not a
+   web form bolted onto it.
+
+   Sizing note, since this is the one paper on the board whose text size is
+   a measured requirement and not just a look: stop 6 (js/board.js) frames
+   this sheet at roughly 0.84x at 1440x900, so 15 screen px needs about
+   17.9 board px of font-size to clear. Every size below sits at 18px or
+   larger for exactly that reason; the acceptance pass in PROGRESS.md
+   measures the actual computed font-size in the browser rather than
+   trusting this arithmetic. */
+.contact-form {
+  padding: 28px 40px 16px;
+}
+
+.cf-head {
+  margin: 0 0 14px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.cf-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 28px;
+  row-gap: 12px;
+}
+.cf-row + .cf-row { margin-top: 12px; }
+
+.cf-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cf-label {
+  font-family: var(--typed);
+  font-size: 19px;
+  font-weight: 700;
+  color: #2b2115;
+  margin-bottom: 4px;
+}
+/* a plain asterisk, not a second line of copy: the sheet is tight on
+   vertical room and native validation already announces "required" to
+   assistive tech on its own via the required attribute below */
+.cf-required::after {
+  content: " *";
+  color: var(--red);
+}
+
+.cf-input,
+.cf-textarea {
+  width: 100%;
+  font-family: var(--typed);
+  font-size: 19px;
+  color: #2b2115;
+  background: #fdfbf1;
+  border: 1px solid rgba(43, 32, 21, 0.38);
+  border-radius: 3px;
+  padding: 6px 10px;
+}
+.cf-input:focus-visible,
+.cf-textarea:focus-visible {
+  outline: 3px solid var(--red);
+  outline-offset: 1px;
+}
+/* set by js/validate.js (and by the browser's own validation regardless of
+   whether that script ever runs) once a field has been flagged invalid */
+.cf-input[aria-invalid="true"],
+.cf-textarea[aria-invalid="true"] {
+  border-color: var(--red);
+}
+
+.cf-textarea {
+  height: 90px;
+  resize: vertical;
+}
+
+.cf-error {
+  margin: 3px 0 0;
+  font-family: var(--typed);
+  font-size: 16px;
+  color: var(--red);
+}
+
+.cf-consent {
+  margin: 12px 0 0;
+  font-family: var(--typed);
+  font-size: 19px;
+  line-height: 1.28;
+  color: #4a4234;
+}
+
+.cf-field-wide { margin-top: 12px; }
+
+/* Honeypot: hidden from sight (off-screen, 1x1, transparent, no pointer
+   events), hidden from assistive technology (aria-hidden on this wrapper in
+   the markup), and never focusable (tabindex="-1" on the input itself in
+   the markup): the wrapper being aria-hidden is only safe BECAUSE nothing
+   inside it can still take focus; an aria-hidden ancestor around a
+   focusable control is the WCAG 4.1.2 failure js/hand.js's own long comment
+   documents, avoided here the same way it is avoided there. */
+.cf-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cf-actions {
+  margin-top: 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+}
+
+.cf-submit {
+  font-family: var(--typed);
+  font-size: 20px;
+  font-weight: 700;
+  color: #fdfbf1;
+  background: var(--red);
+  border: none;
+  border-radius: 3px;
+  padding: 9px 26px;
+  cursor: pointer;
+}
+.cf-submit:hover { background: #8f2015; }
+.cf-submit:focus-visible { outline: 3px solid #2b2115; outline-offset: 2px; }
+
+.cf-privacy {
+  margin: 0;
+  font-family: var(--typed);
+  font-size: 16px;
+  color: #4a4234;
+}
+.cf-privacy a { color: #2b2115; text-decoration: underline; }
+.cf-privacy a:hover { color: var(--red); }
+
 /* --- tape: real masking-tape strips --------------------------------- */
 
 .tape {

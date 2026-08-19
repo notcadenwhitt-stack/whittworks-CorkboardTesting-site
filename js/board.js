@@ -119,7 +119,19 @@
     { x: 2745, y: 765,  w: 1050, h: 1000 },  /* 3 services cluster, four stickies */
     { x: 2800, y: 1600, w: 1420, h: 1000 },  /* 4 work pane: postcard + room below for future products */
     { x: 1690, y: 1910, w: 1200, h: 1010 },  /* 5 reviews: chad row over annie row */
-    { x: 700,  y: 1783, w: 1040, h: 650 },   /* 6 contact card */
+    /* 6 contact: Phase 7 retuned this to frame the new form sheet AND the
+       postcard together, not the postcard alone. Their combined extent is
+       NOT the two papers' nominal left/top/width/height added up: both
+       carry a small --rot, and getBoundingClientRect() on the live page
+       (tools/verify/phase7-check.mjs) is what actually measured it, at
+       roughly x 118-1032 y 997-1980. Centered on that with a little margin
+       (about 30px a side) gives the numbers below. Scale at 1440x900 comes
+       out to min(1440/980, 900/1050) = ~0.857, so 15 screen px needs
+       ~17.5 board px of font-size to clear; every field label, input, and
+       the consent notice in .contact-form (css/style.css) is 19px, and the
+       acceptance pass measures the actual computed value in the browser
+       rather than trusting this arithmetic. */
+    { x: 575,  y: 1489, w: 980,  h: 1050 },  /* 6 contact: form sheet + postcard */
     { x: 1800, y: 1200, w: 3860, h: 2620 }   /* 7 pull back out */
   ];
 
@@ -135,7 +147,13 @@
     { x: 1430, y: 1466 }, /* 6 chad polaroid (reviews row 1, left) */
     { x: 694,  y: 1544 }, /* 7 contact */
     { x: 3092, y: 2078 }, /* 8 stray pin, nothing under it */
-    { x: 442,  y: 268 }   /* 9 stray pin */
+    { x: 442,  y: 268 },  /* 9 stray pin */
+    /* 10 form sheet. Deliberately at the sheet's TOP-RIGHT corner, not its
+       top-left. The string that reaches it comes down from the sticker at
+       (1783, 815), so a pin on this side lets the line arrive over open cork
+       and stop at the corner. A pin on the left corner would have dragged that
+       same line diagonally across the fields the visitor has to read. */
+    { x: 952,  y: 1024 }
   ];
 
   /* empty holes from whatever hung here before */
@@ -144,8 +162,19 @@
     { x: 2620, y: 2140 }, { x: 260, y: 780 }, { x: 2900, y: 2240 }
   ];
 
+  /* [0, 10] replaces what used to be [0, 7]. The sticker's line to the contact
+     zone used to end on the postcard's pin, and the Phase 7 form sheet now sits
+     squarely between the two, so that line crossed the sheet through the Email
+     field and the description box. Ending it on the form's own pin instead
+     reaches the same zone and arrives over open cork.
+
+     There is deliberately no string from the form down to the postcard. Any
+     line between those two pins has to cross one sheet or the other, and a
+     string lying over a decorative card is charming where a string lying over
+     an input someone has to fill is just in the way. The postcard keeps its
+     pin unstrung, like the two stray pins already on the board. */
   var STRINGS = [
-    [0, 1], [0, 3], [0, 4], [0, 7],
+    [0, 1], [0, 3], [0, 4], [0, 10],
     [4, 5], [5, 6], [1, 2]
   ];
 

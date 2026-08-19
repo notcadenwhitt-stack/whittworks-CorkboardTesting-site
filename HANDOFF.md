@@ -33,7 +33,15 @@ board is an enhancement layered on top of it.
 | `css/style.css` 404s | tan editorial |
 | crawler | tan editorial, fully typeset |
 
-`document.body.innerText.length` is **1387** wherever the board shows and
+`document.body.innerText.length` is **1694** wherever the board shows and
+**1814** on the editorial (**1713** in reading mode, **1798** with no JS) —
+re-baselined 2026-08-18 at Phase 7. Board and reading each gained 244, the same
+delta because they render the same nodes: the form sheet's heading, its five
+labels, the phone consent notice, the Send button and the privacy line.
+Editorial and both no-JS legs are byte-identical, correctly, because the sheet
+lives inside `#corkboard` only.
+
+Superseded, kept for the arithmetic: **1387** board and
 **1814** on the editorial (1406 in reading mode, 1798 with no JS) —
 re-baselined 2026-08-18 across Phases 3 and 5. Phase 3 took the board and
 reading counts down 33: the four old nav labels (About, Services, Portfolio,

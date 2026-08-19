@@ -260,11 +260,48 @@ whole job.
       four strips `aria-hidden` with no `data-zone-stop`, and the trim resolves to 0x0 in
       the column layout automatically because `.corkboard` is already `display:none` there.
 
-- [ ] **Phase 7: The form sheet**  <- NEXT
-      Relocate two doodle stickies, place the form in the freed cork above the contact
-      postcard, retune stop 6, write `privacy.html`.
-- [ ] **Phase 8: Wire Formspree**
-      `https://formspree.io/f/xyegnvzd` in a new `js/form.js`. One test submission.
+- [x] **Phase 7: The form sheet**
+      DONE 2026-08-18. Airplane and chart2 doodles relocated to the open band above the
+      About card. A `.contact-form` paper sheet at `left:120px top:1000px 880x480`
+      `--rot:-0.4deg`, carrying `data-zone-stop="6"`. Two columns for the short fields:
+      Name | Email, then Phone | How Did You Find Me?, the consent notice, then a
+      full-width Project Description textarea, then Send and the privacy link. Fields are
+      `name`, `email`, `phone`, `heard-from`, `project` (minlength 20) plus a `_gotcha`
+      honeypot. New `js/validate.js`, new `privacy.html`, stop 6 retuned to
+      `{ x: 575, y: 1489, w: 980, h: 1050 }`.
+      TWO corrections the executor made, both found by measuring:
+      (1) `index.html`'s CSP carried `form-action 'none'`, which silently refuses to
+      navigate to the Formspree action. Now `form-action 'self' https://formspree.io`.
+      Without this the form would have looked fine and done nothing.
+      (2) the brief's clearance maths compared the new sheet's UNROTATED edges against
+      neighbours' already-rotated measured positions, double-counting margin. At the
+      briefed 900x480 the sheet cleared the About card by 10px, not 40. Resized to
+      880x480 at -0.4deg; measured worst-case clearances are about-card 57.5, postcard
+      43.2, polaroid 46.0, left trim 53.3.
+      Also worth keeping: setting `.value` from script does NOT trip `minlength`, because
+      the spec gates `tooShort` on a dirty value flag that script assignment never sets.
+      Validation tests must drive real typing (CDP `Input.insertText`) or they give a
+      false negative.
+      ONE defect I fixed after the handoff: the executor added a pin on the sheet and a
+      string from it down to the postcard's pin, and the older sticker-to-postcard string
+      now crossed the sheet as well. Two red strings ran straight through the Email label
+      and the description box. Pin 10 moved to the sheet's TOP-RIGHT corner (952, 1024),
+      `[0, 7]` became `[0, 10]` so the sticker's line ends on the form's own pin over open
+      cork, and the form-to-postcard string was dropped entirely: any line between those
+      two pins must cross one sheet or the other, and a string over an input is in the
+      way rather than charming. The postcard keeps its pin unstrung.
+      Verified: type renders at 16.29 CSS px under stop 6 at 1440x900, above the 15px
+      floor; empty submit focuses Name, a bad email focuses Email, a 5-character
+      description focuses Project Description, each with its own message and nothing
+      leaving the machine; `cdp.mjs stops` unchanged; `privacy.html` loads and the form's
+      link reaches it. Tripwires 1387/1814/1406/1798 -> 1694/1814/1713/1798, +244 on the
+      two board-driven renders only.
+
+- [ ] **Phase 8: Wire Formspree**  <- NEXT
+      `https://formspree.io/f/xyegnvzd`. One test submission.
+      **CSP WARNING for this phase:** `index.html`'s CSP still has `connect-src 'none'`,
+      which blocks `fetch`. Wiring a fetch POST requires `connect-src https://formspree.io`
+      or the request dies silently in the console.
 - [ ] **Phase 9: Efficiency and review pass**
       Byte count against the Phase 1 baseline, judges per stop, keyboard walkthrough.
 - [ ] **Phase 10: Deploy to staging, on the owner's say-so only**

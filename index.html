@@ -161,13 +161,23 @@
 
      img-src allows data: because the LQIP placeholders and the neutral
      polaroid film are base64 URIs. connect-src is 'none' because nothing on
-     this page fetches anything, ever.
+     this page fetches anything, ever (still true: Phase 7's form is a plain
+     HTML POST, not a script-driven request; Phase 8's AJAX wiring is what
+     will need to widen this).
+
+     form-action WAS 'none', and Phase 7 is the reason it no longer is. The
+     contact form's no-JS fallback is a real <form method="POST"
+     action="https://formspree.io/f/...">, and form-action 'none' does not
+     merely fail to help that request, it blocks it outright: the browser
+     refuses to navigate to the action URL at all, silently, with nothing in
+     the page to catch or explain it. So the form's own action host joins
+     'self' (the second is for the same-origin GET this page still serves).
 
      NOT AVAILABLE HERE: frame-ancestors and X-Frame-Options are header-only —
      a meta CSP cannot carry frame-ancestors, and meta X-Frame-Options is
      ignored by every browser. Clickjacking protection therefore needs a host
      that can set headers, which Pages is not. Recorded, not solved. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'none'; base-uri 'self'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
 <link rel="canonical" href="https://whittworkstudios.com/">
 <link rel="icon" href="assets/favicon-32.png" type="image/png">
 <link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
@@ -238,7 +248,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=72">
+<link rel="stylesheet" href="css/style.css?v=73">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -324,7 +334,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=28">
+<link rel="preload" as="script" href="js/board.js?v=30">
 <link rel="preload" as="script" href="js/hand.js?v=6">
 </head>
 <body>
@@ -850,6 +860,133 @@
            is still in the tree on purpose. Do not fill this space with
            anything else. -->
 
+      <!-- ================= CONTACT: the intake form sheet =================
+           Sits in the cork the two relocated doodles vacated, directly above
+           the postcard. Reuses .card.index-card rather than inventing a new
+           paper treatment, the same way .about-card and .quote-card are
+           .index-card with only a width/height and a modifier class of their
+           own: that also means it inherits the .board.moving /
+           html.warming shadow-collapse rules for free, with no new
+           selectors needed there.
+
+           SIZE AND ROTATION ARE SMALLER THAN THE ORIGINAL PLAN, and the
+           reason is worth keeping. The plan's own numbers (900x510,
+           left:120 top:1000, --rot:-0.8deg) were checked against a hand
+           calculation that compared this sheet's UNROTATED edges against
+           neighboring papers' ROTATED, already-measured ones, which quietly
+           borrowed clearance that was never really there. Measured for
+           real, with getBoundingClientRect on the live page, both at
+           --rot:0 and at the plan's rotation: the plan's box left only 20
+           board px between this sheet and the about-card above unrotated
+           (10 once both papers' own rotations were applied, against a
+           required 40), and only 40 board px against the founder polaroid
+           unrotated (24 rotated). The nominal 46px and 58px the plan quoted
+           for those same two gaps do not reproduce from the actual
+           coordinates either way, rotated or not; they are the plan's own
+           arithmetic error, not a rounding difference.
+
+           So: 880x480 rather than 900x510, and --rot:-0.4deg rather than
+           -0.8deg, both of which shrink the rotation-driven growth of this
+           sheet's own bounding box on top of shrinking the box itself.
+           Measured after the change, board pixels, worst case (this
+           sheet's own rotation combined with the neighbor's): about-card
+           43px, contact-postcard 43px, founder polaroid 41px, left trim
+           53px. All four checked live, not derived. The two-column layout
+           still fits: the form's own rendered height measures 430px against
+           436px of interior room at this padding, six board px to spare.
+
+           No .hand, .sticky-title, .sticky-note, .pc-*, .email-link,
+           .marker or .pencil-note class anywhere in this sheet: those are
+           exactly js/hand.js's SELECTORS list, and this sheet is
+           deliberately typed, not handwritten, so adding it cannot shift
+           the character counter hand.js seeds every later jittered element
+           from. (Moving the two doodles above didn't touch that counter
+           either: they were never in the selector list, and only their
+           left/top changed.) Verified on a stop-4 screenshot after this
+           landed: the Level Up caption still sits on its tape with margin
+           both ends, unchanged.
+
+           data-zone-stop="6" and no tabindex, the same pattern as the nine
+           other zone papers (see the long comment on js/board.js's
+           delegated click handler): a click anywhere on the sheet's own
+           paper frames Contact, but the handler bails out on
+           a[href], button, input, select, textarea, label, [tabindex]
+           first, so filling a field or clicking Send never fights the
+           camera for the click. -->
+      <section class="card index-card contact-form" data-zone-stop="6" style="left:120px; top:1000px; width:880px; height:480px; --rot:-0.4deg" aria-label="Contact form">
+        <!-- No novalidate: the required/type=email/minlength attributes below
+             ARE the validation, and the browser enforces them on its own
+             whether or not js/validate.js ever runs. That script only rides
+             the "invalid" event each field already fires during the
+             browser's own pre-submit check, to swap the native bubble for an
+             inline message in the sheet's own hand; it does not add or
+             replace any constraint. See js/validate.js's own header comment
+             for why "invalid" and not a "submit" handler with novalidate,
+             which is the more common pattern and the wrong one here: it
+             would drop native enforcement the instant the script failed to
+             run, which is exactly the case this form most needs to survive.
+
+             action + method are real and live NOW, on purpose: Phase 7's
+             own no-JS path IS this form, POSTing straight to Formspree with
+             nothing else in the way. Nothing here submits it early: every
+             verification in this phase runs invalid data on purpose (empty,
+             a bad email, a five-character description), each one is
+             cancelled by the constraints above before a request is ever
+             made, and Phase 8 is the one deliberate real submission. -->
+        <form class="cf" action="https://formspree.io/f/xyegnvzd" method="POST">
+          <p class="typed card-head cf-head">Start a Project</p>
+
+          <div class="cf-row">
+            <div class="cf-field">
+              <label class="cf-label cf-required" for="cf-name">Name</label>
+              <input class="cf-input" type="text" id="cf-name" name="name" autocomplete="name" required>
+              <p class="cf-error" id="cf-name-error" hidden></p>
+            </div>
+            <div class="cf-field">
+              <label class="cf-label cf-required" for="cf-email">Email</label>
+              <input class="cf-input" type="email" id="cf-email" name="email" autocomplete="email" required>
+              <p class="cf-error" id="cf-email-error" hidden></p>
+            </div>
+          </div>
+
+          <div class="cf-row">
+            <div class="cf-field">
+              <label class="cf-label" for="cf-phone">Phone</label>
+              <input class="cf-input" type="tel" id="cf-phone" name="phone" autocomplete="tel">
+            </div>
+            <div class="cf-field">
+              <label class="cf-label" for="cf-heard">How Did You Find Me?</label>
+              <input class="cf-input" type="text" id="cf-heard" name="heard-from">
+            </div>
+          </div>
+
+          <p class="cf-consent">Optional. By giving your phone number, you agree that WhittWorks Studios may call or text you about this inquiry. Message and data rates may apply. Your number is never sold or used for marketing.</p>
+
+          <div class="cf-field cf-field-wide">
+            <label class="cf-label cf-required" for="cf-project">Project Description</label>
+            <textarea class="cf-textarea" id="cf-project" name="project" minlength="20" required></textarea>
+            <p class="cf-error" id="cf-project-error" hidden></p>
+          </div>
+
+          <!-- Honeypot: Formspree's own documented convention treats a field
+               named _gotcha as a spam trap. Hidden from sight (off-screen,
+               1x1, opacity 0, no pointer-events), hidden from assistive
+               technology (aria-hidden on the wrapper), and never focusable
+               (tabindex="-1" on the input itself): the wrapper being
+               aria-hidden is only safe because nothing inside it can still
+               take focus; see js/hand.js's long comment on the same WCAG
+               4.1.2 rule for the failure mode this avoids. -->
+          <div class="cf-hp" aria-hidden="true">
+            <input type="text" id="cf-gotcha" name="_gotcha" tabindex="-1" autocomplete="off">
+          </div>
+
+          <div class="cf-actions">
+            <button class="cf-submit" type="submit">Send</button>
+            <p class="cf-privacy">Read the <a href="privacy.html">Privacy Policy</a>.</p>
+          </div>
+        </form>
+      </section>
+
       <!-- ================= CONTACT: postcard, address side out ================= -->
       <section class="postcard postcard-back contact-postcard" data-zone-stop="6" style="left:310px; top:1530px; --rot:-0.6deg" aria-label="Contact">
         <h2 class="hand pc-head">Have something you want built?</h2>
@@ -897,7 +1034,7 @@
         </svg>
       </aside>
 
-      <aside class="sticky doodle paper-7" style="left:276px; top:1104px; --rot:2.1deg" aria-hidden="true">
+      <aside class="sticky doodle paper-7" style="left:120px; top:115px; --rot:2.1deg" aria-hidden="true">
         <svg viewBox="0 0 200 200" class="ink">
           <path style="--sw:4.2" d="M22 122 L176 44 L98 152 L86 116 Z"/>
           <path style="--sw:2.8" d="M176 44 L86 116"/>
@@ -938,7 +1075,7 @@
         </svg>
       </aside>
 
-      <aside class="sticky doodle paper-3 flip c-green" style="left:620px; top:1120px; --rot:-3deg" aria-hidden="true">
+      <aside class="sticky doodle paper-3 flip c-green" style="left:700px; top:120px; --rot:-3deg" aria-hidden="true">
         <svg viewBox="0 0 200 200" class="ink">
           <path style="--sw:4.4" d="M38 30 L36 164 L174 162"/>
           <path style="--sw:3.4" d="M48 148 L82 118 L102 134 L152 72"/>
@@ -982,7 +1119,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=28"></script>
+<script src="js/board.js?v=30"></script>
 <script src="js/hand.js?v=6"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them
@@ -992,5 +1129,11 @@
      here runs, so it can wait for the parser to finish instead of blocking
      it, and defer preserves it running after the three above regardless. -->
 <script src="js/menu.js?v=1" defer></script>
+<!-- Same reasoning as js/menu.js just above: its own file, so a failure in
+     board.js or hand.js cannot also strand the form's validation, and
+     deferred because it only wires up static markup that is already in the
+     document by the time it runs. It does not know what a "stop" or a
+     "camera" is, only how to read and annotate one form's own validity. -->
+<script src="js/validate.js?v=1" defer></script>
 </body>
 </html>
