@@ -666,12 +666,27 @@
      owner described exactly that, unprompted, as "a brief pause, then a quick
      zoom, then a stutter before it's done". This one is 50% of the way at 50%
      of the time, and never changes speed abruptly. */
+  /* Zooming OUT and zooming IN are not the same problem, so they do not get
+     the same curve.
+
+     Out is cheap: the board is already drawn at the larger size, and the
+     compositor only has to shrink a picture it already holds. The owner
+     described it as one smooth zoom, and it is.
+
+     In is not. It needs a NEW, larger drawing of a 3600x2400 layer before it
+     can show anything, and that allocation lands on the first frame of the
+     move. Starting at the same pace as the exit puts real motion under that
+     spike, which is what he saw: "zoom, click, zoom". FLY_EASE_IN is the same
+     shape with a much lazier opening, 2.3% of the distance in the first 15%
+     of the duration against 4.6%, so the drawing finishes while almost
+     nothing is moving and the eye has nothing to catch on. */
   var FLY_EASE = "cubic-bezier(0.42, 0, 0.58, 1)";
+  var FLY_EASE_IN = "cubic-bezier(0.62, 0, 0.62, 1)";
   var flying = false;
   var flyTimer = null;
 
-  function setFlyTransition(on) {
-    var v = on ? "transform " + FLY_MS + "ms " + FLY_EASE : "";
+  function setFlyTransition(on, ease) {
+    var v = on ? "transform " + FLY_MS + "ms " + (ease || FLY_EASE) : "";
     board.style.transition = v;
     if (floor) floor.style.transition = v;
   }
@@ -790,7 +805,8 @@
     /* Same shadow-stack collapse a scroll gesture gets, for the same reason:
        these are the frames that have to be cheap to draw. */
     markMoving();
-    setFlyTransition(true);
+    /* to.s > from.s is a zoom IN, the direction that has to allocate. */
+    setFlyTransition(true, to.s > from.s ? FLY_EASE_IN : FLY_EASE);
     writeFraming(to.x, to.y, to.s);
 
     board.addEventListener("transitionend", onFlyEnd);
