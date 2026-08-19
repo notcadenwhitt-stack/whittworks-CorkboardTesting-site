@@ -309,6 +309,18 @@
      render-driven) and re-arming from the real elapsed time makes the state
      independent of how slow a frame happens to be. */
   function settle() {
+    /* NEVER restore the detail while a flight is still running. The settle
+       timer is armed when a move BEGINS, so once FLY_MS grew past MOVE_SETTLE
+       this fired mid-flight: at 660ms of flight against a 600ms settle it put
+       the single most expensive frame on the page at about 97% of the way
+       through the move, and the owner saw exactly that, a stutter just before
+       the last sliver of a zoom out. Wait for the landing instead, and let
+       landFlight() refresh lastMove so the full settle is measured from where
+       the board actually stopped. */
+    if (flying) {
+      moveTimer = setTimeout(settle, 80);
+      return;
+    }
     var idle = Date.now() - lastMove;
     if (idle < MOVE_SETTLE) {
       moveTimer = setTimeout(settle, MOVE_SETTLE - idle);
@@ -705,6 +717,10 @@
     if (flyTimer !== null) { clearTimeout(flyTimer); flyTimer = null; }
     board.removeEventListener("transitionend", onFlyEnd);
     setFlyTransition(false);
+    /* Restart the settle clock from the landing, not from the take-off, so the
+       detail comes back a clear interval AFTER the board has stopped rather
+       than partway through the last of the move. */
+    lastMove = Date.now();
     update();
   }
 
