@@ -126,13 +126,25 @@
      Stop 0's four numbers are mirrored by the --first-frame math in the
      inline head script in index.html, which frames the board before this
      file has executed. Retune stop 0 and that copy must move with it. */
+  /* EXPERIMENT (branch smoother-zoom): stops 2 through 5 widened so each one
+     rests at scale 0.75 instead of 0.89-1.00. The board needs a texture of
+     3600 x scale x devicePixelRatio to draw sharply, so dropping the resting
+     scale from 1.00 to 0.75 takes the About framing from about 132MB to 74MB
+     and gives the compositor far less to re-raster mid-flight.
+
+     Stop 6 is deliberately NOT widened. The contact form's labels and inputs
+     are 19 board px, which clear the 15 CSS px legibility floor only because
+     that stop rests at 0.857; at 0.75 they would render at 14.25 and fail it.
+     Contact therefore stays closer than its neighbours on purpose.
+
+     Restore point for the previous framings: tag known-good-zoom-20260819. */
   var STOPS = [
     { x: 1800, y: 1200, w: 3860, h: 2620 },  /* 0 whole board */
     { x: 1830, y: 1070, w: 900,  h: 700 },   /* 1 circular sticker */
-    { x: 926,  y: 803,  w: 1340, h: 900 },   /* 2 about + polaroid */
-    { x: 2745, y: 765,  w: 1050, h: 1000 },  /* 3 services cluster, four stickies */
-    { x: 2800, y: 1600, w: 1420, h: 1000 },  /* 4 work pane: postcard + room below for future products */
-    { x: 1690, y: 1910, w: 1200, h: 1010 },  /* 5 reviews: chad row over annie row */
+    { x: 926,  y: 803,  w: 1785, h: 1200 },  /* 2 about + polaroid */
+    { x: 2745, y: 765,  w: 1260, h: 1200 },  /* 3 services cluster, four stickies */
+    { x: 2800, y: 1600, w: 1704, h: 1200 },  /* 4 work pane: postcard + room below for future products */
+    { x: 1690, y: 1910, w: 1428, h: 1200 },  /* 5 reviews: chad row over annie row */
     /* 6 contact: Phase 7 retuned this to frame the new form sheet AND the
        postcard together, not the postcard alone. Their combined extent is
        NOT the two papers' nominal left/top/width/height added up: both
