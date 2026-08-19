@@ -669,12 +669,15 @@
      0.34-0.75. A third less range is a third fewer thresholds to cross, which
      is the headroom this slower, easier pace is spending.
 
-     THE CEILING IS MEASURED, not guessed. At these framings 600ms is smooth
-     and 750ms brings the clicks back, tested on the owner's own machine. 660
-     is a deliberate step under that edge. If the framings ever tighten again
-     this number has to come down with them, because the two are the same
-     budget spent differently. */
-  var FLY_MS = 660;
+     750 was tried once and seemed to bring the clicks back, which is why this
+     sat at 660 for a while. That reading was wrong: the settle timer was still
+     firing mid-flight then, so at 750ms of flight against a 600ms settle the
+     most expensive frame on the page landed 80% of the way through every move.
+     With that fixed, the duration is free again, and a longer move is also a
+     slower one, which is the jerk itself. If clicks ever genuinely return,
+     check that settle is still refusing to run while flying BEFORE reaching
+     for this number. */
+  var FLY_MS = 750;
   /* A SYMMETRIC ease-in-out. The previous value here, cubic-bezier(0.45, 0,
      0.15, 1), had its second control point at x=0.15, BEFORE the first at
      x=0.45, which back-loads the curve badly: measured, it covered 20% of the
@@ -705,7 +708,7 @@
      20% faster, off-centre peak is what the owner felt as jerky. This one
      peaks at 1.91x at 53%, so it still opens more slowly than the exit, which
      is the point of having its own curve at all, without the surge. */
-  var FLY_EASE_IN = "cubic-bezier(0.50, 0, 0.55, 1)";
+  var FLY_EASE_IN = "cubic-bezier(0.42, 0, 0.58, 1)";
   var flying = false;
   var flyTimer = null;
 
