@@ -341,11 +341,16 @@ a { color: inherit; }
   text-align: center;
 }
 
-/* Shared paper-square chrome for the three top-right controls (help, back,
-   kebab), left as one rule so the trio cannot drift apart in weight or
-   shadow. Each button below sets only what makes it itself: the right
-   offset that spaces it from its neighbor, and a rotation so the row does
-   not read as one machine-milled strip. */
+/* Shared paper chrome for the three top-right controls (help, back, kebab),
+   left as one rule so the trio cannot drift apart in weight or shadow. Each
+   button below sets only what makes it itself: the width (help is a wider
+   paper TAB now that its label reads "Help!" instead of a bare glyph, see
+   .board-help-btn below; back and kebab stay the 42px square this rule
+   defaults to), the right offset that spaces it from its neighbor, and a
+   rotation so the row does not read as one machine-milled strip. top, height,
+   background and box-shadow are shared here on purpose so all three sit on
+   the same baseline with the same paper and the same shadow no matter what
+   width any one of them ends up needing. */
 .board-help-btn,
 .board-back-btn,
 .board-menu-btn {
@@ -397,16 +402,31 @@ html.board-zoomed .board-back-btn { display: flex; }
 
 /* The help control. Visible at every framing -- "how does this work" is a
    fair question from anywhere on the board, not only at rest -- so unlike
-   the back arrow it carries no visibility gate at all. */
+   the back arrow it carries no visibility gate at all.
+
+   Reads "Help!" now instead of a bare "?" glyph, and a word is wider than a
+   glyph: width: auto plus horizontal padding lets the button grow into a
+   paper TAB rather than staying the 42px square its neighbours are, while
+   top, height, background and box-shadow all still come from the shared
+   rule above, so the row keeps one baseline and one paper treatment. Growing
+   is safe in every direction that matters: right stays 118px, so the button
+   only widens LEFTWARD, away from the back control at right:66px, and at
+   1280px wide there is no viewport this pushes any of the three off screen
+   -- measured, the tab's own left edge lands nowhere close to the deskbar
+   strip at that width. */
 .board-help-btn {
   right: 118px;
   transform: rotate(0.3deg);
+  width: auto;
+  padding: 0 16px;
 }
 
 .board-help-icon {
   font-family: var(--display);
-  font-size: 22px;
+  font-size: 18px;
+  letter-spacing: 0.02em;
   line-height: 1;
+  white-space: nowrap;
 }
 
 /* The dropdown itself: a paper sheet hanging under the button, right-aligned
@@ -554,7 +574,19 @@ html.board-zoomed .board-back-btn { display: flex; }
   padding: 24px 32px;
 }
 .welcome-col-text {
-  overflow-y: auto;
+  /* Hidden, not auto. The owner: "I do not want the explanation section to
+     be scrollable, it should be super quick and easy." auto would have
+     quietly grown a scrollbar the moment a future copy edit ran long,
+     which is exactly the failure mode that is easy to miss in a screenshot
+     and easy for a visitor to miss too. hidden instead means an overflow
+     shows up as text CUT OFF at the bottom, something nobody could ship
+     without noticing, so the copy in this column is deliberately kept short
+     enough to fit at 1440x900 and 1280x800 with room to spare rather than
+     relying on scrolling to make room for more. Verified directly: measured
+     scrollHeight against clientHeight for this column at both viewport
+     sizes and confirmed scrollHeight is the smaller of the two, not
+     assumed from a screenshot. */
+  overflow: hidden;
   font-family: var(--typed);
   color: #2b2115;
 }
@@ -604,13 +636,22 @@ html.board-zoomed .board-back-btn { display: flex; }
   color: #4a4234;
 }
 
+/* One line, not a stacked list: three items separated by a middot, the same
+   layout the editorial design's own attribution line already uses. This
+   used to be a <ul>; it is a single <p> now with the three items and their
+   separators as inline children, so the browser wraps it exactly the way it
+   wraps any other run of text -- no flex, no explicit nowrap -- which is
+   what lets it wrap gracefully at 1280px instead of overflowing the column
+   if a translation or a rename ever makes the line too long to hold. */
 .welcome-legal {
   margin: 0;
-  padding: 0;
-  list-style: none;
   font-size: 15px;
+  line-height: 1.6;
 }
-.welcome-legal li { margin: 0 0 6px; }
+.welcome-legal-sep {
+  margin: 0 6px;
+  color: #6b6252;
+}
 .welcome-legal a { color: #2b2115; text-decoration: underline; }
 .welcome-legal a:hover { color: var(--red); }
 /* Terms of Service and Accessibility Statement do not exist yet. Plain,
@@ -630,8 +671,13 @@ html.board-zoomed .board-back-btn { display: flex; }
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fdfbf1;
-  border-left: 1px solid rgba(43, 32, 21, 0.18);
+  /* No background and no border-left here on purpose. This column used to
+     carry its own #fdfbf1, a shade whiter than the panel's own #f4efe2
+     (.welcome-panel, above), plus a hairline divider -- together they read
+     as two tones of paper stapled side by side rather than one sheet. The
+     owner wants one flat colour across the whole panel, so this column now
+     shows the panel's own background straight through, and the divider
+     that used to mark the seam between them is gone with it. */
 }
 .welcome-sketch { width: 100%; height: auto; }
 
@@ -646,6 +692,47 @@ html.board-zoomed .board-back-btn { display: flex; }
   stroke-width: 2.2;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+/* Interior detail: ruled lines, a doodle's screen or bulb, a chart's bars,
+   the form's rule lines and input boxes, the quote card's squiggles. Thinner
+   than .sk-line on purpose, the same way a real pencil presses lighter for
+   detail than for an object's own outline, so a card still reads as one
+   shape first and its contents second. */
+.sk-detail {
+  fill: none;
+  stroke: #2b2115;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* The sticker's ring: thicker than the paper outlines because the real
+   sticker is a die-cut circle with real edge thickness, not a drawn line on
+   flat paper. fill:none, same as every paper here -- the disc inside it
+   (.sk-fill-dark) is what carries the solid colour. */
+.sk-ring {
+  fill: none;
+  stroke: #2b2115;
+  stroke-width: 4;
+}
+/* The two deliberate exceptions to fill:none: the sticker's solid dark
+   middle and the Level Up print, the one dark object on the real board (see
+   the long comment in index.html for why -- the owner's own description of
+   that print's grade). Everything else here is line art. */
+.sk-fill-dark { fill: #2b2115; stroke: none; }
+/* A handful of small filled pins. Solid dots are fine here even though the
+   rule above is fill:none for the papers -- a pin has always been a dot of
+   metal, not an outline, on the real board too. */
+.sk-pin { fill: #2b2115; stroke: none; }
+/* Strings fanning from the sticker. Thin like a pencil stroke, not the
+   board's actual red -- the sketch is graphite throughout, and giving only
+   the strings colour would read as a second material dropped into a pencil
+   drawing rather than as the same hand continuing to draw. */
+.sk-string {
+  fill: none;
+  stroke: #2b2115;
+  stroke-width: 1;
+  stroke-linecap: round;
+  opacity: 0.85;
 }
 .sk-cursor-body { fill: #2b2115; }
 .sketch-click {
@@ -672,7 +759,7 @@ html.board-zoomed .board-back-btn { display: flex; }
    last @keyframes step in the file happens to be, which would read as
    the animation stopping mid-gesture. */
 .sketch-scene { transform: translate(0, 0) scale(1); }
-.sketch-cursor { transform: translate(100px, 46px); opacity: 1; }
+.sketch-cursor { transform: translate(100px, 68px); opacity: 1; }
 .sketch-click { transform: scale(1); opacity: 0; }
 .sketch-glyph { opacity: 0; }
 
@@ -686,15 +773,17 @@ html.board-zoomed .board-back-btn { display: flex; }
 .sketch-click { animation: sketch-click-ripple 7s ease-in-out infinite; }
 .sketch-glyph { animation: sketch-glyph-fade 7s ease-in-out infinite; }
 
-/* The cursor drifts to the About rectangle (0-38%), a click ripple fires
-   there (handled by its own keyframes below), the scene zooms across
-   46-80% below, and the cursor fades out for that stretch rather than
-   sitting on screen at a coordinate the zoomed board no longer agrees
-   with, then returns as the scene scales back out. */
+/* The cursor drifts to the About card (0-38%), a click ripple fires there
+   (handled by its own keyframes below), the scene zooms across 46-80%
+   below, and the cursor fades out for that stretch rather than sitting on
+   screen at a coordinate the zoomed board no longer agrees with, then
+   returns as the scene scales back out. (100, 68) sits inside the About
+   card's own bounds, board x36-108.9 y29.4-74.1 divided by 10, near its
+   bottom-right corner and clear of the ruled lines above it. */
 @keyframes sketch-cursor-move {
   0%, 18%   { transform: translate(300px, 190px); opacity: 1; }
-  38%, 44%  { transform: translate(100px, 46px);  opacity: 1; }
-  50%, 80%  { transform: translate(100px, 46px);  opacity: 0; }
+  38%, 44%  { transform: translate(100px, 68px);  opacity: 1; }
+  50%, 80%  { transform: translate(100px, 68px);  opacity: 0; }
   86%, 100% { transform: translate(300px, 190px); opacity: 1; }
 }
 
@@ -705,12 +794,12 @@ html.board-zoomed .board-back-btn { display: flex; }
 }
 
 /* translate(center) scale(S) translate(-target): the identical composition
-   js/board.js's writeFraming() uses for the real camera, just worked out
-   by hand against this SVG's own 360x240 viewBox and the About
-   rectangle's centre at roughly (73, 38). */
+   js/board.js's writeFraming() uses for the real camera, worked out by hand
+   against this SVG's own 360x240 viewBox and the About card's actual centre:
+   board x360-1089 y294-741 divided by 10 and halved is (72.45, 51.75). */
 @keyframes sketch-zoom {
   0%, 46%   { transform: translate(0, 0) scale(1); }
-  64%, 80%  { transform: translate(180px, 120px) scale(4.5) translate(-73px, -38px); }
+  64%, 80%  { transform: translate(180px, 120px) scale(4.5) translate(-72.45px, -51.75px); }
   100%      { transform: translate(0, 0) scale(1); }
 }
 

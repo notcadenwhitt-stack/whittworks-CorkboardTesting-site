@@ -196,6 +196,11 @@
        (1783, 815), so a pin on this side lets the line arrive over open cork
        and stop at the corner. A pin on the left corner would have dragged that
        same line diagonally across the fields the visitor has to read. */
+    /* 8 contact postcard. It was the FORM's pin until the two swapped places
+       in the contact zone; the postcard moved up into this spot and the form
+       went below, so this pin now sits on the postcard and pin 7 sits on the
+       form. Both still land on paper, which is what matters, but the label
+       was stale and misleading. */
     { x: 952,  y: 1024 }
   ];
 

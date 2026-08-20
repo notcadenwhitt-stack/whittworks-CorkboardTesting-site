@@ -253,7 +253,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=84">
+<link rel="stylesheet" href="css/style.css?v=85">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -339,7 +339,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=55">
+<link rel="preload" as="script" href="js/board.js?v=56">
 <link rel="preload" as="script" href="js/hand.js?v=7">
 </head>
 <body>
@@ -618,10 +618,20 @@
        afterwards. This button is the "at will" half; js/welcome.js owns the
        "once" half. Visible at every framing, unlike the back arrow above,
        because "how does this work" is a question worth being answerable
-       from anywhere on the board. -->
+       from anywhere on the board.
+
+       Reads "Help!" now, not a bare "?" glyph: a question mark alone was too
+       easy to miss among the plain squares beside it. The label stays
+       aria-label="How this site works" rather than "Help!" a second time --
+       aria-label wins the accessible-name computation over visible text, so
+       a screen reader announces the fuller sentence once, not the word
+       "Help!" twice back to back. Because the word is wider than a glyph,
+       this button is no longer a square like its neighbours; see
+       .board-help-btn in css/style.css for the paper-tab treatment that
+       keeps it in the same row without pushing the other two off screen. -->
   <button class="board-help-btn" type="button" aria-haspopup="dialog"
           aria-controls="welcome-panel" aria-label="How this site works">
-    <span class="board-help-icon" aria-hidden="true">?</span>
+    <span class="board-help-icon">Help!</span>
   </button>
   <button class="board-menu-btn" type="button" aria-haspopup="true"
           aria-expanded="false" aria-controls="board-menu" aria-label="Open the menu">
@@ -683,19 +693,23 @@
 
     <div class="welcome-body">
       <div class="welcome-col welcome-col-text">
+        <!-- Cut to the bone on the owner's own instruction: "I do not want
+             the explanation section to be scrollable, it should be super
+             quick and easy." Every sentence below is exactly what he asked
+             for, no more -- see the no-scroll proof for .welcome-col-text
+             below and PROGRESS.md for the measured numbers this copy was
+             cut to hit. -->
         <h2 class="welcome-heading" id="welcome-heading">How This Board Works</h2>
-        <p>Click any piece of paper to look closer. The camera moves to that part
-           of the board and holds there.</p>
-        <p>To come back out, press Escape or use the back arrow at the top right.</p>
-        <p>You can also scroll to travel across the whole board from end to end.</p>
-        <p>The menu at the top right jumps straight to any section.</p>
+        <p>Click any paper to zoom into it.</p>
+        <p>Press Escape, or the back arrow at the top right, to come back out.</p>
+        <p>Scroll to travel across the whole board.</p>
+        <p>The menu at the top right jumps to any section.</p>
 
         <h3 class="welcome-subhead">Privacy and Cookies</h3>
-        <p>This site sets no cookies today and uses no analytics. The only thing
-           it remembers is whether you chose the board or the plain text version,
-           and that is forgotten when you close the tab.</p>
-        <p>Analytics may be added later. If it is, it will only ever run with
-           your permission, and nothing is loaded until you give it.</p>
+        <p>This site sets no cookies and uses no analytics. It only remembers whether
+           you chose the board or the plain text version, and forgets that when you
+           close the tab.</p>
+        <p>Analytics may be added later. It will only run with your permission.</p>
 
         <div class="welcome-consent">
           <button class="welcome-consent-btn" type="button" data-consent="granted">Allow analytics</button>
@@ -704,23 +718,34 @@
         </div>
 
         <h3 class="welcome-subhead">Legal</h3>
-        <ul class="welcome-legal">
-          <li><a href="privacy.html">Privacy Policy</a></li>
-          <li>
-            <!-- Terms of Service does not exist yet. Do not link this to a
-                 page that is not there; when it lands, this becomes
-                 <a href="terms.html">Terms of Service</a>. -->
-            <span class="welcome-legal-pending">Terms of Service</span>
-            <span class="welcome-legal-note">(being written)</span>
-          </li>
-          <li>
-            <!-- Accessibility Statement does not exist yet either. When it
-                 lands, this becomes
-                 <a href="accessibility.html">Accessibility Statement</a>. -->
-            <span class="welcome-legal-pending">Accessibility Statement</span>
-            <span class="welcome-legal-note">(being written)</span>
-          </li>
-        </ul>
+        <!-- One line, not a stacked list: the owner wants the three items
+             read at a glance, separated by a middot the same way the site's
+             own editorial attribution already uses one. Privacy Policy is
+             the only real link; the other two stay plain unlinked text with
+             their "(being written)" note so neither reads as a dead link,
+             and their HTML comments below still mark exactly where each href
+             goes once that page exists. "Accessibility Statement" is
+             shortened to "Accessibility" here only, to keep the line short
+             enough to hold at 1280px; if it still wraps at that width it
+             wraps at a space like any other text, which is fine -- see
+             .welcome-legal in css/style.css for why no nowrap is set. -->
+        <!-- The "(being written)" note is said ONCE underneath rather than
+             after each pending item. Repeating it inline pushed this past the
+             column's width and wrapped the line, which defeats the point of
+             listing these horizontally. -->
+        <p class="welcome-legal">
+          <a href="privacy.html">Privacy Policy</a>
+          <span class="welcome-legal-sep" aria-hidden="true">&middot;</span>
+          <!-- Terms of Service does not exist yet. Do not link this to a
+               page that is not there; when it lands, this becomes
+               <a href="terms.html">Terms of Service</a>. -->
+          <span class="welcome-legal-pending">Terms of Service</span>
+          <span class="welcome-legal-sep" aria-hidden="true">&middot;</span>
+          <!-- Accessibility does not exist yet either. When it lands, this
+               becomes <a href="accessibility.html">Accessibility</a>. -->
+          <span class="welcome-legal-pending">Accessibility</span>
+        </p>
+        <p class="welcome-legal-note">Terms and Accessibility are being written.</p>
       </div>
 
       <div class="welcome-col welcome-col-sketch">
@@ -743,19 +768,34 @@
              spend on decoration for free.
 
              viewBox is 360x240, which is .board's own 3600x2400 divided by
-             10: the papers below sit at 1/10 the real board coordinates
-             js/board.js's own PINS array uses, so the layout reads as a
-             miniature of the actual page rather than an invented one.
+             10: every shape below is the owner's own measured board
+             coordinates for that paper, scaled by exactly 1/10 rather than
+             hand-converted one at a time, which is what keeps the miniature
+             in true proportion to the real board instead of drifting off it
+             shape by shape. It used to be six anonymous rectangles; the
+             owner asked for a drawing someone would recognise as THIS board,
+             so every paper below is at its own real position: the About
+             card, the founder polaroid, the monitor and bulb doodles, the
+             four-sticky services cluster, the circular sticker with its
+             solid dark middle, the chart doodle, the contact postcard and
+             its stamp, the contact form with its rule lines and two input
+             boxes, Chad's polaroid, the quote card with a few squiggles for
+             text, the Level Up print as the one dark filled shape on the
+             board, and the portfolio sticky. A handful of small filled
+             pins and a few thin strings fan out from the sticker, echoing
+             js/board.js's own STRINGS array, because a board with nothing
+             pinned to it would not read as this one.
 
              ANIMATION, CSS keyframes only, transform and opacity only (the
              PERFORMANCE section's own rule): a cursor drifts to the About
-             rectangle, a click ripple fires, the whole .sketch-scene group
-             scales and translates so that rectangle fills the frame --
-             translate(center) scale(S) translate(-target) is the identical
-             composition js/board.js's writeFraming() uses for the real
-             camera -- a crude back-arrow glyph appears top right (echoing
-             the real one added just above), then it scales back out and
-             the cursor resets for the loop.
+             card specifically, top left and the easiest paper to follow, a
+             click ripple fires, the whole .sketch-scene group scales and
+             translates so that card fills the frame -- translate(center)
+             scale(S) translate(-target) is the identical composition
+             js/board.js's writeFraming() uses for the real camera -- a crude
+             back-arrow glyph appears top right (echoing the real one added
+             just above), then it scales back out and the cursor resets for
+             the loop.
 
              REDUCED MOTION: css/style.css already kills every animation on
              the page unconditionally (`*, *::before, *::after { animation:
@@ -772,14 +812,110 @@
              a half-finished one. -->
         <svg class="welcome-sketch" viewBox="0 0 360 240" aria-hidden="true" focusable="false">
           <g class="sketch-scene">
-            <path class="sk-line" d="M9 10 Q180 3 351 11 Q357 120 350 233 Q180 240 8 232 Q2 120 9 10 Z"/>
-            <path class="sk-line" d="M41 17 Q73 14 106 18 Q108 39 105 60 Q73 63 40 59 Q38 38 41 17 Z"/>
-            <path class="sk-line" d="M226 15 Q251 12 277 16 Q279 33 276 50 Q251 53 225 49 Q223 32 226 15 Z"/>
-            <path class="sk-line" d="M271 21 Q294 19 318 23 Q320 39 317 55 Q294 57 270 53 Q268 37 271 21 Z"/>
-            <path class="sk-line" d="M266 106 Q296 103 325 109 Q327 127 324 148 Q296 151 265 146 Q262 127 266 106 Z"/>
-            <path class="sk-line" d="M171 127 Q199 124 228 129 Q230 146 227 167 Q199 170 170 165 Q167 146 171 127 Z"/>
-            <path class="sk-line" d="M49 131 Q76 128 104 133 Q106 152 103 176 Q76 179 47 174 Q45 152 49 131 Z"/>
-            <path class="sk-line" d="M158 60 Q182 55 202 76 Q207 100 183 106 Q159 111 154 87 Q152 65 158 60 Z"/>
+            <!-- the board's own edge, for context -->
+            <path class="sk-line" d="M8 9 Q180 4 352 10 Q357 120 351 231 Q180 238 7 230 Q3 120 8 9 Z"/>
+
+            <!-- About card: board x360-1089 y294-741, wide ruled index card -->
+            <path class="sk-line" d="M37 31 Q73 27 107 32 Q109 52 106 72 Q72 76 38 71 Q35 51 37 31 Z"/>
+            <path class="sk-detail" d="M41 42 L103 41"/>
+            <path class="sk-detail" d="M41 51 L103 50"/>
+            <path class="sk-detail" d="M41 60 L103 60"/>
+            <path class="sk-detail" d="M41 67 L99 67"/>
+
+            <!-- Founder polaroid: board x1060-1449 y430-890, thick white
+                 border drawn as a second inner outline, caption strip as a
+                 line near the bottom rather than a filled band -->
+            <path class="sk-line" d="M107 44 Q126 41 144 45 Q146 66 143 88 Q126 91 108 87 Q105 66 107 44 Z"/>
+            <path class="sk-line" d="M112 50 Q126 48 139 51 Q140 64 139 76 Q126 78 112 76 Q111 64 112 50 Z"/>
+            <path class="sk-detail" d="M109 82 L142 82"/>
+
+            <!-- Monitor doodle: board x1560-1846 y210-515, small sticky with
+                 a screen-and-stand line drawing -->
+            <path class="sk-line" d="M157 22 Q171 20 184 23 Q185 37 183 50 Q170 53 158 50 Q155 36 157 22 Z"/>
+            <path class="sk-detail" d="M163 29 Q171 27 178 29 Q179 34 178 39 Q171 41 163 39 Q162 34 163 29 Z"/>
+            <path class="sk-detail" d="M168 44 L174 44 M171 40 L171 44"/>
+
+            <!-- Bulb doodle: board x2020-2305 y160-464, another small
+                 sticky with a bulb-and-base line drawing -->
+            <path class="sk-line" d="M203 17 Q216 15 230 18 Q231 32 229 45 Q216 48 204 45 Q201 31 203 17 Z"/>
+            <path class="sk-detail" d="M216 24 Q221 22 224 26 Q226 31 221 34 Q216 36 212 32 Q210 27 216 24 Z"/>
+            <path class="sk-detail" d="M214 35 L219 35 M215 38 L218 38"/>
+
+            <!-- Four blue stickies: board x2400-3267 y326-1225, a loose
+                 diagonal cluster -->
+            <path class="sk-line" d="M241 34 Q257 31 273 35 Q275 51 272 66 Q257 69 242 65 Q239 50 241 34 Z"/>
+            <path class="sk-line" d="M278 47 Q294 44 311 48 Q313 63 310 78 Q294 81 279 77 Q276 62 278 47 Z"/>
+            <path class="sk-line" d="M252 74 Q268 71 285 75 Q287 90 284 105 Q268 108 253 104 Q250 89 252 74 Z"/>
+            <path class="sk-line" d="M290 87 Q306 84 322 88 Q324 103 321 118 Q306 121 291 117 Q288 102 290 87 Z"/>
+
+            <!-- Chart doodle: board x2140-2433 y1010-1321, small sticky
+                 with a few bar-chart lines -->
+            <path class="sk-line" d="M215 102 Q229 99 243 103 Q244 117 242 131 Q229 134 216 130 Q213 116 215 102 Z"/>
+            <path class="sk-detail" d="M220 126 L220 112 M226 126 L226 108 M232 126 L232 116 M238 126 L238 110"/>
+
+            <!-- Contact postcard: board x310-1035 y1000-1454, a stamp
+                 square in its top right -->
+            <path class="sk-line" d="M32 102 Q68 98 103 101 Q105 122 102 144 Q67 147 33 143 Q29 122 32 102 Z"/>
+            <path class="sk-detail" d="M88 106 Q94 104 99 106 Q100 111 99 116 Q94 118 89 116 Q87 111 88 106 Z"/>
+
+            <!-- Contact form: board x120-1000 y1500-1980, rule lines and
+                 two input boxes -->
+            <path class="sk-line" d="M13 152 Q56 148 99 151 Q101 175 99 197 Q56 200 14 196 Q10 175 13 152 Z"/>
+            <path class="sk-detail" d="M18 160 L94 159"/>
+            <path class="sk-detail" d="M18 168 L94 167"/>
+            <path class="sk-detail" d="M18 176 L46 176 L46 184 L18 184 Z"/>
+            <path class="sk-detail" d="M52 176 L80 176 L80 184 L52 184 Z"/>
+            <path class="sk-detail" d="M18 191 L58 191"/>
+
+            <!-- Chad's polaroid: board x1119-1503 y1450-1908, second
+                 portrait with its own caption strip -->
+            <path class="sk-line" d="M113 146 Q131 143 150 147 Q151 168 149 190 Q131 193 114 189 Q111 168 113 146 Z"/>
+            <path class="sk-line" d="M117 151 Q131 149 145 152 Q146 165 145 177 Q131 179 118 177 Q116 165 117 151 Z"/>
+            <path class="sk-detail" d="M114 184 L149 184"/>
+
+            <!-- Quote card: board x1600-2311 y1510-1949, ruled card with a
+                 few squiggle lines standing in for text -- no letters -->
+            <path class="sk-line" d="M161 153 Q196 149 230 152 Q233 173 230 194 Q196 197 162 193 Q158 172 161 153 Z"/>
+            <path class="sk-detail" d="M168 163 Q178 160 188 163 Q198 166 208 163 Q215 161 222 164"/>
+            <path class="sk-detail" d="M168 172 Q180 175 192 172 Q204 169 216 173"/>
+            <path class="sk-detail" d="M168 181 Q176 178 186 181 Q196 184 206 181"/>
+
+            <!-- Level Up print: board x2520-3337 y1300-1842, the one dark
+                 filled object on the board -- everything else here is
+                 fill:none -->
+            <path class="sk-fill-dark" d="M253 131 Q293 128 333 132 Q335 158 333 183 Q293 186 254 182 Q250 157 253 131 Z"/>
+
+            <!-- Portfolio sticky: board x3140-3418 y1630-1905 -->
+            <path class="sk-line" d="M315 164 Q328 162 341 165 Q342 177 340 189 Q328 191 316 188 Q313 176 315 164 Z"/>
+
+            <!-- The sticker: board centre 1800,1100, 520 across, a ring
+                 with a solid dark middle -- the disc is the second and
+                 last filled shape here besides the Level Up print. -->
+            <circle class="sk-ring" cx="180" cy="110" r="26"/>
+            <circle class="sk-fill-dark" cx="180" cy="110" r="18"/>
+
+            <!-- Strings, fanning from the sticker's own pin the same way
+                 js/board.js's STRINGS array fans real red string from
+                 [0, 3], [0, 4] and [0, 8]: to the services cluster, to the
+                 Level Up print, and to the contact form. Thin and dark
+                 like every other stroke here, not the board's red -- see
+                 .sk-string in css/style.css for why. -->
+            <path class="sk-string" d="M180 88 L255 36"/>
+            <path class="sk-string" d="M180 88 L288 132"/>
+            <path class="sk-string" d="M180 88 L95 152"/>
+
+            <!-- A handful of pins. Small filled dots are allowed even
+                 though the rule above is fill:none for everything except
+                 the sticker's middle and the Level Up print -- that rule
+                 is about the papers themselves, and a pin has always been
+                 a dot of solid metal, not an outline. Not every pin here
+                 carries a string, the same way the real board keeps a
+                 stray pin or two unstrung. -->
+            <circle class="sk-pin" cx="180" cy="88" r="1.8"/>
+            <circle class="sk-pin" cx="255" cy="36" r="1.8"/>
+            <circle class="sk-pin" cx="288" cy="132" r="1.8"/>
+            <circle class="sk-pin" cx="95" cy="152" r="1.8"/>
+            <circle class="sk-pin" cx="74" cy="32" r="1.8"/>
           </g>
           <!-- The ripple is a CHILD of the cursor group, not a sibling, so
                it inherits the arrow's own drift for free and only ever
@@ -1186,7 +1322,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=55"></script>
+<script src="js/board.js?v=56"></script>
 <script src="js/hand.js?v=7"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them
