@@ -341,13 +341,16 @@ a { color: inherit; }
   text-align: center;
 }
 
-/* The kebab: same paper, same shadow as the deskbar strip so the two read
-   as one piece of hardware, rotated the OTHER way so they do not look like
-   a single machine-aligned bar that got cut in half. */
+/* Shared paper-square chrome for the three top-right controls (help, back,
+   kebab), left as one rule so the trio cannot drift apart in weight or
+   shadow. Each button below sets only what makes it itself: the right
+   offset that spaces it from its neighbor, and a rotation so the row does
+   not read as one machine-milled strip. */
+.board-help-btn,
+.board-back-btn,
 .board-menu-btn {
   position: fixed;
   top: 14px;
-  right: 14px;
   z-index: 51;
   width: 42px;
   height: 42px;
@@ -358,13 +361,53 @@ a { color: inherit; }
   border: 0;
   background: #f4efe2;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
-  transform: rotate(0.6deg);
   cursor: pointer;
   font: inherit;
+  color: var(--ink);
   -webkit-tap-highlight-color: transparent;
 }
 
+/* The kebab: same paper, same shadow as the deskbar strip so the two read
+   as one piece of hardware, rotated the OTHER way so they do not look like
+   a single machine-aligned bar that got cut in half. */
+.board-menu-btn {
+  right: 14px;
+  transform: rotate(0.6deg);
+}
+
 .board-menu-icon { width: 22px; height: 22px; fill: var(--ink); }
+
+/* The back control. HIDDEN BY DEFAULT and revealed only once js/board.js
+   says the camera is actually inside a zone. This is a base rule, not a
+   media query, on purpose: the initial paint (before board.js has run its
+   first writeFraming()) must never show a button whose click would do
+   nothing, and defaulting to hidden means a slow or blocked script fails
+   safe instead of failing loud. See setFar() in js/board.js for how and
+   why board-zoomed gets set on <html> rather than read straight off
+   .board.far -- this element lives in <nav>, a sibling of .viewport, and
+   CSS cannot reach a class on .board from there. */
+.board-back-btn {
+  right: 66px;
+  transform: rotate(-0.5deg);
+  display: none;
+}
+html.board-zoomed .board-back-btn { display: flex; }
+
+.board-back-icon { width: 22px; height: 22px; }
+
+/* The help control. Visible at every framing -- "how does this work" is a
+   fair question from anywhere on the board, not only at rest -- so unlike
+   the back arrow it carries no visibility gate at all. */
+.board-help-btn {
+  right: 118px;
+  transform: rotate(0.3deg);
+}
+
+.board-help-icon {
+  font-family: var(--display);
+  font-size: 22px;
+  line-height: 1;
+}
 
 /* The dropdown itself: a paper sheet hanging under the button, right-aligned
    to it. Hidden by default; js/menu.js is what adds and removes .is-open,
@@ -426,6 +469,255 @@ a { color: inherit; }
     right: 10px;
     min-width: 140px;
   }
+}
+
+/* --- the welcome panel ---------------------------------------------
+   Two elements: a dimmed backdrop and the panel itself. Both start
+   display:none and are opened only by adding .is-open (js/welcome.js),
+   the same on/off-a-class pattern .board-menu already uses above rather
+   than a hidden attribute a second script would have to know about too.
+
+   Both live inside #corkboard in the markup, which is the entire reason
+   neither needs a width query or a no-JS guard here: #corkboard itself is
+   display:none below 901px and without board-live, and a hidden ancestor
+   takes every descendant with it. Board-only, for free. */
+.welcome-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+  /* Flat colour, no blur. This sits directly over the 3600x2400 composited
+     board layer; a backdrop-filter here would force every frame under it
+     to be sampled and re-composited for as long as the panel stays open,
+     which is exactly the cost the PERFORMANCE notes on this build ask to
+     avoid on anything full-screen. A plain rgba wash reads as "dimmed"
+     just as well and costs nothing to paint. */
+  background: rgba(20, 14, 8, 0.55);
+}
+.welcome-backdrop.is-open { display: block; }
+
+.welcome-panel {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 200;
+  transform: translate(-50%, -50%);
+  /* 80% of the viewport, holding the board's own 3:2. --w is computed once
+     so the height below can divide it instead of repeating the same min()
+     expression twice and risking the two drifting out of sync. Capped at
+     100% of the viewport either way, though the min() already guarantees
+     neither term can exceed it. */
+  --w: min(80vw, 80vh * 1.5);
+  width: var(--w);
+  height: calc(var(--w) / 1.5);
+  max-width: 100vw;
+  max-height: 100vh;
+  box-sizing: border-box;
+  background: #f4efe2;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+.welcome-panel.is-open { display: block; }
+
+.welcome-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 2px solid var(--red);
+  border-radius: 2px;
+  background: #f4efe2;
+  color: var(--red);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.welcome-close-icon { width: 15px; height: 15px; }
+
+.welcome-body {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+}
+
+.welcome-col {
+  flex: 1 1 50%;
+  min-width: 0;
+  padding: 24px 32px;
+}
+.welcome-col-text {
+  overflow-y: auto;
+  font-family: var(--typed);
+  color: #2b2115;
+}
+.welcome-col-text p {
+  margin: 0 0 10px;
+  font-size: 16px;
+  line-height: 1.36;
+}
+.welcome-heading {
+  margin: 0 0 12px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.welcome-subhead {
+  margin: 16px 0 8px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.welcome-consent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin-top: 4px;
+}
+.welcome-consent-btn {
+  font-family: var(--typed);
+  font-size: 15px;
+  font-weight: 700;
+  color: #2b2115;
+  background: #fdfbf1;
+  border: 1px solid rgba(43, 32, 21, 0.38);
+  border-radius: 3px;
+  padding: 7px 16px;
+  cursor: pointer;
+}
+.welcome-consent-btn:hover { border-color: var(--red); color: var(--red); }
+.welcome-consent-status {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-style: italic;
+  color: #4a4234;
+}
+
+.welcome-legal {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+}
+.welcome-legal li { margin: 0 0 6px; }
+.welcome-legal a { color: #2b2115; text-decoration: underline; }
+.welcome-legal a:hover { color: var(--red); }
+/* Terms of Service and Accessibility Statement do not exist yet. Plain,
+   visibly unlinked text -- no href, no cursor:pointer, no underline -- so
+   this cannot be mistaken for a dead link. See the HTML comments beside
+   these two in index.html for exactly where each href goes once the page
+   it points to is written. */
+.welcome-legal-pending { color: #2b2115; }
+.welcome-legal-note {
+  margin-left: 4px;
+  font-size: 13px;
+  font-style: italic;
+  color: #6b6252;
+}
+
+.welcome-col-sketch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fdfbf1;
+  border-left: 1px solid rgba(43, 32, 21, 0.18);
+}
+.welcome-sketch { width: 100%; height: auto; }
+
+/* --- the pencil-sketch explainer ------------------------------------
+   Thin, slightly irregular strokes on nothing: every path below is a
+   wobbly quadratic curve through uneven control points rather than a
+   true rectangle, the same cheap trick the doodle stickies on the board
+   itself use for a hand-drawn look without a displacement filter. */
+.sk-line {
+  fill: none;
+  stroke: #2b2115;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sk-cursor-body { fill: #2b2115; }
+.sketch-click {
+  fill: none;
+  stroke: #b3271c;
+  stroke-width: 2.4;
+}
+.sketch-glyph {
+  fill: none;
+  stroke: #2b2115;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* BASE (non-animated) values. These are what an element renders once its
+   animation is gone -- under reduced motion, css/style.css's own global
+   rule near the end of this file sets `animation: none !important` on
+   every element, and a killed animation falls back to whatever the
+   element's ordinary rule says, NOT to a frozen keyframe. So these three
+   are chosen as one coherent composed pose -- board at rest, cursor
+   resting on the paper it is about to click, the ripple and the back
+   glyph both invisible -- rather than left to fall back to whatever the
+   last @keyframes step in the file happens to be, which would read as
+   the animation stopping mid-gesture. */
+.sketch-scene { transform: translate(0, 0) scale(1); }
+.sketch-cursor { transform: translate(100px, 46px); opacity: 1; }
+.sketch-click { transform: scale(1); opacity: 0; }
+.sketch-glyph { opacity: 0; }
+
+/* Motion runs only when nothing above has already ruled it out: the
+   global `@media (prefers-reduced-motion: reduce)` rule near the end of
+   this file overrides `animation` to `none !important` on every element
+   including these four, so no second query is needed in this section --
+   the same one query already covers the whole page. */
+.sketch-scene { animation: sketch-zoom 7s ease-in-out infinite; }
+.sketch-cursor { animation: sketch-cursor-move 7s ease-in-out infinite; }
+.sketch-click { animation: sketch-click-ripple 7s ease-in-out infinite; }
+.sketch-glyph { animation: sketch-glyph-fade 7s ease-in-out infinite; }
+
+/* The cursor drifts to the About rectangle (0-38%), a click ripple fires
+   there (handled by its own keyframes below), the scene zooms across
+   46-80% below, and the cursor fades out for that stretch rather than
+   sitting on screen at a coordinate the zoomed board no longer agrees
+   with, then returns as the scene scales back out. */
+@keyframes sketch-cursor-move {
+  0%, 18%   { transform: translate(300px, 190px); opacity: 1; }
+  38%, 44%  { transform: translate(100px, 46px);  opacity: 1; }
+  50%, 80%  { transform: translate(100px, 46px);  opacity: 0; }
+  86%, 100% { transform: translate(300px, 190px); opacity: 1; }
+}
+
+@keyframes sketch-click-ripple {
+  0%, 36%   { opacity: 0; transform: scale(0.4); }
+  40%       { opacity: 1; transform: scale(1); }
+  50%, 100% { opacity: 0; transform: scale(1.8); }
+}
+
+/* translate(center) scale(S) translate(-target): the identical composition
+   js/board.js's writeFraming() uses for the real camera, just worked out
+   by hand against this SVG's own 360x240 viewBox and the About
+   rectangle's centre at roughly (73, 38). */
+@keyframes sketch-zoom {
+  0%, 46%   { transform: translate(0, 0) scale(1); }
+  64%, 80%  { transform: translate(180px, 120px) scale(4.5) translate(-73px, -38px); }
+  100%      { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes sketch-glyph-fade {
+  0%, 58%   { opacity: 0; }
+  66%, 78%  { opacity: 1; }
+  92%, 100% { opacity: 0; }
 }
 
 /* --- the room and the board --------------------------------------- */

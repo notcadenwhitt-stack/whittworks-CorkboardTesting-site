@@ -572,6 +572,25 @@ coordinate space the pins do, because `js/board.js` draws both from one PINS arr
   cork background, held back because collapsing it during motion risks a visible colour
   shift when it returns.
 
+## WHEN YOU ADD POSTHOG (or any analytics), do these three things
+
+The consent gate is built and wired; the analytics itself is deliberately NOT installed.
+
+1. **Check the gate before loading anything.** `js/welcome.js` exposes
+   `window.wwAnalyticsGranted()`. The provider's snippet must not run at all unless it
+   returns true. Analytics is not "strictly necessary" storage, so under GDPR it needs
+   opt-in BEFORE it loads, not a banner shown alongside it.
+2. **Widen the CSP.** `index.html`'s Content-Security-Policy currently allows
+   `script-src 'self' 'unsafe-inline'` and `connect-src https://formspree.io` and nothing
+   else. PostHog will fail silently until its origin is added to BOTH. Silent is the word:
+   a blocked script logs to the console and does nothing else.
+3. **Update `privacy.html`.** It currently states the site uses no analytics. That
+   sentence becomes false the moment this ships, and the welcome panel says the same
+   thing in its Privacy and Cookies section.
+
+The consent decision lives in `localStorage` under `ww-analytics`, values `granted` or
+`denied`, and the panel shows and lets a visitor change their current choice.
+
 ## Waiting on the owner
 
 - The real logo art. The sticker ships the interim `W` from `assets/favicon.svg`

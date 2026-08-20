@@ -253,7 +253,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=83">
+<link rel="stylesheet" href="css/style.css?v=84">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -339,7 +339,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=54">
+<link rel="preload" as="script" href="js/board.js?v=55">
 <link rel="preload" as="script" href="js/hand.js?v=7">
 </head>
 <body>
@@ -595,6 +595,34 @@
        the menu rather than the title strip. Both children are position:fixed
        in their own right, so this wrapper adds a landmark and nothing else. -->
   <nav class="board-nav" aria-label="Primary">
+  <!-- Owner's own words: "we may need a back arrow in the top right portion
+       that backs people out instead of the escape button because people are
+       stupid." Same paper-square treatment as the kebab so the row reads as
+       one strip of hardware. data-stop="0" is the whole of the wiring:
+       js/board.js's nav-link handler already knows how to drive goToStop
+       from that attribute, widened from a[data-stop] to [data-stop] so a
+       plain <button> qualifies without a second, parallel handler.
+       Visibility is NOT a class this file invents. js/board.js already sets
+       .far on #board below FAR_SCALE, which is exactly the whole-board
+       framing this button would do nothing at; css/style.css mirrors that
+       one flag onto <html> (see setFar()'s comment in js/board.js for why a
+       mirror is needed at all) and hides this button until it flips. -->
+  <button class="board-back-btn" type="button" data-stop="0" aria-label="Back to the whole board">
+    <svg class="board-back-icon" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+      <path d="M23 9 L12 20 L23 31" fill="none" stroke="currentColor" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 20 L31 20" fill="none" stroke="currentColor" stroke-width="4.4" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <!-- The owner asked for the board to explain itself once, on the first
+       visit, and to let a visitor bring that explanation back at will
+       afterwards. This button is the "at will" half; js/welcome.js owns the
+       "once" half. Visible at every framing, unlike the back arrow above,
+       because "how does this work" is a question worth being answerable
+       from anywhere on the board. -->
+  <button class="board-help-btn" type="button" aria-haspopup="dialog"
+          aria-controls="welcome-panel" aria-label="How this site works">
+    <span class="board-help-icon" aria-hidden="true">?</span>
+  </button>
   <button class="board-menu-btn" type="button" aria-haspopup="true"
           aria-expanded="false" aria-controls="board-menu" aria-label="Open the menu">
     <svg class="board-menu-icon" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
@@ -615,6 +643,159 @@
     <li><a href="#" data-stop="0">Whole Board</a></li>
   </ul>
   </nav>
+
+  <!-- ==================================================================
+       THE WELCOME PANEL
+       ==================================================================
+       "Super basic and bland" on purpose, the owner's own words for the
+       content side of this. It is an instruction sheet, not another piece
+       of photographed paper, which is why it is plain off-white chrome
+       (the same #f4efe2 family .deskbar and the kebab already use) instead
+       of a torn index card.
+
+       Two elements, not one, because the dim-behind-the-board effect and
+       the panel itself have different jobs and different z-indexes: the
+       backdrop reads the board as inactive, the panel is the thing a
+       visitor actually reads and acts on. js/welcome.js owns both --
+       opening on a first visit (localStorage, wrapped in try/catch the same
+       way js/peek.js wraps its own key, because Safari private mode throws
+       on access and a storage failure must not cost the panel), reopening
+       from the help button above, and closing from the X, Escape, or a
+       click on the dimmed backdrop.
+
+       Both live inside #corkboard on purpose and nowhere else. That is the
+       entire mechanism that keeps this board-only: below 901px, or with no
+       JS, #corkboard is display:none and drags every descendant down with
+       it, so this needs no width query or no-JS guard of its own -- it
+       inherits the same gate the rest of the board furniture already
+       answers to. -->
+  <div class="welcome-backdrop" id="welcome-backdrop" aria-hidden="true"></div>
+  <div class="welcome-panel" id="welcome-panel" role="dialog" aria-modal="true"
+       aria-labelledby="welcome-heading" tabindex="-1">
+    <!-- A red X in a box, var(--red), the same red every other alert mark
+         on this page already uses (the required-field asterisk, the form's
+         error text). -->
+    <button class="welcome-close" type="button" aria-label="Close">
+      <svg class="welcome-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <div class="welcome-body">
+      <div class="welcome-col welcome-col-text">
+        <h2 class="welcome-heading" id="welcome-heading">How This Board Works</h2>
+        <p>Click any piece of paper to look closer. The camera moves to that part
+           of the board and holds there.</p>
+        <p>To come back out, press Escape or use the back arrow at the top right.</p>
+        <p>You can also scroll to travel across the whole board from end to end.</p>
+        <p>The menu at the top right jumps straight to any section.</p>
+
+        <h3 class="welcome-subhead">Privacy and Cookies</h3>
+        <p>This site sets no cookies today and uses no analytics. The only thing
+           it remembers is whether you chose the board or the plain text version,
+           and that is forgotten when you close the tab.</p>
+        <p>Analytics may be added later. If it is, it will only ever run with
+           your permission, and nothing is loaded until you give it.</p>
+
+        <div class="welcome-consent">
+          <button class="welcome-consent-btn" type="button" data-consent="granted">Allow analytics</button>
+          <button class="welcome-consent-btn" type="button" data-consent="denied">No thanks</button>
+          <p class="welcome-consent-status" id="welcome-consent-status" role="status"></p>
+        </div>
+
+        <h3 class="welcome-subhead">Legal</h3>
+        <ul class="welcome-legal">
+          <li><a href="privacy.html">Privacy Policy</a></li>
+          <li>
+            <!-- Terms of Service does not exist yet. Do not link this to a
+                 page that is not there; when it lands, this becomes
+                 <a href="terms.html">Terms of Service</a>. -->
+            <span class="welcome-legal-pending">Terms of Service</span>
+            <span class="welcome-legal-note">(being written)</span>
+          </li>
+          <li>
+            <!-- Accessibility Statement does not exist yet either. When it
+                 lands, this becomes
+                 <a href="accessibility.html">Accessibility Statement</a>. -->
+            <span class="welcome-legal-pending">Accessibility Statement</span>
+            <span class="welcome-legal-note">(being written)</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="welcome-col welcome-col-sketch">
+        <!-- ==============================================================
+             THE PENCIL-SKETCH EXPLAINER
+             ==============================================================
+             The owner's own description: "an animation of a pencil drawing
+             mouse clicking around a basic pencil drawing of the website...
+             easy and cheap sketches... a mouse clicking a section and then
+             it zooming in, then an explanation that they click esc to back
+             out of it." One inline SVG, nothing photographed, nothing
+             imported: every shape below is a wobbly hand-authored path,
+             the same technique the doodle stickies on the board itself use
+             (see .sticky.doodle in index.html) of drawing a curve through
+             slightly uneven control points rather than a mathematically
+             true rectangle. No feTurbulence filter here on purpose --
+             those cost a rasterisation pass each, the exact thing the
+             PERFORMANCE section of this build asked to be careful about,
+             and a panel that only opens at idle is still not a reason to
+             spend on decoration for free.
+
+             viewBox is 360x240, which is .board's own 3600x2400 divided by
+             10: the papers below sit at 1/10 the real board coordinates
+             js/board.js's own PINS array uses, so the layout reads as a
+             miniature of the actual page rather than an invented one.
+
+             ANIMATION, CSS keyframes only, transform and opacity only (the
+             PERFORMANCE section's own rule): a cursor drifts to the About
+             rectangle, a click ripple fires, the whole .sketch-scene group
+             scales and translates so that rectangle fills the frame --
+             translate(center) scale(S) translate(-target) is the identical
+             composition js/board.js's writeFraming() uses for the real
+             camera -- a crude back-arrow glyph appears top right (echoing
+             the real one added just above), then it scales back out and
+             the cursor resets for the loop.
+
+             REDUCED MOTION: css/style.css already kills every animation on
+             the page unconditionally (`*, *::before, *::after { animation:
+             none !important }`), so nothing here needs its own reduced-
+             motion query. What matters is what is LEFT once the animation
+             is gone: an element with animation:none renders whatever its
+             own base rule says, not a frozen keyframe, so the base
+             transform/opacity on .sketch-scene, .sketch-cursor,
+             .sketch-click and .sketch-glyph below are deliberately set to
+             one coherent pose -- board at rest, cursor resting on the
+             paper it is about to click, ripple and glyph both invisible --
+             rather than left to whatever the last keyframe in the file
+             happens to be. That is the "sensible still frame" rather than
+             a half-finished one. -->
+        <svg class="welcome-sketch" viewBox="0 0 360 240" aria-hidden="true" focusable="false">
+          <g class="sketch-scene">
+            <path class="sk-line" d="M9 10 Q180 3 351 11 Q357 120 350 233 Q180 240 8 232 Q2 120 9 10 Z"/>
+            <path class="sk-line" d="M41 17 Q73 14 106 18 Q108 39 105 60 Q73 63 40 59 Q38 38 41 17 Z"/>
+            <path class="sk-line" d="M226 15 Q251 12 277 16 Q279 33 276 50 Q251 53 225 49 Q223 32 226 15 Z"/>
+            <path class="sk-line" d="M271 21 Q294 19 318 23 Q320 39 317 55 Q294 57 270 53 Q268 37 271 21 Z"/>
+            <path class="sk-line" d="M266 106 Q296 103 325 109 Q327 127 324 148 Q296 151 265 146 Q262 127 266 106 Z"/>
+            <path class="sk-line" d="M171 127 Q199 124 228 129 Q230 146 227 167 Q199 170 170 165 Q167 146 171 127 Z"/>
+            <path class="sk-line" d="M49 131 Q76 128 104 133 Q106 152 103 176 Q76 179 47 174 Q45 152 49 131 Z"/>
+            <path class="sk-line" d="M158 60 Q182 55 202 76 Q207 100 183 106 Q159 111 154 87 Q152 65 158 60 Z"/>
+          </g>
+          <!-- The ripple is a CHILD of the cursor group, not a sibling, so
+               it inherits the arrow's own drift for free and only ever
+               needs its own scale/opacity keyframes -- one fewer pair of
+               coordinates to keep in sync by hand. -->
+          <g class="sketch-cursor">
+            <path class="sk-cursor-body" d="M0 0 L1 22 L6 17 L10 27 L14 25 L10 15 L18 15 Z"/>
+            <g class="sketch-click">
+              <circle cx="9" cy="4" r="9"/>
+            </g>
+          </g>
+          <path class="sketch-glyph" d="M330 16 L317 24 L330 32 M317 24 L340 24"/>
+        </svg>
+      </div>
+    </div>
+  </div>
 
   <div class="viewport">
     <!-- The backstop. Solid colour only, so the compositor never has to
@@ -1005,7 +1186,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=54"></script>
+<script src="js/board.js?v=55"></script>
 <script src="js/hand.js?v=7"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them
@@ -1022,5 +1203,13 @@
      "camera" is, only how to read and annotate one form's own validity. -->
 <script src="js/validate.js?v=1" defer></script>
 <script src="js/form.js?v=1" defer></script>
+<!-- Same reasoning as js/menu.js and js/validate.js above: its own file, so
+     a failure here cannot strand the camera or the form, and deferred
+     because it only wires up the welcome panel's already-parsed markup. It
+     is the last of the five deferred scripts to run, which is fine: nothing
+     above it depends on the panel existing yet, and the panel's own
+     auto-open on a first visit only needs #corkboard's computed display,
+     which is settled well before any script runs at all. -->
+<script src="js/welcome.js?v=1" defer></script>
 </body>
 </html>

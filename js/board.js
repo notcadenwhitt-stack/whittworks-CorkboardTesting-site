@@ -490,6 +490,16 @@
     if (far === isFar) return;   /* only touch the DOM when it actually flips */
     isFar = far;
     board.classList.toggle("far", far);
+    /* The back-to-whole-board button lives in <nav>, a sibling of .viewport
+       rather than a descendant of #board, so css/style.css cannot reach
+       .board.far from there directly. Mirrored onto <html> the same way
+       markMoving() already mirrors .board.moving as board-moving-scene for
+       .viewport::after, an ancestor with the identical problem. Named for
+       the opposite condition on purpose -- board-zoomed, not board-far --
+       because the button's own default in CSS is hidden, and it is easier
+       to reason about "show it while this class says zoomed in" than
+       "show it while that OTHER class is absent". */
+    document.documentElement.classList.toggle("board-zoomed", !far);
   }
 
   function writeFraming(x, y, s) {
@@ -886,11 +896,15 @@
     flyTimer = setTimeout(landFlight, FLY_MS + 150);
   }
 
-  /* Nav links jump the camera to a stop. Selector widened from
-     ".deskbar a[data-stop]" so this also drives the kebab dropdown's
-     links now that they live outside .deskbar; nothing else in the
+  /* Nav links jump the camera to a stop. Selector widened again, this time
+     from "a[data-stop]" to plain "[data-stop]", so the new back-to-whole-
+     board button qualifies without a second, parallel handler: it is a
+     <button>, not an <a>, and needed nothing else changed to work here.
+     e.preventDefault() is a no-op on a <button type="button"> -- it has no
+     default action to cancel -- so widening the selector cost nothing on
+     the anchors either. Checked before adding this: nothing else in the
      document carries data-stop. */
-  document.querySelectorAll("a[data-stop]").forEach(function (link) {
+  document.querySelectorAll("[data-stop]").forEach(function (link) {
     link.addEventListener("click", function (e) {
       e.preventDefault();
       goToStop(parseInt(link.getAttribute("data-stop"), 10));
@@ -978,11 +992,19 @@
      handler that has already fired, this handler instead checks the
      menu's own open/closed state -- aria-expanded is the flag menu.js
      already maintains for exactly this -- and does nothing while the menu
-     is open, leaving menu.js's own handler to close it uncontested. */
+     is open, leaving menu.js's own handler to close it uncontested.
+
+     js/welcome.js's welcome panel is the identical problem by the same
+     shape: it also owns an Escape key to close itself, and it is also
+     wired up later than this handler, so the same standing-down check is
+     extended here rather than raced a second time. .is-open is the class
+     js/welcome.js toggles on the panel itself for exactly this read. */
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
     var menuBtn = document.querySelector(".board-menu-btn");
     if (menuBtn && menuBtn.getAttribute("aria-expanded") === "true") return;
+    var welcomePanel = document.getElementById("welcome-panel");
+    if (welcomePanel && welcomePanel.classList.contains("is-open")) return;
     goToStop(0);
   });
 
