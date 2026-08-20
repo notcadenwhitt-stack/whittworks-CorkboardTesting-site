@@ -579,13 +579,15 @@ html.board-zoomed .board-back-btn { display: flex; }
   min-height: 0;
 }
 
-/* The Legal footer: full width, under both columns, reading from the
-   bottom-left corner. It was inside the left text column, which put it in the
-   middle of the panel rather than along the bottom where the owner wanted it. */
+/* The Legal footer: full width, under both columns, sitting in the panel's
+   bottom-RIGHT corner. It started inside the left text column, which put it
+   in the middle of the panel; it then went bottom-left, and the owner moved
+   it right. Right-aligned it also sits under the sketch rather than under the
+   instructions, which leaves the text column's own lower edge clean. */
 .welcome-footer {
   flex: 0 0 auto;
   padding: 0 32px 26px;
-  text-align: left;
+  text-align: right;
 }
 .welcome-footer .welcome-subhead { margin-top: 0; }
 

@@ -512,8 +512,23 @@
     var vh = window.innerHeight;
     setFar(s);
 
-    /* keep the camera on the cork: clamp view to board bounds */
-    var BW = 3600, BH = 2400;
+    /* Keep the camera on the cork: clamp the view to the board's bounds.
+
+       READ THESE FROM THE ELEMENT. They were hardcoded 3600x2400, which is
+       what .board DECLARES, but the element is box-sizing: border-box, so
+       that figure INCLUDES the walnut frame. The cork itself, which is the
+       padding box the papers are positioned in, is only 3408x2208.
+
+       The consequence was visible: at the whole-board framing the clamp put
+       the camera's centre at 3600/2 = 1800 when the cork's real centre is
+       3408/2 = 1704, so the board sat 96 board pixels, about 33 on screen,
+       up and to the left of the viewport's middle while the welcome panel
+       beside it was perfectly centred. The owner saw the two disagree.
+
+       clientWidth and clientHeight ARE the padding box, so this now tracks
+       whatever the frame does; thickening it again cannot reopen this. */
+    var BW = board.clientWidth || 3408;
+    var BH = board.clientHeight || 2208;
     var visW = vw / s, visH = vh / s;
     if (visW < BW) { x = Math.max(visW / 2, Math.min(BW - visW / 2, x)); }
     else { x = BW / 2; }
