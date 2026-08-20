@@ -584,11 +584,29 @@ html.board-zoomed .board-back-btn { display: flex; }
    in the middle of the panel; it then went bottom-left, and the owner moved
    it right. Right-aligned it also sits under the sketch rather than under the
    instructions, which leaves the text column's own lower edge clean. */
+/* Fine print. The consent buttons above are the part a visitor acts on; this
+   is the disclosure sitting behind them, so it is set at the size terms-of-
+   service copy is normally set at rather than at body size. Small, not
+   illegible: it still has to be readable by anyone who chooses to read it. */
+.welcome-fineprint {
+  margin-top: 10px;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  opacity: 0.78;
+  max-width: 46ch;
+}
+
 .welcome-footer {
   flex: 0 0 auto;
   padding: 0 32px 26px;
-  text-align: right;
+  /* flex-end rather than text-align:right, so the block inside shrink-wraps to
+     the width of the links. text-align on its own would leave the h3 spanning
+     the panel's full width, and centring it there would put "Legal" in the
+     middle of the panel rather than over the thing it heads. */
+  display: flex;
+  justify-content: flex-end;
 }
+.welcome-footer-block { text-align: center; }
 .welcome-footer .welcome-subhead { margin-top: 0; }
 
 .welcome-col {
@@ -653,8 +671,10 @@ html.board-zoomed .board-back-btn { display: flex; }
 .welcome-consent-btn:hover { border-color: var(--red); color: var(--red); }
 .welcome-consent-status {
   flex-basis: 100%;
-  margin: 2px 0 0;
-  font-size: 14px;
+  margin: 3px 0 0;
+  /* Feedback on the choice, not a headline: sized with the fine print under
+     it so the loudest thing in this block stays the two buttons. */
+  font-size: 0.74rem;
   font-style: italic;
   color: #4a4234;
 }

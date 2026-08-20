@@ -276,7 +276,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=89">
+<link rel="stylesheet" href="css/style.css?v=92">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -733,16 +733,24 @@
         <p>The menu at the top right jumps to any section.</p>
 
         <h3 class="welcome-subhead">Privacy and Cookies</h3>
-        <p>This site sets no cookies and uses no analytics. It only remembers whether
-           you chose the board or the plain text version, and forgets that when you
-           close the tab.</p>
-        <p>Analytics may be added later. It will only run with your permission.</p>
 
+        <!-- The choice comes FIRST and the explanation sits under it in fine
+             print, on the owner's ask: "Just a simple allow cookies or deny
+             and then this can be under in small font." That is also the order
+             that actually respects the decision, since nothing loads until a
+             visitor makes one, so the buttons are the point of this section
+             and the paragraph is the disclosure behind it. -->
         <div class="welcome-consent">
-          <button class="welcome-consent-btn" type="button" data-consent="granted">Allow analytics</button>
-          <button class="welcome-consent-btn" type="button" data-consent="denied">No thanks</button>
+          <button class="welcome-consent-btn" type="button" data-consent="granted">Allow cookies</button>
+          <button class="welcome-consent-btn" type="button" data-consent="denied">Deny</button>
           <p class="welcome-consent-status" id="welcome-consent-status" role="status"></p>
         </div>
+
+        <p class="welcome-fineprint">This site sets no cookies and uses no analytics
+           today. It only remembers whether you chose the board or the plain text
+           version, and forgets that when you close the tab. Analytics may be added
+           later; nothing loads unless you allow it here, and you can change your
+           answer any time from the Help button.</p>
 
       </div>
 
@@ -945,6 +953,11 @@
            the full width under both columns and reads left to right from
            the bottom-left corner. -->
       <div class="welcome-footer">
+        <!-- The heading and the line share a shrink-wrapped block so "Legal"
+             can centre over the links themselves rather than over the panel's
+             whole width, which is what makes it read as a header for them
+             instead of a stray word floating above. -->
+        <div class="welcome-footer-block">
         <h3 class="welcome-subhead">Legal</h3>
         <!-- One line, not a stacked list: the owner wants the three items
              read at a glance, separated by a middot the same way the site's
@@ -957,10 +970,6 @@
              enough to hold at 1280px; if it still wraps at that width it
              wraps at a space like any other text, which is fine -- see
              .welcome-legal in css/style.css for why no nowrap is set. -->
-        <!-- The "(being written)" note is said ONCE underneath rather than
-             after each pending item. Repeating it inline pushed this past the
-             column's width and wrapped the line, which defeats the point of
-             listing these horizontally. -->
         <p class="welcome-legal">
           <a href="privacy.html">Privacy Policy</a>
           <span class="welcome-legal-sep" aria-hidden="true">&middot;</span>
@@ -973,7 +982,7 @@
                becomes <a href="accessibility.html">Accessibility</a>. -->
           <span class="welcome-legal-pending">Accessibility</span>
         </p>
-        <p class="welcome-legal-note">Terms and Accessibility are being written.</p>
+        </div>
       </div>
   </div>
 
