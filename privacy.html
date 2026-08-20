@@ -35,7 +35,7 @@
      js/hand.js, or any board markup: there is no camera here and nothing to
      drive one, so it is plain, typeset HTML the same way the home page is
      for a visitor with scripting off. -->
-<link rel="stylesheet" href="css/style.css?v=104">
+<link rel="stylesheet" href="css/style.css?v=105">
 <link rel="stylesheet" href="css/editorial.css?v=5">
 
 <!-- The handful of rules the editorial design does not already have, for a
@@ -117,6 +117,31 @@
       kind.</p>
     </section>
 
+    <!-- Added because the site stores three values in the browser and this
+         page described none of them. The welcome panel on the home page
+         carries the short version; this is the full one. Keep the two in
+         step: if a key is added, renamed, or moved between sessionStorage
+         and localStorage in js/peek.js or js/welcome.js, both this section
+         and .welcome-fineprint in index.html have to say so. -->
+    <section class="band policy-band" aria-labelledby="storage-title">
+      <h2 class="band-label" id="storage-title">What Your Browser Stores</h2>
+      <p>This site sets no cookies. It keeps three small values in your own browser
+         instead. None of them are sent anywhere, none are readable by another site,
+         and none identify you.</p>
+      <p>The first records whether you chose the cork board or the plain text
+         version. It is kept for that tab only and is discarded the moment you
+         close it.</p>
+      <p>The second records that you have already seen the welcome panel, so it
+         does not reappear on every visit. It stays until you clear your browser
+         data.</p>
+      <p>The third records your answer to the analytics question. It also stays
+         until you clear your browser data, or until you change it from the Help
+         button on the home page.</p>
+      <p>No analytics or tracking scripts run on this site today. If any are ever
+         added they will load only after you have allowed them, and this page will
+         say so before that happens.</p>
+    </section>
+
     <section class="band policy-band" aria-labelledby="deletion-title">
       <h2 class="band-label" id="deletion-title">Requesting Deletion</h2>
       <p>To ask that a submission be deleted, email
@@ -128,7 +153,7 @@
   <footer class="site-footer">
     <div class="footer-meta">
       <p class="meta">&copy; 2026 WhittWorks Studios</p>
-      <p class="meta meta-end">Last updated 18 August 2026</p>
+      <p class="meta meta-end">Last updated 20 August 2026</p>
     </div>
   </footer>
 

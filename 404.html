@@ -7,6 +7,17 @@
 <meta name="robots" content="noindex, follow">
 <meta name="theme-color" content="#2b2119">
 
+<!-- The other two pages carry a policy and this one did not, which is
+     backwards: GitHub Pages serves this file for every unmatched path under
+     the domain, so it is the page that scanners probing for /wp-login.php
+     actually reach. It is also the easiest page on the site to lock down,
+     because it runs no script at all -- hence script-src 'none' rather than
+     the home page's 'self' 'unsafe-inline'. Everything it does need is
+     first-party: the two woff2 files and the favicons, plus the inline
+     style block and the data-URI grain inside it. connect-src and
+     form-action are 'none' because there is nothing here to send anywhere. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'none'; connect-src 'none'; base-uri 'self'; form-action 'none'; object-src 'none'">
+
 <!-- ==================================================================
      THE 404
      ==================================================================

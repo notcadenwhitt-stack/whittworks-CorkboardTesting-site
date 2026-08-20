@@ -276,7 +276,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=104">
+<link rel="stylesheet" href="css/style.css?v=105">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -774,11 +774,22 @@
           <button class="welcome-consent-btn" type="button" data-consent="denied" aria-pressed="false">Deny</button>
         </div>
 
+        <!-- ACCURATE, and it was not before. This used to say the site "only
+             remembers whether you chose the board or the plain text version,
+             and forgets that when you close the tab". Only the first of those
+             three keys behaves that way: js/peek.js puts ww-board-open in
+             sessionStorage, but js/welcome.js writes ww-welcome-seen and
+             ww-analytics to localStorage, which outlive the tab and were
+             disclosed nowhere. A privacy notice that under-reports what is
+             stored is the one kind of copy that has to be exact, so all three
+             are named here and privacy.html carries the longer version. -->
         <p class="welcome-fineprint">This site sets no cookies and uses no analytics
-           today. It only remembers whether you chose the board or the plain text
-           version, and forgets that when you close the tab. Analytics may be added
-           later; nothing loads unless you allow it here, and you can change your
-           answer any time from the Help button.</p>
+           today. Your browser remembers three things: which version you chose,
+           board or plain text, which is dropped when you close the tab; that you
+           have seen this panel; and your answer below. The last two stay until you
+           clear your browser data. Analytics may be added later; nothing loads
+           unless you allow it here, and you can change your answer any time from
+           the Help button.</p>
         </div>
 
       </div>
