@@ -408,7 +408,7 @@ html.board-zoomed .board-back-btn { display: flex; }
    dots; a stroked outline at the same box reads lighter than a filled one,
    so the arrow gets two more pixels to sit at the same visual weight as the
    controls either side of it. */
-.board-back-icon { width: 24px; height: 24px; }
+.board-back-icon { width: 26px; height: 26px; }
 
 /* The help control. Visible at every framing -- "how does this work" is a
    fair question from anywhere on the board, not only at rest -- so unlike
@@ -774,16 +774,25 @@ html.board-zoomed .board-back-btn { display: flex; }
   cursor: pointer;
 }
 .welcome-consent-btn:hover { border-color: var(--red); color: var(--red); }
-.welcome-col-text p.welcome-consent-status,
-.welcome-consent-status {
-  flex-basis: 100%;
-  margin: 3px 0 0;
-  /* Feedback on the choice, not a headline: sized with the fine print under
-     it so the loudest thing in this block stays the two buttons. */
-  font-size: 11px;
-  font-style: italic;
-  color: #4a4234;
+
+/* THE CHOICE, SHOWN AS SHADING. This replaced a sentence under the buttons
+   that spelled the same thing out in words. Gentle on purpose: a fill a
+   couple of steps darker than the button's own paper, a firmer border, and
+   an inset line along the top so the chosen one reads as pressed in rather
+   than as merely tinted. Nothing here is loud enough to compete with the
+   two labels.
+
+   Colour is not the only signal. The inset shadow gives the state a shape
+   as well as a hue, which matters for anyone who cannot separate the two
+   fills, and aria-pressed carries it to a screen reader regardless. */
+.welcome-consent-btn.is-chosen {
+  background: #e6dcc4;
+  border-color: rgba(43, 32, 21, 0.62);
+  box-shadow: inset 0 1px 2px rgba(43, 32, 21, 0.22);
 }
+/* Hover must not wipe out the chosen fill -- without this the shading
+   disappears under the pointer, which reads as the choice being lost. */
+.welcome-consent-btn.is-chosen:hover { background: #e6dcc4; }
 
 /* One line, not a stacked list: three items separated by a middot, the same
    layout the editorial design's own attribution line already uses. This

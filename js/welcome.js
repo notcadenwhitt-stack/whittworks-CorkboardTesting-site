@@ -104,19 +104,27 @@
        // load it here, and only here. Nothing above this line loads
        // anything today -- see the long comment above this block. */
 
-  var statusEl = document.getElementById("welcome-consent-status");
+  /* The choice used to be reported as a sentence under the buttons. It now
+     shows as shading ON the chosen button, which the owner asked for and
+     which is also less to read: the answer lives on the control that set
+     it rather than in a line of prose restating it.
+
+     aria-pressed carries the same fact to a screen reader, and it is the
+     right attribute rather than a visually-hidden status line, because
+     these two buttons ARE a two-state choice and aria-pressed is how that
+     is spelled. It also means the state is announced when a visitor tabs
+     onto the button later, not only in the moment it changed -- which the
+     old role="status" line could not do. */
+  var consentBtns = panel.querySelectorAll(".welcome-consent-btn");
   function renderConsentStatus() {
-    if (!statusEl) return;
     var v = getConsent();
-    if (v === "granted") {
-      statusEl.textContent = "Current choice: analytics allowed. You can change this any time.";
-    } else if (v === "denied") {
-      statusEl.textContent = "Current choice: analytics declined. You can change this any time.";
-    } else {
-      statusEl.textContent = "No choice made yet.";
-    }
+    consentBtns.forEach(function (btn) {
+      var on = v !== null && btn.getAttribute("data-consent") === v;
+      btn.classList.toggle("is-chosen", on);
+      btn.setAttribute("aria-pressed", on ? "true" : "false");
+    });
   }
-  panel.querySelectorAll(".welcome-consent-btn").forEach(function (btn) {
+  consentBtns.forEach(function (btn) {
     btn.addEventListener("click", function () {
       setConsent(btn.getAttribute("data-consent"));
     });

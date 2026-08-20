@@ -276,7 +276,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=102">
+<link rel="stylesheet" href="css/style.css?v=104">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -632,7 +632,7 @@
        mirror is needed at all) and hides this button until it flips. -->
   <button class="board-back-btn" type="button" data-stop="0" aria-label="Back to the whole board">
     <svg class="board-back-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
-         fill="none" stroke="currentColor" stroke-width="2.6"
+         fill="none" stroke="currentColor" stroke-width="3.2"
          stroke-linecap="round" stroke-linejoin="round">
       <!-- A curved return arrow, not a straight chevron: it reads as "undo
            this, put it back" rather than as "previous item in a list", which
@@ -766,9 +766,12 @@
              visitor makes one, so the buttons are the point of this section
              and the paragraph is the disclosure behind it. -->
         <div class="welcome-consent">
-          <button class="welcome-consent-btn" type="button" data-consent="granted">Allow cookies</button>
-          <button class="welcome-consent-btn" type="button" data-consent="denied">Deny</button>
-          <p class="welcome-consent-status" id="welcome-consent-status" role="status"></p>
+          <!-- aria-pressed, set here rather than only in script, so the
+               buttons announce as a two-state choice even in the instant
+               before js/welcome.js has run. The chosen one gets shaded and
+               flipped to true; see renderConsentStatus() there. -->
+          <button class="welcome-consent-btn" type="button" data-consent="granted" aria-pressed="false">Allow cookies</button>
+          <button class="welcome-consent-btn" type="button" data-consent="denied" aria-pressed="false">Deny</button>
         </div>
 
         <p class="welcome-fineprint">This site sets no cookies and uses no analytics
@@ -1425,6 +1428,6 @@
      above it depends on the panel existing yet, and the panel's own
      auto-open on a first visit only needs #corkboard's computed display,
      which is settled well before any script runs at all. -->
-<script src="js/welcome.js?v=1" defer></script>
+<script src="js/welcome.js?v=2" defer></script>
 </body>
 </html>
