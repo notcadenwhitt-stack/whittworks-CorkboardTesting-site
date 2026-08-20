@@ -1664,8 +1664,14 @@ html.warming .board .index-card,
 .board.moving .sticky::before,
 html.warming .board .sticky::before,
 .board.far .sticky::before {
-  filter: none;
-  box-shadow: 5px 15px 19px rgba(25, 12, 4, 0.7);
+  /* drop-shadow, NOT box-shadow. This element paints a scanned sheet whose
+     torn silhouette lives in its alpha channel, so its shape IS that alpha.
+     drop-shadow follows it; box-shadow follows the rectangular border box
+     and hangs a square shadow behind a peeling note. It was swapped for the
+     cheaper one to cut render cost and the owner spotted the square edges
+     immediately. The index cards and polaroids keep box-shadow because they
+     really are rectangles once url(#cut) is off in this same state. */
+  filter: drop-shadow(5px 15px 19px rgba(25, 12, 4, 0.7));
 }
 .board.moving .polaroid,
 html.warming .board .polaroid,
@@ -1676,8 +1682,14 @@ html.warming .board .polaroid,
 .board.moving .postcard::before,
 html.warming .board .postcard::before,
 .board.far .postcard::before {
-  filter: none;
-  box-shadow: 8px 20px 26px rgba(25, 12, 4, 0.72);
+  /* drop-shadow, NOT box-shadow. This element paints a scanned sheet whose
+     torn silhouette lives in its alpha channel, so its shape IS that alpha.
+     drop-shadow follows it; box-shadow follows the rectangular border box
+     and hangs a square shadow behind a peeling note. It was swapped for the
+     cheaper one to cut render cost and the owner spotted the square edges
+     immediately. The index cards and polaroids keep box-shadow because they
+     really are rectangles once url(#cut) is off in this same state. */
+  filter: drop-shadow(8px 20px 26px rgba(25, 12, 4, 0.72));
 }
 
 /* ==================================================================

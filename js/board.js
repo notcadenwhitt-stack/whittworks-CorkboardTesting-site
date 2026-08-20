@@ -140,7 +140,7 @@
      Restore point for the previous framings: tag known-good-zoom-20260819. */
   var STOPS = [
     { x: 1800, y: 1200, w: 3860, h: 2620 },  /* 0 whole board */
-    { x: 1800, y: 1200, w: 900,  h: 700 },   /* 1 circular sticker, on board centre */
+    { x: 1800, y: 1100, w: 900,  h: 700 },   /* 1 circular sticker */
     { x: 926,  y: 613,  w: 1785, h: 1200 },  /* 2 about + polaroid, lifted 190 with them */
     { x: 2745, y: 765,  w: 1260, h: 1200 },  /* 3 services cluster, four stickies */
     { x: 2800, y: 1600, w: 1704, h: 1200 },  /* 4 work pane: postcard + room below for future products */
@@ -166,13 +166,13 @@
   var PINS = [
     /* 0 sticker. CENTRED on the sticker's vertical axis, not carried over from
        the old notecard's hand-placed pin. The sticker spans x1540-2060 so its
-       centreline is 1800, which is also the board's centre; sitting 47px left
+       centreline is 1800, which is the board's horizontal centre; sitting 47px left
        of that read as skewed on a circle in a way it never did on a rectangle.
        y955 puts it just inside the top edge, where a pin would bite.
 
        Every string on the board originates here, so this pin and the sticker
        have to move together or all four strings strand on bare cork. */
-    { x: 1800, y: 955 },
+    { x: 1800, y: 855 },
     { x: 741,  y: 304 },  /* 1 about, lifted 190 with the card */
     { x: 1236, y: 446 },  /* 2 caden polaroid, lifted 190 with it */
     { x: 2547, y: 335 },  /* 3 services s1 */
@@ -180,8 +180,17 @@
     { x: 1977, y: 1523 }, /* 5 quote card (reviews row 1, right) */
     { x: 1309, y: 1466 }, /* 6 chad polaroid, moved left with it */
     { x: 694,  y: 1544 }, /* 7 contact */
-    { x: 3092, y: 2078 }, /* 8 stray pin, nothing under it */
-    { x: 442,  y: 268 },  /* 9 stray pin */
+    /* The two stray pins that used to sit here, at (3092, 2078) and (442, 268),
+       are gone. They were deliberate realism, leftovers from whatever hung on
+       the board before, and they read fine while the papers were arranged
+       around them. Lifting the About group 190 put one of them directly above
+       that card with nothing under it, and the owner read it, fairly, as a
+       mistake rather than as character. The .hole elements still carry that
+       idea without looking like a pin holding nothing.
+
+       DELETING A PIN RENUMBERS EVERY PIN AFTER IT, and STRINGS indexes into
+       this array. The form sheet's pin moved from 10 to 8 and the string that
+       reaches it moved with it. */
     /* 10 form sheet. Deliberately at the sheet's TOP-RIGHT corner, not its
        top-left. The string that reaches it comes down from the sticker at
        (1783, 815), so a pin on this side lets the line arrive over open cork
@@ -208,7 +217,15 @@
      an input someone has to fill is just in the way. The postcard keeps its
      pin unstrung, like the two stray pins already on the board. */
   var STRINGS = [
-    [0, 1], [0, 3], [0, 4], [0, 10],
+    /* [0, 1], the sticker to the About card, is deliberately absent. The
+       founder polaroid sits squarely between those two pins, so ANY line
+       between them crosses it: measured, that one ran from (1445, 670) to
+       (1064, 472), straight over the photograph's face. There is no routing
+       that avoids it, because a string here is a straight run between two
+       fixed points and the photo is in the middle of it. The About corner
+       keeps its own [1, 2], which clips only the polaroid's top edge above
+       the picture. Do not "restore the missing string". */
+    [0, 3], [0, 4], [0, 8],
     [4, 5], [5, 6], [1, 2]
   ];
 
