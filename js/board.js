@@ -226,7 +226,11 @@
        keeps its own [1, 2], which clips only the polaroid's top edge above
        the picture. Do not "restore the missing string". */
     [0, 3], [0, 4], [0, 8],
-    [4, 5], [5, 6], [1, 2]
+    [4, 5], [5, 6], [1, 2],
+    /* About across to the services cluster. Runs high, above the founder
+       polaroid rather than over it, which is why this pairing works where the
+       sticker-to-About line did not. */
+    [1, 3]
   ];
 
   /* Build string paths + pin elements once. */
