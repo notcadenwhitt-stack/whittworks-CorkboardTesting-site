@@ -674,3 +674,17 @@ node tools/verify/cdp.mjs shot 0    # screenshot at a stop -> tools/verify/out/
   `.welcome-col-text p.<class>`. Confirm type changes by reading computed
   font-size, not by eye: two screenshots looked "about right" while the rule
   was doing nothing.
+- 2026-08-20: Welcome panel restructured. Left column is a flex column; .welcome-howto
+  takes auto margins and centres in the leftover height, .welcome-privacy pins to the
+  bottom. Title is "What to do:" at 27px over a ::after rule. Fine print at 10px.
+  Back arrow redrawn: the old glyph sat off-centre in its viewBox and its arc crossed
+  its own shaft, which is why it read as missing; it is a centred rotate-ccw in a
+  24-unit box now at 24px.
+  INVARIANT WORTH GUARDING: .welcome-col-text is overflow:hidden, so the panel copy
+  must fit or it silently truncates. It was already 1px from overflowing at 1024x700
+  BEFORE any spacing was added. Two max-height tiers (780px, 680px) now trim it.
+  Any future copy or spacing added to that column must be re-measured at 1024x700 and
+  1024x640, not just at 1440x900. Probe: compare scrollHeight to clientHeight on
+  .welcome-col-text.
+  zsh note: `for wh in "1024 700"; do set -- $wh` does NOT word-split in zsh. Use
+  `set -- ${=wh}` or the loop silently passes one joined argument.
