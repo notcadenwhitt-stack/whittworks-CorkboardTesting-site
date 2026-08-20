@@ -658,3 +658,11 @@ node tools/verify/cdp.mjs shot 0    # screenshot at a stop -> tools/verify/out/
   board. Owner then reported the click sweeping through every intervening section, so
   4b replaced the animated scroll with a direct camera flight. FLY_MS is the one dial. A verification step written for this phase told a subagent to click the page's
   mailto links, which opened the owner's Outlook. Never do that; see "Never do these".
+- 2026-08-20: Welcome-panel copy pass. Legal footer lost the "Terms and Accessibility
+  are being written." note, and the heading plus link row now sit in
+  `.welcome-footer-block` so LEGAL centres over its own links rather than
+  right-aligning independently. Privacy block reordered so the two buttons
+  (Allow cookies / Deny) come first and the disclosure sits under them at
+  0.74rem; the consent status line dropped to the same size. Board tripwire
+  2315 -> 2271 -> 2331 across the two edits; the four non-board modes never
+  moved. Deployed to staging main at style.css?v=92.
