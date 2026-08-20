@@ -404,7 +404,11 @@ a { color: inherit; }
 }
 html.board-zoomed .board-back-btn { display: flex; }
 
-.board-back-icon { width: 22px; height: 22px; }
+/* 24, not 22. The kebab's 22px box is filled edge to edge by three solid
+   dots; a stroked outline at the same box reads lighter than a filled one,
+   so the arrow gets two more pixels to sit at the same visual weight as the
+   controls either side of it. */
+.board-back-icon { width: 24px; height: 24px; }
 
 /* The help control. Visible at every framing -- "how does this work" is a
    fair question from anywhere on the board, not only at rest -- so unlike
@@ -594,11 +598,11 @@ html.board-zoomed .board-back-btn { display: flex; }
      of the panel, so this is 11px against the panel's 16px base -- the size
      a terms-of-service line actually gets set at. The wider tracking and
      the tighter measure stop it turning into a grey slab at that size. */
-  font-size: 11px;
-  line-height: 1.45;
-  letter-spacing: 0.01em;
-  opacity: 0.7;
-  max-width: 52ch;
+  font-size: 10px;
+  line-height: 1.5;
+  letter-spacing: 0.012em;
+  opacity: 0.66;
+  max-width: 58ch;
 }
 
 .welcome-footer {
@@ -635,17 +639,58 @@ html.board-zoomed .board-back-btn { display: flex; }
   overflow: hidden;
   font-family: var(--typed);
   color: #2b2115;
+  /* A column so the two blocks inside can claim the leftover height between
+     them: .welcome-howto takes auto margins top and bottom, which splits the
+     free space evenly and centres it, and .welcome-privacy is left with no
+     auto margin so it settles against the bottom edge. No fixed heights and
+     no absolute positioning, so the copy can still grow or shrink without
+     any of this needing a second look. */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Centred in its half of the panel, both axes. */
+.welcome-howto {
+  margin: auto 0;
+  text-align: center;
+}
+
+/* Left-aligned on purpose: the fine print underneath is a paragraph of legal
+   copy and centring a block of it hurts to read. The margin is a FLOOR, not
+   the actual gap: the auto margins on .welcome-howto above already open up
+   whatever height is left over, and this only guarantees the two blocks stay
+   visibly apart if the copy in either one ever grows enough to eat that
+   space. The owner asked for a noticeable break between the instructions and
+   the cookie notice, so the gap should never be allowed to close. */
+.welcome-privacy {
+  flex: 0 0 auto;
+  margin-top: 24px;
 }
 .welcome-col-text p {
   margin: 0 0 10px;
   font-size: 16px;
   line-height: 1.36;
 }
+/* Reads as a title, not as the first line of the copy: larger, tracked out,
+   and sitting over a short centred rule so the eye registers a heading before
+   it registers a sentence. The rule is drawn with ::after rather than a
+   border-bottom because a border would run the full width of the centred
+   block and read as a divider instead of as part of the title. */
 .welcome-heading {
-  margin: 0 0 12px;
-  font-size: 22px;
+  margin: 0 0 18px;
+  font-size: 27px;
   font-weight: 700;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+}
+.welcome-heading::after {
+  content: "";
+  display: block;
+  width: 58px;
+  height: 2px;
+  margin: 9px auto 0;
+  background: #2b2115;
+  opacity: 0.5;
 }
 .welcome-subhead {
   margin: 16px 0 8px;
@@ -653,6 +698,45 @@ html.board-zoomed .board-back-btn { display: flex; }
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+/* SHORT VIEWPORTS. The board design serves any window at least 901px wide,
+   which says nothing about its height, and this column is overflow:hidden --
+   the deliberate choice recorded above, so that copy running long shows up
+   as text visibly cut off rather than as a quiet scrollbar. That makes a
+   short window the failure case, and it was already 1px from failing at
+   1024x700 before this pass added any spacing at all.
+
+   Measured, not guessed: at 1024x700 the column needs 546px of content
+   against 473px of room. The trims below buy back 79px, which clears it
+   with room rather than by a pixel. The gap between the instructions and the
+   cookie notice survives because it comes from .welcome-howto's auto margins
+   whenever there is free height to give it; only the floor shrinks here, and
+   the floor only ever applies when there is no free height to share. */
+@media (max-height: 780px) {
+  .welcome-col { padding-top: 16px; padding-bottom: 16px; }
+  .welcome-heading { font-size: 21px; margin-bottom: 10px; }
+  .welcome-heading::after { margin-top: 7px; }
+  .welcome-col-text p { margin-bottom: 7px; }
+  .welcome-privacy { margin-top: 14px; }
+  .welcome-subhead { margin: 10px 0 7px; }
+}
+
+/* Second tier, for windows shorter still. 1024x640 needed 469px of content
+   against 440px of room even after the trims above, so this takes another
+   pass at the same places. Everything here is spacing and type scale; no
+   copy is dropped and nothing is hidden, because a visitor on a short window
+   is entitled to the same instructions and the same cookie choice as anyone
+   else. Measured at 1024x640 and 960x600. */
+@media (max-height: 680px) {
+  .welcome-col { padding-top: 10px; padding-bottom: 10px; }
+  .welcome-heading { font-size: 18px; margin-bottom: 7px; }
+  .welcome-heading::after { width: 46px; margin-top: 5px; }
+  .welcome-col-text p { margin-bottom: 4px; line-height: 1.3; }
+  .welcome-privacy { margin-top: 10px; }
+  .welcome-subhead { margin: 6px 0 5px; font-size: 13px; }
+  .welcome-consent-btn { padding: 5px 12px; }
+  .welcome-col-text p.welcome-fineprint { margin-top: 6px; }
 }
 
 .welcome-consent {

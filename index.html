@@ -276,7 +276,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=94">
+<link rel="stylesheet" href="css/style.css?v=100">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -631,13 +631,30 @@
        one flag onto <html> (see setFar()'s comment in js/board.js for why a
        mirror is needed at all) and hides this button until it flips. -->
   <button class="board-back-btn" type="button" data-stop="0" aria-label="Back to the whole board">
-    <svg class="board-back-icon" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
+    <svg class="board-back-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
+         fill="none" stroke="currentColor" stroke-width="2.6"
+         stroke-linecap="round" stroke-linejoin="round">
       <!-- A curved return arrow, not a straight chevron: it reads as "undo
            this, put it back" rather than as "previous item in a list", which
-           is what a plain left arrow says. The hook sweeps right and down and
-           the head points back to the left, the way an undo glyph does. -->
-      <path d="M14 17 H26 A9 9 0 1 1 17 26" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M14 17 L20 11 M14 17 L20 23" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+           is what a plain left arrow says.
+
+           REDRAWN. The first version was hand-plotted in a 40-unit viewBox
+           and had two faults that only showed up at 22px against the Help
+           tab beside it. Its ink sat in the upper left of the box instead of
+           centred, so the button looked empty on the side the eye lands on
+           first, and its 270-degree arc swept back across its own shaft, so
+           the two crossed and the glyph lost its silhouette. The owner's
+           report was that the arrow was "not really showing up", which is
+           what a small, off-centre, self-intersecting mark looks like next
+           to a solid word and three solid dots.
+
+           This is the standard counter-clockwise rotation arrow: one arc
+           that is nearly a full circle centred in the box, and a corner
+           bracket for the head. Nothing overlaps, the ink is centred on both
+           axes, and the stroke is set once on the <svg> so both shapes carry
+           the same weight rather than each declaring its own. -->
+      <path d="M2.5 12a9.5 9.5 0 1 0 2.6-6.55"/>
+      <path d="M2.5 3.2V9.4H8.7"/>
     </svg>
   </button>
   <!-- The owner asked for the board to explain itself once, on the first
@@ -726,12 +743,20 @@
              for, no more -- see the no-scroll proof for .welcome-col-text
              below and PROGRESS.md for the measured numbers this copy was
              cut to hit. -->
-        <h2 class="welcome-heading" id="welcome-heading">How This Board Works</h2>
-        <p>Click any paper to zoom into it.</p>
-        <p>Press Escape, or the back arrow at the top right, to come back out.</p>
-        <p>Scroll to travel across the whole board.</p>
-        <p>The menu at the top right jumps to any section.</p>
+        <!-- Two blocks, not one run of copy. The instructions centre themselves
+             in whatever height is left over and the privacy block pins to the
+             bottom of the column, so the two read as separate concerns with
+             real air between them rather than as one list that happens to end
+             in a cookie notice. -->
+        <div class="welcome-howto">
+          <h2 class="welcome-heading" id="welcome-heading">What to do:</h2>
+          <p>Click any paper to zoom into it.</p>
+          <p>Press Escape, or the back arrow at the top right, to come back out.</p>
+          <p>Scroll to travel across the whole board.</p>
+          <p>The menu at the top right jumps to any section.</p>
+        </div>
 
+        <div class="welcome-privacy">
         <h3 class="welcome-subhead">Privacy and Cookies</h3>
 
         <!-- The choice comes FIRST and the explanation sits under it in fine
@@ -751,6 +776,7 @@
            version, and forgets that when you close the tab. Analytics may be added
            later; nothing loads unless you allow it here, and you can change your
            answer any time from the Help button.</p>
+        </div>
 
       </div>
 
