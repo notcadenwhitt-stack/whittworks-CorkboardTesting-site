@@ -688,3 +688,67 @@ node tools/verify/cdp.mjs shot 0    # screenshot at a stop -> tools/verify/out/
   .welcome-col-text.
   zsh note: `for wh in "1024 700"; do set -- $wh` does NOT word-split in zsh. Use
   `set -- ${=wh}` or the loop silently passes one joined argument.
+
+## 2026-08-20 — Full-site audit sweep (overnight)
+
+Four sweeps over every page, mode and viewport. Six defects found and fixed;
+everything else measured clean. The probes live in the job tmp dir, not the
+repo; re-create them from the commit messages if a future sweep needs them.
+
+FIXED
+1. Phone consent notice was invisible to screen readers — a plain <p> beside
+   the field with nothing linking them. Now #cf-consent-note + aria-describedby.
+2. js/validate.js clobbered aria-describedby with setAttribute, which would
+   have dropped that consent link the first time the field went invalid. It
+   now adds/removes one token and drops the attribute entirely when empty.
+3. privacy.html was pinned to css/style.css?v=73 while index was at v=104 —
+   a stale cache key, so returning visitors kept an old stylesheet forever.
+4. 404.html had no CSP while the other two pages did. It runs zero script, so
+   it now carries a stricter one: script-src/connect-src/form-action 'none'.
+5. THE PRIVACY NOTICE WAS INACCURATE. It claimed the site only remembers the
+   board/text choice and forgets it on tab close. Only ww-board-open
+   (sessionStorage, js/peek.js) behaves that way; ww-welcome-seen and
+   ww-analytics (localStorage, js/welcome.js) outlive the tab and were
+   disclosed nowhere. Copy corrected in the panel and a "What Your Browser
+   Stores" section added to privacy.html. Keep the two in step.
+6. The welcome panel silently truncated its copy below ~560px viewport
+   height (157px over at 1440x480). Third max-height tier at 620px, plus a
+   scroll fallback below 430px. See the invariant note above.
+   Also: the panel told visitors to use a back arrow that does not exist in
+   the reading fallback (<=540px tall). That line is now hidden by
+   css/reading.css, and only there.
+
+MEASURED CLEAN — do not re-audit without reason
+- HTML nesting in all 3 pages: zero unclosed tags, zero duplicate attributes.
+- Every CSS url(), every inline-style url(), every HTML asset reference
+  resolves. terms.html/accessibility.html only appear inside comments.
+- Zero horizontal overflow and zero escaped boxes at 12 widths, 320..2560.
+- WCAG AA contrast: zero failures on board, editorial and reading. The 10px
+  fine print is the floor at 4.85 against a 4.5 requirement — do not darken
+  the background or lighten that text without re-measuring.
+- Zero innerHTML/insertAdjacentHTML/document.write/eval anywhere in js/.
+  All DOM writes go through textContent/createTextNode.
+- 20-step interaction stress (all 12 papers, menu, back button, panel, every
+  Escape path, focus trap and focus return): zero failures, zero console.
+- Rapid/interrupted input (click storms, escape spam, double-click, back
+  spam, resize mid-flight): camera state stays consistent, .moving always
+  clears by ~1600ms. No stuck states.
+- Contact form success AND failure paths with fetch stubbed, in both the
+  board and editorial layouts.
+- All cache-busters current against their file's last commit.
+- 1.5MB over 38 requests, DOMContentLoaded 400ms.
+- Reduced motion honoured; focus-visible styles present; no outline:none.
+
+KNOWN, ACCEPTED, NOT BUGS
+- 9 of 12 papers are not keyboard-focusable. Every zone they reach is also in
+  the kebab menu, so the functionality is keyboard-operable by another means.
+  Making 12 papers focusable would add 12 tab stops of noise. Owner's call.
+- 404.html has no meta description. It is noindex; a description would never
+  be shown.
+- The nav's href="#" links are unreachable without JS (the nav lives inside
+  #corkboard, display:none without board-live) and always preventDefault'd
+  with it. Harmless.
+- Printing produces the editorial layout, because a Letter page is under the
+  901px breakpoint. No print stylesheet needed.
+- The board reporting a 5989px box at 901x500 is css/reading.css doing its
+  job, not a broken camera.
