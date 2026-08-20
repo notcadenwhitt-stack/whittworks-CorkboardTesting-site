@@ -588,12 +588,17 @@ html.board-zoomed .board-back-btn { display: flex; }
    is the disclosure sitting behind them, so it is set at the size terms-of-
    service copy is normally set at rather than at body size. Small, not
    illegible: it still has to be readable by anyone who chooses to read it. */
-.welcome-fineprint {
+.welcome-col-text p.welcome-fineprint {
   margin-top: 10px;
-  font-size: 0.74rem;
-  line-height: 1.5;
-  opacity: 0.78;
-  max-width: 46ch;
+  /* Genuinely fine print. 0.74rem still read as body copy next to the rest
+     of the panel, so this is 11px against the panel's 16px base -- the size
+     a terms-of-service line actually gets set at. The wider tracking and
+     the tighter measure stop it turning into a grey slab at that size. */
+  font-size: 11px;
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  opacity: 0.7;
+  max-width: 52ch;
 }
 
 .welcome-footer {
@@ -669,12 +674,13 @@ html.board-zoomed .board-back-btn { display: flex; }
   cursor: pointer;
 }
 .welcome-consent-btn:hover { border-color: var(--red); color: var(--red); }
+.welcome-col-text p.welcome-consent-status,
 .welcome-consent-status {
   flex-basis: 100%;
   margin: 3px 0 0;
   /* Feedback on the choice, not a headline: sized with the fine print under
      it so the loudest thing in this block stays the two buttons. */
-  font-size: 0.74rem;
+  font-size: 11px;
   font-style: italic;
   color: #4a4234;
 }
