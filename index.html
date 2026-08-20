@@ -253,6 +253,29 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
+<!-- Special Elite and Anton were deliberately left on CSS discovery, on the
+     argument that Special Elite's fallback (American Typewriter, Courier) is
+     metrically close enough that the swap does not relayout a card. The owner
+     watched a reload and reported "words in a different font under all of the
+     words on the page", so the argument lost to the evidence: this face
+     letters EVERY index card, the About copy, the quote card and the whole
+     contact form, which is most of the words on the board, and Anton is the
+     single largest thing on screen. Both now arrive with the stylesheet.
+
+     Cost is 53KB plus 12KB on the critical path, and it is a real cost.
+     Special Elite is gated to the board's own breakpoint because only
+     css/style.css uses it; the editorial sets its body copy in Inter. Anton is
+     ungated because BOTH designs use it, the board for its title strip and the
+     editorial for its wordmark. -->
+<link rel="preload" as="font" type="font/woff2" crossorigin media="(min-width: 901px)"
+      href="assets/fonts/special-elite-latin.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="assets/fonts/anton-latin.woff2">
+<!-- The walnut frame is a border-image, and a border-image has no placeholder
+     layer to hide behind: until wood.jpg lands the border paints as the flat
+     #42342f the CSS declares, which is the "shitty frame under the wood one"
+     the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
+<link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
 <link rel="stylesheet" href="css/style.css?v=89">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
