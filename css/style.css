@@ -605,18 +605,30 @@ html.board-zoomed .board-back-btn { display: flex; }
   max-width: 58ch;
 }
 
+/* Pulled OUT of the flow and pinned to the panel's bottom-right corner. As a
+   flex row it reserved a full-width band under BOTH columns, and that band
+   was the thing holding the cookie block up off the bottom of the panel even
+   though the footer's own ink only ever occupies the right-hand side. Pinned,
+   the body claims the panel's full height, the cookie block reaches the true
+   bottom left corner, and the footer sits in the empty space under the sketch
+   where nothing else was ever drawn. The panel is position:fixed, so it is
+   already the containing block for this. */
 .welcome-footer {
-  flex: 0 0 auto;
-  padding: 0 32px 26px;
-  /* flex-end rather than text-align:right, so the block inside shrink-wraps to
-     the width of the links. text-align on its own would leave the h3 spanning
-     the panel's full width, and centring it there would put "Legal" in the
-     middle of the panel rather than over the thing it heads. */
+  position: absolute;
+  right: 32px;
+  bottom: 14px;
+  /* Shrink-wrapped, so the h3 centres over the links rather than over the
+     whole panel. */
   display: flex;
   justify-content: flex-end;
 }
 .welcome-footer-block { text-align: center; }
-.welcome-footer .welcome-subhead { margin-top: 0; }
+.welcome-footer .welcome-subhead {
+  margin-top: 0;
+  margin-bottom: 4px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
 
 .welcome-col {
   flex: 1 1 50%;
@@ -647,6 +659,10 @@ html.board-zoomed .board-back-btn { display: flex; }
      any of this needing a second look. */
   display: flex;
   flex-direction: column;
+  /* Trimmed from the shared 24px so the cookie block below can sit at the
+     genuine bottom of the panel rather than floating a full gutter above it.
+     The horizontal padding from .welcome-col is untouched. */
+  padding-bottom: 14px;
 }
 
 /* Centred in its half of the panel, both axes. */
@@ -776,10 +792,14 @@ html.board-zoomed .board-back-btn { display: flex; }
    wraps any other run of text -- no flex, no explicit nowrap -- which is
    what lets it wrap gracefully at 1280px instead of overflowing the column
    if a translation or a rename ever makes the line too long to hold. */
+/* Smaller than the panel's body copy on the owner's ask. These three are a
+   colophon, not navigation: someone who wants the privacy policy will find
+   it at this size, and shrinking the footer is what buys the height that
+   lets the cookie block sit at the true bottom of the panel. */
 .welcome-legal {
   margin: 0;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 12px;
+  line-height: 1.5;
 }
 .welcome-legal-sep {
   margin: 0 6px;
