@@ -276,7 +276,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=105">
+<link rel="stylesheet" href="css/style.css?v=107">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -285,7 +285,7 @@
      is what a visitor without scripting gets, and it is a better answer than
      the column was. Do not re-add the noscript copy; with no JS the board is
      display:none anyway and the rules would style something nobody can see. -->
-<link rel="stylesheet" href="css/reading.css?v=10"
+<link rel="stylesheet" href="css/reading.css?v=11"
       media="(max-width: 900px), (max-height: 540px)">
 <link rel="stylesheet" href="css/editorial.css?v=5">
 <!-- the cork is the backdrop everything sits on and it is the largest file
@@ -751,7 +751,14 @@
         <div class="welcome-howto">
           <h2 class="welcome-heading" id="welcome-heading">What to do:</h2>
           <p>Click any paper to zoom into it.</p>
-          <p>Press Escape, or the back arrow at the top right, to come back out.</p>
+          <!-- Class so css/reading.css can drop this ONE line. Below 901px wide
+               or 541px tall the camera is not running, nothing zooms, and
+               .board-back-btn is never revealed because board-zoomed never gets
+               set -- measured, not assumed. Every other line here stays true in
+               that layout (clicking a paper still takes you to it, scrolling
+               still travels, the menu still jumps), but this one sends the
+               visitor looking for a control that is not on the screen. -->
+          <p class="welcome-step-back">Press Escape, or the back arrow at the top right, to come back out.</p>
           <p>Scroll to travel across the whole board.</p>
           <p>The menu at the top right jumps to any section.</p>
         </div>

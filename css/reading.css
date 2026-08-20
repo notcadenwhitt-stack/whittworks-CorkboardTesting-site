@@ -321,3 +321,24 @@
 /* no camera means no runway to drive it with */
 .scroll-space { height: 0; }
 
+
+
+/* ---------------------------------------------------------------------------
+   THE WELCOME PANEL'S ONE UNTRUE LINE
+   ---------------------------------------------------------------------------
+   This sheet is loaded at (max-width: 900px), (max-height: 540px), which is
+   exactly the range where the cork board stops being a camera and becomes a
+   flat document. Below 901px wide the panel is not shown at all -- it lives
+   inside #corkboard, which is display:none there -- so this rule only has any
+   effect in the short-and-wide case: a window at least 901px across and no
+   more than 540px tall.
+
+   In that state the panel still opens, and it still says "Press Escape, or the
+   back arrow at the top right, to come back out." There is nothing to come
+   back out of and no back arrow to press: js/board.js never writes a transform
+   here, so .far never flips, so board-zoomed is never set on <html>, so
+   .board-back-btn stays display:none. Verified at 1440x500 -- clicking a paper
+   scrolls to it, the menu still jumps, scrolling still travels the whole
+   board, and the back arrow is the one promise the layout cannot keep.
+   --------------------------------------------------------------------------- */
+.welcome-step-back { display: none; }

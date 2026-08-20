@@ -738,6 +738,56 @@ html.board-zoomed .board-back-btn { display: flex; }
   .welcome-subhead { margin: 10px 0 7px; }
 }
 
+/* THE LAST RESORT, and the one place this panel is allowed to scroll.
+
+   The owner's instruction was explicit -- "I do not want the explanation
+   section to be scrollable, it should be super quick and easy" -- and the
+   three tiers below honour it down to a 440px-tall window, which is already
+   an unusual shape for a window at least 901px wide. Under that, the copy
+   cannot be made to fit without shrinking type past the point of being
+   readable, and the choice stops being "scroll or no scroll" and becomes
+   "scroll or silently lose the bottom of a privacy notice".
+
+   Scrolling wins that one. It engages only here, and every other viewport
+   keeps the no-scroll behaviour the instruction asked for. */
+@media (max-height: 430px) {
+  .welcome-col-text { overflow-y: auto; }
+}
+
+/* THIRD TIER: genuinely short windows, roughly 620px of viewport height and
+   under. A browser on a 768p screen with a couple of toolbars lands here, so
+   this is reachable, not theoretical.
+
+   Two changes, because trimming spacing alone could not close the gap. The
+   panel stops holding the board's 3:2 so strictly and takes 94% of the
+   viewport instead of 80%, which is the only place left to find real height;
+   and the copy tightens once more on top of the two tiers above. Measured at
+   1440x480, the worst case found: content needed 541px against 384px of room
+   before this, and fits after.
+
+   The panel keeps overflow:hidden and this column keeps it too, deliberately
+   -- see the long note on .welcome-col-text. Silent truncation is the thing
+   being engineered against here, and the fix for it is making the copy fit,
+   not quietly growing a scrollbar under it. */
+@media (max-height: 620px) {
+  .welcome-panel {
+    --w: min(94vw, 94vh * 1.5);
+    height: min(calc(var(--w) / 1.5), 94vh);
+  }
+  .welcome-col { padding-top: 8px; padding-bottom: 8px; }
+  .welcome-heading { font-size: 16px; margin-bottom: 5px; }
+  .welcome-heading::after { width: 38px; margin-top: 4px; height: 1.5px; }
+  .welcome-col-text p { margin-bottom: 3px; line-height: 1.25; font-size: 14px; }
+  .welcome-privacy { margin-top: 8px; }
+  .welcome-subhead { margin: 4px 0 4px; font-size: 12px; }
+  .welcome-consent { gap: 8px 10px; margin-top: 2px; }
+  .welcome-consent-btn { padding: 4px 10px; font-size: 13px; }
+  .welcome-col-text p.welcome-fineprint { margin-top: 5px; font-size: 9px; line-height: 1.4; }
+  .welcome-footer { bottom: 8px; right: 20px; }
+  .welcome-legal { font-size: 11px; }
+  .welcome-footer .welcome-subhead { font-size: 10px; margin-bottom: 2px; }
+}
+
 /* Second tier, for windows shorter still. 1024x640 needed 469px of content
    against 440px of room even after the trims above, so this takes another
    pass at the same places. Everything here is spacing and type scale; no
