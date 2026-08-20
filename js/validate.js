@@ -25,6 +25,29 @@
   var form = document.querySelector(".contact-form form");
   if (!form) return;
 
+  /* aria-describedby is a LIST, and it may already be carrying something.
+     The phone field points at its consent notice (index.html, #cf-consent-note),
+     which is the legal terms for handing over a number -- a plain setAttribute
+     here would drop that reference the first time the field went invalid and
+     never put it back, silently trading the warning for the error message.
+     These two add and remove one token and leave every other token alone. */
+  function addDescribedBy(field, id) {
+    var ids = (field.getAttribute("aria-describedby") || "").split(/\s+/).filter(Boolean);
+    if (ids.indexOf(id) === -1) ids.push(id);
+    field.setAttribute("aria-describedby", ids.join(" "));
+  }
+  function removeDescribedBy(field, id) {
+    var ids = (field.getAttribute("aria-describedby") || "").split(/\s+/)
+      .filter(Boolean)
+      .filter(function (t) { return t !== id; });
+    /* Removing the attribute entirely when nothing is left, rather than
+       leaving an empty one: an empty aria-describedby is not the same as an
+       absent one to every screen reader, and the field had none to begin
+       with. */
+    if (ids.length) field.setAttribute("aria-describedby", ids.join(" "));
+    else field.removeAttribute("aria-describedby");
+  }
+
   function messageFor(field) {
     var v = field.validity;
     if (v.valueMissing) return "This field is required.";
@@ -49,7 +72,7 @@
     if (errorEl) {
       errorEl.textContent = messageFor(field);
       errorEl.hidden = false;
-      field.setAttribute("aria-describedby", errorEl.id);
+      addDescribedBy(field, errorEl.id);
     }
     field.setAttribute("aria-invalid", "true");
 
@@ -72,6 +95,7 @@
     if (errorEl) {
       errorEl.hidden = true;
       errorEl.textContent = "";
+      removeDescribedBy(field, errorEl.id);
     }
   });
 })();

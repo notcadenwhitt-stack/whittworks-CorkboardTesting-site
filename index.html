@@ -1248,7 +1248,14 @@
           <div class="cf-row">
             <div class="cf-field">
               <label class="cf-label" for="cf-phone">Phone</label>
-              <input class="cf-input" type="tel" id="cf-phone" name="phone" autocomplete="tel">
+              <!-- aria-describedby, not just proximity. The consent notice below
+                   is the legal terms attached to THIS field, and a sighted
+                   visitor reads it on the way past; someone tabbing through the
+                   form previously heard "Phone, edit text" and nothing else, so
+                   the one warning that matters was absent at the exact moment
+                   the number gets typed. -->
+              <input class="cf-input" type="tel" id="cf-phone" name="phone" autocomplete="tel"
+                     aria-describedby="cf-consent-note">
             </div>
             <div class="cf-field">
               <label class="cf-label" for="cf-heard">How Did You Find Me?</label>
@@ -1256,7 +1263,7 @@
             </div>
           </div>
 
-          <p class="cf-consent">Optional. By giving your phone number, you agree that WhittWorks Studios may call or text you about this inquiry. Message and data rates may apply. Your number is never sold or used for marketing.</p>
+          <p class="cf-consent" id="cf-consent-note">Optional. By giving your phone number, you agree that WhittWorks Studios may call or text you about this inquiry. Message and data rates may apply. Your number is never sold or used for marketing.</p>
 
           <div class="cf-field cf-field-wide">
             <label class="cf-label cf-required" for="cf-project">Project Description</label>
@@ -1419,7 +1426,7 @@
      deferred because it only wires up static markup that is already in the
      document by the time it runs. It does not know what a "stop" or a
      "camera" is, only how to read and annotate one form's own validity. -->
-<script src="js/validate.js?v=1" defer></script>
+<script src="js/validate.js?v=2" defer></script>
 <script src="js/form.js?v=1" defer></script>
 <!-- Same reasoning as js/menu.js and js/validate.js above: its own file, so
      a failure here cannot strand the camera or the form, and deferred
