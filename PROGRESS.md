@@ -666,3 +666,11 @@ node tools/verify/cdp.mjs shot 0    # screenshot at a stop -> tools/verify/out/
   0.74rem; the consent status line dropped to the same size. Board tripwire
   2315 -> 2271 -> 2331 across the two edits; the four non-board modes never
   moved. Deployed to staging main at style.css?v=92.
+- 2026-08-20: Gotcha worth remembering. `.welcome-col-text p` sets font-size at
+  specificity (0,1,1), so any bare single-class rule on a paragraph inside the
+  welcome panel silently loses. Both `.welcome-fineprint` and
+  `.welcome-consent-status` had been rendering at 16px despite declaring
+  smaller sizes. Any new paragraph class in that column must be written as
+  `.welcome-col-text p.<class>`. Confirm type changes by reading computed
+  font-size, not by eye: two screenshots looked "about right" while the rule
+  was doing nothing.
