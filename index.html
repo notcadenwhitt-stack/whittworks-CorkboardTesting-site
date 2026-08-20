@@ -253,7 +253,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=87">
+<link rel="stylesheet" href="css/style.css?v=88">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -721,35 +721,6 @@
           <p class="welcome-consent-status" id="welcome-consent-status" role="status"></p>
         </div>
 
-        <h3 class="welcome-subhead">Legal</h3>
-        <!-- One line, not a stacked list: the owner wants the three items
-             read at a glance, separated by a middot the same way the site's
-             own editorial attribution already uses one. Privacy Policy is
-             the only real link; the other two stay plain unlinked text with
-             their "(being written)" note so neither reads as a dead link,
-             and their HTML comments below still mark exactly where each href
-             goes once that page exists. "Accessibility Statement" is
-             shortened to "Accessibility" here only, to keep the line short
-             enough to hold at 1280px; if it still wraps at that width it
-             wraps at a space like any other text, which is fine -- see
-             .welcome-legal in css/style.css for why no nowrap is set. -->
-        <!-- The "(being written)" note is said ONCE underneath rather than
-             after each pending item. Repeating it inline pushed this past the
-             column's width and wrapped the line, which defeats the point of
-             listing these horizontally. -->
-        <p class="welcome-legal">
-          <a href="privacy.html">Privacy Policy</a>
-          <span class="welcome-legal-sep" aria-hidden="true">&middot;</span>
-          <!-- Terms of Service does not exist yet. Do not link this to a
-               page that is not there; when it lands, this becomes
-               <a href="terms.html">Terms of Service</a>. -->
-          <span class="welcome-legal-pending">Terms of Service</span>
-          <span class="welcome-legal-sep" aria-hidden="true">&middot;</span>
-          <!-- Accessibility does not exist yet either. When it lands, this
-               becomes <a href="accessibility.html">Accessibility</a>. -->
-          <span class="welcome-legal-pending">Accessibility</span>
-        </p>
-        <p class="welcome-legal-note">Terms and Accessibility are being written.</p>
       </div>
 
       <div class="welcome-col welcome-col-sketch">
@@ -945,6 +916,42 @@
         </svg>
       </div>
     </div>
+
+      <!-- The Legal line lives in a footer across the BOTTOM of the panel,
+           on the owner's ask, rather than inside the left column. It runs
+           the full width under both columns and reads left to right from
+           the bottom-left corner. -->
+      <div class="welcome-footer">
+        <h3 class="welcome-subhead">Legal</h3>
+        <!-- One line, not a stacked list: the owner wants the three items
+             read at a glance, separated by a middot the same way the site's
+             own editorial attribution already uses one. Privacy Policy is
+             the only real link; the other two stay plain unlinked text with
+             their "(being written)" note so neither reads as a dead link,
+             and their HTML comments below still mark exactly where each href
+             goes once that page exists. "Accessibility Statement" is
+             shortened to "Accessibility" here only, to keep the line short
+             enough to hold at 1280px; if it still wraps at that width it
+             wraps at a space like any other text, which is fine -- see
+             .welcome-legal in css/style.css for why no nowrap is set. -->
+        <!-- The "(being written)" note is said ONCE underneath rather than
+             after each pending item. Repeating it inline pushed this past the
+             column's width and wrapped the line, which defeats the point of
+             listing these horizontally. -->
+        <p class="welcome-legal">
+          <a href="privacy.html">Privacy Policy</a>
+          <span class="welcome-legal-sep" aria-hidden="true">&middot;</span>
+          <!-- Terms of Service does not exist yet. Do not link this to a
+               page that is not there; when it lands, this becomes
+               <a href="terms.html">Terms of Service</a>. -->
+          <span class="welcome-legal-pending">Terms of Service</span>
+          <span class="welcome-legal-sep" aria-hidden="true">&middot;</span>
+          <!-- Accessibility does not exist yet either. When it lands, this
+               becomes <a href="accessibility.html">Accessibility</a>. -->
+          <span class="welcome-legal-pending">Accessibility</span>
+        </p>
+        <p class="welcome-legal-note">Terms and Accessibility are being written.</p>
+      </div>
   </div>
 
   <div class="viewport">

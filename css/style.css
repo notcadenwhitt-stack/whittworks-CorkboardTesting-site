@@ -544,7 +544,9 @@ html.board-zoomed .board-back-btn { display: flex; }
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
   overflow: hidden;
 }
-.welcome-panel.is-open { display: block; }
+/* Column, not block: the body takes the room that is left and the Legal
+   footer sits under it across the panel's full width. */
+.welcome-panel.is-open { display: flex; flex-direction: column; }
 
 .welcome-close {
   position: absolute;
@@ -571,8 +573,21 @@ html.board-zoomed .board-back-btn { display: flex; }
   flex-direction: row;
   align-items: stretch;
   width: 100%;
-  height: 100%;
+  /* flex:1 with min-height:0, not height:100%. The footer below is a sibling
+     now, and a hard 100% here would push it straight off the panel. */
+  flex: 1 1 auto;
+  min-height: 0;
 }
+
+/* The Legal footer: full width, under both columns, reading from the
+   bottom-left corner. It was inside the left text column, which put it in the
+   middle of the panel rather than along the bottom where the owner wanted it. */
+.welcome-footer {
+  flex: 0 0 auto;
+  padding: 0 32px 26px;
+  text-align: left;
+}
+.welcome-footer .welcome-subhead { margin-top: 0; }
 
 .welcome-col {
   flex: 1 1 50%;
@@ -693,7 +708,14 @@ html.board-zoomed .board-back-btn { display: flex; }
    true rectangle, the same cheap trick the doodle stickies on the board
    itself use for a hand-drawn look without a displacement filter. */
 .sk-line {
-  fill: none;
+  /* NOT fill:none. Every paper was an empty frame, so wherever two overlapped
+     you saw the lines of the one behind running straight through the one in
+     front, which the owner correctly called out as the thing that looked bad.
+     A near-white fill, a shade off the panel's own cream, makes each sheet
+     opaque: whatever is drawn later covers what is under it, the way a real
+     drawing would simply not have those lines. Paint order in the SVG is
+     therefore the stacking order. */
+  fill: #faf7ef;
   /* Graphite grey, not near-black, and thinner than it was. Heavy black
      outlines are what made this read as a cartoon rather than a pencil
      study; a real pencil leaves grey. */
@@ -787,10 +809,10 @@ html.board-zoomed .board-back-btn { display: flex; }
    this file overrides `animation` to `none !important` on every element
    including these four, so no second query is needed in this section --
    the same one query already covers the whole page. */
-.sketch-scene { animation: sketch-zoom 7s ease-in-out infinite; }
-.sketch-cursor { animation: sketch-cursor-move 7s ease-in-out infinite; }
-.sketch-click { animation: sketch-click-ripple 7s ease-in-out infinite; }
-.sketch-glyph { animation: sketch-glyph-fade 7s ease-in-out infinite; }
+.sketch-scene { animation: sketch-zoom 11s ease-in-out infinite; }
+.sketch-cursor { animation: sketch-cursor-move 11s ease-in-out infinite; }
+.sketch-click { animation: sketch-click-ripple 11s ease-in-out infinite; }
+.sketch-glyph { animation: sketch-glyph-fade 11s ease-in-out infinite; }
 
 /* The cursor drifts to the About card (0-38%), a click ripple fires there
    (handled by its own keyframes below), the scene zooms across 46-80%
