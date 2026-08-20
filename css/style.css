@@ -392,7 +392,13 @@ a { color: inherit; }
    .board.far -- this element lives in <nav>, a sibling of .viewport, and
    CSS cannot reach a class on .board from there. */
 .board-back-btn {
-  right: 66px;
+  /* Furthest LEFT of the three, on the owner's ask, so the row reads back,
+     help, kebab. This offset has to clear the Help tab beside it, which is
+     wider than a square because it carries a word: measured, that tab is 69px
+     and sits at right:66, so its left edge is 135 from the right. 148 leaves a
+     13px gap. If the word on that tab ever changes, re-measure rather than
+     assume this number still clears it. */
+  right: 148px;
   transform: rotate(-0.5deg);
   display: none;
 }
@@ -415,7 +421,7 @@ html.board-zoomed .board-back-btn { display: flex; }
    -- measured, the tab's own left edge lands nowhere close to the deskbar
    strip at that width. */
 .board-help-btn {
-  right: 118px;
+  right: 66px;
   transform: rotate(0.3deg);
   width: auto;
   padding: 0 16px;
@@ -688,8 +694,11 @@ html.board-zoomed .board-back-btn { display: flex; }
    itself use for a hand-drawn look without a displacement filter. */
 .sk-line {
   fill: none;
-  stroke: #2b2115;
-  stroke-width: 2.2;
+  /* Graphite grey, not near-black, and thinner than it was. Heavy black
+     outlines are what made this read as a cartoon rather than a pencil
+     study; a real pencil leaves grey. */
+  stroke: #6f6f6f;
+  stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -700,8 +709,8 @@ html.board-zoomed .board-back-btn { display: flex; }
    shape first and its contents second. */
 .sk-detail {
   fill: none;
-  stroke: #2b2115;
-  stroke-width: 1.3;
+  stroke: #949494;
+  stroke-width: 0.9;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -711,30 +720,40 @@ html.board-zoomed .board-back-btn { display: flex; }
    (.sk-fill-dark) is what carries the solid colour. */
 .sk-ring {
   fill: none;
-  stroke: #2b2115;
-  stroke-width: 4;
+  stroke: #5e5e5e;
+  stroke-width: 2.6;
 }
 /* The two deliberate exceptions to fill:none: the sticker's solid dark
    middle and the Level Up print, the one dark object on the real board (see
    the long comment in index.html for why -- the owner's own description of
    that print's grade). Everything else here is line art. */
-.sk-fill-dark { fill: #2b2115; stroke: none; }
+/* The sticker's middle. Still the darkest thing in the drawing, because it
+   is on the real board too, but a mid grey rather than near-black so it sits
+   in the same graphite range as everything else. */
+.sk-fill-dark { fill: #4f4f4f; stroke: none; }
+
+/* The Level Up print. It WAS a solid near-black rectangle, which the owner
+   called awful, and he was right: a filled black box in a line drawing reads
+   as a hole rather than as a photograph. It is a light tonal fill with a
+   drawn edge now, so it still reads as the one darker, photographic object
+   on the board without becoming a blob. */
+.sk-print { fill: #dcdcdc; stroke: #6f6f6f; stroke-width: 1.5; stroke-linejoin: round; }
 /* A handful of small filled pins. Solid dots are fine here even though the
    rule above is fill:none for the papers -- a pin has always been a dot of
    metal, not an outline, on the real board too. */
-.sk-pin { fill: #2b2115; stroke: none; }
+.sk-pin { fill: #808080; stroke: none; }
 /* Strings fanning from the sticker. Thin like a pencil stroke, not the
    board's actual red -- the sketch is graphite throughout, and giving only
    the strings colour would read as a second material dropped into a pencil
    drawing rather than as the same hand continuing to draw. */
 .sk-string {
   fill: none;
-  stroke: #2b2115;
-  stroke-width: 1;
+  stroke: #a2a2a2;
+  stroke-width: 0.7;
   stroke-linecap: round;
-  opacity: 0.85;
+  opacity: 0.9;
 }
-.sk-cursor-body { fill: #2b2115; }
+.sk-cursor-body { fill: #5e5e5e; }
 .sketch-click {
   fill: none;
   stroke: #b3271c;
@@ -781,10 +800,15 @@ html.board-zoomed .board-back-btn { display: flex; }
    card's own bounds, board x36-108.9 y29.4-74.1 divided by 10, near its
    bottom-right corner and clear of the ruled lines above it. */
 @keyframes sketch-cursor-move {
-  0%, 18%   { transform: translate(300px, 190px); opacity: 1; }
-  38%, 44%  { transform: translate(100px, 68px);  opacity: 1; }
-  50%, 80%  { transform: translate(100px, 68px);  opacity: 0; }
-  86%, 100% { transform: translate(300px, 190px); opacity: 1; }
+  /* The cursor lands on (72.45, 51.75), which is the About card's own centre
+     and the EXACT point sketch-zoom below magnifies about. They used to
+     disagree: the cursor stopped at (100, 68), down in the card's corner,
+     while the zoom centred on the middle, so the click and the thing that
+     happened after it pointed at two different places. */
+  0%, 18%   { transform: translate(300px, 190px);     opacity: 1; }
+  38%, 44%  { transform: translate(72.45px, 51.75px); opacity: 1; }
+  50%, 80%  { transform: translate(72.45px, 51.75px); opacity: 0; }
+  86%, 100% { transform: translate(300px, 190px);     opacity: 1; }
 }
 
 @keyframes sketch-click-ripple {

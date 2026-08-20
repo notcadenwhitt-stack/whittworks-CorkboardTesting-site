@@ -253,7 +253,7 @@
       href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<link rel="stylesheet" href="css/style.css?v=85">
+<link rel="stylesheet" href="css/style.css?v=87">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -609,8 +609,12 @@
        mirror is needed at all) and hides this button until it flips. -->
   <button class="board-back-btn" type="button" data-stop="0" aria-label="Back to the whole board">
     <svg class="board-back-icon" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
-      <path d="M23 9 L12 20 L23 31" fill="none" stroke="currentColor" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M12 20 L31 20" fill="none" stroke="currentColor" stroke-width="4.4" stroke-linecap="round"/>
+      <!-- A curved return arrow, not a straight chevron: it reads as "undo
+           this, put it back" rather than as "previous item in a list", which
+           is what a plain left arrow says. The hook sweeps right and down and
+           the head points back to the left, the way an undo glyph does. -->
+      <path d="M14 17 H26 A9 9 0 1 1 17 26" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M14 17 L20 11 M14 17 L20 23" fill="none" stroke="currentColor" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </button>
   <!-- The owner asked for the board to explain itself once, on the first
@@ -883,7 +887,12 @@
             <!-- Level Up print: board x2520-3337 y1300-1842, the one dark
                  filled object on the board -- everything else here is
                  fill:none -->
-            <path class="sk-fill-dark" d="M253 131 Q293 128 333 132 Q335 158 333 183 Q293 186 254 182 Q250 157 253 131 Z"/>
+            <path class="sk-print" d="M253 131 Q293 128 333 132 Q335 158 333 183 Q293 186 254 182 Q250 157 253 131 Z"/>
+            <!-- Enough interior to read as a printed page rather than a
+                 rectangle: a heading bar, two lines under it, and a mark off
+                 to the right where the real print carries its logo. -->
+            <path class="sk-detail" d="M259 142 L300 141 M259 151 L312 150 M259 160 L294 159"/>
+            <path class="sk-detail" d="M305 160 Q319 159 327 163 Q328 170 326 175 Q315 177 306 174 Q304 167 305 160 Z"/>
 
             <!-- Portfolio sticky: board x3140-3418 y1630-1905 -->
             <path class="sk-line" d="M315 164 Q328 162 341 165 Q342 177 340 189 Q328 191 316 188 Q313 176 315 164 Z"/>
@@ -924,7 +933,12 @@
           <g class="sketch-cursor">
             <path class="sk-cursor-body" d="M0 0 L1 22 L6 17 L10 27 L14 25 L10 15 L18 15 Z"/>
             <g class="sketch-click">
-              <circle cx="9" cy="4" r="9"/>
+              <!-- cx/cy of 0 is the cursor path's own origin, which is its
+                   TIP. It was (9, 4), so the ripple bloomed from the middle
+                   of the arrow instead of from the point that is doing the
+                   clicking. Scaling this group therefore expands the ring
+                   out of the tip, which is where a click actually lands. -->
+              <circle cx="0" cy="0" r="9"/>
             </g>
           </g>
           <path class="sketch-glyph" d="M330 16 L317 24 L330 32 M317 24 L340 24"/>
