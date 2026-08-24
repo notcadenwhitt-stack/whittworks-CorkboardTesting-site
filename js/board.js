@@ -42,18 +42,34 @@
      ================================================================== */
   document.documentElement.classList.add("board-live");
 
-  /* Announce when cork.webp has actually DECODED, not merely arrived. Until
-     then the board paints from two inlined placeholder layers; after it, those
-     two are covered by an opaque layer and are pure composite cost on every
-     rasterisation. css/style.css drops them under html.cork-ready. decode()
-     rather than onload because onload fires before the bitmap is ready, and a
-     catch because a failed decode must leave the placeholders in place. */
+  /* Announce when the board's steady-state background has actually DECODED,
+     not merely arrived. Until then the board paints from two inlined
+     placeholder layers and three live CSS gradients; after it, css/style.css
+     swaps in the cheaper stack under html.cork-ready. decode() rather than
+     onload because onload fires before the bitmap is ready.
+
+     ALL THREE, not just the cork. The cork-ready stack replaces the three
+     radial gradients with two baked images, so promoting on the cork alone
+     could land a frame where those two had not decoded yet and the board's
+     lighting would drop out and pop back. Promise.all keeps the swap atomic.
+     Any failure leaves the gradient stack in place, which is why the catch
+     returns rather than promoting: a missing bake must degrade to the old
+     look, never to an unlit board. */
   (function () {
-    var cork = new Image();
-    cork.src = "assets/cork.webp";
+    var srcs = ["assets/cork.webp", "assets/board-key-light.webp",
+                "assets/board-shadow-pools.webp"];
     var ready = function () { document.documentElement.classList.add("cork-ready"); };
-    if (cork.decode) cork.decode().then(ready).catch(function () {});
-    else cork.onload = ready;
+    if (!window.Promise || !new Image().decode) {
+      var cork = new Image();
+      cork.src = srcs[0];
+      cork.onload = ready;
+      return;
+    }
+    Promise.all(srcs.map(function (s) {
+      var i = new Image();
+      i.src = s;
+      return i.decode();
+    })).then(ready).catch(function () {});
   })();
 
   var board = document.getElementById("board");
@@ -924,6 +940,17 @@
      default action to cancel -- so widening the selector cost nothing on
      the anchors either. Checked before adding this: nothing else in the
      document carries data-stop. */
+  /* NO PRE-WARM ON pointerdown, and that is a measured decision rather than
+     an omission. Collapsing the board's detail on the press, before the click
+     starts the flight, was tried while the background still carried three
+     live radial gradients: it was worth about 8ms then. Once those gradients
+     were baked into images (see css/style.css, html.cork-ready .board) it
+     became actively harmful, because the collapse and the flight each dirty
+     the same layer and doing them ~120ms apart makes Chrome rasterise the
+     board TWICE instead of once. Measured at 4x CPU throttle: pre-warming
+     cost a 49.3ms worst frame on the way in, and dropping it took that to
+     18.6ms with no frame over 20ms in either direction. One raster, inside
+     the 60fps budget. Leave the collapse where it is, in flyTo(). */
   document.querySelectorAll("[data-stop]").forEach(function (link) {
     link.addEventListener("click", function (e) {
       e.preventDefault();

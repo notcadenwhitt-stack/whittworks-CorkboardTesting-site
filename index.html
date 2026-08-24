@@ -276,7 +276,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=107">
+<link rel="stylesheet" href="css/style.css?v=108">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -313,6 +313,12 @@
      stylesheet never asks for the texture; someone tapping the sticky note
      into the board on a phone fetches it then, exactly as before. -->
 <link rel="preload" as="image" href="assets/cork.webp" fetchpriority="high" media="(min-width: 901px)">
+<!-- The board's baked lighting. These two gate html.cork-ready alongside the
+     cork itself (see js/board.js), so the swap to the cheap background stack
+     waits on all three; preloading them keeps that wait short rather than
+     leaving the board on its gradient stack until a late discovery. -->
+<link rel="preload" as="image" href="assets/board-key-light.webp" fetchpriority="high" media="(min-width: 901px)">
+<link rel="preload" as="image" href="assets/board-shadow-pools.webp" fetchpriority="high" media="(min-width: 901px)">
 <!-- The three masking-tape strips, and they are here because tape is the one
      photographed thing on this board that cannot have a placeholder at all.
      It is translucent, so any layer under it still reads through on the
@@ -362,7 +368,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=57">
+<link rel="preload" as="script" href="js/board.js?v=58">
 <link rel="preload" as="script" href="js/hand.js?v=7">
 </head>
 <body>
@@ -1429,7 +1435,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=57"></script>
+<script src="js/board.js?v=58"></script>
 <script src="js/hand.js?v=7"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them
