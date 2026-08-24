@@ -400,34 +400,24 @@ a { color: inherit; }
      assume this number still clears it. */
   right: 148px;
   transform: rotate(-0.5deg);
-  /* A labelled tab, sized to its contents, exactly like .board-help-btn. It
-     was a bare 42px square carrying only a stroked arrow, and next to a bold
-     word and three solid dots that read as a blank tile -- reported missing
-     three times while measuring as present every time. `right` is unchanged
-     because it pins the RIGHT edge, so the tab grows leftwards and the 13px
-     gap to the Help tab survives at every width. */
-  width: auto;
-  padding: 0 14px;
-  gap: 7px;
+  /* Back to a plain square: the owner asked for the icon alone, no word. The
+     label was only ever a response to the control seeming invisible, and the
+     real cause of that was the board-zoomed bug in js/board.js (see setFar),
+     not the absence of text. Fixed there, the glyph is enough. */
   display: none;
 }
 html.board-zoomed .board-back-btn { display: flex; }
 
-.board-back-label {
-  font-family: var(--display);
-  font-size: 18px;
-  letter-spacing: 0.02em;
-  line-height: 1;
-  white-space: nowrap;
-}
 
 /* 24, not 22. The kebab's 22px box is filled edge to edge by three solid
    dots; a stroked outline at the same box reads lighter than a filled one,
    so the arrow gets two more pixels to sit at the same visual weight as the
    controls either side of it. */
-/* Smaller now that a word carries the weight beside it: the glyph reads as a
-   mark next to the label rather than competing with it. */
-.board-back-icon { width: 20px; height: 20px; flex: 0 0 auto; }
+/* Sized to carry the tile on its own, since nothing else is in it. The kebab
+   beside it fills a 22px box with three solid dots; a stroked outline reads
+   lighter than a filled shape at equal size, so this gets a little more room
+   to land at the same visual weight. */
+.board-back-icon { width: 25px; height: 25px; }
 
 /* The help control. Visible at every framing -- "how does this work" is a
    fair question from anywhere on the board, not only at rest -- so unlike

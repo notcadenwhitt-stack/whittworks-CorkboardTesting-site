@@ -276,7 +276,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=109">
+<link rel="stylesheet" href="css/style.css?v=111">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -638,42 +638,26 @@
        mirror is needed at all) and hides this button until it flips. -->
   <button class="board-back-btn" type="button" data-stop="0" aria-label="Back to the whole board">
     <svg class="board-back-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
-         fill="none" stroke="currentColor" stroke-width="3.2"
+         fill="none" stroke="currentColor" stroke-width="2.8"
          stroke-linecap="round" stroke-linejoin="round">
-      <!-- A curved return arrow, not a straight chevron: it reads as "undo
-           this, put it back" rather than as "previous item in a list", which
-           is what a plain left arrow says.
+      <!-- A U-turn arrow, drawn to the reference the owner supplied: the shaft
+           runs right along the top, turns down through a half circle on the
+           right, and comes back a short way along the bottom, with a large
+           open head pointing LEFT at the start of the top stroke. It reads as
+           "go back the way you came" rather than as "previous item", which is
+           what a plain chevron says.
 
-           REDRAWN. The first version was hand-plotted in a 40-unit viewBox
-           and had two faults that only showed up at 22px against the Help
-           tab beside it. Its ink sat in the upper left of the box instead of
-           centred, so the button looked empty on the side the eye lands on
-           first, and its 270-degree arc swept back across its own shaft, so
-           the two crossed and the glyph lost its silhouette. The owner's
-           report was that the arrow was "not really showing up", which is
-           what a small, off-centre, self-intersecting mark looks like next
-           to a solid word and three solid dots.
-
-           This is the standard counter-clockwise rotation arrow: one arc
-           that is nearly a full circle centred in the box, and a corner
-           bracket for the head. Nothing overlaps, the ink is centred on both
-           axes, and the stroke is set once on the <svg> so both shapes carry
-           the same weight rather than each declaring its own. -->
-      <path d="M2.5 12a9.5 9.5 0 1 0 2.6-6.55"/>
-      <path d="M2.5 3.2V9.4H8.7"/>
+           NO LABEL, on the owner's instruction. The word "Back" sat here
+           briefly because the control was being reported as invisible, but
+           that turned out to be a real bug in js/board.js rather than a
+           legibility problem -- board-zoomed was derived from an absolute
+           scale, so the button never appeared at all below about 1200px of
+           window width. With that fixed the glyph shows everywhere and can
+           stand on its own, which is what it does here. -->
+      <path d="M2.7 8.6H15.4a5.25 5.25 0 0 1 0 10.5h-5.2"/>
+      <path d="M8.9 3.3 2.7 8.6l6.2 5.3"/>
     </svg>
-    <!-- A WORD, not just the glyph. The arrow alone was reported as missing
-         three separate times, and measurement showed it was rendering
-         correctly every time -- display:flex, 42x42, on screen, no overlap at
-         any width from 1024 to 1920. The problem was never presence, it was
-         weight: a thin stroked outline sitting beside a bold "Help!" and three
-         solid dots reads as an empty tile, so the eye skips it. This is the
-         same paper-tab treatment .board-help-btn already uses, and the label
-         is what makes the control findable. The aria-label above still starts
-         with this word, so the accessible name contains the visible one
-         (WCAG 2.5.3, Label in Name). -->
-    <span class="board-back-label">Back</span>
-  </button>
+      </button>
   <!-- The owner asked for the board to explain itself once, on the first
        visit, and to let a visitor bring that explanation back at will
        afterwards. This button is the "at will" half; js/welcome.js owns the
