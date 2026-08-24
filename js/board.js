@@ -506,27 +506,61 @@
      Measured at 1440x900: the whole board rests at 0.34 and every zone stop
      lands between 0.86 and 1.29, so 0.6 separates them with room either side
      and no stop sits near the boundary. */
-  function setFar(s) {
+  /* How much closer than the whole-board framing counts as "zoomed in".
+     Every zone stop sits at 2.16-2.18x the whole-board scale, and that ratio
+     is the same at every viewport because both scales come from the same
+     min(vw/w, vh/h) and move together. 1.5 sits clear of both ends. */
+  var ZOOMED_RATIO = 1.5;
+  var isZoomed = null;
+
+  /* TWO SEPARATE QUESTIONS, and they used to share one answer. That bug hid
+     the back button for anyone whose window was not roughly 1440 wide.
+
+     "Is the detail too small to bother drawing?" is genuinely about absolute
+     size on a display -- two displacement pixels of pen tremor cannot be
+     resolved at a third of size no matter how big the window is -- so .far
+     keeps its fixed FAR_SCALE threshold.
+
+     "Is the visitor zoomed in, and therefore able to go back?" is NOT about
+     absolute size. It is about where the camera sits relative to the whole
+     board, and the whole board's own scale depends on the viewport. Deriving
+     it from FAR_SCALE meant the answer changed with window size: at 1440 wide
+     a zone stop lands at 0.75 and cleared 0.6, but at 1000 wide the SAME stop
+     lands at 0.45-0.56 and did not, so the button stayed hidden at every
+     height. It was reported missing three times and measured present every
+     time, because every measurement was taken at 1440x900.
+
+     Measured against the whole-board framing instead, the ratio is 2.18 at
+     1000x542, 1000x600, 1000x700 and 1000x900 alike, so one threshold now
+     holds at every window size. */
+  function setFar(s, vw, vh) {
     var far = s < FAR_SCALE;
-    if (far === isFar) return;   /* only touch the DOM when it actually flips */
-    isFar = far;
-    board.classList.toggle("far", far);
+    if (far !== isFar) {
+      isFar = far;
+      board.classList.toggle("far", far);
+    }
+
     /* The back-to-whole-board button lives in <nav>, a sibling of .viewport
        rather than a descendant of #board, so css/style.css cannot reach
        .board.far from there directly. Mirrored onto <html> the same way
        markMoving() already mirrors .board.moving as board-moving-scene for
        .viewport::after, an ancestor with the identical problem. Named for
-       the opposite condition on purpose -- board-zoomed, not board-far --
-       because the button's own default in CSS is hidden, and it is easier
-       to reason about "show it while this class says zoomed in" than
-       "show it while that OTHER class is absent". */
-    document.documentElement.classList.toggle("board-zoomed", !far);
+       the condition it describes -- board-zoomed -- because the button's own
+       default in CSS is hidden, and it is easier to reason about "show it
+       while this class says zoomed in" than "show it while that OTHER class
+       is absent". */
+    var whole = scaleFor(STOPS[0], vw, vh);
+    var zoomed = whole > 0 && s > whole * ZOOMED_RATIO;
+    if (zoomed !== isZoomed) {
+      isZoomed = zoomed;
+      document.documentElement.classList.toggle("board-zoomed", zoomed);
+    }
   }
 
   function writeFraming(x, y, s) {
     var vw = window.innerWidth;
     var vh = window.innerHeight;
-    setFar(s);
+    setFar(s, vw, vh);
 
     /* Keep the camera on the cork: clamp the view to the board's bounds.
 
