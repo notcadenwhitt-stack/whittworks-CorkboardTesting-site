@@ -276,7 +276,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=108">
+<link rel="stylesheet" href="css/style.css?v=109">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -662,6 +662,17 @@
       <path d="M2.5 12a9.5 9.5 0 1 0 2.6-6.55"/>
       <path d="M2.5 3.2V9.4H8.7"/>
     </svg>
+    <!-- A WORD, not just the glyph. The arrow alone was reported as missing
+         three separate times, and measurement showed it was rendering
+         correctly every time -- display:flex, 42x42, on screen, no overlap at
+         any width from 1024 to 1920. The problem was never presence, it was
+         weight: a thin stroked outline sitting beside a bold "Help!" and three
+         solid dots reads as an empty tile, so the eye skips it. This is the
+         same paper-tab treatment .board-help-btn already uses, and the label
+         is what makes the control findable. The aria-label above still starts
+         with this word, so the accessible name contains the visible one
+         (WCAG 2.5.3, Label in Name). -->
+    <span class="board-back-label">Back</span>
   </button>
   <!-- The owner asked for the board to explain itself once, on the first
        visit, and to let a visitor bring that explanation back at will
