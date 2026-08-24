@@ -752,3 +752,59 @@ KNOWN, ACCEPTED, NOT BUGS
   901px breakpoint. No print stylesheet needed.
 - The board reporting a 5989px box at 901x500 is css/reading.css doing its
   job, not a broken camera.
+
+## 2026-08-24 — Zoom smoothness, solved by measurement
+
+Owner: "still not fully sold on the zoom... not as smooth as I would like."
+Result: no frame over 20ms in EITHER direction, on the deployed build.
+Worst frame 18.6ms in and out, against 150.8ms / 83.3ms before.
+
+ROOT CAUSE. The flight was never the problem — its middle already ran at a
+16.7ms median. The roughness was 2-3 very expensive frames. With the GPU on
+they land MID-FLIGHT at intermediate scales, because Chrome re-rasterises the
+board layer as the scale changes, and the background was three radial
+gradients over two cork tiles. Evaluating three gradient functions across
+~7.5M pixels, repeatedly, during the one animation that must stay smooth.
+Isolated: cork tiles ~50ms, any one gradient ~100-116ms, all three ~150ms.
+NOT the blend modes (forcing all to normal barely moved it).
+
+FIX. The two multiply gradients bake into ONE image exactly — multiply is
+associative, and rendering them over white yields the product directly. The
+soft-light one cannot fold that way, so it keeps its own layer and blend mode
+with the gradient's colour/alpha carried in the image. Both rendered BY
+CHROME (tools were thrown away; re-bake with the same technique if needed:
+render each layer set at board aspect, capture, downscale, WebP). Verified by
+pixel diff at 3 zoom scales + whole board at rest: max delta 3-5/255, mean
+abs error ~0.25 levels, <0.007% of pixels off by >2 levels.
+
+SECOND FIX, and it overturned my own earlier change from the same session.
+A pointerdown "pre-warm" that collapsed board detail on the press was worth
+~8ms while gradients were live. With them baked it became HARMFUL: collapse
+and flight dirty the same layer, so doing them ~120ms apart makes Chrome
+rasterise twice. Cost a 49.3ms frame; removing it gave 18.6ms. The collapse
+belongs in flyTo() and nowhere else.
+
+REJECTED, do not retry:
+- Removing the detail collapse during flight → one 1166ms frame, zoom never
+  visibly starts. The collapse earns its keep.
+- Dropping gradients only while moving → nearly as fast, but screenshots show
+  the board flattening and corner shadows vanishing. Trades stutter for pop.
+- Baking cork+gradients into one full-board texture → same speed, but ~2MB
+  and ~30MB decoded. Bad trade on the weak machines this is meant to help.
+- WAAPI keyframes instead of a CSS transition → helped only modestly
+  (150→135ms) and did not address the raster cost.
+
+COST: +51.7KB, 2 requests. board-key-light.webp 32KB (426x276, needs alpha),
+board-shadow-pools.webp 10.5KB (1704x1104, opaque). The key light is smaller
+in pixels and larger in bytes purely because of alpha; a SMALLER bake diffed
+CLEANER than a bigger one, since the downscale smooths WebP artefacts.
+
+INVARIANT: the three gradients in the `.board` rule are the SOURCE OF TRUTH;
+these two files are derived from them. Change one without re-baking and the
+board visibly shifts the moment the images decode. html.cork-ready now waits
+on all three images so the swap is atomic; if a bake fails to decode the
+class never goes on and the board keeps the gradient stack (tested by
+deleting the file).
+
+Worst frame in/out by profile: GPU unthrottled 18.5/18.5, GPU 4x 18.4/18.7,
+GPU 6x 18.4/64.7, software raster 33.4/33.3. All were 100-150ms before.
