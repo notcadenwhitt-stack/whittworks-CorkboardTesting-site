@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-Y62QLGbTWOIoIQifrvwtB7EQoRZj6T0NV/VqKidFvDQ='; font-src 'self'; connect-src https://formspree.io https://us.i.posthog.com; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- The floor, and the reason it is inline rather than in css/style.css: if
      that stylesheet 404s, every display rule on the page goes with it and BOTH
      designs render, stacked, one after the other. Measured 2026-08-07, before
@@ -179,7 +181,12 @@
      a meta CSP cannot carry frame-ancestors, and meta X-Frame-Options is
      ignored by every browser. Clickjacking protection therefore needs a host
      that can set headers, which Pages is not. Recorded, not solved. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src https://formspree.io https://us.i.posthog.com; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
+<!-- The policy itself now sits right after <meta charset> at the top of
+     <head>, so it also governs the inline floor style and the design script
+     above this point; it used to arrive after both and police neither.
+     script-src carries the bootstrap's sha256 instead of 'unsafe-inline'
+     (2026-10-28). Edit that script and the hash MUST be recomputed, or the
+     board never chooses its design: see tools/release/csp_hash.py. -->
 <link rel="canonical" href="https://whittworkstudios.com/">
 <link rel="icon" href="assets/favicon-32.png" type="image/png">
 <link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
@@ -1097,14 +1104,9 @@
         <p class="welcome-legal">
           <a href="privacy.html">Privacy Policy</a>
           <span class="welcome-legal-sep" aria-hidden="true">&middot;</span>
-          <!-- Terms of Service does not exist yet. Do not link this to a
-               page that is not there; when it lands, this becomes
-               <a href="terms.html">Terms of Service</a>. -->
-          <span class="welcome-legal-pending">Terms of Service</span>
+          <a href="terms.html">Terms of Service</a>
           <span class="welcome-legal-sep" aria-hidden="true">&middot;</span>
-          <!-- Accessibility does not exist yet either. When it lands, this
-               becomes <a href="accessibility.html">Accessibility</a>. -->
-          <span class="welcome-legal-pending">Accessibility</span>
+          <a href="accessibility.html">Accessibility</a>
         </p>
         </div>
       </div>
