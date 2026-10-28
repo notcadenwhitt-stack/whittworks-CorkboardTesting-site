@@ -40,6 +40,17 @@ Done, each its own commit:
   clipped; form send timeout, focus after success, honeypot left to Formspree;
   label-in-name fixes; welcome sketch animation runs twice and pauses on hover.
 
+Later the same day: the cookie choice was rewritten to the GOV.UK cookie
+banner pattern on the owner's ask ("do research on what my allow cookies
+should actually look like"), with equal Accept and Reject buttons per the EDPB
+cookie banner taskforce, and the phone banner moved into the page flow. An
+independent review of the whole arc (`review-arc.md` in the notes folder)
+found 1 High (build.py could rmtree any folder it was pointed at; now refuses
+anything it did not build, compared case-insensitively), 1 Medium (an
+android-app:// referrer stopped analytics for the visit) and 8 Low; all fixed
+or already moot. Final tripwires: board 2297, editorial 2403, reading 1712,
+no-JS 2109 (see HANDOFF.md).
+
 Tripwire deltas, all accounted for: board 2418 -> 2416 (quote attribution lost
 "&mdash; ") -> 2394 (shorter panel disclosure). Reading 1714 -> 1712 (same
 em dash). Editorial and no-JS +331 (the phone form, "Or email", footer links

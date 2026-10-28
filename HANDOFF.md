@@ -34,10 +34,10 @@ board is an enhancement layered on top of it.
 | crawler | tan editorial, fully typeset |
 
 **Current tripwires, 2026-10-28 (blue rebrand arc, PLAN.md of that date):**
-`document.body.innerText.length` is **2394** on the board at 1440x900 with the
-welcome panel open (first visit), **2269** on the editorial at 390x844 with the
-phone consent bar showing (first visit), **1712** in reading mode, **2127**
-with no JS at either width. Measured by `node tools/verify/cdp.mjs modes`, and
+`document.body.innerText.length` is **2297** on the board at 1440x900 with the
+welcome panel open (first visit), **2403** on the editorial at 390x844 with the
+cookie banner showing (first visit), **1712** in reading mode, **2109** with no
+JS at either width (re-measured after the cookie rewrite and the arc review). Measured by `node tools/verify/cdp.mjs modes`, and
 identical on the built copy (`SITE_ROOT=<out> node tools/verify/cdp.mjs modes`).
 Every delta from the August values is accounted for in PROGRESS.md's
 2026-10-28 section. The values below are history.

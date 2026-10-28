@@ -1159,15 +1159,13 @@
            only the innermost one: this <section> IS the white ring (.card
            gives it position/z-index/rotate, .sticker paints it white and
            circular and is exactly the ring's outer edge); .sticker-disc is
-           the black disc centred inside it; and the <svg> is the logo
-           slot. The owner does not have his real mark yet, so the interim
-           chevron from assets/favicon.svg ships here instead, inlined
-           (not <img>) so it stays crisp at every camera zoom and costs no
-           extra request. That file's own <rect> background is dropped:
-           .sticker-disc already supplies the black behind it.
-           TO SWAP IN THE REAL LOGO LATER: replace only the contents of the
-           <svg class="sticker-mark"> below. Leave .sticker and
-           .sticker-disc alone.
+           the navy-ringed white disc centred inside it; and the <svg> is the
+           logo slot. Since 2026-10-28 it draws the owner's real W through
+           <use href="#w-mark">, the traced symbol defined once at the top of
+           <body>, so it stays crisp at every camera zoom and costs no extra
+           request. To change the mark, regenerate assets/brand/w-mark.svg
+           with tools/brand/trace_mark.py and paste its <symbol> over the one
+           at the top of <body>; leave .sticker and .sticker-disc alone.
 
            data-zone-stop="0" returns the camera to the whole board on
            click, same as the other nine zone targets. Deliberately a
