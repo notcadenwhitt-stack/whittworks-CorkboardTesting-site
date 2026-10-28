@@ -55,6 +55,7 @@
 .board > .tape { display: none; }
 
 .board-floor { display: none; }
+.board-snap { display: none !important; }
 
 .annie-card { min-height: 13rem; }
 .annie-card .pencil-note {

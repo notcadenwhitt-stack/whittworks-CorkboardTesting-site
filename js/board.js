@@ -68,10 +68,10 @@
     { x: 1800, y: 1200, w: 3860, h: 2620 },
     { x: 1800, y: 1100, w: 900,  h: 700 },
 
-    { x: 896,  y: 554,  w: 1600, h: 1000 },
+    { x: 896,  y: 554,  w: 1440, h: 900 },
     { x: 2816, y: 723,  w: 1260, h: 1035 },
-    { x: 2920, y: 1527, w: 1600, h: 1000 },
-    { x: 1708, y: 1661, w: 1600, h: 1000 },
+    { x: 2920, y: 1527, w: 1440, h: 900 },
+    { x: 1708, y: 1661, w: 1440, h: 900 },
 
     { x: 575,  y: 1489, w: 980,  h: 1050 },
     { x: 1800, y: 1200, w: 3860, h: 2620 }
@@ -257,6 +257,12 @@
     var vw = window.innerWidth;
     var vh = window.innerHeight;
     setFar(s, vw, vh);
+    var t = framingTransform(x, y, s, vw, vh);
+    board.style.transform = t;
+    if (floor) floor.style.transform = t;
+  }
+
+  function framingTransform(x, y, s, vw, vh) {
 
     var BW = board.clientWidth || 3408;
     var BH = board.clientHeight || 2208;
@@ -269,11 +275,8 @@
     else { y = BH / 2; }
 
     var edge = parseFloat(getComputedStyle(board).borderLeftWidth) || 0;
-    var t =
-      "translate(" + (vw / 2 - (x + edge) * s) + "px," +
-                     (vh / 2 - (y + edge) * s) + "px) scale(" + s + ")";
-    board.style.transform = t;
-    if (floor) floor.style.transform = t;
+    return "translate(" + (vw / 2 - (x + edge) * s) + "px," +
+                          (vh / 2 - (y + edge) * s) + "px) scale(" + s + ")";
   }
 
   function update() {
@@ -374,7 +377,90 @@
     if (floor) floor.style.transition = v;
   }
 
+  var snap = document.querySelector(".board-snap");
+  var snapReady = false;
+  var snapTimer = null;
+  var snapRevealTimer = null;
+  function loadSnapshot() {
+    if (!snap || snapReady || !cameraActive()) return;
+    var src = snap.getAttribute("data-src");
+    if (!src) return;
+    var img = new Image();
+    img.src = src;
+    var done = function () { snap.src = src; snapReady = true; };
+    if (img.decode) img.decode().then(done, function () {});
+    else img.onload = done;
+  }
+  if (window.MutationObserver) {
+    var snapWatch = new MutationObserver(function () {
+      if (document.documentElement.classList.contains("board-shown")) {
+        snapWatch.disconnect();
+
+        setTimeout(loadSnapshot, 600);
+      }
+    });
+    snapWatch.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  function endSnapshot(immediate) {
+    var root = document.documentElement;
+    if (snapTimer !== null) { clearTimeout(snapTimer); snapTimer = null; }
+    if (snapRevealTimer !== null) { clearTimeout(snapRevealTimer); snapRevealTimer = null; }
+    snap.removeEventListener("transitionend", onSnapEnd);
+    snap.style.transition = "none";
+    board.style.transition = immediate ? "none" : "opacity 160ms ease-out";
+    if (floor) floor.style.transition = "none";
+    root.classList.remove("snap-flying");
+    if (immediate) {
+      root.classList.remove("snap-showing");
+      board.style.transition = "";
+      if (floor) floor.style.transition = "";
+      return;
+    }
+    snapRevealTimer = setTimeout(function () {
+      snapRevealTimer = null;
+      root.classList.remove("snap-showing");
+      board.style.transition = "";
+      if (floor) floor.style.transition = "";
+    }, 450);
+  }
+
+  function landSnapshot() {
+    if (!flying) return;
+    flying = false;
+
+    markMoving();
+    update();
+    endSnapshot(false);
+  }
+
+  function onSnapEnd(e) {
+    if (e.target !== snap || e.propertyName !== "transform") return;
+    landSnapshot();
+  }
+
+  function flySnapshot(from, to, target) {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var root = document.documentElement;
+    flying = true;
+    if (snapRevealTimer !== null) { clearTimeout(snapRevealTimer); snapRevealTimer = null; }
+    snap.style.transition = "none";
+    snap.style.transform = framingTransform(from.x, from.y, from.s, vw, vh);
+    board.style.transition = "none";
+    if (floor) floor.style.transition = "none";
+    root.classList.add("snap-showing", "snap-flying");
+    window.scrollTo({ top: target, behavior: "auto" });
+
+    void snap.offsetWidth;
+    snap.style.transition = "transform " + FLY_MS + "ms " + (to.s > from.s ? FLY_EASE_IN : FLY_EASE);
+    snap.style.transform = framingTransform(to.x, to.y, to.s, vw, vh);
+    snap.addEventListener("transitionend", onSnapEnd);
+    snapTimer = setTimeout(landSnapshot, FLY_MS + 150);
+  }
+
   function landFlight() {
+    if (snap && document.documentElement.classList.contains("snap-flying")) { landSnapshot(); return; }
     if (!flying) return;
     flying = false;
     if (flyTimer !== null) { clearTimeout(flyTimer); flyTimer = null; }
@@ -392,6 +478,12 @@
   }
 
   function cancelFlight(resync) {
+    if (flying && snap && document.documentElement.classList.contains("snap-flying")) {
+      flying = false;
+      update();
+      endSnapshot(true);
+      return;
+    }
     if (!flying) return;
     flying = false;
     if (flyTimer !== null) { clearTimeout(flyTimer); flyTimer = null; }
@@ -437,6 +529,7 @@
     var to = framingFor(stop);
 
     cancelFlight(false);
+    if (snapReady) { flySnapshot(from, to, target); return; }
 
     flying = true;
 

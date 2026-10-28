@@ -657,6 +657,9 @@ html.board-first:not(.board-shown) .board-floor { opacity: 0; }
 html.board-first .board,
 html.board-first .board-floor { transition: opacity 0.35s ease-out; }
 
+.board-snap { display: none; }
+html.board-first .board-snap { display: block; }
+
 .strings {
   position: absolute;
 
@@ -1581,6 +1584,25 @@ html.warming .board .pc-caption {
     will-change: transform;
     pointer-events: none;
   }
+
+  .board-snap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3600px;
+    height: 2400px;
+    max-width: none;
+    transform-origin: 0 0;
+    will-change: transform;
+    pointer-events: none;
+    opacity: 0;
+    box-shadow:
+      10px 34px 90px rgba(0, 0, 0, 0.62),
+      3px 8px 22px rgba(0, 0, 0, 0.5);
+  }
+  html.snap-showing .board-snap { opacity: 1; }
+  html.snap-flying .board,
+  html.snap-flying .board-floor { opacity: 0; }
 }
 
 html.js.board-open .corkboard { display: block; }
