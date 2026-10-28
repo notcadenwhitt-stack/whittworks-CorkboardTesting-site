@@ -42,19 +42,16 @@
      ================================================================== */
   document.documentElement.classList.add("board-live");
 
-  /* Announce when the board's steady-state background has actually DECODED,
-     not merely arrived. Until then the board paints from two inlined
-     placeholder layers and three live CSS gradients; after it, css/style.css
-     swaps in the cheaper stack under html.cork-ready. decode() rather than
-     onload because onload fires before the bitmap is ready.
+  /* Reveal the board once its background has actually DECODED, not merely
+     arrived. decode() rather than onload because onload fires before the
+     bitmap is ready. ALL THREE images, so the board never appears lit by
+     only part of its lighting.
 
-     ALL THREE, not just the cork. The cork-ready stack replaces the three
-     radial gradients with two baked images, so promoting on the cork alone
-     could land a frame where those two had not decoded yet and the board's
-     lighting would drop out and pop back. Promise.all keeps the swap atomic.
-     Any failure leaves the gradient stack in place, which is why the catch
-     returns rather than promoting: a missing bake must degrade to the old
-     look, never to an unlit board.
+     History: until 2026-10-28 the board painted a placeholder stack first and
+     swapped to the real one under html.cork-ready. The swap repainted the
+     whole board at once and the flat floor showed through in bands while it
+     did, so the placeholder is gone and the board simply waits, invisible,
+     for its one and only background (css/style.css, the .board rule).
 
      Only once the board can actually be seen. This used to run on every
      load, so every phone fetched about 350KB of cork and lighting the
@@ -73,18 +70,32 @@
       if (wide.removeEventListener) wide.removeEventListener("change", check);
       var srcs = ["assets/cork.webp", "assets/board-key-light.webp",
                   "assets/board-shadow-pools.webp"];
-      var ready = function () { root.classList.add("cork-ready"); };
+      /* board-shown reveals the board (css/style.css holds it at opacity 0
+         until then, so it never paints half-decoded). Failure and a 1.5s
+         safety net reveal it too: a slow or missing image must cost the
+         cork's texture, never the whole board. */
+      var shown = false;
+      var ready = function () {
+        if (shown) return;
+        shown = true;
+        root.classList.add("board-shown");
+      };
+      /* Counted from navigation start, not from when this script ran: on a
+         slow connection this file executes seconds in, and a fixed delay
+         from here left the wall bare far longer than intended. */
+      var since = window.performance && performance.now ? performance.now() : 0;
+      setTimeout(ready, Math.max(0, 1500 - since));
       if (!window.Promise || !new Image().decode) {
         var cork = new Image();
         cork.src = srcs[0];
-        cork.onload = ready;
+        cork.onload = cork.onerror = ready;
         return;
       }
       Promise.all(srcs.map(function (s) {
         var i = new Image();
         i.src = s;
         return i.decode();
-      })).then(ready).catch(function () {});
+      })).then(ready, ready);
     }
     function check() {
       if (wide.matches || root.classList.contains("board-open")) start();
@@ -183,10 +194,17 @@
   var STOPS = [
     { x: 1800, y: 1200, w: 3860, h: 2620 },  /* 0 whole board */
     { x: 1800, y: 1100, w: 900,  h: 700 },   /* 1 circular sticker */
-    { x: 926,  y: 613,  w: 1785, h: 1200 },  /* 2 about + polaroid, lifted 190 with them */
-    { x: 2745, y: 765,  w: 1260, h: 1200 },  /* 3 services cluster, four stickies */
-    { x: 2800, y: 1600, w: 1704, h: 1200 },  /* 4 work pane: postcard + room below for future products */
-    { x: 1640, y: 1910, w: 1428, h: 1200 },  /* 5 reviews: chad row over annie row */
+    /* 2-5 tightened 2026-10-28 on the owner's ask ("zoom in a little more so
+       that the words are readable"). They had been widened to rest at 0.75
+       for raster cost, but the zoom's smoothness turned out to hinge on
+       FLY_MS and settle timing (PROGRESS.md), so they now frame each zone's
+       measured paper extent (getBoundingClientRect, rotation included) with a
+       margin and room under the title strip: 1.0 at 1440x900 for 2, 4 and 5,
+       0.87 for 3, whose four stickies stack too tall for 1.0. */
+    { x: 896,  y: 554,  w: 1440, h: 900 },   /* 2 about + polaroid: papers 356-1436 x 287-880 */
+    { x: 2816, y: 723,  w: 1260, h: 1035 },  /* 3 services, four stickies: 2394-3237 x 320-1195 */
+    { x: 2920, y: 1527, w: 1440, h: 900 },   /* 4 portfolio postcard + pink sticky: 2511-3329 x 1286-1828 */
+    { x: 1708, y: 1661, w: 1440, h: 900 },   /* 5 reviews, Chad's row: 1109-2306 x 1442-1940 */
     /* 6 contact: Phase 7 retuned this to frame the new form sheet AND the
        postcard together, not the postcard alone. Their combined extent is
        NOT the two papers' nominal left/top/width/height added up: both
@@ -606,9 +624,17 @@
     var BW = board.clientWidth || 3408;
     var BH = board.clientHeight || 2208;
     var visW = vw / s, visH = vh / s;
-    if (visW < BW) { x = Math.max(visW / 2, Math.min(BW - visW / 2, x)); }
+    /* The clamp's limit is the OUTSIDE of the walnut frame, not the cork
+       (2026-10-28). Papers overhang the frame on purpose (the pink portfolio
+       sticky reaches about 85 board px past the cork), so clamping to the cork
+       meant a zoomed edge stop could never show them whole, which the tighter
+       zone framings made obvious. Letting a zoomed view run onto the frame
+       shows walnut at that edge, never bare wall. Centring when the view is
+       wider than the cork is unchanged, so the whole-board framing is too. */
+    var rim = parseFloat(getComputedStyle(board).borderLeftWidth) || 0;
+    if (visW < BW) { x = Math.max(visW / 2 - rim, Math.min(BW + rim - visW / 2, x)); }
     else { x = BW / 2; }
-    if (visH < BH) { y = Math.max(visH / 2, Math.min(BH - visH / 2, y)); }
+    if (visH < BH) { y = Math.max(visH / 2 - rim, Math.min(BH + rim - visH / 2, y)); }
     else { y = BH / 2; }
 
     /* The board's transform moves the WHOLE element, border included, but every

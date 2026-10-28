@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-uRbh2umu8cgFexG6jk2V9hCNCg1yTQJnHUGixbY8nGU='; font-src 'self'; connect-src https://formspree.io https://us.i.posthog.com; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-SpZBQdve0DnIN53bkA1GNiEDxtul8wv2DTjFEF1Nx7U='; font-src 'self'; connect-src https://formspree.io https://us.i.posthog.com; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- The floor, and the reason it is inline rather than in css/style.css: if
      that stylesheet 404s, every display rule on the page goes with it and BOTH
@@ -96,9 +96,15 @@
          parallel with parsing, so the pixels are in the decoded-image cache
          before the first tiles rasterize. Same URL as the preload and the
          stylesheet, so this is the cached response, not a new request. */
-      var cork = new Image();
-      cork.src = "assets/cork.webp";
-      if (cork.decode) cork.decode().catch(function () {});
+      /* All three of the board's background images, since 2026-10-28: the
+         board now waits, invisible, for every one of them to decode before it
+         is shown (html.board-shown in js/board.js). */
+      ["assets/cork.webp", "assets/board-key-light.webp",
+       "assets/board-shadow-pools.webp"].forEach(function (src) {
+        var img = new Image();
+        img.src = src;
+        if (img.decode) img.decode().catch(function () {});
+      });
     }
   } catch (e) {}
 })();
@@ -287,7 +293,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=119">
+<link rel="stylesheet" href="css/style.css?v=121">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -324,7 +330,7 @@
      stylesheet never asks for the texture; someone tapping the sticky note
      into the board on a phone fetches it then, exactly as before. -->
 <link rel="preload" as="image" href="assets/cork.webp" fetchpriority="high" media="(min-width: 901px)">
-<!-- The board's baked lighting. These two gate html.cork-ready alongside the
+<!-- The board's baked lighting. These two gate html.board-shown alongside the
      cork itself (see js/board.js), so the swap to the cheap background stack
      waits on all three; preloading them keeps that wait short rather than
      leaving the board on its gradient stack until a late discovery. -->
@@ -379,7 +385,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=61">
+<link rel="preload" as="script" href="js/board.js?v=65">
 <link rel="preload" as="script" href="js/hand.js?v=8">
 </head>
 <body>
@@ -526,7 +532,7 @@
       <h2 class="band-label" id="about-title">About</h2>
       <div class="about-grid">
       <figure class="portrait">
-        <img src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200">
+        <img src="assets/caden.webp" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200">
         <figcaption class="meta">Caden Whitt, Founder</figcaption>
       </figure>
       <div class="about-copy">
@@ -562,7 +568,7 @@
       <h2 class="band-label" id="portfolio-title">Portfolio</h2>
       <figure class="plate">
         <div class="plate-frame">
-          <img src="assets/levelup-card-900.jpg"
+          <img src="assets/levelup-card-900.webp"
                width="900" height="562" loading="lazy" decoding="async"
                alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level. beside the Level Up arrow logo.">
         </div>
@@ -573,7 +579,7 @@
       <p class="work-note">More portfolio available on request.</p>
 
       <figure class="testimonial">
-        <img class="testimonial-photo" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="480" height="480">
+        <img class="testimonial-photo" src="assets/chad.webp" alt="Chad Prewett and his wife at an event" width="480" height="480">
         <blockquote class="testimonial-quote">
           <p>&ldquo;Quick turnaround, great design, and excellent support. He built exactly what I envisioned and was helpful from start to finish.&rdquo;</p>
         </blockquote>
@@ -1193,7 +1199,7 @@
       </section>
 
       <figure class="polaroid frame-1 caden-polaroid" data-zone-stop="2" style="left:1060px; top:430px; --rot:3.3deg">
-        <img class="pol-photo" fetchpriority="high" src="assets/caden.jpg" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200" decoding="async">
+        <img class="pol-photo" fetchpriority="high" src="assets/caden.webp" alt="Caden Whitt, founder of WhittWorks Studios, in a grey suit" width="800" height="1200" decoding="async">
         <span class="pol-gloss" aria-hidden="true"></span>
         <figcaption class="hand">Caden Whitt, Founder</figcaption>
       </figure>
@@ -1227,7 +1233,7 @@
         <!-- no loading="lazy" here: this shot is inside the stop-0 opening view,
              and postcard-front.webp's picture area was compressed hard precisely
              because this covers it. Deferring it shows a soft card first. -->
-        <img class="pc-picture" fetchpriority="high" src="assets/levelup-card-900.jpg" width="900" height="562" decoding="async"
+        <img class="pc-picture" fetchpriority="high" src="assets/levelup-card-900.webp" width="900" height="562" decoding="async"
              alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level.">
         <span class="pc-grain" aria-hidden="true"></span>
         <span class="tape tape-tl2" aria-hidden="true"></span>
@@ -1255,7 +1261,7 @@
       </section>
 
       <figure class="polaroid frame-2 chad-polaroid" data-zone-stop="5" style="left:1119px; top:1450px; --rot:-2.6deg">
-        <img class="pol-photo" fetchpriority="high" src="assets/chad.jpg" alt="Chad Prewett and his wife at an event" width="625" height="760" decoding="async">
+        <img class="pol-photo" fetchpriority="high" src="assets/chad.webp" alt="Chad Prewett and his wife at an event" width="625" height="760" decoding="async">
         <span class="pol-gloss" aria-hidden="true"></span>
         <figcaption class="hand">Chad Prewett</figcaption>
       </figure>
@@ -1523,7 +1529,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=61"></script>
+<script src="js/board.js?v=65"></script>
 <script src="js/hand.js?v=8"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them

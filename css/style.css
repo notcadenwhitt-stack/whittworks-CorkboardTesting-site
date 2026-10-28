@@ -1215,85 +1215,26 @@ html.board-zoomed .board-back-btn { display: flex; }
      that same file. Measured against a loaded render, the raw median was off
      by 13.2 mean channel levels, this by 2.6. */
   background-color: #bb6c27;
-  /* cork.webp at 144x144, 2.7KB of WebP inlined here so it is decodable in
-     the first frame. It is laid TWICE below, at the same two sizes and the
-     same two blend modes as the scan, so the placeholder is not a colour
-     standing in for the composite — it is the composite, computed by the
-     browser from low-resolution inputs. */
-  --cork-lq: url("data:image/webp;base64,UklGRrIKAABXRUJQVlA4IKYKAAAwHwCdASqQAJAAPtVgpU2oJaMiKrcdCQAaiWdVaCV3tZeUCVmF7z2mouUL3uX4qwvhihlAZYE0u2gBYLzVn0/Xpgi+3V2e/yeY3wz/qdfk0v+964iGXJBK8CdysSdVB9YshmgM9kpgsgfMJ43nLWi0bu1SzywzC2fDpT/B+aRGNfw+34HfcFxMk5wONxV4vGJBWZXfE55/bYoPUDYaBn+gEP1p48fenk12APOdSS57C7RnUD9JQ8+cJo0eRdSC4GXRUpZd2Qfjh6d7BxYyTRYpuoDSnR2uPCPGvmfQZ8BzY6NvaXGy2NguHUXR28Su+7xR65PBLk7raB0faQnxJiBjIAAA/r1lIC0MkYuG34Ttoo2JRB8bO4prYe6xzLFHAF+hjS1UHpmpucUTC64z/bda//8B0YcrV43//O1sMQVJ2ecvbzGHwbEVr0vp8m1HEixBoUUhNgvoCRwon5ynjyPjY8whjzhbrCTKk52IwEovVNLgbbD2gRYYq3nt3omYhzChCrC4lTyYSa8GSqJuXT8ZmNrUSTaJIgwLvCASVcr2RhJ6YXIQDx8Pnw2gOF3saqFuGBEujDMbTEYGmLDkkyW35oseUArzi5P1zcIrlddFVqxotI6bbuoOztYNN802KpK9eTznjDWgDFR9wYE28i9AL7+OiGq3mbyUoJM3ItuZp+4LK1AccvPRuScvQCzIjn5PkPh9f1tX/n64Qv2fxnykAS5fJJ3RgkCuz7jz5nsvZKqCITc68o7zvJekGWrXwfDorugLwsd4r5jy7vjYxVBflRSSwC6ecGIySWB3NEJmSKDU/8o1G7RtXAjiG0Zxt4Y+2wgdmlxcF1B+R0SKP+8VClK4OYj1f+dMXv4eCvtPGlfwZgrcW3ytUhlvRkcI4nyeAOIOnQFS9vQvBs/ey4rmq15ycUy74g6MCu5OfiqJPSDHQbkvFFkUmg/lgFGmI/q08dj/qZ+EQhhTeTecdYPMwxlYoognAfsGStBmtgNN/txWe/4zjSqUsA6gyG8HU7Qt1/A4XusWaLhcTxAt8zwwxQYFcyCmEKB4w0YBUNo2bPgwPAwjNxifqkyKcBFR5BSkIE8IHCjKJhXW+l/Irg8JmE0YtCZomvDNhV6giHURmVfWmnKqmULOIo6tyxRuIRFT+1h6jGvQvpKPfjkxYahNXoLgQt9qXFGY+Hn8pBbfnGSJV84gB9VDLd0wtoftFVLgz9L0Pkbo5/Q4BQ3+MO2JWYn/vTDxjE/RdMs8k5AOqwVZETmXRg2lgAU0b4qTjzNEwXI6vWvHDCzR/kqiBOdI3QnBxBnvdJkY7PzdEUzr0bjy69WPlbCUE75qBS8UnkkILV1cfvC9UQqxr469yAvZELHlU4nkqf5E5VEAQLFeYAaUY3OzaetCFYuluAND2FDVsm0DYP+ZvUdpzCTZ11zHbUikhfdXpDEjLsqsSOZhtJjKJ37vR3bfkBqEXZo3n7KDUaNfUCMOP6elzEtnvLphaHO52bOqCbzytITAs6lfO43GJmiQss3vI/XxJLCgI5tbUc//XxVPayR3JEJ0tQvMOnEasLUR4n6tKrj6GqQkTWn68wMADG+wmGaWowqN16LLdsoR21Ry75XG387E10RkPUEZM6uEG+JXLD16mwTHKcd8+31ZXVe+Jbd4euCued1SbN5rQcyhUwIhIR2/ShuGYVs1x8OuanPC47psuNIf2GYfv8w6Yjuaehrb8ACEjk0UXWJaemwAbU6d4USn6qKqEV05ZKn69jnIAZMwaafxszNuI3LP0/GhByVecVBRasfygnALZFHzZCIy9Jj4IcwEIhk1Ze2j5GLGBzgscL7cmZtfYSJDJQ/nTeS7e4od1HhblUuu4yLPNLrx69ypz+v9yHSEx5POsnj4YjS6EGN3RzCMbvu181U7dGzW95NLB9ZQDONgDNPTYBAO5y45U/KNBAhYELGgNC/DsHdbNkULoZymoLRTxa+Zp28FXS+VmaZfFHG4dMRQKPmEayZS3/WyR4rBLHtWxHQYz8G4AimSUxtpqZP7EZp+lYfZkyHXqKfRh7pWjAuaskuQzSEMeN8xEeErYHvCXeM99uiYvG8cU/CZqN50pXkLfNNQr6qEL/O3iKgGUn1ZpSkg6ZrDkURrKwWEsQhP1X/X4oztzhbQGsrn+W3/wPEiCecfnY2OJ+KKj8s8sTUhuWgYMfJtRcdId/JIDJoTvCniR1fBwxlu6AeM2eW0wK0PHHcRsBKfXnannxvYhB4RZpa3oN3ZCKRDT30Hg1iuC7240VhScfG+vmp6aXslYEKy+ICUxrt3m3QDmcr7PAVK+S7neVuLq0FhOM+/5u8cUuitKy6IEdoYFHZqSGDcPj0nGQZXafSevQkTmvs5u48qYJt6EIosGV9MpiTgvAueYJiW3SdWBn61eatlba2ho2TbR82FmdmAWCK+SUVCje4CPyXJ/6qFt0ii3JCvgoFSuc5i/LVu7vemMWR1d2WIoUh86KBMl2hTsg731TdWGUq1mDhfN8xhefEEr87mYjtilG13W5yT/LQNp9MIKI/GGF+OBAfIs4B2GoaOaaYkicm3HWoBd1tHZ88p4jZ0jg9kYBFMDBRX0DM0Wy6kkN0Xv+6HvdjYt8Phse4/oa1wq5/ItnBFiIhHyCx42nRKdWXxQPx6P4QKiXcaZfI9bSnupeaErKNDjwc7jHunFxlkvB9/Oslsf82k/OzcGvP6bKZjkBBeetv0r3thlI8z2wtBxkKWkJwbh2ZHt81SCsKRiq3a/rNmJ141pSVXiqKlyBINJ8avPAI5qF16AXbmLJhPpYb+ScNF/0jk/epYYeCh8xNGlhM16oc8NLB1pvCRX1+WlpXc2J3rkxnSR1L+8IiemXp3XqyoSNvHm/wDqMl1Xe3toayeZRi2HavFA0i7I74gcUNZPOlviGF6zvsQHoHEXAHuchW/VpTKBg6w5RgYN27aDh8cMU6HQu61COh3IIAMfX+WSj4t/tM6e+oHyNO/Xh2fX4EgWZdK52WMyF68edz3MsRmgOoRGUU0lPigtiEmGuOmFku47L6iu4HZFUUEwmBvia2ZB0ZFd6RqwThUH+f8SVzSxFrOPZfeNFi9fCDFRqsQKJ1rQgUCDcvZwY+PsQakDcBpdnkNEpdX6LcfRbAqtn4OJCF8ffnGE//N6bcRS/+22mr6i50bvsBLLqaPQNpKwUOh17iRQxIkskXl6Knzf8WtcjfusbaAme9BPfcWWP9/K4K+HZ9wzvIkZnhv8OOfORGJ9yjljGC9qGc2c4gKsFdCVQnkQo/r9r5KqnMK+a8EpXWyAkNLasGCJFgbfWRb8kqpA600Q0rvkQRsIvmsRAvaify9luz1BTFqvRoN6/5oMIo6EBbIUYOtQ3KWxtjRGKQhTEJhornNum08IKG3OwIlqMxDSQjpCIEhiXPGtlssfwam8lNVsV4jG3SAA8rgQHCKThW0aTHoPXJuCOsLeVSARNyyD8h3pmhfIAyRvQfHXJjlrEIQRo86wMWww8fADwyKx2K8PqksKuVCaERHLUEPEGzE4WyryBphE73YpMlNzy7GVS1Z3ogYaCRODNQ2Smvf8wkDeh9GE/GyKC+YeD6bTnoRfKD1EUr2TcPFYzYWfKzIWO8M5+JasQAAAA==");
-  /* real photographed cork. the same scan twice at sizes with no common
-     period inside the board (1180 and 890 only line up again at 105,020px),
-     so there is no repeat to find. lighting is a lamp high on the left, not
-     a symmetric vignette: one warm pool off-centre, two unequal dark pools. */
-  background-image:
-    /* the key light is across the room, not a lamp a metre off the board:
-       broad enough that there is no hotspot to locate, which is what makes
-       the parallel shadows below read as one distant source */
-    radial-gradient(140% 120% at 36% 24%, rgba(255, 240, 210, 0.22), rgba(128, 110, 90, 0) 72%),
-    radial-gradient(90% 80% at 78% 96%, rgba(50, 28, 10, 0.5), rgba(128, 110, 90, 0) 62%),
-    radial-gradient(115% 95% at 2% 86%, rgba(45, 26, 10, 0.42), rgba(128, 110, 90, 0) 64%),
-    url("../assets/cork.webp"),
-    url("../assets/cork.webp"),
-    /* the same two layers again, in miniature, underneath. the 1180 layer is
-       `normal` and opaque, so the moment cork.webp decodes it covers both of
-       these outright: there is no fade, no transition, nothing to schedule. */
-    var(--cork-lq),
-    var(--cork-lq);
-  background-position: 0 0, 0 0, 0 0, 380px 610px, 0 0, 380px 610px, 0 0;
-  background-size: auto, auto, auto, 890px 890px, 1180px 1180px, 890px 890px, 1180px 1180px;
-  background-blend-mode: soft-light, multiply, multiply, soft-light, normal, soft-light, normal;
-}
+  /* ONE background from the first frame, 2026-10-28. The board used to open
+     on a placeholder stack (a 2.7KB inlined cork laid twice under three live
+     radial gradients) and swap to this one under html.cork-ready once the
+     images decoded. That swap invalidated the whole 3600x2400 layer at once,
+     and while it re-rasterised the flat .board-floor showed through in
+     horizontal bands: the "old visuals under the board" the owner saw during
+     loading, filmed on staging at 300ms. Now nothing swaps. The board stays
+     invisible until these images have decoded (html.board-shown, set by
+     js/board.js, revealed by 1.5s after navigation at the latest), then
+     fades in already final.
 
-/* THE STEADY-STATE BACKGROUND, and the single biggest thing separating a
-   smooth zoom from a stuttering one. Profiled, not guessed.
-
-   Two things change once the board's images have decoded.
-
-   ONE: the two --cork-lq layers go. They exist to cover the board before
-   cork.webp decodes, and the 1180 layer above them is `normal` and opaque, so
-   the instant the real scan lands they are invisible. Invisible is not free --
-   they stay in the stack as two more blended layers to composite across the
-   whole board every time this layer rasterises, which is every scale change
-   the camera makes.
-
-   TWO, and this is the expensive one: the three radial gradients become two
-   baked images. Chrome re-rasterises this layer at intermediate scales during
-   a zoom, and evaluating three gradient functions across roughly 7.5 million
-   pixels is what made those re-rasters cost 100-150ms each. Measured with the
-   GPU on: the zoom-in's worst frame fell from 150.8ms to 50ms, and the zoom
-   out went from two slow frames to NONE, with an 18.4ms worst frame -- inside
-   the 60fps budget. Sampling a texture is cheap; evaluating a gradient per
-   pixel is not.
-
-   THE BAKES ARE EXACT, not approximations, and the arithmetic is why:
-
-     board-shadow-pools.webp replaces BOTH multiply gradients with one image.
-     Multiplying a backdrop by one factor and then by another is the same as
-     multiplying by their product, so the two compose into a single layer with
-     nothing lost. The image IS that product, obtained by rendering the two
-     gradients over white -- multiply against white returns the factor itself.
-
-     board-key-light.webp replaces the soft-light gradient. Soft-light does
-     NOT reduce the way multiply does, so this one keeps its own layer and its
-     own blend mode; the image merely carries the gradient's colour and alpha
-     instead of making the rasteriser derive them per pixel.
-
-   Both were rendered by this same engine rather than by reimplementing CSS
-   gradient maths, so they agree by construction. Verified against the live
-   gradients at three zoom scales: worst channel delta 5 levels out of 255,
-   mean absolute error a quarter of one level, and under 0.007% of pixels
-   differing by more than two levels. Invisible.
-
-   background-size is 100% 100% on both because these are single images
-   stretched over the whole board rather than tiles. They are smooth enough
-   that the upscale costs nothing visible, which is why the key light ships at
-   half the board's resolution and still outweighs the shadow image at full.
-
-   IF YOU RETUNE THE LIGHTING: the three gradients in the .board rule above
-   are the source of truth and these two files are derived from them. Change
-   one without re-baking the other and the board will visibly shift at the
-   moment the images decode. */
-html.cork-ready .board {
+     The lighting bakes are derived from three gradients that are no longer
+     in any rule; keep them here as the source of truth for a re-bake:
+       radial-gradient(140% 120% at 36% 24%, rgba(255,240,210,.22), rgba(128,110,90,0) 72%)  soft-light
+       radial-gradient(90% 80% at 78% 96%, rgba(50,28,10,.5), rgba(128,110,90,0) 62%)        multiply
+       radial-gradient(115% 95% at 2% 86%, rgba(45,26,10,.42), rgba(128,110,90,0) 64%)       multiply
+     The two multiply layers bake into board-shadow-pools.webp (multiply is
+     associative), the soft-light one into board-key-light.webp. Change the
+     lighting by editing these, re-rendering both images in Chrome, and
+     diffing at three zoom scales, as recorded in PROGRESS.md 2026-08-24. */
   background-image:
     url("../assets/board-key-light.webp"),
     url("../assets/board-shadow-pools.webp"),
@@ -1303,6 +1244,22 @@ html.cork-ready .board {
   background-size: 100% 100%, 100% 100%, 890px 890px, 1180px 1180px;
   background-blend-mode: soft-light, multiply, soft-light, normal;
 }
+
+/* The reveal. Board-design loads only (board-first is the head script's
+   901px decision); reading mode and phones never hide anything. opacity, not
+   visibility, so innerText and the tripwires are unaffected. The floor hides
+   with the board so the wall, not a flat orange slab, is what shows while the
+   images decode. Reduced motion drops the fade via the global rule below. */
+html.board-first:not(.board-shown) .board,
+html.board-first:not(.board-shown) .board-floor { opacity: 0; }
+html.board-first .board,
+html.board-first .board-floor { transition: opacity 0.35s ease-out; }
+
+/* THE STEADY-STATE BACKGROUND used to live here as html.cork-ready .board,
+   swapped in over a placeholder stack. It is now the .board rule itself; see
+   the comment there. Why it is two baked images and not three gradients is
+   unchanged: evaluating three gradients across ~7.5 million pixels made each
+   zoom re-raster cost 100-150ms, and sampling a texture does not. */
 
 /* --- red string + pins -------------------------------------------- */
 
