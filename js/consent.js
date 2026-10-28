@@ -7,8 +7,6 @@
   var corkboard = document.getElementById("corkboard");
 
   var forced = false;
-
-  var confirming = false;
   var choice = read();
 
   function read() {
@@ -29,25 +27,20 @@
       button.classList.toggle("is-chosen", chosen);
       button.setAttribute("aria-pressed", chosen ? "true" : "false");
     });
-    var hide = !forced && !confirming && (!!choice || boardShowing());
+    var hide = !forced && (!!choice || boardShowing());
     bars.forEach(function (bar) {
       bar.hidden = hide;
-      var question = bar.querySelector("[data-cookie-question]");
-      var done = bar.querySelector("[data-cookie-done]");
-      if (question) question.hidden = confirming;
-      if (done) done.hidden = !confirming;
     });
   }
 
-  function confirm(bar, value) {
-    var message = bar.querySelector("[data-cookie-message]");
-    var done = bar.querySelector("[data-cookie-done]");
-    if (!message || !done) return;
-    message.textContent = (value === "granted" ? "You've accepted analytics cookies." :
-      "You've rejected analytics cookies.") + " You can change your cookie settings at any time.";
-    confirming = true;
+  function close() {
+    forced = false;
     render();
-    done.focus();
+    var title = document.querySelector(".wordmark");
+    if (title) {
+      title.setAttribute("tabindex", "-1");
+      try { title.focus({ preventScroll: true }); } catch (e) { title.focus(); }
+    }
   }
 
   buttons.forEach(function (button) {
@@ -57,25 +50,15 @@
       choice = value;
       try { localStorage.setItem(KEY, value); } catch (e) {}
       forced = false;
-      var bar = button.closest("[data-consent-bar]");
-      if (bar) confirm(bar, value);
+      if (button.closest("[data-consent-bar]")) close();
       else render();
       window.dispatchEvent(new CustomEvent("ww-consent", { detail: { value: value } }));
-    });
-  });
-
-  document.querySelectorAll("[data-cookie-hide]").forEach(function (button) {
-    button.addEventListener("click", function () {
-      confirming = false;
-      forced = false;
-      render();
     });
   });
 
   document.querySelectorAll("[data-consent-open]").forEach(function (button) {
     button.addEventListener("click", function () {
       forced = true;
-      confirming = false;
       render();
       var first = bars.length && bars[0].querySelector("button");
       if (first) first.focus();

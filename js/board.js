@@ -260,6 +260,7 @@
     var t = framingTransform(x, y, s, vw, vh);
     board.style.transform = t;
     if (floor) floor.style.transform = t;
+    if (snapReady) snap.style.transform = t;
   }
 
   function framingTransform(x, y, s, vw, vh) {
@@ -387,7 +388,12 @@
     if (!src) return;
     var img = new Image();
     img.src = src;
-    var done = function () { snap.src = src; snapReady = true; };
+    var done = function () {
+      snap.src = src;
+      snap.style.transform = board.style.transform;
+      snapReady = true;
+      document.documentElement.classList.add("snap-ready");
+    };
     if (img.decode) img.decode().then(done, function () {});
     else img.onload = done;
   }
@@ -407,28 +413,22 @@
     if (snapTimer !== null) { clearTimeout(snapTimer); snapTimer = null; }
     if (snapRevealTimer !== null) { clearTimeout(snapRevealTimer); snapRevealTimer = null; }
     snap.removeEventListener("transitionend", onSnapEnd);
-    snap.style.transition = "none";
-    board.style.transition = immediate ? "none" : "opacity 160ms ease-out";
+
+    board.style.transition = immediate ? "none" : "opacity 280ms ease-out";
     if (floor) floor.style.transition = "none";
     root.classList.remove("snap-flying");
-    if (immediate) {
-      root.classList.remove("snap-showing");
-      board.style.transition = "";
-      if (floor) floor.style.transition = "";
-      return;
-    }
     snapRevealTimer = setTimeout(function () {
       snapRevealTimer = null;
-      root.classList.remove("snap-showing");
       board.style.transition = "";
       if (floor) floor.style.transition = "";
-    }, 450);
+    }, immediate ? 0 : 400);
   }
 
   function landSnapshot() {
     if (!flying) return;
     flying = false;
 
+    snap.style.transition = "none";
     markMoving();
     update();
     endSnapshot(false);
@@ -449,7 +449,7 @@
     snap.style.transform = framingTransform(from.x, from.y, from.s, vw, vh);
     board.style.transition = "none";
     if (floor) floor.style.transition = "none";
-    root.classList.add("snap-showing", "snap-flying");
+    root.classList.add("snap-flying");
     window.scrollTo({ top: target, behavior: "auto" });
 
     void snap.offsetWidth;
@@ -480,6 +480,7 @@
   function cancelFlight(resync) {
     if (flying && snap && document.documentElement.classList.contains("snap-flying")) {
       flying = false;
+      snap.style.transition = "none";
       update();
       endSnapshot(true);
       return;
