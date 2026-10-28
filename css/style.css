@@ -506,17 +506,31 @@ html.board-zoomed .board-back-btn { display: flex; }
    below tablet width we tighten the strip and shrink the kebab to match.
    desktop (>=900px, well above this query) is untouched. */
 @media (max-width: 700px) {
+  /* Left-aligned on a phone, and capped to clear BOTH fixed controls on the
+     right (Help! about 69px at right:52, the kebab 34px at right:10), not just
+     the kebab: the old cap ran the strip under Help! and cut the kicker. */
   .deskbar {
     top: 10px;
-    padding: 0.35rem 0.75rem;
-    /* leaves room on the right for the kebab, which sits outside .deskbar
-       and would otherwise sit on top of a full-width centered strip */
-    max-width: calc(100vw - 66px);
+    left: 10px;
+    transform: rotate(-0.4deg);
+    padding: 0.35rem 0.7rem 0.3rem;
+    gap: 0.5rem;
+    max-width: calc(100vw - 141px);
   }
+  .deskbar-mark { width: 1.75rem; }
 
   .deskbar-name {
-    font-size: clamp(1rem, 4.6vw, 1.35rem);
+    font-size: clamp(0.85rem, 3.9vw, 1.2rem);
   }
+  .deskbar-kicker { font-size: 0.56rem; letter-spacing: 0.14em; }
+
+  .board-help-btn {
+    top: 10px;
+    right: 52px;
+    height: 34px;
+    padding: 0 12px;
+  }
+  .board-help-icon { font-size: 15px; }
 
   .board-menu-btn {
     top: 10px;

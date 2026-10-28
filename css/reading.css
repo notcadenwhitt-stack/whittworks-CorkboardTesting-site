@@ -342,3 +342,47 @@
    board, and the back arrow is the one promise the layout cannot keep.
    --------------------------------------------------------------------------- */
 .welcome-step-back { display: none; }
+
+
+/* ---------------------------------------------------------------------------
+   PHONE WIDTH (2026-10-28 audit). The rules above reflow the papers; three
+   pieces still assumed board pixels and broke on a phone: the contact sheet
+   kept its 880x480 inline box and was clipped on both sides, the 520px
+   sticker spilled past the screen, and the welcome panel kept the board's
+   3:2 box with a column that hides overflow, so its text overprinted itself
+   and the Allow/Deny buttons were cut off. Scoped to narrow windows only, so
+   the short-and-wide case this sheet also serves keeps its own tiers.
+   --------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .contact-form {
+    width: 100% !important;
+    height: auto !important;
+    padding: 2.4rem 1.25rem 1.5rem;
+  }
+  .contact-form .cf-row { grid-template-columns: 1fr; }
+
+  .sticker {
+    width: min(72vw, 18rem) !important;
+    height: auto !important;
+    aspect-ratio: 1;
+  }
+  .sticker-disc { width: 87%; height: 87%; border-width: 10px; }
+  .sticker-mark { width: 62%; }
+
+  .welcome-panel {
+    --w: calc(100vw - 24px);
+    width: var(--w);
+    height: auto;
+    max-height: calc(100svh - 24px);
+    overflow-y: auto;
+  }
+  .welcome-body { flex-direction: column; }
+  .welcome-col-text { overflow: visible; }
+  .welcome-col-sketch { display: none; }
+  .welcome-col { padding: 20px 20px 8px; }
+  .welcome-footer { position: static; justify-content: center; padding: 0 20px 18px; }
+}
+
+/* The menu's scrollIntoView lands a card under the fixed title strip unless
+   the card leaves room for it. */
+.card, .sticky, .polaroid, .postcard { scroll-margin-top: 5.5rem; }

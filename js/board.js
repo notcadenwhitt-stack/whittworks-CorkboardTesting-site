@@ -54,22 +54,48 @@
      lighting would drop out and pop back. Promise.all keeps the swap atomic.
      Any failure leaves the gradient stack in place, which is why the catch
      returns rather than promoting: a missing bake must degrade to the old
-     look, never to an unlit board. */
+     look, never to an unlit board.
+
+     Only once the board can actually be seen. This used to run on every
+     load, so every phone fetched about 350KB of cork and lighting the
+     editorial design never paints (audit 2026-10-28). It now starts at the
+     board's own 901px breakpoint, or when a phone opens the board through
+     the sticky note (board-open), whichever comes first. */
   (function () {
-    var srcs = ["assets/cork.webp", "assets/board-key-light.webp",
-                "assets/board-shadow-pools.webp"];
-    var ready = function () { document.documentElement.classList.add("cork-ready"); };
-    if (!window.Promise || !new Image().decode) {
-      var cork = new Image();
-      cork.src = srcs[0];
-      cork.onload = ready;
-      return;
+    var root = document.documentElement;
+    var wide = window.matchMedia("(min-width: 901px)");
+    var started = false;
+    var watcher = null;
+    function start() {
+      if (started) return;
+      started = true;
+      if (watcher) watcher.disconnect();
+      if (wide.removeEventListener) wide.removeEventListener("change", check);
+      var srcs = ["assets/cork.webp", "assets/board-key-light.webp",
+                  "assets/board-shadow-pools.webp"];
+      var ready = function () { root.classList.add("cork-ready"); };
+      if (!window.Promise || !new Image().decode) {
+        var cork = new Image();
+        cork.src = srcs[0];
+        cork.onload = ready;
+        return;
+      }
+      Promise.all(srcs.map(function (s) {
+        var i = new Image();
+        i.src = s;
+        return i.decode();
+      })).then(ready).catch(function () {});
     }
-    Promise.all(srcs.map(function (s) {
-      var i = new Image();
-      i.src = s;
-      return i.decode();
-    })).then(ready).catch(function () {});
+    function check() {
+      if (wide.matches || root.classList.contains("board-open")) start();
+    }
+    check();
+    if (started) return;
+    if (wide.addEventListener) wide.addEventListener("change", check);
+    if (window.MutationObserver) {
+      watcher = new MutationObserver(check);
+      watcher.observe(root, { attributes: true, attributeFilter: ["class"] });
+    }
   })();
 
   var board = document.getElementById("board");
@@ -1082,6 +1108,11 @@
      js/welcome.js toggles on the panel itself for exactly this read. */
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
+    /* Only while the board is on screen, and never from inside a form field:
+       on the editorial page this used to scroll a phone back to the top, and
+       in a field Escape belongs to the field (closing an autofill list). */
+    if (!cameraActive() && !document.documentElement.classList.contains("board-open")) return;
+    if (e.target && e.target.closest && e.target.closest("input, textarea, select")) return;
     var menuBtn = document.querySelector(".board-menu-btn");
     if (menuBtn && menuBtn.getAttribute("aria-expanded") === "true") return;
     var welcomePanel = document.getElementById("welcome-panel");
