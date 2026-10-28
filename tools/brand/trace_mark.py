@@ -83,10 +83,10 @@ def main():
     og.save(assets/'og-thumbnail.jpg',quality=86,progressive=True)
     # A 315 px mark height, with a matching width fraction for the renderer.
     fraction=(315*WIDTH/HEIGHT)/1200
-    raster((1200,630),fraction,NAVY,{BLUE:'#FFFFFF',NAVY:'#9DB8E8'}).convert('RGB').save(assets/'og-thumbnail-navy.jpg',quality=86,progressive=True)
+    raster((1200,630),fraction,NAVY,{BLUE:'#FFFFFF',NAVY:'#9DB8E8'}).convert('RGB').save(ROOT/'tools/brand/og-thumbnail-navy.jpg',quality=86,progressive=True)
     readme=ROOT/'tools/brand/README.md'
     readme.write_text('logo-source.png is the original full WhittWorks logo lockup.\ntrace_mark.py traces the W with straight polygons, verifies blue and navy overlap, and generates the reusable mark SVG and browser and Apple icons.\nThe two JPEG share images show the full lockup on white and the traced mark with pale facets on navy.\nRegenerate every asset from the repository root with `python3 -I tools/brand/trace_mark.py` using Python 3 and Pillow 11 or later.\n')
-    files=['tools/brand/logo-source.png','tools/brand/trace_mark.py','assets/brand/w-mark.svg','assets/favicon.svg','assets/favicon-32.png','assets/favicon-512.png','assets/apple-touch-icon.png','assets/og-thumbnail.jpg','assets/og-thumbnail-navy.jpg','tools/brand/README.md']
+    files=['tools/brand/logo-source.png','tools/brand/trace_mark.py','assets/brand/w-mark.svg','assets/favicon.svg','assets/favicon-32.png','assets/favicon-512.png','assets/apple-touch-icon.png','assets/og-thumbnail.jpg','tools/brand/og-thumbnail-navy.jpg','tools/brand/README.md']
     for name in files:
         path=ROOT/name
         if path.suffix in ('.png','.jpg'):
@@ -97,6 +97,6 @@ def main():
     assert (brand/'w-mark.svg').stat().st_size<4096
     assert (assets/'favicon.svg').stat().st_size<3072
     assert (assets/'og-thumbnail.jpg').stat().st_size<80000
-    assert (assets/'og-thumbnail-navy.jpg').stat().st_size<60000
+    assert (ROOT/'tools/brand/og-thumbnail-navy.jpg').stat().st_size<60000
 
 if __name__=='__main__':main()

@@ -26,7 +26,8 @@ import { tmpdir } from "node:os";
 import { extname, join, resolve, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(fileURLToPath(new URL("../..", import.meta.url)));
+/* SITE_ROOT points it at another copy, e.g. a tools/release/build.py output. */
+const ROOT = process.env.SITE_ROOT ? resolve(process.env.SITE_ROOT) : resolve(fileURLToPath(new URL("../..", import.meta.url)));
 
 const CHROME = [
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",

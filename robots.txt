@@ -78,3 +78,5 @@ Disallow:
 User-agent: Bytespider
 Disallow:
 # Disallow: /
+
+Sitemap: https://whittworkstudios.com/sitemap.xml
