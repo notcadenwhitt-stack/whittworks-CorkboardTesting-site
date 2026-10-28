@@ -26,9 +26,10 @@ MANIFEST = os.path.join(ROOT, "assets", "board-snapshot.json")
 
 
 def inputs_hash():
-    """Every file that changes how the board looks, in a fixed order. The
-    snapshot's own cache-busting query in index.html is blanked first, or
-    bumping it would make the snapshot stale by definition."""
+    """Every file that changes how the board looks, in a fixed order. Every
+    ?v= cache-busting query in index.html is blanked first: bumping one never
+    changes how the board looks, and the snapshot's own would otherwise make
+    it stale by definition."""
     h = hashlib.sha256()
     files = ["index.html", "css/style.css", "js/hand.js"]
     for sub in ("assets/paper", "assets/fonts"):
@@ -38,7 +39,7 @@ def inputs_hash():
     for rel in files:
         data = open(os.path.join(ROOT, rel), "rb").read()
         if rel == "index.html":
-            data = re.sub(rb"board-snapshot\.webp\?v=\d+", b"board-snapshot.webp", data)
+            data = re.sub(rb"\?v=\d+", b"", data)
         h.update(rel.encode() + b"\0" + hashlib.sha256(data).digest())
     return h.hexdigest()
 
