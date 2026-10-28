@@ -204,13 +204,18 @@
    request, and anything asking for 700 gets real Inter instead of a synthesised
    bold. Caveat's rule above already reads its range the same way. */
 
+/* League Spartan is the brand face from 2026-10-28, picked to match the
+   heavy geometric "WHITT WORKS" and thin "STUDIOS" in the owner's blue logo.
+   One variable file covers the whole 100..900 axis, so the heavy headings and
+   the light letterspaced labels are a single 22.5KB request. Subset from
+   github.com/google/fonts ofl/leaguespartan with fontTools; see SOURCES.md. */
 @font-face {
-  font-family: "Anton";
+  font-family: "League Spartan";
   font-style: normal;
-  font-weight: 400;
+  font-weight: 100 900;
   font-display: swap;
-  src: url("../assets/fonts/anton-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url("../assets/fonts/league-spartan-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -238,6 +243,13 @@
   --camera-active: 1;
 
   --ink: #191919;
+  /* Brand colours, sampled from the logo file: the W's blue and its navy
+     facets. --red survives only for error states and the physical red ink
+     drawn on the board, never as a brand accent. */
+  --brand: #004AAD;
+  --brand-deep: #04367B;
+  --brand-ink: #0B1B33;
+  --chrome: #ffffff;
   --red: #b3271c;
   --card: #fbf8f1;
 
@@ -253,7 +265,7 @@
      stylesheet, so the deskbar title needs its own copy of the same
      variable. Kept byte-identical to css/editorial.css:43 on purpose: one
      face, one fallback order, regardless of which design is on screen. */
-  --display: "Anton", "Arial Narrow", Impact, sans-serif;
+  --display: "League Spartan", "Futura", "Century Gothic", "Avenir Next", sans-serif;
 }
 
 *,
@@ -275,7 +287,7 @@ h1, h2, p, figure { margin: 0; }
 ul { margin: 0; padding: 0; list-style: none; }
 a { color: inherit; }
 
-:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
 
 /* invisible scroll runway that drives the camera */
 .scroll-space { height: 1300vh; }
@@ -288,11 +300,17 @@ a { color: inherit; }
   left: 50%;
   transform: translateX(-50%) rotate(-0.4deg);
   z-index: 50;
-  padding: 0.5rem 1.2rem;
-  background: #f4efe2;
+  padding: 0.55rem 1.3rem 0.5rem;
+  background: var(--chrome);
+  border-bottom: 3px solid var(--brand);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
+.deskbar-mark { width: 2.6rem; height: auto; flex: 0 0 auto; }
+.deskbar-text { display: block; }
 
 /* The whole reason this strip exists now: one headline, sized to be the
    loudest thing on the board without turning the strip into a banner.
@@ -312,12 +330,12 @@ a { color: inherit; }
 .deskbar-name {
   display: block;
   font-family: var(--display);
-  font-size: clamp(1.35rem, 2.6vw, 2.05rem);
-  font-weight: 400;
+  font-size: clamp(1.25rem, 2.3vw, 1.8rem);
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--brand-ink);
 }
 
 /* The kicker: the notecard's first typed line, promoted here in Phase 5.
@@ -328,11 +346,13 @@ a { color: inherit; }
    uppercase .deskbar-name gets from text-transform. */
 .deskbar-kicker {
   display: block;
-  margin-top: 4px;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
-  color: var(--ink);
+  margin-top: 5px;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brand-deep);
   /* .deskbar sets white-space:nowrap for the headline's benefit; the
      kicker is a much longer string at a much smaller size and can outrun
      the strip's max-width on a phone, so it opts back into wrapping
@@ -364,11 +384,11 @@ a { color: inherit; }
   justify-content: center;
   padding: 0;
   border: 0;
-  background: #f4efe2;
+  background: var(--chrome);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
   cursor: pointer;
   font: inherit;
-  color: var(--ink);
+  color: var(--brand-deep);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -380,7 +400,7 @@ a { color: inherit; }
   transform: rotate(0.6deg);
 }
 
-.board-menu-icon { width: 22px; height: 22px; fill: var(--ink); }
+.board-menu-icon { width: 22px; height: 22px; fill: var(--brand-deep); }
 
 /* The back control. HIDDEN BY DEFAULT and revealed only once js/board.js
    says the camera is actually inside a zone. This is a base rule, not a
@@ -442,7 +462,8 @@ html.board-zoomed .board-back-btn { display: flex; }
 
 .board-help-icon {
   font-family: var(--display);
-  font-size: 18px;
+  font-weight: 700;
+  font-size: 17px;
   letter-spacing: 0.02em;
   line-height: 1;
   white-space: nowrap;
@@ -461,22 +482,25 @@ html.board-zoomed .board-back-btn { display: flex; }
   flex-direction: column;
   min-width: 160px;
   padding: 0.4rem 0;
-  background: #f4efe2;
+  background: var(--chrome);
+  border-top: 3px solid var(--brand);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
 }
 .board-menu.is-open { display: flex; }
 
 .board-menu a {
   display: block;
-  padding: 0.5rem 1rem;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  padding: 0.55rem 1.1rem;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  color: var(--brand-deep);
   text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
 }
-.board-menu a:hover { color: var(--red); }
+.board-menu a:hover { color: var(--brand); background: #eef3fb; }
 
 /* small screens: the bar's desktop metrics outrun a phone viewport, so
    below tablet width we tighten the strip and shrink the kebab to match.
@@ -553,9 +577,12 @@ html.board-zoomed .board-back-btn { display: flex; }
   max-width: 100vw;
   max-height: 100vh;
   box-sizing: border-box;
-  background: #f4efe2;
+  background: var(--chrome);
+  border-top: 5px solid var(--brand);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
   overflow: hidden;
+  font-family: var(--display);
+  color: var(--brand-ink);
 }
 /* Column, not block: the body takes the room that is left and the Legal
    footer sits under it across the panel's full width. */
@@ -572,10 +599,10 @@ html.board-zoomed .board-back-btn { display: flex; }
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 2px solid var(--red);
+  border: 2px solid var(--brand);
   border-radius: 2px;
-  background: #f4efe2;
-  color: var(--red);
+  background: var(--chrome);
+  color: var(--brand);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -658,8 +685,8 @@ html.board-zoomed .board-back-btn { display: flex; }
      sizes and confirmed scrollHeight is the smaller of the two, not
      assumed from a screenshot. */
   overflow: hidden;
-  font-family: var(--typed);
-  color: #2b2115;
+  font-family: var(--display);
+  color: var(--brand-ink);
   /* A column so the two blocks inside can claim the leftover height between
      them: .welcome-howto takes auto margins top and bottom, which splits the
      free space evenly and centres it, and .welcome-privacy is left with no
@@ -703,9 +730,10 @@ html.board-zoomed .board-back-btn { display: flex; }
    block and read as a divider instead of as part of the title. */
 .welcome-heading {
   margin: 0 0 18px;
-  font-size: 27px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: var(--brand-deep);
   line-height: 1.15;
 }
 .welcome-heading::after {
@@ -714,14 +742,15 @@ html.board-zoomed .board-back-btn { display: flex; }
   width: 58px;
   height: 2px;
   margin: 9px auto 0;
-  background: #2b2115;
-  opacity: 0.5;
+  background: var(--brand);
+  opacity: 1;
 }
 .welcome-subhead {
   margin: 16px 0 8px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.16em;
+  color: var(--brand-deep);
   text-transform: uppercase;
 }
 
@@ -822,17 +851,17 @@ html.board-zoomed .board-back-btn { display: flex; }
   margin-top: 4px;
 }
 .welcome-consent-btn {
-  font-family: var(--typed);
+  font-family: var(--display);
   font-size: 15px;
-  font-weight: 700;
-  color: #2b2115;
-  background: #fdfbf1;
-  border: 1px solid rgba(43, 32, 21, 0.38);
+  font-weight: 600;
+  color: var(--brand-deep);
+  background: var(--chrome);
+  border: 1px solid rgba(4, 54, 123, 0.4);
   border-radius: 3px;
   padding: 7px 16px;
   cursor: pointer;
 }
-.welcome-consent-btn:hover { border-color: var(--red); color: var(--red); }
+.welcome-consent-btn:hover { border-color: var(--brand); color: var(--brand); }
 
 /* THE CHOICE, SHOWN AS SHADING. This replaced a sentence under the buttons
    that spelled the same thing out in words. Gentle on purpose: a fill a
@@ -845,13 +874,13 @@ html.board-zoomed .board-back-btn { display: flex; }
    as well as a hue, which matters for anyone who cannot separate the two
    fills, and aria-pressed carries it to a screen reader regardless. */
 .welcome-consent-btn.is-chosen {
-  background: #e6dcc4;
-  border-color: rgba(43, 32, 21, 0.62);
-  box-shadow: inset 0 1px 2px rgba(43, 32, 21, 0.22);
+  background: #dbe6f7;
+  border-color: var(--brand);
+  box-shadow: inset 0 1px 2px rgba(4, 54, 123, 0.25);
 }
 /* Hover must not wipe out the chosen fill -- without this the shading
    disappears under the pointer, which reads as the choice being lost. */
-.welcome-consent-btn.is-chosen:hover { background: #e6dcc4; }
+.welcome-consent-btn.is-chosen:hover { background: #dbe6f7; }
 
 /* One line, not a stacked list: three items separated by a middot, the same
    layout the editorial design's own attribution line already uses. This
@@ -873,14 +902,14 @@ html.board-zoomed .board-back-btn { display: flex; }
   margin: 0 6px;
   color: #6b6252;
 }
-.welcome-legal a { color: #2b2115; text-decoration: underline; }
-.welcome-legal a:hover { color: var(--red); }
+.welcome-legal a { color: var(--brand-deep); text-decoration: underline; }
+.welcome-legal a:hover { color: var(--brand); }
 /* Terms of Service and Accessibility Statement do not exist yet. Plain,
    visibly unlinked text -- no href, no cursor:pointer, no underline -- so
    this cannot be mistaken for a dead link. See the HTML comments beside
    these two in index.html for exactly where each href goes once the page
    it points to is written. */
-.welcome-legal-pending { color: #2b2115; }
+.welcome-legal-pending { color: var(--brand-ink); }
 .welcome-legal-note {
   margin-left: 4px;
   font-size: 13px;
@@ -952,7 +981,7 @@ html.board-zoomed .board-back-btn { display: flex; }
 /* The sticker's middle. Still the darkest thing in the drawing, because it
    is on the real board too, but a mid grey rather than near-black so it sits
    in the same graphite range as everything else. */
-.sk-fill-dark { fill: #4f4f4f; stroke: none; }
+.sk-fill-dark { fill: #ffffff; stroke: #04367B; stroke-width: 5; }
 
 /* The Level Up print. It WAS a solid near-black rectangle, which the owner
    called awful, and he was right: a filled black box in a line drawing reads
@@ -978,7 +1007,7 @@ html.board-zoomed .board-back-btn { display: flex; }
 .sk-cursor-body { fill: #5e5e5e; }
 .sketch-click {
   fill: none;
-  stroke: #b3271c;
+  stroke: #004AAD;
   stroke-width: 2.4;
 }
 .sketch-glyph {
@@ -1520,11 +1549,15 @@ html.warming .board .strings { filter: none; }
     drop-shadow(6px 15px 26px rgba(25, 12, 4, 0.34));
 }
 
+/* White disc inside a navy ring: the W's navy facets disappear on a dark
+   disc, so the mark sits on white, the way the logo file itself does. */
 .sticker-disc {
   width: 452px;
   height: 452px;
   border-radius: 50%;
-  background: #0c0a09;
+  box-sizing: border-box;
+  border: 16px solid var(--brand-deep);
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1533,8 +1566,8 @@ html.warming .board .strings { filter: none; }
 /* ~55% of the 452px disc, matching the proportions of the interim mark
    inlined from assets/favicon.svg. */
 .sticker-mark {
-  width: 249px;
-  height: 249px;
+  width: 300px;
+  height: auto;
 }
 
 .about-card { width: 720px; }
@@ -1681,7 +1714,7 @@ html.warming .board .strings { filter: none; }
   color: inherit;
   text-decoration: none;
 }
-.mini-sticky .sticky-note a:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+.mini-sticky .sticky-note a:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
 
 .doodle {
   --sz: 280px;
@@ -2005,7 +2038,7 @@ html.warming .board .strings { filter: none; }
   font-size: 29px;
 }
 .pc-caption a { text-decoration: none; color: #232019; }
-.pc-caption a:hover { color: var(--red); }
+.pc-caption a:hover { color: var(--brand); }
 
 /* address side: the contact card */
 .pc-head {
@@ -2089,7 +2122,7 @@ html.warming .board .strings { filter: none; }
   text-decoration: none;
   white-space: nowrap;
 }
-.email-link:hover { color: var(--red); }
+.email-link:hover { color: var(--brand); }
 
 /* --- the intake form sheet (Phase 7) -------------------------------
    .contact-form is a modifier on .card.index-card, the same pattern as
@@ -2167,7 +2200,7 @@ html.warming .board .strings { filter: none; }
 }
 .cf-input:focus-visible,
 .cf-textarea:focus-visible {
-  outline: 3px solid var(--red);
+  outline: 3px solid var(--brand);
   outline-offset: 1px;
 }
 /* set by js/validate.js (and by the browser's own validation regardless of
@@ -2227,14 +2260,14 @@ html.warming .board .strings { filter: none; }
   font-family: var(--typed);
   font-size: 20px;
   font-weight: 700;
-  color: #fdfbf1;
-  background: var(--red);
+  color: #ffffff;
+  background: var(--brand);
   border: none;
   border-radius: 3px;
   padding: 9px 26px;
   cursor: pointer;
 }
-.cf-submit:hover { background: #8f2015; }
+.cf-submit:hover { background: var(--brand-deep); }
 .cf-submit:focus-visible { outline: 3px solid #2b2115; outline-offset: 2px; }
 
 .cf-privacy {
@@ -2244,7 +2277,7 @@ html.warming .board .strings { filter: none; }
   color: #4a4234;
 }
 .cf-privacy a { color: #2b2115; text-decoration: underline; }
-.cf-privacy a:hover { color: var(--red); }
+.cf-privacy a:hover { color: var(--brand); }
 
 /* --- tape: real masking-tape strips --------------------------------- */
 
@@ -2780,12 +2813,13 @@ html.js .board-peek:active .peek-note { transform: rotate(-4deg) scale(0.97); }
     padding: 0.55rem 1rem;
     border: 0;
     cursor: pointer;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #f4efe2;
-    background: rgba(25, 19, 12, 0.82);
+    color: #ffffff;
+    background: rgba(4, 54, 123, 0.92);
     border-radius: 2px;
     -webkit-tap-highlight-color: transparent;
   }
