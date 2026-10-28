@@ -20,6 +20,9 @@
   /* Set by a footer "Cookie settings" press: shows the bar even when a
      choice is already stored, so a visitor can change their mind. */
   var forced = false;
+  /* After a choice the banner stays up to confirm it, as the GOV.UK pattern
+     does, until "Hide cookie message" is pressed. */
+  var confirming = false;
   var choice = read();
 
   /* Every storage access is wrapped: Safari in private mode throws on
@@ -46,8 +49,25 @@
       button.classList.toggle("is-chosen", chosen);
       button.setAttribute("aria-pressed", chosen ? "true" : "false");
     });
-    var hide = !forced && (!!choice || boardShowing());
-    bars.forEach(function (bar) { bar.hidden = hide; });
+    var hide = !forced && !confirming && (!!choice || boardShowing());
+    bars.forEach(function (bar) {
+      bar.hidden = hide;
+      var question = bar.querySelector("[data-cookie-question]");
+      var done = bar.querySelector("[data-cookie-done]");
+      if (question) question.hidden = confirming;
+      if (done) done.hidden = !confirming;
+    });
+  }
+
+  function confirm(bar, value) {
+    var message = bar.querySelector("[data-cookie-message]");
+    var done = bar.querySelector("[data-cookie-done]");
+    if (!message || !done) return;
+    message.textContent = (value === "granted" ? "You've accepted analytics cookies." :
+      "You've rejected analytics cookies.") + " You can change your cookie settings at any time.";
+    confirming = true;
+    render();
+    done.focus();
   }
 
   buttons.forEach(function (button) {
@@ -57,14 +77,25 @@
       choice = value;
       try { localStorage.setItem(KEY, value); } catch (e) {}
       forced = false;
-      render();
+      var bar = button.closest("[data-consent-bar]");
+      if (bar) confirm(bar, value);
+      else render();
       window.dispatchEvent(new CustomEvent("ww-consent", { detail: { value: value } }));
+    });
+  });
+
+  document.querySelectorAll("[data-cookie-hide]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      confirming = false;
+      forced = false;
+      render();
     });
   });
 
   document.querySelectorAll("[data-consent-open]").forEach(function (button) {
     button.addEventListener("click", function () {
       forced = true;
+      confirming = false;
       render();
       var first = bars.length && bars[0].querySelector("button");
       if (first) first.focus();

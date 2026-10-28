@@ -510,43 +510,51 @@ a { color: inherit; }
   .ecf-grid { grid-template-columns: 1fr; }
 }
 
-/* --- consent bar ---------------------------------------------------- */
+/* --- cookie banner ------------------------------------------------- */
+/* The GOV.UK cookie banner pattern: in the page flow at the very top, not
+   fixed (so it never hides a focused field), and Accept and Reject styled
+   identically, as the EDPB cookie banner taskforce asks. */
 
-.consent-bar {
-  position: fixed;
-  left: max(0.75rem, env(safe-area-inset-left));
-  right: max(0.75rem, env(safe-area-inset-right));
-  bottom: max(0.75rem, env(safe-area-inset-bottom));
-  z-index: 40;
+.cookie-banner {
+  padding: 1.25rem var(--pad) 1.4rem;
+  background: var(--tint);
+  border-bottom: 1px solid var(--rule);
+}
+.cookie-banner[hidden],
+.cookie-banner [hidden] { display: none; }
+.cookie-question,
+.cookie-done { max-width: 44rem; }
+.cookie-heading {
+  margin: 0 0 0.6rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--brand-deep);
+}
+.cookie-banner p { margin: 0 0 0.6rem; font-size: 0.95rem; line-height: 1.5; }
+.cookie-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem 1rem;
-  max-width: 36rem;
-  margin: 0 auto;
-  padding: 0.9rem 1rem;
-  background: var(--paper);
-  border-top: 4px solid var(--brand);
-  box-shadow: 0 6px 24px rgba(11, 27, 51, 0.22);
+  margin-top: 0.9rem;
 }
-.consent-bar[hidden] { display: none; }
-.consent-text { flex: 1 1 16rem; margin: 0; font-size: 0.9rem; line-height: 1.45; }
-.consent-text a { color: var(--brand-deep); }
-.consent-actions { display: flex; gap: 0.6rem; }
-.consent-btn {
+.cookie-btn {
   min-height: 44px;
   padding: 0 1.1rem;
   font-family: var(--display);
   font-weight: 600;
   font-size: 0.95rem;
-  color: var(--brand-deep);
-  background: var(--paper);
-  border: 1px solid var(--brand-deep);
+  color: var(--paper);
+  background: var(--brand);
+  border: 0;
   border-radius: 2px;
   cursor: pointer;
 }
-.consent-btn[data-consent="granted"] { color: var(--paper); background: var(--brand); border-color: var(--brand); }
-.consent-btn.is-chosen { box-shadow: inset 0 0 0 2px var(--brand-deep); }
+.cookie-btn:hover { background: var(--brand-deep); }
+.cookie-link { color: var(--brand-deep); font-size: 0.95rem; }
+.cookie-done:focus { outline: none; }
+.cookie-done:focus-visible { outline: 2px solid var(--brand); outline-offset: 4px; }
 
 /* --- legal pages (privacy, terms, accessibility) -------------------- */
 

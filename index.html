@@ -105,7 +105,8 @@
 </script>
 <title>WhittWorks Studios | Web Design &amp; Consulting</title>
 <meta name="description" content="WhittWorks Studios is the solo studio of Caden Whitt, designing and building websites and digital tools for businesses and organizations.">
-<meta name="theme-color" content="#04367B">
+<meta name="theme-color" content="#ffffff" media="(max-width: 900px)">
+<meta name="theme-color" content="#0b1b33" media="(min-width: 901px)">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WhittWorks Studios">
@@ -286,7 +287,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=118">
+<link rel="stylesheet" href="css/style.css?v=119">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -297,7 +298,7 @@
      display:none anyway and the rules would style something nobody can see. -->
 <link rel="stylesheet" href="css/reading.css?v=14"
       media="(max-width: 900px), (max-height: 540px)">
-<link rel="stylesheet" href="css/editorial.css?v=9">
+<link rel="stylesheet" href="css/editorial.css?v=10">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch used to wait behind the
      Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
@@ -463,6 +464,29 @@
      ================================================================== -->
 
 <div class="editorial">
+  <!-- Cookie banner for the phone and text design (the board asks in its
+       welcome panel). Wording, equal buttons, in-flow placement at the top of
+       the page and the confirmation step follow the GOV.UK cookie banner
+       pattern; equal styling also follows the EDPB cookie banner taskforce
+       report (2023). Not fixed to the screen, so it never covers a field
+       someone is typing in (WCAG 2.4.11). js/consent.js shows it only when no
+       choice is stored, and the footer's Cookie settings button reopens it. -->
+  <div class="cookie-banner" data-consent-bar role="region" aria-label="Cookies on WhittWorks Studios" hidden>
+    <div class="cookie-question" data-cookie-question>
+      <h2 class="cookie-heading">Cookies on WhittWorks Studios</h2>
+      <p>We use a few essential settings to make this site work.</p>
+      <p>We'd also like to use analytics cookies so we can understand how people use the site and make improvements.</p>
+      <div class="cookie-actions">
+        <button class="cookie-btn" type="button" data-consent="granted">Accept analytics cookies</button>
+        <button class="cookie-btn" type="button" data-consent="denied">Reject analytics cookies</button>
+        <a class="cookie-link" href="privacy.html#analytics-title">View cookies</a>
+      </div>
+    </div>
+    <div class="cookie-done" data-cookie-done tabindex="-1" hidden>
+      <p data-cookie-message></p>
+      <button class="cookie-btn" type="button" data-cookie-hide>Hide cookie message</button>
+    </div>
+  </div>
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="hero" aria-label="WhittWorks Studios">
@@ -646,17 +670,6 @@
     </button>
   </footer>
 
-  <!-- Phone and text-design consent. The board asks in its welcome panel; this
-       is the same question for everyone who never sees that panel. js/consent.js
-       shows it only when no choice is stored and the board is not on screen,
-       and the footer's Cookie settings button brings it back. -->
-  <div class="consent-bar" data-consent-bar role="region" aria-label="Cookie choice" hidden>
-    <p class="consent-text">Allow privacy-friendly analytics so I can see which pages help people? Nothing loads unless you say yes. <a href="privacy.html">Details</a></p>
-    <div class="consent-actions">
-      <button class="consent-btn" type="button" data-consent="granted">Allow</button>
-      <button class="consent-btn" type="button" data-consent="denied">Deny</button>
-    </div>
-  </div>
 </div>
 
 <div class="corkboard" id="corkboard">
@@ -854,7 +867,7 @@
         </div>
 
         <div class="welcome-privacy">
-        <h3 class="welcome-subhead">Privacy and Cookies</h3>
+        <h3 class="welcome-subhead">Cookies</h3>
 
         <!-- The choice comes FIRST and the explanation sits under it in fine
              print, on the owner's ask: "Just a simple allow cookies or deny
@@ -867,8 +880,11 @@
                buttons announce as a two-state choice even in the instant
                before js/welcome.js has run. The chosen one gets shaded and
                flipped to true; see renderConsentStatus() there. -->
-          <button class="welcome-consent-btn" type="button" data-consent="granted" aria-pressed="false">Allow cookies</button>
-          <button class="welcome-consent-btn" type="button" data-consent="denied" aria-pressed="false">Deny</button>
+          <!-- Labels and equal styling follow the GOV.UK cookie banner pattern
+               and the EDPB cookie banner taskforce (2023): say which cookies,
+               and never make Accept brighter or bigger than Reject. -->
+          <button class="welcome-consent-btn" type="button" data-consent="granted" aria-pressed="false">Accept analytics cookies</button>
+          <button class="welcome-consent-btn" type="button" data-consent="denied" aria-pressed="false">Reject analytics cookies</button>
         </div>
 
         <!-- ACCURATE, and it was not before. This used to say the site "only
@@ -880,12 +896,11 @@
              disclosed nowhere. A privacy notice that under-reports what is
              stored is the one kind of copy that has to be exact, so all three
              are named here and privacy.html carries the longer version. -->
-        <p class="welcome-fineprint">Analytics stay off unless you allow them. If you
-           do, PostHog records pages opened, board sections clicked, and form starts
-           and sends (never what you type), under a random ID in your browser; Deny
-           stops it and deletes that ID. Your browser also remembers which version
-           you chose (until the tab closes), that you have seen this panel, and your
-           answer here. Change it any time from the Help button.</p>
+        <p class="welcome-fineprint">We use a few essential settings to make this site
+           work. We'd also like to use analytics cookies so we can understand how
+           people use the site and make improvements. They stay off unless you accept
+           them, and you can change your choice at any time from the Help button.
+           <a href="privacy.html#analytics-title">View cookies</a></p>
         </div>
 
       </div>
@@ -1534,7 +1549,7 @@
      above it depends on the panel existing yet, and the panel's own
      auto-open on a first visit only needs #corkboard's computed display,
      which is settled well before any script runs at all. -->
-<script src="js/consent.js?v=1" defer></script>
+<script src="js/consent.js?v=2" defer></script>
 <script src="js/welcome.js?v=3" defer></script>
 <script src="js/analytics.js?v=1" defer></script>
 </body>

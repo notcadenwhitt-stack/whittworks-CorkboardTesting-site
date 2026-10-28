@@ -255,9 +255,15 @@
 
 html { -webkit-text-size-adjust: 100%; }
 
+/* White by default, because Safari on iPhone tints its status bar and the
+   overscroll from the body colour, and the old #2b2119 desk brown showed
+   above the white phone page. Dark navy only while the board is the design
+   on screen, where it sits behind the wall during overscroll. */
+html.board-first body,
+html.board-open body { background: #0b1b33; }
 body {
   margin: 0;
-  background: #2b2119;
+  background: #ffffff;
   color: var(--ink);
   font-family: var(--typed);
   overflow-x: hidden;
