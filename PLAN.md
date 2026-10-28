@@ -1,523 +1,316 @@
-# Plan: Edit the existing cork board, in place
+# Plan: Blue rebrand, deep overhaul, and production launch of the WhittWorks Studios site
 
-Approved 2026-08-18. Supersedes the previous plan (recoverable at commit `2540468`
-on `corkboard-realism`). This plan REPLACES the abandoned click-to-zoom rewrite,
-which is parked unfinished at commit `8a8167a` on branch `board-rebuild` and is
-never used, merged, or pushed.
+Approved 2026-10-28 by the owner after the `metaprompt` interview. Replaces the 2026-08-18 cork board plan (all ten of its phases are done; it stays recoverable in git history at `board-edits` `fff2e63`).
 
-Repository: `/Users/cadenwhitt/Claude Code Projects/Experimentation/Final Project/whittworks-CorkboardTesting-site`
-Working branch: `board-edits`, cut from `corkboard-realism` at `2540468`.
+Repository: `/Users/cadenwhitt/Desktop/Claude Code Projects/WhittWorks/whittworks-CorkboardTesting-site`, branch `board-edits`, tip `fff2e63`, tree clean (verified: `git status -sb`, `git log`).
 
-**One-line goal:** the cork board that ships today loses its bottom chrome, gains
-clickable zones, a stapled paper frame, a circular logo sticker, an attention-grabbing
-title with a kebab menu, and a working contact form, without any part of it being
-rebuilt from scratch.
+**One-line goal:** whittworkstudios.com serves the cork board site rebranded to the blue W logo, hardened, measured, legally complete and tuned for phones, where today it serves the August 6 tan editorial page.
 
 ## Classification
 
-Track: UI build, executed as a series of edits to a working site. One Feature slice
-(the contact form) and one Integration edge (Formspree) fold in. Parked secondary
-asks: the real logo art, the merge to production at `whittworks-site`, the parked
-Annie Meissner testimonial, mobile polish.
+Track: UI build plus Refactor and hardening, with one Integration (PostHog) and one production Migration (the live repo's contents get replaced). The UI build leads because the owner wants to judge the blue chrome before anything else is built on it. Parked secondary asks: Annie Meissner's testimonial, real security response headers (needs a proxy in front of GitHub Pages), product cards for the reserved cork.
 
 ## Interview Ledger
 
-- Q1 scroll or click-only -> keep scrolling, add clicking on top (recommended, accepted)
-- Owner then deferred every remaining fork ("whatever you think works best"), so the
-  rest of this plan is defaulted and tagged. Every default is listed in the
-  Assumptions Ledger and in the Defaulted Decisions recap.
+- Q1 brand depth → keep the cork board's materials; build the blue chrome as a preview the owner judges before it rolls out (user)
+- Q2 ship route → one new commit on the live repo `whittworks-site` main, from a fresh clone, rollback tag first (user, accepted recommendation)
+- Q3 mobile polish → logo in the phone header, the contact form on the phone page, tighter opening screen, checked at 360/390/430 (user, accepted)
+- Q4 fonts → League Spartan, self-hosted, replaces Anton (user, accepted)
+- Q5 Formspree inbox → not answered; the owner sent the overhaul request instead, so the default stands: a labeled test send gates go-live [A6]
+- Q6 overhaul shape → deep hardening pass in place, no rewrite; camera and zoom untouched unless a measurement says otherwise (user, accepted)
+- Q7 analytics → PostHog Cloud, loaded only after the visitor clicks Allow on the existing consent panel (user, accepted)
+- Owner's added request, mid-interview: "a full code overhaul ... security measures, safety, tracking, metrics, legal, and full optimization ... use all of the new skills we've been developing since august" (user)
 
-Questions spent: 1 of 14.
+Questions spent: 7 of 14, plus this approval question.
 
 ## Goal & Success Criteria
 
-1. No fixed chrome appears at the bottom of the window at any camera stop.
-2. Clicking any zone's paper on the opening board frame moves the camera to that
-   zone's existing stop. Scrolling still works exactly as it does today.
-3. The top strip carries a centered, attention-grabbing "WhittWorks Studios" title
-   and a kebab button at the top right that opens a dropdown.
-4. The center notecard is a circular sticker: white ring, black inner disc, logo slot.
-5. Paper strips are stapled around the inner edge of the cork.
-6. A visitor can submit name, email, optional phone, and a project description, and
-   the owner receives it as email.
-7. Every visible sentence uses correct capitalization and grammar; "Work" reads
-   "Portfolio" everywhere; "More portfolio available on request" opens a mail composer.
-8. Referenced payload does not grow beyond today's measured total.
+1. The owner has seen the blue chrome preview at 1440x900 and on a 390px phone and approved it, in his own words, before any later phase starts.
+2. The real W mark (traced from `~/Desktop/New WhittWorks Logo.png`) appears in the round sticker, the phone header, the favicon, the touch icon and the share image. No orange interim `W` survives anywhere (grep for `FFA92B` returns nothing).
+3. No stamp red (`#C8331B`, `#b3271c`) remains as a brand accent; links, buttons, focus rings and headings use blue `#004AAD` and navy `#04367B`. Red string on the cork board is physical material and stays [A3].
+4. Anton is gone from every page; headings use League Spartan.
+5. A phone visitor can send the contact form from the editorial page, and it arrives in the same Formspree inbox as the board form.
+6. With consent denied or never given, the page makes zero requests to any PostHog host. With consent allowed, PostHog receives pageviews, zone clicks, menu jumps, form starts, form sends and web-vitals events.
+7. `privacy.html`, a Terms of Service page and an Accessibility statement exist, link from the welcome panel and the editorial footer, and describe what PostHog stores.
+8. `sitecheck` reports no High findings; `security-review` and `code-review` findings are fixed or signed off by the owner.
+9. The zoom does not regress: worst frame at or under 20ms in and out, measured the same way as the 2026-08-24 entry in `PROGRESS.md`.
+10. The page weight a first-time visitor downloads before consent is at or below the Phase 1 baseline plus the new font file.
+11. whittworkstudios.com serves the new build over HTTPS after the owner's explicit go-ahead, and a one-command rollback exists.
 
 ## Current State
 
-- Branch `board-edits` at `2540468`, tree clean (verified: `git status`, `git log`).
-- `index.html` 795 lines, `css/style.css` 1722, `css/editorial.css` 466,
-  `css/reading.css` 329, `js/board.js` 528, `js/hand.js` 132, `js/peek.js` 125
-  (verified: `wc -l`).
-- The camera maps `window.scrollY / maxScroll` across eight stops; the runway is
-  `.scroll-space` at 1300vh (verified: `js/board.js:299-336`).
-- Eight stops are already tuned, including the five this plan makes clickable
-  (verified: `js/board.js:136-145`):
-  stop 0 whole board, 1 title card, 2 about, 3 services, 4 work, 5 reviews,
-  6 contact, 7 pull back out.
-- The `.deskbar` nav links already jump the camera by calling `window.scrollTo` to a
-  stop's offset, with a `scrollIntoView` fallback when the camera is not active
-  (verified: `js/board.js:485-521`).
-- `index.html:551-556` holds the two pills the owner wants gone:
-  `<p class="scroll-hint">Scroll to move around the board</p>` and
-  `<button class="motion-toggle">Smooth motion</button>`. Their CSS is
-  `css/style.css:384-455`. Added in commit `44ddb97` (verified: `git log`).
-- The same words are authored twice, once as cork paper and once as the tan editorial
-  page. "Work" appears as a label at `index.html:396` (editorial nav), `:468`
-  (editorial note), `:527` (deskbar), and `:631` (the pink sticky) (verified: `grep`).
-- Every paper's board-space rectangle was measured at 1440x900 (verified: headless
-  probe, 2026-08-18). Free cork and reserved cork are named in the layout section.
-- No privacy policy page exists (verified: repo holds `index.html` and `404.html`).
+- `index.html` 1459 lines, `css/style.css` 2811, `css/editorial.css` 466, `css/reading.css` 344, `js/board.js` 1096, plus `form.js`, `hand.js`, `menu.js`, `peek.js`, `validate.js`, `welcome.js` (verified: `wc -l`).
+- Tripwires today, `document.body.innerText.length`: board 2418, editorial 1812, reading 1714, no-JS wide 1796, no-JS narrow 1796 (verified: `node tools/verify/cdp.mjs modes`, 2026-10-28). `HANDOFF.md` still says 1694 for the board; the welcome panel added since 2026-08-20 accounts for the drift (verified: `PROGRESS.md` session log), and the docs were never updated.
+- Brand today: editorial paper `#EFEDE6`, ink `#141412`, stamp red `#C8331B`; board ink `#191919`, red `#b3271c`; `theme-color` `#8a6a44`; headings in Anton (verified: `css/editorial.css:36-44`, `css/style.css:240-256`, `index.html:106`). The gold and Didot look exists only on the business card, never on this site (verified: grep of the repo and `_archive/whittworks-site`).
+- The sticker is a white ring and black disc holding the interim orange `W` from `assets/favicon.svg` (verified: `PROGRESS.md` Phase 5, `index.html:1066`).
+- The contact form exists only on the board (`.contact-form form`); `js/form.js:24` and `js/validate.js:25` bind with `querySelector`, so they handle exactly one form (verified: grep).
+- On a 390px phone the editorial page has no sideways overflow, no logo, and no form, only an "Email the studio" button (verified: CDP probe at 390x844, `scrollWidth` 390, screenshots).
+- CSP is a meta tag allowing `'unsafe-inline'` for script and style, `connect-src https://formspree.io`, `form-action 'self' https://formspree.io` (verified: `index.html:182`). The page has 8 `<script>` tags (verified: `grep -c`).
+- The welcome panel lists "Terms of Service" and "Accessibility" as unlinked placeholder text (verified: `index.html:1024-1031`).
+- A consent gate exists: `window.wwAnalyticsGranted()` in `js/welcome.js`, choice stored in `localStorage` key `ww-analytics` (verified: `PROGRESS.md`, "WHEN YOU ADD POSTHOG").
+- Production: repo `notcadenwhitt-stack/whittworks-site`, GitHub Pages legacy build from `main` `/`, custom domain whittworkstudios.com plus www, HTTPS enforced, certificate approved to 2027-01-01, last commit `e15a884` 2026-08-06 (verified: `gh api .../pages`, `gh api .../commits`). It holds only `CNAME`, `index.html`, `css/style.css` and nine assets; no verification files or sitemap (verified: `gh api .../git/trees/main`).
+- Staging: `notcadenwhitt-stack.github.io/whittworks-CorkboardTesting-site/`, Pages from `main`, no custom domain (verified: `gh api .../pages`). `board-edits` carries a `CNAME` reading `whittworkstudios.com` (verified: `cat CNAME`).
+- Tools on this Mac: Node 24.16, Python PIL 11.3, fontTools 4.60 with brotli, Chrome; no potrace, ImageMagick or cwebp (verified: `which`, imports).
+- Logo: 2000x2000 PNG on white; W mark in `#004AAD` with `#04367B` facets; "WHITT WORKS" heavy geometric sans in black; "STUDIOS" thin sans with a black-to-violet gradient (verified: viewed the file).
 
 ## Scope (v1)
 
-Edits to `index.html`, `css/style.css`, `css/editorial.css`, `css/reading.css`,
-`js/board.js`, plus one new `js/form.js` and one new `privacy.html`. No file is
-rewritten from scratch. No existing paper is redesigned except the center notecard,
-which the owner asked to replace. Assets are reused byte for byte.
+Everything below ships together in one production release:
+the blue chrome (after owner approval), real logo assets, mobile polish, Terms and Accessibility pages, PostHog behind consent, a security and code-quality pass, optimization, SEO metadata, and the production move.
 
 ## Out of Scope & Parked Items
 
-- **The abandoned rewrite** on `board-rebuild`. Never used, never merged, never pushed.
-- **The real logo.** The sticker ships the interim WhittWorks `W` on the black disc.
-- **Annie Meissner's testimonial.** Her cork stays bare.
-- **Production.** `whittworks-site` and `whittworkstudios.com` are not touched.
-- **Product cards** for the reserved cork under the Level Up print.
-- **Mobile and tablet polish** beyond keeping the existing editorial fallback working.
-- **Analytics.** None today, none added.
+- **Annie Meissner's testimonial.** Her cork stays bare until the owner supplies a verified quote and photo. Never invent quote text, never restore from `annie-wip` without his yes.
+- **The `board-rebuild` branch.** Never used, merged or pushed.
+- **A rewrite.** Ruled out at Q6.
+- **Real HTTP security headers** (HSTS preload, `frame-ancestors`, `X-Content-Type-Options`). GitHub Pages cannot set them; only a proxy such as Cloudflare in front of Pages can. Parked as a follow-up; the meta CSP is tightened instead.
+- **Product cards** for the reserved cork at x 2400-3540, y 1900-2370.
+- **Session recording and surveys** in PostHog. Off; they pull extra third-party code and widen the privacy disclosure [A9].
+- **Copy rewrites.** Visible copy keeps its wording except where a rule forces a change (em dashes, legal text, analytics disclosure) [A5].
+- **The frozen local copy** `WhittWorks/_archive/whittworks-site`. Read only.
 
 ## Approach
 
-Nine small edits to a working site, each independently verifiable, each committed
-on its own.
+Build the blue look once as a working preview on the real site, show it, and let the owner decide before the rest is layered on. Everything after the preview is a series of small, separately committed edits to the existing files, the same discipline that carried the August plan.
 
-The camera is not touched. Clicking a zone calls `window.scrollTo` to that zone's
-stop offset, which is byte-for-byte the path the deskbar links already take
-(`js/board.js:496-521`). The scroll runway, the stop interpolation, the fade logic,
-the reduced-motion handling, and the reading-mode fallback all keep working because
-none of them learn anything new. A click is just a fifth way to reach a stop the
-site could already reach.
+Brand tokens live in two `:root`-style blocks that already exist (`css/style.css` `:root` for the board, `.editorial` in `css/editorial.css`). The rebrand adds `--brand: #004AAD`, `--brand-deep: #04367B` and a navy-black ink, retires the red tokens as accents, and swaps the `--display` stack to League Spartan in both blocks, which keeps the change to a handful of declarations plus whatever rules hard-code colors.
 
-The bottom chrome disappears, and the motion override inside it goes with it. That
-control exists because the owner opened the site on a machine with Windows animation
-effects off and saw the camera hard-cut with nothing explaining why (verified: the
-comment at `index.html:540-550`). He decided on 2026-08-18 to drop it anyway, and the
-reasoning holds: that failure was ugly because a hard cut mid-scroll reads as a broken
-page, and this board is becoming primarily click-driven, where a cut between two
-composed framings reads as a deliberate jump. The OS setting becomes the sole
-authority, which is the WCAG default position.
+The W mark is traced into one SVG `<symbol>` used inline (sticker, phone header) and exported to the icon files. The board's camera, stops, zoom timings and render-cost gates are not touched by any phase except Phase 8's measurement.
 
-Copy is authored twice in this codebase, so every copy edit lands in both the board
-markup and the editorial markup, and the `innerText` tripwires get re-measured after.
+Analytics is vendored, pinned and self-hosted so `script-src` stays `'self'`; only `connect-src` widens to PostHog's ingestion host, and only consented visitors ever load the script.
 
-Executor's choice: the dropdown's animation, the staple glyph's exact path, the form
-sheet's paper texture, and the easing on the sticker's hover.
+Execution routing follows `WhittWorks/CLAUDE.md`. Claude orchestrates, owns the preview (judgment work), integration and review. Self-contained, specified phases (logo export, legal pages, the second form, analytics wiring, CSS split) go to Codex or Gemini lanes. Because this is a multi-piece build, run them through the `codex-swarm` skill when the owner invokes it ("swarm it"); otherwise dispatch them one lane at a time. Lanes that edit `index.html` or `css/style.css` never run in parallel with each other.
+
+Executor's latitude: the exact chrome layout inside the preview, the trace method for the W, the event property names, how the CSS split is cut, commit granularity within a phase.
 
 ## Requirements
 
 | # | Requirement | Acceptance check |
 |---|---|---|
-| R1 | THE SYSTEM SHALL render no fixed chrome at the bottom of the window at any camera stop. | Screenshots at stops 0, 2, 4, 6 |
-| R2 | THE SYSTEM SHALL continue to move the camera on scroll, across the same eight stops, at the same framings. | The existing `cdp.mjs stops` check still passes |
-| R3 | WHEN a visitor clicks a zone's paper on the board, THE SYSTEM SHALL move the camera to that zone's stop. | Five scripted clicks, transform compared to the stop's matrix |
-| R4 | WHEN a visitor clicks a real link inside a zone, THE SYSTEM SHALL follow the link and SHALL NOT move the camera. | Click the Level Up caption, the circled email, and the portfolio sticky |
-| R5 | THE SYSTEM SHALL render a centered "WhittWorks Studios" title on the top strip, and a kebab button at the top right. | Screenshot at three viewport widths |
-| R6 | WHEN the kebab is pressed, THE SYSTEM SHALL open a dropdown listing About, Services, Portfolio, Reviews, Contact, and Whole Board; Escape SHALL close it and focus SHALL be trapped while open. | Keyboard walkthrough |
-| R7 | THE SYSTEM SHALL replace the center notecard with a circular sticker: white ring, black inner disc, logo slot. Clicking it SHALL return the camera to the whole board. | Screenshot plus click test |
-| R8 | THE SYSTEM SHALL render narrow dark-navy strips with a wavy inner edge, stapled by small staples along all four inner edges of the cork, in board space, obscuring no paper and reading as background trim rather than a focal point. | Screenshot at stop 0, judged against "does the eye land on it first" |
-| R9 | THE SYSTEM SHALL collect Name (required), Email (required, format-checked), Phone (optional, consent notice attached), Project description (required, 20 characters minimum), and How did you find me (optional). | Submit with each field empty in turn |
-| R10 | WHEN the form is submitted, THE SYSTEM SHALL POST to Formspree and show a paper acknowledgement; on failure it SHALL show the error and a `mailto:` link carrying the typed content. | One live submit, one submit with the network offline |
-| R11 | THE SYSTEM SHALL label the portfolio section "Portfolio" in both designs, and "More portfolio available on request" SHALL be a `mailto:caden@whittworkstudios.com` link. | Grep for "Work" as a label returns nothing; click opens the composer |
-| R12 | THE SYSTEM SHALL use correct capitalization and grammar in every visible string, in both designs. | Full copy read-through against the checked list |
-| R13 | THE SYSTEM SHALL leave the second testimonial's cork bare. | Visual check at stop 5 |
-| R14 | THE SYSTEM SHALL be fully operable by keyboard and SHALL keep working with scripting disabled and at 390x844. | Tab walkthrough; the existing `cdp.mjs modes` check |
-| R15 | THE SYSTEM SHALL load no third-party runtime JavaScript and SHALL NOT grow the referenced payload. | Network log; byte count before and after |
-| R16 | THE SYSTEM SHALL serve `privacy.html`, linked from the form. | Load the page, follow the link |
+| R1 | THE SYSTEM SHALL use `#004AAD` and `#04367B` as the brand accent and headline colors in both designs, with no stamp red as an accent. | grep for `C8331B` and `b3271c` hits only the string/pin material; screenshots |
+| R2 | THE SYSTEM SHALL set headings in self-hosted League Spartan and SHALL NOT load Anton. | Network log shows no `anton-latin.woff2`; computed `font-family` on the `h1` |
+| R3 | THE SYSTEM SHALL show the traced W mark in the sticker, the phone header, `favicon.svg`, the PNG icons and `og-thumbnail.jpg`. | Screenshots; file inspection; grep for `FFA92B` returns nothing |
+| R4 | THE SYSTEM SHALL NOT roll out the blue chrome past the preview until the owner approves it. | Owner's approval quoted in `PROGRESS.md` |
+| R5 | WHEN a phone visitor reaches Contact, THE SYSTEM SHALL offer the same five-field form, posting to `https://formspree.io/f/xyegnvzd`, with inline validation and the `mailto:` fallback. | Valid and invalid submits at 390px with `fetch` stubbed; one live labeled send |
+| R6 | THE SYSTEM SHALL render without horizontal overflow at 360, 390 and 430 px wide and on an iOS Simulator iPhone. | CDP `scrollWidth` check per width; simulator screenshot |
+| R7 | WHILE consent is not granted, THE SYSTEM SHALL make no request to any PostHog host. | Network log with Deny and with no choice |
+| R8 | WHEN consent is granted, THE SYSTEM SHALL send pageview, zone click, menu jump, form start, form send result and web-vitals events. | Events visible in the owner's PostHog project |
+| R9 | WHEN a visitor switches from Allow to Deny, THE SYSTEM SHALL stop capture and clear PostHog's stored identifiers. | Storage inspected before and after |
+| R10 | THE SYSTEM SHALL serve `terms.html` and `accessibility.html`, linked from the welcome panel and the editorial footer, and `privacy.html` SHALL describe PostHog accurately. | Pages load; links resolve; copy read against the PostHog config |
+| R11 | THE SYSTEM SHALL pass `sitecheck` with no High findings and fix or get sign-off on every `security-review` and `code-review` finding. | Reports saved to the notes folder |
+| R12 | THE SYSTEM SHALL keep the zoom's worst frame at or under 20ms in and out. | Same profile method as `PROGRESS.md` 2026-08-24 |
+| R13 | THE SYSTEM SHALL keep pre-consent page weight at or below the Phase 1 baseline plus the League Spartan file. | Byte count before and after, same method |
+| R14 | THE SYSTEM SHALL contain no em dash in any visible text on any page. | grep for `—` and `&mdash;` across `*.html` outside comments |
+| R15 | THE SYSTEM SHALL ship `sitemap.xml`, a canonical URL, Open Graph tags and a JSON-LD `ProfessionalService` block with the logo. | File and tag inspection; a JSON-LD validator |
+| R16 | THE SYSTEM SHALL leave the second testimonial's cork bare. | Screenshot at stop 5 |
+| R17 | WHEN the owner gives the go-ahead, THE SYSTEM SHALL be live at whittworkstudios.com over HTTPS, with the previous `main` tagged for rollback. | Headless Chrome on the live URL; tag visible on GitHub |
 
 ## Key Decisions
 
-- **Edit in place, never rewrite** (user, 2026-08-18).
-- **Scrolling stays; clicking is added on top** (user, Q1).
-- **Zone framings rest at scale 0.75, except Contact at 0.857** (user, signed off
-  2026-08-19). Widening stops 2-5 cut each zone's texture from 105-132MB to ~74MB and
-  is what made the zoom feel good. Contact stays closer because the form's type fails
-  the 15 CSS px floor below 0.857. Final motion settings and the reasoning behind each
-  are recorded in `PROGRESS.md` under "FINAL ZOOM SETTINGS".
-- **Clicks set scroll instantly and fly the camera directly** (user, 2026-08-18, after
-  seeing the first version). Animating scroll made the camera tour every intervening
-  stop, because the camera is a pure function of scroll. Scroll now carries only the
-  resting state; a 520ms tween owns the visual motion and takes the straight line between
-  the two framings. `FLY_MS = 0` turns it into a hard cut, which is also the path reduced
-  motion takes.
-- **The motion override is deleted outright, not relocated** (user, 2026-08-18).
-  The OS `prefers-reduced-motion` setting becomes the only authority. Accepted
-  consequence: on a machine with animation effects off, the camera cuts between stops
-  with no in-page way to turn gliding back on.
-- **The stapled frame lives in board space**, at the cork's inner edge, so it reads as
-  stapled to the board and zooms with it [A1]. It is **dark navy, narrow, and wavy
-  along its inner edge, with small staples** (user, 2026-08-18). Its job is to absorb
-  the empty cork margin around the papers, not to draw the eye.
-- **The center notecard's tagline moves to the top strip** as a kicker under the
-  title, since the sticker has no room for it [A2]. It arrives in **Phase 5**, not
-  Phase 3: the notecard still holds that sentence until the sticker replaces it, and
-  printing it in both places would duplicate the copy on screen for two phases.
-- **The board's title is set in Anton**, the site's own display face, whose
-  `@font-face` is already declared in `css/style.css:214` (verified). Cost: a
-  12,004-byte font fetch on the board path, because the editorial that was Anton's only
-  consumer is `display: none` there. Permanent Marker would have cost zero new bytes but
-  sits in `js/hand.js`'s selector list, so it would re-roll every hand-lettered glyph on
-  the board and put the Level Up caption back at risk. 12KB is the cheaper side of that
-  trade, and smaller than four of the five fonts the board already fetches.
-- **The dropdown is wired by widening one selector**, not by new camera code:
-  `js/board.js` reads `a[data-stop]` instead of `.deskbar a[data-stop]`, so the six
-  entries drive the existing, already-debugged handler (verified: real clicks in
-  headless Chrome move the camera).
-- **The form sheet goes in the freed cork above the contact postcard**, and the two
-  doodle stickies now sitting there relocate to open cork [A3].
-- **Stop 6 is retuned** to frame the form and the postcard together [A3].
-- **Phone consent is an inline notice, not a checkbox**, because the owner replies to
-  inbound inquiries rather than sending marketing texts [A4].
-- **No CAPTCHA.** A honeypot field plus Formspree's own filtering [A5].
-- **Nothing is pushed** until the owner says so. Every phase commits locally.
-- **Sonnet 5 writes the code; Opus 5 plans, reviews, and approves**, escalating one
-  sector to Opus 5 only after repeated failures on that same sector (verified:
-  `AGENT-HANDOFF.md`, standing instruction).
-
-## Board Layout: measured space
-
-Board is 3600x2400 with a 30px frame border. Every rectangle below was measured at
-1440x900 (verified: headless probe, 2026-08-18), in board pixels.
-
-| Paper | x | y | w | h |
-|---|---|---|---|---|
-| about-card | 386 | 507 | 729 | 447 |
-| caden-polaroid | 1078 | 640 | 389 | 460 |
-| title-card (becomes the sticker) | 1424 | 820 | 812 | 501 |
-| service stickies (four) | 2424-3267 | 350-1225 | ~357 | ~348 |
-| work-postcard | 2541 | 1316 | 817 | 542 |
-| portfolio sticky (pink) | 3236 | 1726 | 278 | 275 |
-| chad-polaroid | 1260 | 1472 | 384 | 458 |
-| quote-card | 1624 | 1530 | 711 | 439 |
-| contact-postcard | 338 | 1556 | 725 | 454 |
-| doodles (four) | 301, 642, 1173, 2047, 2164 | 188-1456 | ~290 | ~310 |
-
-**Reserved cork, never fill:**
-- x 1240-2340, y 1990-2370: the parked second testimonial.
-- x 2400-3540, y 1900-2370: future product cards.
-
-**Free cork the form uses:** x 250-1100, y 980-1520, once the two doodle stickies at
-(301,1129) and (642,1143) relocate. Suggested new doodle homes, both clear of every
-stop's framing: approximately (1560, 300) and (60, 120).
-
-**Zone click targets and their existing stops:**
-
-| Zone | Papers that become clickable | Stop |
-|---|---|---|
-| About | about-card, caden-polaroid | 2 |
-| Services | all four service stickies | 3 |
-| Portfolio | work-postcard | 4 |
-| Reviews | chad-polaroid, quote-card | 5 |
-| Contact | contact-postcard, form sheet | 6 |
-| Whole board | the circular sticker | 0 |
+- Cork board materials stay: cork, walnut frame, photographed paper, polaroids, pins and red string (user, Q1).
+- Blue chrome is built as a preview and judged by the owner first (user, Q1).
+- Production gets one new commit on `whittworks-site` main from a fresh clone; domain, DNS and certificate never move (user, Q2).
+- Phone page gains the logo, the contact form and tighter spacing (user, Q3).
+- League Spartan replaces Anton, sourced from the `google/fonts` repository's OFL release and subset to Latin WOFF2 (user, Q4; source [A2]).
+- Deep hardening in place; no rewrite (user, Q6).
+- PostHog Cloud behind the existing consent gate (user, Q7), vendored and pinned rather than loaded from PostHog's CDN [A8].
+- The editorial page moves from tan `#EFEDE6` to white with navy ink and blue accents, shown in the preview, reversible on the owner's word [A1].
+- The sticker becomes a navy ring around a white disc carrying the full-color W, because the mark's navy facets vanish on a dark disc [A4].
+- The board's quote attribution loses its leading em dash, since the owner's projects ban em dashes outright; a hyphen-free attribution line replaces it [A5].
+- Staging gets rebuilt from `board-edits` before production so the owner can check it on his own phone (verified: convention in `AGENT-HANDOFF.md`).
+- Nothing is pushed to staging or production without the owner's explicit say-so at that moment (user, standing rule in `AGENT-HANDOFF.md`).
 
 ## Data & State Changes
 
-No database, no persistence, no cookies, no local storage beyond the motion
-preference the site already stores. Form values live in the DOM until submitted, then
-leave for Formspree.
+No database. Browser storage gains PostHog's identifiers for consented visitors only (cookie and `localStorage` under PostHog's own `ph_` prefix [A8]). Existing keys unchanged: `ww-board-open` (sessionStorage), `ww-welcome-seen` and `ww-analytics` (localStorage). Rollback for production is a `git revert` of the single release commit, pushed; the tag `pre-blue-rebrand-20261028` on `e15a884` is the reference point.
 
 ## Interfaces, Integrations & Credentials
 
-- **Formspree**, one POST from the browser to `https://formspree.io/f/xyegnvzd`,
-  `Accept: application/json`, body as `FormData`. The endpoint id is public by design
-  and ships in the repo; it is not a secret and needs no environment variable
-  (user, supplied 2026-08-17, re-confirmed 2026-08-18). The endpoint is live: a GET
-  returns `405 Method Not Allowed`, which is a POST-only route answering, where a
-  non-existent form id returns 404 (verified: `curl`, 2026-08-18). So A6 is now only
-  about the free tier's volume, not about whether the form exists.
-- **`mailto:caden@whittworkstudios.com`**, used by the portfolio sticky, the contact
-  postcard's circled address, and the form's failure path.
-- **Phone consent copy**, printed under the optional phone field: "Optional. By giving
-  your phone number, you agree that WhittWorks Studios may call or text you about this
-  inquiry. Message and data rates may apply. Your number is never sold or used for
-  marketing."
-- **`privacy.html`**, a short page: what the form collects, that Formspree processes
-  and delivers it, that nothing is sold, and how to ask for deletion.
-- No external fonts, no CDN, no analytics. Every font is already self-hosted
-  (verified: `assets/fonts/`).
+- **Formspree**: `https://formspree.io/f/xyegnvzd`, POST, `Accept: application/json`, body `FormData`. Public id, not a secret (verified: `PLAN.md` of 2026-08-18). Both forms post here.
+- **PostHog Cloud**: project API key supplied by the owner. It is a public, write-only ingestion key designed to ship in page source [A8], stored as a constant in `js/analytics.js`, never in chat logs as a "secret". Ingestion host is `us.i.posthog.com` or `eu.i.posthog.com` depending on the region the owner picks when creating the project [A8]. The library is vendored from the `posthog-js` npm package at a pinned version recorded in a comment.
+- **GitHub**: `gh` CLI and the cached keychain token push to both repos (verified: `PROGRESS.md` 2026-08-18 entry). Force-pushes to staging `main` were blocked by the permission classifier last time and the owner ran them himself; expect the same.
+- **League Spartan**: OFL, from `github.com/google/fonts` `ofl/leaguespartan/` [A2], with its license text added to `assets/fonts/`.
 
 ## Edge Cases & Failure Handling
 
 | Case | Behavior |
 |---|---|
-| JavaScript off, any width | Editorial page renders, every section readable, form submits by native POST |
-| Camera not active (reading mode, narrow viewport) | A zone click falls back to `scrollIntoView`, exactly as the deskbar links do today |
-| Click lands on a link inside a zone | The link wins; the camera does not move |
-| Click lands on the sticker | Camera returns to stop 0 |
-| `prefers-reduced-motion: reduce` | Camera cuts between stops, as today. No in-page override exists any more; the OS setting is the only authority |
-| Form submitted with invalid email | Inline message under the field, focus moves there, nothing is sent |
-| Formspree errors or the network is down | Error paper with a working `mailto:` fallback carrying the typed content |
-| Honeypot filled | Silently accepted, never sent |
-| Logo not yet supplied | Sticker shows the interim `W` on the black disc |
+| Consent never given or denied | PostHog never loads; zero requests to PostHog hosts |
+| Consent revoked mid-visit | `opt_out_capturing()`, PostHog storage cleared, no further events |
+| PostHog blocked by an ad blocker | Silent; no console error the site itself raises; site unaffected |
+| `js/analytics.js` fails to load | No analytics; every other script unaffected (it is loaded separately and last) |
+| Two forms on one page | Each form validates and submits independently; error ids unique per form |
+| Formspree down or offline | Existing error paper with a `mailto:` fallback carrying typed content, in both forms |
+| JavaScript off | Editorial page, editorial form posts natively to Formspree |
+| League Spartan fails to load | Fallback stack with matching posture (geometric sans, then system sans) |
+| Owner rejects the blue chrome preview | Iterate the preview only; nothing later starts |
+| Live push serves the old build for a few minutes | Pages rebuild lag, seen on staging in August; re-check after two minutes before judging |
+| HTTPS fails from the owner's work network | Treat as that network's issue; GitHub reports the cert valid (user, brief) |
 
 ## Risks, Landmines & Adaptations
 
-- **Deleting the "Smooth motion" button restores a failure the owner personally hit**
-  (verified: `index.html:540-550`). The owner accepted this on 2026-08-18. Residual
-  risk: a visitor with OS animations off gets hard cuts and no override. Mitigation:
-  because the board becomes click-driven, a cut lands on a composed framing rather
-  than mid-sweep, which is the case that read as broken. Phase 9 judges one stop-to-
-  stop click with reduced-motion emulated, to confirm the cut reads as deliberate.
-- **Copy is authored twice.** A one-sided edit leaves the two designs disagreeing.
-  Adaptation: Phase 2 edits both and re-measures all four `innerText` tripwires.
-- **`js/hand.js` jitter is document-order dependent**: adding any lettered element
-  re-rolls every letterform after it (verified: `AGENT-HANDOFF.md`). Adaptation: the
-  form sheet and the frame's staples carry no hand-lettering, and Phase 7 re-checks
-  the Level Up caption's fit on its tape after the form lands.
-- **Tape and paper that clip or filter their children** displace anything placed
-  inside them (verified: `AGENT-HANDOFF.md`). Adaptation: the stapled frame's strips
-  and staples are siblings in board coordinates, never children of a paper.
-- **The parked testimonial gets restored by accident.** Adaptation: R13 makes bare
-  cork a checked requirement, and no phase reads from `annie-wip`.
-- **A form on a public page attracts spam** to a real inbox. Adaptation: honeypot plus
-  Formspree filtering.
-- **The live smoke test sends a real email.** Adaptation: the test payload reads
-  "TEST SUBMISSION, ignore" in every field, and it runs once.
-- **The in-app browser pane returns black screenshots when hidden** (verified:
-  `AGENT-HANDOFF.md`). Adaptation: every visual check runs through
-  `tools/verify/cdp.mjs`.
-- **Rebuilding `main` is destructive.** Adaptation: Phase 10 runs only on the owner's
-  say-so, tags the current `main` first, and never merges into it.
+- **Copy is authored twice** (board and editorial). Every visible edit lands in both, and tripwires are re-measured after each phase and written into `HANDOFF.md`.
+- **`js/hand.js` jitter re-rolls letterforms after any added lettered element.** The new form, legal links and logo carry no hand-lettering; each phase that touches the board re-checks the Level Up caption on its tape at stop 4.
+- **The welcome panel truncates silently** because `.welcome-col-text` is `overflow: hidden`. Any copy change there (the analytics disclosure will change) is re-measured at 1024x700 and 1024x640.
+- **`.welcome-col-text p` specificity (0,1,1)** beats single-class paragraph rules; new rules there are written as `.welcome-col-text p.<class>` and confirmed by computed style.
+- **Percentage padding on absolutely positioned board elements** resolves against 3600px; size with `--sz`.
+- **`?v=` cache-busting**: every edited linked file gets its query bumped, on every page that links it (privacy.html was once left stale).
+- **The in-app browser pane screenshots black when hidden.** All visual checks run through `tools/verify/cdp.mjs`; the owner-facing demo can use the built-in browser.
+- **Never dispatch a click on a `mailto:` link in the harness**; it opened the owner's Outlook in August. Use the capture-phase `preventDefault` recipe from `PROGRESS.md` Phase 4.
+- **Zoom regressions come from FLY_MS and settle timing first**, not paint cost. Phase 8 measures before and after; if worse, revert the offending change, do not retune the camera.
+- **Rejected optimizations, never retry**: removing the detail collapse during flight, dropping gradients only while moving, baking cork plus gradients into one texture, WAAPI keyframes, the pointerdown pre-warm (verified: `PROGRESS.md` 2026-08-24).
+- **The board's lighting bakes derive from the three `.board` gradients.** Any change to those gradients means re-baking both WebP files, or the board shifts when the images decode.
+- **Replacing production is a destructive change to a live site.** Tag first, push the tag, push the release only on the owner's explicit go-ahead in that moment, verify live, and keep `git revert` ready.
+- **`whittworks-ship`'s deploy table is stale**: it says pushing `board-edits` serves whittworkstudios.com, which is false (verified: `gh api` Pages settings). Follow this plan's Phase 12, and propose a fix to the skill as a follow-up rather than editing it in this task.
+- **`whittworks-ship` names `claude-in-chrome` for the browser pass, while the owner's standing rule is the built-in browser.** Use `cdp.mjs` and `playwright-cli` for checks and the built-in browser for anything the owner watches.
+- **The meta CSP's `'unsafe-inline'`** can be removed only if every inline script and style gets a hash or moves to a file. Phase 7 tries hashes; if any inline style attribute blocks it, keep `'unsafe-inline'` for `style-src` only and record why.
 
 ## Assumptions Ledger
 
 | ID | Assumption | Basis | Blast radius if wrong | Check |
 |----|-----------|-------|----------------------|-------|
-| A1 | The strip is roughly 60-70 board pixels wide, navy near `#1b2739`, anchored to the wall's own `#233341` (verified: `css/style.css:478`), with a gentle wave on the inner edge only | The owner asked for dark navy, wavy, small, and not a focal point; the wall's blue is the palette the site already owns | Retint or resize the strip, minutes | Phase 6 screenshot |
-| A2 | The notecard's tagline belongs on the top strip once the sticker replaces it | The sticker has no room and the owner wants a title up top anyway | Print it on another paper, minutes | Phase 5 |
-| A3 | The form fits the free cork above the contact postcard, with the two doodles moved | Measured: that rectangle is 850x540 once the doodles relocate | Place the form elsewhere and retune stop 6, about an hour | Phase 7 |
-| A4 | An inline phone consent notice suffices, no checkbox | Replies to inbound inquiries are solicited contact | Add a required checkbox, one field | Phase 7 |
-| A5 | A honeypot plus Formspree filtering is enough spam defense | Low-volume studio site | Enable Formspree's reCAPTCHA, no code change | Phase 8 |
-| A6 | Formspree's free tier covers the volume | Named service, plan limits unread. The endpoint itself is confirmed live (verified: GET returns 405, a POST-only route answering) | Paid tier or another service | Phase 8's live submit |
-| A7 | The dropdown should carry Reviews and Whole Board, which the deskbar omits today | Stops 5 and 0 exist and are tuned | Drop two entries | Phase 3 |
-| A9 | Small staples means roughly 22 board pixels wide, about half the size a staple would be on a full-size sheet | The owner asked for "very small"; below this they stop reading as staples at stop 0 | Resize one value | Phase 6 screenshot |
-| A8 | Clicking a zone should not also be possible on the editorial page | The editorial has no camera | Nothing; the fallback already handles it | Phase 4 |
+| A1 | Editorial page goes white `#FFFFFF` (or near-white) with navy-black ink and blue accents | Owner called tan "fancy and prissy"; brief | Restyle one token block | Phase 3 preview verdict |
+| A2 | League Spartan is OFL and available as a variable TTF in `google/fonts`, subsettable to a Latin WOFF2 under ~40KB | Named open font; fontTools is installed | Pick another geometric OFL face | Phase 1 download and subset, bytes recorded |
+| A3 | Red string and pins count as board material, not brand chrome | Q1 kept the cork's physical look | Recolor strings, minutes | Phase 3 preview verdict |
+| A4 | Sticker: navy ring, white disc, full-color W | Navy facets disappear on black | Swap two colors | Phase 3 preview verdict |
+| A5 | Copy keeps its wording except forced changes (em dashes, legal, analytics disclosure); the kicker stays "Web Design & Consulting · Est. 2026" | Scope discipline; no copy change requested | Copy edit plus tripwire re-measure | Approval recap; owner may ask for the LinkedIn tagline instead |
+| A6 | The Formspree form may not be activated; a labeled test send before go-live proves delivery | Q5 unanswered; August send was never confirmed received | Form silently goes nowhere in production | Phase 11 gate |
+| A7 | The owner can create a free PostHog project and share its key before Phase 6 | Q7 accepted PostHog | Phase 6 waits; everything else proceeds | Ask for the key at Phase 6 start |
+| A8 | PostHog's ingestion key is public by design; `posthog-js` can be vendored, configured with surveys, session recording and remote config off, and uses the `ph_` storage prefix; the free tier covers this site's traffic | Training knowledge, unverified this session | Config keys or hosts differ; CSP needs another origin | Phase 1 reads PostHog's current docs and the npm package |
+| A9 | Session recording and surveys stay off | Privacy and payload; not requested | Turn on later with a privacy update | Owner may veto in the recap |
+| A10 | No build step is added; files stay hand-authored and unminified | Repo has none; GitHub Pages serves gzip/brotli over the wire anyway | Add a minify step later | Phase 8 byte measurement |
+| A11 | Terms of Service is a short plain-language page for a studio site (use of the site, no warranty, governing law Alabama), produced with `sitebuild`, not legal advice | Studio is in Birmingham, Alabama (verified: editorial footer) | Owner may want a lawyer's text | Owner reads it in Phase 5 |
+| A12 | Accessibility statement targets WCAG 2.2 AA and names the kebab menu as the keyboard path to every board zone | Audit history in `PROGRESS.md` | Wording change | Phase 5 |
+| A13 | The production file set is `index.html`, `404.html`, `privacy.html`, `terms.html`, `accessibility.html`, `robots.txt`, `sitemap.xml`, `CNAME`, `css/`, `js/`, `assets/`; docs and `tools/` stay out | Live repo today holds only public files | Docs leak to the public site | Phase 12 file list diff |
 
 ## Open Items (none blocking)
 
-- **Logo file.** CONFIRMED NOT READY, 2026-08-18 (user). The sticker ships the interim
-  mark; swapping in the real one later replaces the contents of one inline `<svg>` and
-  touches neither the ring nor the disc.
-- **Smoothness.** The owner deferred any further motion-performance work until the whole
-  project is built (user, 2026-08-18). Two passes already shipped in Phase 4c; the next
-  untouched lever is the board's own 7-layer blended cork background, which is held back
-  because collapsing it during motion risks a visible colour shift when it returns.
-- **Logo file, original note.** Not ready. The sticker ships the interim `W` from `assets/favicon.svg`
-  (path `M11 17 L21 47 L32 26 L43 47 L53 17`, no fill, stroke `#FFA92B`,
-  `stroke-width` 7 on a 64x64 viewBox, round caps and joins), inline so it stays sharp
-  at every zoom and costs no request. Keep the markup shaped so the real logo replaces
-  the `<svg>` contents without touching the ring or the disc.
-- **Pushing.** Nothing is pushed until the owner says so. One word changes this.
-- **Production merge.** Not planned.
+- PostHog project key and region: proceed with every other phase; Phase 6 starts when the key arrives [A7].
+- Kicker copy: keep "Web Design & Consulting · Est. 2026" unless the owner asks for "Websites and custom tools, built around your business." to match LinkedIn [A5].
+- Cloudflare in front of Pages for real security headers: parked follow-up.
+- Fix `whittworks-ship`'s deploy table: follow-up after launch.
 
 ## Verification
 
-Every visual check runs through headless Chrome, never the in-app pane.
-
 ```bash
 node tools/verify/cdp.mjs stops     # eight camera stops, both motion modes
-node tools/verify/cdp.mjs modes     # the six render modes and the tripwires
+node tools/verify/cdp.mjs modes     # render modes and tripwires
 node tools/verify/cdp.mjs shot 0    # screenshot at a stop
 ```
 
-- Screenshots at stops 0, 2, 3, 4, 5, 6 at 1440x900.
-- Five scripted zone clicks, each compared to its stop's transform matrix.
-- Three link clicks inside zones, confirming the camera does not move.
-- Keyboard walkthrough: the board, the dropdown, one zoomed zone, Escape.
-- The existing `modes` check at 390x844 and with scripting disabled.
-- Console clean at every stop.
-- Byte count of referenced files, before and after.
-- One live Formspree submit with a payload labeled as a test.
-
-**How the owner confirms it personally:** open the page, click each zone and the
-sticker, open the kebab, submit the form with his own address, then load it on his
-phone.
+- Screenshots at stops 0, 1, 2, 3, 4, 5, 6 at 1440x900, and the editorial at 360, 390 and 430 wide, after Phases 3, 4 and 10.
+- iOS Simulator screenshot of the phone page and reading mode (trap 1 in `HANDOFF.md`: an emulator missed a real WebKit bug).
+- Network log with consent unset, denied and allowed.
+- Zoom frame profile in and out, before Phase 8 and after Phase 10.
+- Byte count of everything `index.html` pulls before consent, same method as `PROGRESS.md` Phase 1.
+- Console clean at every stop and every page.
+- `sitecheck`, `security-review`, `code-review` reports saved to the notes folder.
+- **How the owner confirms it personally:** approve the preview; open staging on his phone and laptop; receive the labeled Formspree test; see his own visit in PostHog after clicking Allow; then give the go-ahead and load whittworkstudios.com.
 
 ## Build Phases
 
-- [ ] Phase 1: Remove the bottom chrome and the motion override
-      Done when: screenshots at stops 0, 2, 4, and 6 show nothing fixed at the bottom
-      of the window, `prefers-reduced-motion` emulation still produces cuts, and no
-      reference to `motion-toggle`, `motion-on`, `motion-off`, or the stored override
-      survives a grep of the tree.
+- [ ] Phase 1: Baseline, audits and verify the risky assumptions
+      Done when: a findings file in the notes folder lists current tripwires, the byte baseline, the zoom worst-frame numbers, every `sitecheck` / `security-review` / `code-review` finding, the League Spartan WOFF2 size, and PostHog's current config keys and hosts from its docs.
       Steps:
-      - Delete `.board-chrome` and its two children from `index.html:551-556`.
-      - Delete `.scroll-hint` and `.motion-toggle` rules from `css/style.css:384-455`.
-      - In `js/board.js`, delete `motionBtn`, `storedMotion`, `storeMotion`, the
-        `override` variable, and the button binding. Keep `osReduced()` and the live
-        `matchMedia` listener, and let `reduced` read the OS setting alone.
-      - Delete the `motion-on` and `motion-off` class rules wherever they are styled.
-      - Delete the hint's fade logic in `update()` and anything that only served it.
-      - Record the baseline referenced byte count for Phase 9 to compare against.
-      Covers: R1; checks: none
+      - Run `cdp.mjs modes` and `stops`; record values. Measure the pre-consent byte total.
+      - Profile the zoom in and out per `PROGRESS.md` 2026-08-24; record worst frames.
+      - Run `sitecheck` (audit only), `security-review` and `code-review` on `board-edits`; collect findings.
+      - Download League Spartan from `google/fonts`, subset to Latin WOFF2 with `pyftsubset`, record bytes [A2].
+      - Read PostHog's docs and the `posthog-js` package for config keys, hosts and storage names [A8].
+      Covers: R11, R12, R13 baselines; checks: A2, A8
 
-- [ ] Phase 2: Copy pass and the Portfolio rename, in both designs
-      Done when: a grep for "Work" as a section label returns nothing, no service
-      sticky starts a sentence lowercase, and all four `innerText` tripwires are
-      re-measured and recorded in `HANDOFF.md`.
+- [ ] Phase 2: Logo assets from the real W
+      Done when: an SVG of the W overlaps the PNG's mark at 99% or better by pixel comparison at 512px, and `favicon.svg`, `favicon-32.png`, `favicon-512.png`, `apple-touch-icon.png` (180) and `og-thumbnail.jpg` (1200x630) are regenerated from it.
       Steps:
-      - `index.html:396` and `:527`: nav label "Work" becomes "Portfolio";
-        `href="#work"` becomes `href="#portfolio"` and the section id moves with it.
-      - `index.html:468`: "More work available on request." becomes "More portfolio
-        available on request."
-      - `index.html:631`: "more work available on request →" becomes "More portfolio
-        available on request →", wrapped as a `mailto:caden@whittworkstudios.com` link
-        (the note IS the link, not a link inside it).
-      - Capitalize all four service sticky bodies; fix "domains, hosting, and deploys
-        set up properly. stays live" to "Domains, hosting, and deploys set up
-        properly, so the site stays live and current after launch."
-      - `index.html:588`: "When I am not building websites I am traveling" gains its
-        missing comma, in both designs.
-      - Polaroid caption "Caden — founder" becomes "Caden Whitt, Founder".
-      - Re-run `cdp.mjs modes`, record the new tripwires.
-      Covers: R11, R12
+      - Trace the mark's flat polygons from the PNG into one SVG `<symbol>` with the two blues.
+      - Export the icon PNGs and the share image with PIL; navy or white background per preview.
+      - Set `theme-color` to `#04367B` on every page.
+      Covers: R3
 
-- [ ] Phase 3: The title strip and the kebab dropdown
-      Done when: the title is centered and legible at 1280, 1440, and 1920 wide, the
-      kebab opens a dropdown of six entries, each entry drives the camera, Escape
-      closes it, and a tab walkthrough never escapes the open menu.
+- [ ] Phase 3: Blue chrome preview, then STOP for the owner's verdict
+      Done when: the owner has seen screenshots of stops 0, 1 and 6, the welcome panel, and the phone editorial page, and approved a direction in writing.
       Steps:
-      - Restructure `.deskbar`: centered, enlarged "WhittWorks Studios" in Anton.
-        NO kicker here; the tagline arrives in Phase 5 with the sticker, so the same
-        sentence is never printed twice on screen.
-      - Kebab button at the top right, drawn as three rows of one dot plus one dash.
-      - Dropdown as paper chrome: About, Services, Portfolio, Reviews, Contact,
-        Whole Board. Six entries, no motion control.
-      - Map ALL six stops in `js/board.js`'s `STOP_TARGET` fallback, which is what runs
-        when the camera is inactive. It covered only 2/3/4/6, so Reviews and Whole Board
-        were silent no-ops in reading mode.
-      - Reuse the existing `data-stop` handler for every entry.
-      - `aria-haspopup`, `aria-expanded`, Escape, outside click, close on selection.
-      Covers: R5, R6, R14; checks: A2, A7
+      - Add brand tokens; swap `--display` to League Spartan in both designs; retire red accents.
+      - Recolor the title strip, kebab, menu, welcome panel, buttons, links, focus rings and form button.
+      - Sticker: navy ring, white disc, inline W symbol [A4]. Editorial: white background, navy ink, blue accents [A1].
+      - Use `ui-ux-pro-max` and `design-references` for palette contrast and type scale; re-measure WCAG AA contrast, including the 10px fine print.
+      - Present screenshots; iterate on feedback; nothing past this phase until approved.
+      Covers: R1, R2, R4, R14 (board side); checks: A1, A3, A4
 
-- [ ] Phase 4: Clickable zones
-      Done when: five scripted clicks each land the camera on the matching stop's
-      transform, the three in-zone links still navigate without moving the camera, and
-      every target is reachable and operable by keyboard.
+- [ ] Phase 4: Mobile polish
+      Done when: at 360, 390 and 430 px the phone page shows the logo in its header, a tighter opening screen, and a working contact form, with `scrollWidth` equal to the viewport and an iOS Simulator screenshot to match.
       Steps:
-      - Add a delegated click handler on `#board` mapping each paper to its stop, per
-        the zone table.
-      - Bail out when `e.target.closest("a, button")` matches, so links win.
-      - Reuse the deskbar's exact `window.scrollTo` path, including the
-        `cameraActive()` false branch that falls back to `scrollIntoView`.
-      - Pointer cursor only: `cursor: zoom-in` on the zone, `cursor: pointer` on real
-        links inside it. NO hover transform; these papers carry filter and shadow
-        stacks, several clip their children, and some are held by tape strips that are
-        positioned siblings rather than children, so a hover transform would slide a
-        paper out from under its own tape.
-      - DELIBERATELY NO `tabindex` and no button role on the papers, reversing this
-        plan's earlier line. Two of the ten contain real links (`.work-postcard` holds
-        the Level Up caption anchor, `.contact-postcard` the circled email), and a
-        button's content is treated as its label and may not contain interactive
-        descendants, so a button role on either is invalid ARIA. Ten new tab stops
-        whose only effect is re-framing the camera would also sit ahead of the three
-        real links a keyboard visitor is there to reach. The kebab dropdown built in
-        Phase 3 already reaches all six framings by keyboard, so the FUNCTION is
-        keyboard-operable and the click is a redundant pointer shortcut to it. WCAG
-        2.1.1 asks for the functionality to be reachable, not for every redundant
-        pointer affordance to carry a tab stop.
-      - Escape returns to the whole board. Beyond the original plan, added because zone
-        clicks otherwise leave the scroll wheel and the menu as the only ways back out.
-        It checks the kebab's `aria-expanded` and stands down while the menu is open,
-        rather than relying on `stopPropagation` from `js/menu.js`, whose Escape handler
-        is registered later and so fires second.
-      Covers: R2, R3, R4, R14; checks: A8
+      - Generalize `js/form.js` and `js/validate.js` from one `querySelector` to every `.cf` form, with ids unique per form.
+      - Add the editorial form under Contact, same fields, honeypot, consent notice and privacy link.
+      - Logo in the editorial header; reduce the hero's empty space.
+      - Re-measure tripwires (editorial and no-JS will grow) and record them.
+      Covers: R5, R6
 
-- [ ] Phase 5: The circular sticker replaces the center notecard
-      Done when: a screenshot at stop 0 shows a circular sticker with a visible white
-      ring and black disc where the notecard was, every red string still meets its
-      pin, and clicking the sticker returns the camera to stop 0.
+- [ ] Phase 5: Legal pages
+      Done when: `terms.html` and `accessibility.html` load, link from the welcome panel and editorial footer, and `privacy.html` names PostHog, what it stores, the consent choice and how to withdraw it.
       Steps:
-      - Replace the `.title-card` section with the sticker: outer white ring, inner
-        black disc, inline `W` centered on the disc.
-      - Leave pin 0 at (1783, 815) untouched so no string moves.
-      - Retune stop 1 to frame the sticker.
-      - Confirm the editorial page is unaffected.
-      Covers: R7; checks: A2
+      - Run `sitebuild` for the two new pages; match the rebrand's styles; CSP and `?v=` on each.
+      - Replace the two placeholder spans with links; update privacy and the welcome panel's disclosure together.
+      - Re-measure the welcome panel at 1024x700 and 1024x640.
+      Covers: R10; checks: A11, A12
 
-- [ ] Phase 6: The stapled navy trim
-      Done when: a screenshot at stop 0 shows a narrow dark-navy strip with a wavy
-      inner edge running all four inner edges of the cork, small staples along it, no
-      paper obscured, the strip zooming with the board, and a judge asked "what does
-      your eye land on first" naming a paper rather than the trim.
+- [ ] Phase 6: PostHog behind consent
+      Done when: with consent unset or denied the network log shows zero PostHog requests; with Allow, the owner's project shows the pageview and a zone click; Deny after Allow clears `ph_` storage.
       Steps:
-      - Four strips positioned in board coordinates at the cork's inner edge, as
-        siblings of the papers, never children of one.
-      - Width roughly 60-70 board pixels [A1]. Fill a dark navy near `#1b2739`,
-        anchored to the wall's own `#233341` (verified: `css/style.css:478`) but a
-        shade deeper, so it reads as navy paper on cork and not as a gap showing the
-        wall through the board.
-      - The outer edge sits flush against the wooden frame; the inner edge is a gentle
-        wave, authored as one SVG path per side, amplitude small enough that the strip
-        never varies by more than about a third of its width.
-      - Staples as one reusable inline SVG symbol, roughly 22 board pixels wide [A9],
-        placed at irregular intervals with a small per-staple rotation.
-      - Papers keep a higher stacking order, so the pink portfolio sticky at
-        x 3236-3514 reads as lying on the strip rather than under it.
-      - Matte, unlit, and low contrast against the cork. This is trim filling the empty
-        cork margin, not a feature.
-      Covers: R8; checks: A1, A9
+      - Get the project key and region from the owner [A7].
+      - Vendor `posthog-js` at a pinned version into `js/vendor/`; new `js/analytics.js` loads it only when `wwAnalyticsGranted()` is true and on later Allow.
+      - Events: zone click (zone), menu jump (stop), form start, form send (ok or error), board/text toggle, web vitals.
+      - Widen `connect-src` to the ingestion host only.
+      Covers: R7, R8, R9; checks: A7, A8, A9
 
-- [ ] Phase 7: The form sheet
-      Done when: every field validates as specified, all label and input text measures
-      15 CSS pixels or larger at 1440x900 in the retuned stop 6, and `privacy.html`
-      loads from the form's link.
+- [ ] Phase 7: Security and safety hardening
+      Done when: every `security-review` finding is fixed or signed off, the CSP has no `'unsafe-inline'` for scripts, and `sitecheck` shows no High findings on security.
       Steps:
-      - Relocate the two doodle stickies at (301,1129) and (642,1143) to open cork.
-      - Place the form sheet in the freed rectangle, clear of both reserved areas.
-      - Fields: Name, Email, Phone with the consent notice, Project description,
-        How did you find me (optional, user 2026-08-18), honeypot.
-      - Budget and timeline are explicitly NOT collected (user declined them 2026-08-18).
-        Do not add them.
-      - Native constraint validation plus inline messages; focus moves to the first
-        invalid field.
-      - Retune stop 6 to frame the form and the postcard together.
-      - Write and link `privacy.html`.
-      - Re-check the Level Up caption still fits its tape after the jitter re-rolls.
-      Covers: R9, R16; checks: A3, A4
+      - Hash or externalize inline scripts; drop `'unsafe-inline'` from `script-src`, and from `style-src` if feasible.
+      - Add `<meta name="referrer" content="strict-origin-when-cross-origin">`; `rel="noopener noreferrer"` on external links.
+      - Form safety: `maxlength` on every field, honeypot kept, error text via `textContent` only (already true; re-verify).
+      - Same CSP treatment on `privacy.html`, `terms.html`, `accessibility.html`, `404.html`.
+      Covers: R11
 
-- [ ] Phase 8: Wire Formspree
-      Done when: one labeled test submission arrives in the owner's inbox with every
-      field present, and an offline submit shows the error paper with a working
-      `mailto:` fallback carrying the typed content.
+- [ ] Phase 8: Code cleanup and optimization
+      Done when: the pre-consent byte total is at or under the Phase 1 baseline plus the League Spartan file, the zoom worst frame is at or under 20ms both ways, and `cdp.mjs stops` matches baseline.
       Steps:
-      - Endpoint as a single constant in a new `js/form.js`.
-      - `fetch` POST with `Accept: application/json`; success, error, and pending
-        states rendered as paper.
-      - Native `action` and `method` set, so the no-JS path still posts.
-      - Send one payload labeled "TEST SUBMISSION, ignore".
-      Covers: R10; checks: A5, A6
+      - Delete dead CSS and JS left by the rebrand (Anton face, red rules, interim W); remove `anton-latin.woff2` if nothing references it.
+      - Split the board-only placeholder data out of `css/style.css` behind the 901px media gate (HANDOFF next step 2).
+      - Apply every `code-review` cleanup that does not touch camera timing.
+      - Bump every `?v=`; re-profile the zoom; revert any change that worsens it.
+      Covers: R12, R13; checks: A10
 
-- [ ] Phase 9: Efficiency and review pass
-      Done when: the referenced byte count is at or below the Phase 0 measurement, no
-      third-party script appears in the network log, an Opus 5 judge per stop reports
-      no shippable-quality issue, and the keyboard walkthrough completes without a trap.
+- [ ] Phase 9: SEO and metadata
+      Done when: `sitemap.xml`, canonical, Open Graph tags with the new image, and a JSON-LD `ProfessionalService` block validate, and `robots.txt` references the sitemap.
       Steps:
-      - Measure referenced bytes; compare to the baseline recorded in Phase 1.
-      - Audit whether the removed chrome freed any font weight or rule.
-      - Independent judges on the six stops and the two fallback legs, given the
-        parked testimonial and the placeholder logo as an explicit out-of-scope list.
-      - Fix, re-judge, tab walkthrough, console clean at every stop.
-      Covers: R13, R14, R15, and confirms R1 through R12
+      - Write `sitemap.xml` for the four public pages; add JSON-LD with name, url, logo, email, area served.
+      - Meta descriptions on every page; noindex stays on `404.html` only.
+      Covers: R15
 
-- [ ] Phase 10: Deploy to staging, on the owner's say-so only
-      Done when: the owner has approved local screenshots AND explicitly asked for a
-      push, the staging URL serves the edits, and he confirms them on his own machine.
+- [ ] Phase 10: Full review pass and documentation
+      Done when: independent judges per stop and per phone width report no shippable-quality issue, the keyboard walkthrough has no trap, console is clean everywhere, no em dash appears in visible text, and `HANDOFF.md`, `PROGRESS.md` and this plan carry the re-measured tripwires.
       Steps:
-      - Present local screenshots and wait.
-      - Tag the current `main` so the old staging is recoverable.
-      - Rebuild `main` from `board-edits`: delete `CNAME`, insert the noindex meta.
-      - Push, verify live through headless Chrome, update `HANDOFF.md`, `PLAN.md`,
-        and `PROGRESS.md`.
-      Covers: all
+      - `code-review` on the full diff; judges with an explicit out-of-scope list (Annie's cork, accepted residuals in `AGENT-HANDOFF.md`).
+      - `stop-slop` audit of all visible copy; em dash grep.
+      - Contrast re-measure; stop 5 shows bare cork.
+      Covers: R14, R16, confirms R1 to R15
+
+- [ ] Phase 11: Staging check and the form gate
+      Done when: staging serves the new build, the owner has opened it on his phone, one Formspree send labeled "TEST SUBMISSION, ignore" reached his inbox and he confirmed it, and his own consented visit shows in PostHog.
+      Steps:
+      - On the owner's say-so, rebuild staging `main` from `board-edits` (delete `CNAME`, add noindex), never merging; tag the old staging tip first. Expect the owner to run the force-push himself.
+      - Verify through headless Chrome (the shell cannot reach `*.github.io`).
+      - Send the one labeled test; wait for his confirmation [A6].
+      Covers: R5, R8; checks: A6
+
+- [ ] Phase 12: Ship to whittworkstudios.com on the owner's go-ahead
+      Done when: whittworkstudios.com serves the new build over HTTPS with the console clean and tripwires matching local, the rollback tag exists on GitHub, and the docs record the release.
+      Steps:
+      - Run `whittworks-ship` (sitecheck, browser pass, SEO, legal, git); print its pass/fail table.
+      - Confirm the target with the owner: repo `notcadenwhitt-stack/whittworks-site`, branch `main`, domain whittworkstudios.com.
+      - Fresh clone into the scratchpad (never `_archive/`); tag `e15a884` as `pre-blue-rebrand-20261028`, push the tag.
+      - Replace the tree with the A13 file set; confirm `CNAME` reads `whittworkstudios.com` and no noindex meta; one commit.
+      - Push only on the owner's explicit go-ahead; verify live after Pages rebuilds; rollback is `git revert <release>` then push.
+      - Update `HANDOFF.md`, `PROGRESS.md`; propose the `whittworks-ship` table fix as a follow-up.
+      Covers: R17; checks: A13
