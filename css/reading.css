@@ -355,7 +355,7 @@
     aspect-ratio: 1;
   }
   .sticker-disc { width: 87%; height: 87%; border-width: 10px; }
-  .sticker-mark { width: 62%; }
+  .sticker-mark { width: 70%; }
 
   .welcome-panel {
     --w: calc(100vw - 24px);

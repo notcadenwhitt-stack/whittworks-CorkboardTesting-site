@@ -1520,11 +1520,16 @@ html.warming .board .strings { filter: none; }
   justify-content: center;
 }
 
-/* ~55% of the 452px disc, matching the proportions of the interim mark
-   inlined from assets/favicon.svg. */
+/* 340px of the 452px disc (75% of its 420px white face), enlarged on the
+   owner's ask, 2026-10-28. Optically centred, not box-centred: the W's wide
+   top bar puts its visual mass 7% of its height above the middle of its box
+   (area centroid of the traced polygons), so a box-centred mark rode high in
+   the circle. translateY in % is a share of the mark's OWN height, so the
+   correction holds at any size, including reading mode's smaller sticker. */
 .sticker-mark {
-  width: 300px;
+  width: 340px;
   height: auto;
+  transform: translateY(7%);
 }
 
 .about-card { width: 720px; }

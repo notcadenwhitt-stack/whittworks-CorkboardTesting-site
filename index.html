@@ -293,7 +293,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=122">
+<link rel="stylesheet" href="css/style.css?v=123">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -302,7 +302,7 @@
      is what a visitor without scripting gets, and it is a better answer than
      the column was. Do not re-add the noscript copy; with no JS the board is
      display:none anyway and the rules would style something nobody can see. -->
-<link rel="stylesheet" href="css/reading.css?v=15"
+<link rel="stylesheet" href="css/reading.css?v=16"
       media="(max-width: 900px), (max-height: 540px)">
 <link rel="stylesheet" href="css/editorial.css?v=12">
 <!-- the cork is the backdrop everything sits on and it is the largest file
@@ -1151,7 +1151,7 @@
          on purpose: js/board.js sets it from data-src only after the board is
          shown, so it never competes with the first load. Rebuild it with
          python3 -I tools/release/make_snapshot.py after any visual change. -->
-    <img class="board-snap" data-src="assets/board-snapshot.webp?v=1" alt="" aria-hidden="true" width="3600" height="2400" decoding="async">
+    <img class="board-snap" data-src="assets/board-snapshot.webp?v=2" alt="" aria-hidden="true" width="3600" height="2400" decoding="async">
     <main class="board" id="board">
 
       <!-- The navy stapled trim that ran around the cork was removed on the
