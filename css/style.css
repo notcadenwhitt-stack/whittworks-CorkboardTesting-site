@@ -1,155 +1,3 @@
-/* WhittWorks Studios — the cork board
-   Hand: Caveat | Typed: Special Elite | Meta: Space Mono | Display: Anton
-   (Permanent Marker left this stylesheet at Phase 9: Phase 5 replaced the one
-   element set in it. 404.html still uses it and declares its own @font-face.)
-   Paper: real photographed/scanned assets in ../assets/paper/ (see SOURCES.md)
------------------------------------------------------------------- */
-
-/* ==================================================================
-   THE PLACEHOLDERS
-   ==================================================================
-   1.6MB of photographed paper arrives one sheet at a time and no version of
-   that is fast, so the only question is what the visitor looks at meanwhile.
-   It used to be an empty dark rectangle, latterly behind a fade, latterly a
-   flat colour per element sampled out of that element's own scan.
-
-   THE FLAT COLOURS WERE THE WRONG ANSWER and it is worth writing down why,
-   because they measured well. They put the right shapes in the right places
-   in the right colours in the first frame, and they cut time-to-recognisable
-   from 12.6s to 3.1s on a 100 KB/s line. What they could not do is arrive
-   gracefully. Flat to photographic is a step change, and on the cork — which
-   is not an element, it is the entire background of the site — that step was
-   the only thing the visitor ever saw happen. Flat colour is the right
-   skeleton for text and boxes. It is the wrong one for texture.
-
-   SO EACH FLAT COLOUR IS NOW A PICTURE OF THE SAME FILE. Every scan gets a
-   heavily downscaled copy of itself, WebP, base64 into this stylesheet:
-   ~20px for a sticky, 27-48px for the photographs, 144px for the cork. They
-   are laid at the same size, position and blend mode as the asset they stand
-   in for, so the real file lands on a soft version of itself and the arrival
-   is a focus pull rather than a change of material. 23 of them, 8,140 base64
-   characters, 6.5KB gzipped on the wire, and — the point — ZERO extra
-   requests: they are in the stylesheet, so they are decodable in the first
-   frame that paints. No fade, no overlay, no script.
-   tools/lqip/make_lqip.py rebuilds them all from the assets.
-
-   THE SIZES ARE NOT UNIFORM because the right size is not a constant. Sticky
-   paper is one colour and a lighting gradient, so 20px carries all of it.
-   Cork is nothing but texture: measured, the 1180px cork tile's per-channel
-   std is 19.2 at full size and 3.0 at 32px, which is to say a 32px cork
-   placeholder decodes to a flat swatch and would have changed nothing at all.
-
-   AND THE RIGHT SIZE DEPENDS ON WHAT THE SCAN IS OF. postcard-back sits at
-   88px where its opposite number sits at 40px, because it is the one scan on
-   this board carrying LINE WORK: an engraved POST CARD plate, two ornamental
-   scrolls, two printed rules, a full-height vertical divider, the stamp box
-   and the owl vignette. All of it is high contrast at low spatial frequency,
-   which is exactly what survives a 16x downscale, and at 40px none of it did:
-   the placeholder was a smear and every one of those features appeared at
-   once when the scan landed 11.2s later. At 88px they are all there, in
-   place, and the scan only sharpens them. Measured by resampling BOTH the
-   placeholder and the loaded card to a common width, which strips the blur
-   out and leaves only whether the ink is where it should be: mean error
-   7.81 -> 5.71 at 88px wide (-27%), 9.18 -> 7.67 at 176px (-16%), against
-   10.69 -> 9.88 (-8%) at the card's full 2108 device px. The improvement
-   living at low frequency and not at high is the point, because what is left
-   at full resolution is the focus pull and that is what should be left. 426
-   bytes, 352 more than the 40px version and 298 more after gzip, and first
-   paint does not move: 3691ms against 3747ms at 1 Mbps over five cold loads
-   each, sd 267 and 242. postcard-front stays at 40px, because its picture
-   area is painted out (the Level Up shot covers it) so its placeholder is
-   only ever the margin and the deckle.
-
-   AND THIS SHEET IS RENDER-BLOCKING, which is the other half of every size
-   here. On a throttled cold load css/style.css shares the pipe with five
-   preloads and gets about a sixth of it, so a kilobyte added here costs
-   roughly 55ms of first paint at 1 Mbps, not 8ms. Measured against the flat
-   build over three cold loads each: first contentful paint 1788ms -> 2040ms
-   at 1 Mbps and 2028ms -> 2288ms at 100 KB/s. A quarter of a second, and the
-   cork is most of it, which is why the cork sits at 144px/q48 (std 11.3 for
-   2.7KB) and not at 192px/q50 (13.4 for 6.0KB) — that version measured
-   2516ms and 2636ms, so the extra 3.3KB bought texture nobody can see for
-   half a second of blank screen that everybody can.
-
-   STAYING INSIDE THE SILHOUETTE, unchanged from the flat build. A rectangle
-   that later becomes a torn sticky or a deckled postcard visibly SHRINKS,
-   which is the same popping in a new hat. So each placeholder is cropped to
-   AND drawn in the largest centred box that is alpha 250-255 throughout that
-   scan: stickies 91% (worst of the 13 needs 95.5%), polaroid frames and both
-   postcards 98% (opaque from 6-9px in at native size), stamp 78% x 88%.
-   Cropping as well as sizing is what keeps it registered — the thumbnail is
-   of that box, not of the whole sheet squeezed into it. Cut-outs are
-   flattened onto their own opaque median first, so no cut edge contributes a
-   dark halo to its own thumbnail. The scan can only reveal the placeholder,
-   never crop it, and the growth is 2-6 screen pixels at the opening stop.
-   The flat colours are kept underneath as the last layer of each stack: four
-   bytes each, and they are what paints if a data URI ever fails to decode.
-
-   NOTHING UNDER TAPE, AND THE REASON GENERALISES. Masking tape is
-   translucent (tape-7 peaks at alpha 253, body near 228), so anything under
-   it reads through on the FINISHED board: tinting the caption tape measured
-   a 13/255 shift over 30% of it and cost the tape its show-through. That is
-   not a fact about flat colour, it is a fact about compositing. Under a tape
-   of alpha a, any layer L resolves to a*T + (1-a)*L where the finished board
-   needs a*T + (1-a)*C, and no L makes those equal while a < 1. The obvious
-   escape, an ALPHA-PRESERVING THUMBNAIL of the tape itself, was built and
-   measured rather than argued about: laid under the real strip it turns the
-   10.6% of cork that should show through into 1.1%, and on the loaded board
-   at stop 4 that is a mean shift of 11.9 levels over 88% of the tape, max
-   158. Worse in extent than the tint it was meant to replace. It is the
-   wrong shape for this too — the two corner strips run diagonally across 42%
-   and 19% of their boxes and the largest centred box inside them is 6% and
-   0%. Opaque paper takes a placeholder; translucent tape does not, at any
-   size, opacity or alpha.
-
-   SO THE TAPE IS FETCHED FIRST INSTEAD. With no placeholder possible it was
-   arriving out of bare cork, which measured as the largest per-pixel arrival
-   anywhere on this page: 3.16% of the frame at stop 4 changing by a mean of
-   100.5 levels, +7.6s after first paint at 1 Mbps and +20.5s at 400 kbps.
-   index.html now preloads all three strips at fetchpriority high, and
-   tools/lqip/reencode_assets.py re-encoded them with lossy alpha first
-   (86,866 bytes to 41,828, native pixel dimensions untouched) so the queue
-   jump is cheap. Measured, they finish at 1.47-2.00s against a first paint
-   of 3.75s at 1 Mbps and at 3.5-4.8s against 7.58s at 400 kbps: the arrival
-   still happens, but before there is anything on screen for it to happen on.
-   The index cards need none: their stock is already a gradient. The walnut frame keeps its flat #42342f,
-   because border-image has no second layer to hide a placeholder under and
-   the frame is 30px of a 3660px box.
-
-   WHAT THIS DOES NOT FIX. paper-grain-hi.webp MULTIPLIES onto the index
-   cards and its own mean is 236/255, so the three big cards darken by ~7.5%
-   when it lands. A multiply layer cannot be pre-applied and then cancelled:
-   the only cures are to restructure the card's blend stack or to change how
-   the loaded card looks, and the loaded card is approved. It is the one
-   arrival on this page that is still a step rather than a focus pull.
-   ================================================================== */
-
-/* ==================================================================
-   THE LETTERING, SERVED FROM HERE
-   ==================================================================
-   These four families used to come from fonts.googleapis.com, which made a
-   font host the page's only third-party and its only external render-path
-   dependency — and handed every visitor's IP address to Google for the
-   privilege. The files below are byte-for-byte the same latin subsets that
-   host was serving (see assets/paper/SOURCES.md for versions, licences and
-   the exact URLs), so nothing about the lettering changed; only who the
-   browser has to ask. 175,924 bytes of woff2 against the 177,009 that used
-   to cross the wire to Google, and now zero DNS lookups and TLS handshakes
-   to a host this page does not control.
-
-   latin only. The board is written in English and Google was already
-   shipping exactly this subset to a modern browser, so latin-ext, cyrillic
-   and vietnamese would be bytes nobody on this page can read. The unicode-
-   range on each face is the one Google's own CSS declared for its latin
-   slice, kept verbatim: if a visitor's browser ever needs a glyph outside
-   it, the range tells it so and the fallback stack in :root takes the word
-   rather than the font quietly drawing a box.
-
-   font-display: swap keeps the old bargain. The fallback stacks below are
-   real typefaces with the right posture, not a placeholder, so a font that
-   is slow or missing costs the lettering and never the board.
-   ================================================================== */
-
 @font-face {
   font-family: "Caveat";
   font-style: normal;
@@ -169,48 +17,12 @@
 }
 
 @font-face {
-  font-family: "Space Mono";
+  font-family: "League Spartan";
   font-style: normal;
-  font-weight: 400;
+  font-weight: 100 900;
   font-display: swap;
-  src: url("../assets/fonts/space-mono-400-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: "Space Mono";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("../assets/fonts/space-mono-700-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* --- the editorial design's two families -----------------------------
-   Anton letters its wordmark, Inter sets its body copy. They arrived with that
-   design still calling fonts.googleapis.com, which would have undone the point
-   of the section above: a third party back on the render path, and Google
-   handed the IP address of every visitor again. Both are here now, latin only,
-   byte-identical to the slices gstatic serves, both SIL OFL 1.1 with no
-   Reserved Font Name, both verified against github.com/google/fonts
-   METADATA.pb rather than assumed. Licence texts ship in assets/fonts/,
-   because OFL section 2 requires them to travel with the font. See SOURCES.md
-   for versions, sha256s and the exact URLs.
-
-   Inter is ONE variable rule spanning 100 900, not the two fixed-weight blocks
-   Google's css2 prints for wght@400;500. That output is two blocks pointing at
-   an identical URL, because the file is variable and its latin slice carries
-   the whole weight axis; only opsz was pinned out. One rule, same single
-   request, and anything asking for 700 gets real Inter instead of a synthesised
-   bold. Caveat's rule above already reads its range the same way. */
-
-@font-face {
-  font-family: "Anton";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../assets/fonts/anton-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  src: url("../assets/fonts/league-spartan-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -223,37 +35,23 @@
 }
 
 :root {
-  /* Sentinel, read by js/board.js before it does anything. Its only job is to
-     exist. If this stylesheet 404s the property is empty, board.js returns
-     immediately, and the page degrades to the plain readable document you get
-     with scripting off instead of a camera panning an unstyled one off screen.
-     Do not remove it and do not move it into another file. */
+
   --camera: 1;
 
-  /* Is the camera the right way to show this board at this viewport? Set to 0
-     by the reading-mode query at the bottom of this file, where the board
-     reflows into a column instead. js/board.js re-reads it on every resize, so
-     rotating a phone or zooming the browser switches modes live. Distinct from
-     --camera above, which asks only whether this stylesheet arrived at all. */
   --camera-active: 1;
 
   --ink: #191919;
-  --red: #b3271c;
-  --card: #fbf8f1;
 
-  /* Each stack falls back to something with the right posture, so a blocked
-     or slow font host (captive portal, proxy, sinkhole) costs the lettering
-     and not the page: a hand for the hand, a typewriter for the typed cards.
-     The generics at the end are the floor, not the plan. */
+  --brand: #004AAD;
+  --brand-deep: #04367B;
+  --brand-ink: #0B1B33;
+  --chrome: #ffffff;
+  --red: #b3271c;
+
   --hand: "Caveat", "Bradley Hand", "Segoe Script", "Comic Sans MS", cursive;
   --typed: "Special Elite", "American Typewriter", "Courier New", Courier, monospace;
-  --mono: "Space Mono", ui-monospace, Menlo, "Consolas", monospace;
-  /* Anton's @font-face is above; css/editorial.css already names this stack
-     as --display for the tan design, but the board never loads that
-     stylesheet, so the deskbar title needs its own copy of the same
-     variable. Kept byte-identical to css/editorial.css:43 on purpose: one
-     face, one fallback order, regardless of which design is on screen. */
-  --display: "Anton", "Arial Narrow", Impact, sans-serif;
+
+  --display: "League Spartan", "Futura", "Century Gothic", "Avenir Next", sans-serif;
 }
 
 *,
@@ -262,9 +60,11 @@
 
 html { -webkit-text-size-adjust: 100%; }
 
+html.board-first body,
+html.board-open body { background: #0b1b33; }
 body {
   margin: 0;
-  background: #2b2119;
+  background: #ffffff;
   color: var(--ink);
   font-family: var(--typed);
   overflow-x: hidden;
@@ -275,12 +75,9 @@ h1, h2, p, figure { margin: 0; }
 ul { margin: 0; padding: 0; list-style: none; }
 a { color: inherit; }
 
-:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
 
-/* invisible scroll runway that drives the camera */
 .scroll-space { height: 1300vh; }
-
-/* --- fixed overlay chrome ---------------------------------------- */
 
 .deskbar {
   position: fixed;
@@ -288,69 +85,43 @@ a { color: inherit; }
   left: 50%;
   transform: translateX(-50%) rotate(-0.4deg);
   z-index: 50;
-  padding: 0.5rem 1.2rem;
-  background: #f4efe2;
+  padding: 0.55rem 1.3rem 0.5rem;
+  background: var(--chrome);
+  border-bottom: 3px solid var(--brand);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
+.deskbar-mark { width: 2.6rem; height: auto; flex: 0 0 auto; }
+.deskbar-text { display: block; }
 
-/* The whole reason this strip exists now: one headline, sized to be the
-   loudest thing on the board without turning the strip into a banner.
-   Anton at these weights reads bold enough that a heavier weight is not
-   needed. Uppercase is text-transform on purpose, not the HTML text, so
-   the accessible name and the tripwires js/peek.js's neighbor script
-   checks both keep reading "WhittWorks Studios" in mixed case.
-
-   Phase 5: this element became an <h1> (see index.html for why). Margin
-   is already zeroed by the global "h1, h2, p, figure { margin: 0; }" reset
-   near the top of this file, and font-size is set explicitly below, so
-   neither needed a reset here. font-weight DOES: a bare <h1> carries the
-   UA stylesheet's bold, and Anton ships no true bold face, so the browser
-   would have faked one by thickening the strokes (font synthesis) instead
-   of leaving them as drawn. Pinned to 400 so the strip renders exactly as
-   it did as a <span>. */
 .deskbar-name {
   display: block;
   font-family: var(--display);
-  font-size: clamp(1.35rem, 2.6vw, 2.05rem);
-  font-weight: 400;
+  font-size: clamp(1.25rem, 2.3vw, 1.8rem);
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--ink);
+  color: var(--brand-ink);
 }
 
-/* The kicker: the notecard's first typed line, promoted here in Phase 5.
-   Small and set in --mono, the same face the strip's neighbor (the kebab
-   dropdown, .board-menu a below) already uses for supporting text, so the
-   strip stays a strip and does not grow into a banner. Left in normal
-   case on purpose: the copy is deliberately Title Case, not the shouting
-   uppercase .deskbar-name gets from text-transform. */
 .deskbar-kicker {
   display: block;
-  margin-top: 4px;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.04em;
-  color: var(--ink);
-  /* .deskbar sets white-space:nowrap for the headline's benefit; the
-     kicker is a much longer string at a much smaller size and can outrun
-     the strip's max-width on a phone, so it opts back into wrapping
-     rather than inheriting that and spilling past the paper. */
+  margin-top: 5px;
+  font-family: var(--display);
+  font-weight: 400;
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brand-deep);
+
   white-space: normal;
   text-align: center;
 }
 
-/* Shared paper chrome for the three top-right controls (help, back, kebab),
-   left as one rule so the trio cannot drift apart in weight or shadow. Each
-   button below sets only what makes it itself: the width (help is a wider
-   paper TAB now that its label reads "Help!" instead of a bare glyph, see
-   .board-help-btn below; back and kebab stay the 42px square this rule
-   defaults to), the right offset that spaces it from its neighbor, and a
-   rotation so the row does not read as one machine-milled strip. top, height,
-   background and box-shadow are shared here on purpose so all three sit on
-   the same baseline with the same paper and the same shadow no matter what
-   width any one of them ends up needing. */
 .board-help-btn,
 .board-back-btn,
 .board-menu-btn {
@@ -364,75 +135,32 @@ a { color: inherit; }
   justify-content: center;
   padding: 0;
   border: 0;
-  background: #f4efe2;
+  background: var(--chrome);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
   cursor: pointer;
   font: inherit;
-  color: var(--ink);
+  color: var(--brand-deep);
   -webkit-tap-highlight-color: transparent;
 }
 
-/* The kebab: same paper, same shadow as the deskbar strip so the two read
-   as one piece of hardware, rotated the OTHER way so they do not look like
-   a single machine-aligned bar that got cut in half. */
 .board-menu-btn {
   right: 14px;
   transform: rotate(0.6deg);
 }
 
-.board-menu-icon { width: 22px; height: 22px; fill: var(--ink); }
+.board-menu-icon { width: 22px; height: 22px; fill: var(--brand-deep); }
 
-/* The back control. HIDDEN BY DEFAULT and revealed only once js/board.js
-   says the camera is actually inside a zone. This is a base rule, not a
-   media query, on purpose: the initial paint (before board.js has run its
-   first writeFraming()) must never show a button whose click would do
-   nothing, and defaulting to hidden means a slow or blocked script fails
-   safe instead of failing loud. See setFar() in js/board.js for how and
-   why board-zoomed gets set on <html> rather than read straight off
-   .board.far -- this element lives in <nav>, a sibling of .viewport, and
-   CSS cannot reach a class on .board from there. */
 .board-back-btn {
-  /* Furthest LEFT of the three, on the owner's ask, so the row reads back,
-     help, kebab. This offset has to clear the Help tab beside it, which is
-     wider than a square because it carries a word: measured, that tab is 69px
-     and sits at right:66, so its left edge is 135 from the right. 148 leaves a
-     13px gap. If the word on that tab ever changes, re-measure rather than
-     assume this number still clears it. */
+
   right: 148px;
   transform: rotate(-0.5deg);
-  /* Back to a plain square: the owner asked for the icon alone, no word. The
-     label was only ever a response to the control seeming invisible, and the
-     real cause of that was the board-zoomed bug in js/board.js (see setFar),
-     not the absence of text. Fixed there, the glyph is enough. */
+
   display: none;
 }
 html.board-zoomed .board-back-btn { display: flex; }
 
-
-/* 24, not 22. The kebab's 22px box is filled edge to edge by three solid
-   dots; a stroked outline at the same box reads lighter than a filled one,
-   so the arrow gets two more pixels to sit at the same visual weight as the
-   controls either side of it. */
-/* Sized to carry the tile on its own, since nothing else is in it. The kebab
-   beside it fills a 22px box with three solid dots; a stroked outline reads
-   lighter than a filled shape at equal size, so this gets a little more room
-   to land at the same visual weight. */
 .board-back-icon { width: 25px; height: 25px; }
 
-/* The help control. Visible at every framing -- "how does this work" is a
-   fair question from anywhere on the board, not only at rest -- so unlike
-   the back arrow it carries no visibility gate at all.
-
-   Reads "Help!" now instead of a bare "?" glyph, and a word is wider than a
-   glyph: width: auto plus horizontal padding lets the button grow into a
-   paper TAB rather than staying the 42px square its neighbours are, while
-   top, height, background and box-shadow all still come from the shared
-   rule above, so the row keeps one baseline and one paper treatment. Growing
-   is safe in every direction that matters: right stays 118px, so the button
-   only widens LEFTWARD, away from the back control at right:66px, and at
-   1280px wide there is no viewport this pushes any of the three off screen
-   -- measured, the tab's own left edge lands nowhere close to the deskbar
-   strip at that width. */
 .board-help-btn {
   right: 66px;
   transform: rotate(0.3deg);
@@ -442,16 +170,13 @@ html.board-zoomed .board-back-btn { display: flex; }
 
 .board-help-icon {
   font-family: var(--display);
-  font-size: 18px;
+  font-weight: 700;
+  font-size: 17px;
   letter-spacing: 0.02em;
   line-height: 1;
   white-space: nowrap;
 }
 
-/* The dropdown itself: a paper sheet hanging under the button, right-aligned
-   to it. Hidden by default; js/menu.js is what adds and removes .is-open,
-   the same way js/peek.js owns board-open/board-shut rather than leaving a
-   state class for two scripts to fight over. */
 .board-menu {
   position: fixed;
   top: 62px;
@@ -461,38 +186,50 @@ html.board-zoomed .board-back-btn { display: flex; }
   flex-direction: column;
   min-width: 160px;
   padding: 0.4rem 0;
-  background: #f4efe2;
+  background: var(--chrome);
+  border-top: 3px solid var(--brand);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
 }
 .board-menu.is-open { display: flex; }
 
 .board-menu a {
   display: block;
-  padding: 0.5rem 1rem;
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  padding: 0.55rem 1.1rem;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  color: var(--brand-deep);
   text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
 }
-.board-menu a:hover { color: var(--red); }
+.board-menu a:hover { color: var(--brand); background: #eef3fb; }
 
-/* small screens: the bar's desktop metrics outrun a phone viewport, so
-   below tablet width we tighten the strip and shrink the kebab to match.
-   desktop (>=900px, well above this query) is untouched. */
 @media (max-width: 700px) {
+
   .deskbar {
     top: 10px;
-    padding: 0.35rem 0.75rem;
-    /* leaves room on the right for the kebab, which sits outside .deskbar
-       and would otherwise sit on top of a full-width centered strip */
-    max-width: calc(100vw - 66px);
+    left: 10px;
+    transform: rotate(-0.4deg);
+    padding: 0.35rem 0.7rem 0.3rem;
+    gap: 0.5rem;
+    max-width: calc(100vw - 141px);
   }
+  .deskbar-mark { width: 1.75rem; }
 
   .deskbar-name {
-    font-size: clamp(1rem, 4.6vw, 1.35rem);
+    font-size: clamp(0.85rem, 3.9vw, 1.2rem);
   }
+  .deskbar-kicker { font-size: 0.56rem; letter-spacing: 0.14em; }
+
+  .board-help-btn {
+    top: 10px;
+    right: 52px;
+    height: 34px;
+    padding: 0 12px;
+  }
+  .board-help-icon { font-size: 15px; }
 
   .board-menu-btn {
     top: 10px;
@@ -510,27 +247,12 @@ html.board-zoomed .board-back-btn { display: flex; }
   }
 }
 
-/* --- the welcome panel ---------------------------------------------
-   Two elements: a dimmed backdrop and the panel itself. Both start
-   display:none and are opened only by adding .is-open (js/welcome.js),
-   the same on/off-a-class pattern .board-menu already uses above rather
-   than a hidden attribute a second script would have to know about too.
-
-   Both live inside #corkboard in the markup, which is the entire reason
-   neither needs a width query or a no-JS guard here: #corkboard itself is
-   display:none below 901px and without board-live, and a hidden ancestor
-   takes every descendant with it. Board-only, for free. */
 .welcome-backdrop {
   display: none;
   position: fixed;
   inset: 0;
   z-index: 199;
-  /* Flat colour, no blur. This sits directly over the 3600x2400 composited
-     board layer; a backdrop-filter here would force every frame under it
-     to be sampled and re-composited for as long as the panel stays open,
-     which is exactly the cost the PERFORMANCE notes on this build ask to
-     avoid on anything full-screen. A plain rgba wash reads as "dimmed"
-     just as well and costs nothing to paint. */
+
   background: rgba(20, 14, 8, 0.55);
 }
 .welcome-backdrop.is-open { display: block; }
@@ -542,23 +264,21 @@ html.board-zoomed .board-back-btn { display: flex; }
   left: 50%;
   z-index: 200;
   transform: translate(-50%, -50%);
-  /* 80% of the viewport, holding the board's own 3:2. --w is computed once
-     so the height below can divide it instead of repeating the same min()
-     expression twice and risking the two drifting out of sync. Capped at
-     100% of the viewport either way, though the min() already guarantees
-     neither term can exceed it. */
+
   --w: min(80vw, 80vh * 1.5);
   width: var(--w);
   height: calc(var(--w) / 1.5);
   max-width: 100vw;
   max-height: 100vh;
   box-sizing: border-box;
-  background: #f4efe2;
+  background: var(--chrome);
+  border-top: 5px solid var(--brand);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
   overflow: hidden;
+  font-family: var(--display);
+  color: var(--brand-ink);
 }
-/* Column, not block: the body takes the room that is left and the Legal
-   footer sits under it across the panel's full width. */
+
 .welcome-panel.is-open { display: flex; flex-direction: column; }
 
 .welcome-close {
@@ -572,10 +292,10 @@ html.board-zoomed .board-back-btn { display: flex; }
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 2px solid var(--red);
+  border: 2px solid var(--brand);
   border-radius: 2px;
-  background: #f4efe2;
-  color: var(--red);
+  background: var(--chrome);
+  color: var(--brand);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -586,27 +306,14 @@ html.board-zoomed .board-back-btn { display: flex; }
   flex-direction: row;
   align-items: stretch;
   width: 100%;
-  /* flex:1 with min-height:0, not height:100%. The footer below is a sibling
-     now, and a hard 100% here would push it straight off the panel. */
+
   flex: 1 1 auto;
   min-height: 0;
 }
 
-/* The Legal footer: full width, under both columns, sitting in the panel's
-   bottom-RIGHT corner. It started inside the left text column, which put it
-   in the middle of the panel; it then went bottom-left, and the owner moved
-   it right. Right-aligned it also sits under the sketch rather than under the
-   instructions, which leaves the text column's own lower edge clean. */
-/* Fine print. The consent buttons above are the part a visitor acts on; this
-   is the disclosure sitting behind them, so it is set at the size terms-of-
-   service copy is normally set at rather than at body size. Small, not
-   illegible: it still has to be readable by anyone who chooses to read it. */
 .welcome-col-text p.welcome-fineprint {
   margin-top: 10px;
-  /* Genuinely fine print. 0.74rem still read as body copy next to the rest
-     of the panel, so this is 11px against the panel's 16px base -- the size
-     a terms-of-service line actually gets set at. The wider tracking and
-     the tighter measure stop it turning into a grey slab at that size. */
+
   font-size: 10px;
   line-height: 1.5;
   letter-spacing: 0.012em;
@@ -614,20 +321,11 @@ html.board-zoomed .board-back-btn { display: flex; }
   max-width: 58ch;
 }
 
-/* Pulled OUT of the flow and pinned to the panel's bottom-right corner. As a
-   flex row it reserved a full-width band under BOTH columns, and that band
-   was the thing holding the cookie block up off the bottom of the panel even
-   though the footer's own ink only ever occupies the right-hand side. Pinned,
-   the body claims the panel's full height, the cookie block reaches the true
-   bottom left corner, and the footer sits in the empty space under the sketch
-   where nothing else was ever drawn. The panel is position:fixed, so it is
-   already the containing block for this. */
 .welcome-footer {
   position: absolute;
   right: 32px;
   bottom: 14px;
-  /* Shrink-wrapped, so the h3 centres over the links rather than over the
-     whole panel. */
+
   display: flex;
   justify-content: flex-end;
 }
@@ -645,48 +343,22 @@ html.board-zoomed .board-back-btn { display: flex; }
   padding: 24px 32px;
 }
 .welcome-col-text {
-  /* Hidden, not auto. The owner: "I do not want the explanation section to
-     be scrollable, it should be super quick and easy." auto would have
-     quietly grown a scrollbar the moment a future copy edit ran long,
-     which is exactly the failure mode that is easy to miss in a screenshot
-     and easy for a visitor to miss too. hidden instead means an overflow
-     shows up as text CUT OFF at the bottom, something nobody could ship
-     without noticing, so the copy in this column is deliberately kept short
-     enough to fit at 1440x900 and 1280x800 with room to spare rather than
-     relying on scrolling to make room for more. Verified directly: measured
-     scrollHeight against clientHeight for this column at both viewport
-     sizes and confirmed scrollHeight is the smaller of the two, not
-     assumed from a screenshot. */
+
   overflow: hidden;
-  font-family: var(--typed);
-  color: #2b2115;
-  /* A column so the two blocks inside can claim the leftover height between
-     them: .welcome-howto takes auto margins top and bottom, which splits the
-     free space evenly and centres it, and .welcome-privacy is left with no
-     auto margin so it settles against the bottom edge. No fixed heights and
-     no absolute positioning, so the copy can still grow or shrink without
-     any of this needing a second look. */
+  font-family: var(--display);
+  color: var(--brand-ink);
+
   display: flex;
   flex-direction: column;
-  /* Trimmed from the shared 24px so the cookie block below can sit at the
-     genuine bottom of the panel rather than floating a full gutter above it.
-     The horizontal padding from .welcome-col is untouched. */
+
   padding-bottom: 14px;
 }
 
-/* Centred in its half of the panel, both axes. */
 .welcome-howto {
   margin: auto 0;
   text-align: center;
 }
 
-/* Left-aligned on purpose: the fine print underneath is a paragraph of legal
-   copy and centring a block of it hurts to read. The margin is a FLOOR, not
-   the actual gap: the auto margins on .welcome-howto above already open up
-   whatever height is left over, and this only guarantees the two blocks stay
-   visibly apart if the copy in either one ever grows enough to eat that
-   space. The owner asked for a noticeable break between the instructions and
-   the cookie notice, so the gap should never be allowed to close. */
 .welcome-privacy {
   flex: 0 0 auto;
   margin-top: 24px;
@@ -696,16 +368,13 @@ html.board-zoomed .board-back-btn { display: flex; }
   font-size: 16px;
   line-height: 1.36;
 }
-/* Reads as a title, not as the first line of the copy: larger, tracked out,
-   and sitting over a short centred rule so the eye registers a heading before
-   it registers a sentence. The rule is drawn with ::after rather than a
-   border-bottom because a border would run the full width of the centred
-   block and read as a divider instead of as part of the title. */
+
 .welcome-heading {
   margin: 0 0 18px;
-  font-size: 27px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: var(--brand-deep);
   line-height: 1.15;
 }
 .welcome-heading::after {
@@ -714,30 +383,18 @@ html.board-zoomed .board-back-btn { display: flex; }
   width: 58px;
   height: 2px;
   margin: 9px auto 0;
-  background: #2b2115;
-  opacity: 0.5;
+  background: var(--brand);
+  opacity: 1;
 }
 .welcome-subhead {
   margin: 16px 0 8px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.16em;
+  color: var(--brand-deep);
   text-transform: uppercase;
 }
 
-/* SHORT VIEWPORTS. The board design serves any window at least 901px wide,
-   which says nothing about its height, and this column is overflow:hidden --
-   the deliberate choice recorded above, so that copy running long shows up
-   as text visibly cut off rather than as a quiet scrollbar. That makes a
-   short window the failure case, and it was already 1px from failing at
-   1024x700 before this pass added any spacing at all.
-
-   Measured, not guessed: at 1024x700 the column needs 546px of content
-   against 473px of room. The trims below buy back 79px, which clears it
-   with room rather than by a pixel. The gap between the instructions and the
-   cookie notice survives because it comes from .welcome-howto's auto margins
-   whenever there is free height to give it; only the floor shrinks here, and
-   the floor only ever applies when there is no free height to share. */
 @media (max-height: 780px) {
   .welcome-col { padding-top: 16px; padding-bottom: 16px; }
   .welcome-heading { font-size: 21px; margin-bottom: 10px; }
@@ -747,37 +404,10 @@ html.board-zoomed .board-back-btn { display: flex; }
   .welcome-subhead { margin: 10px 0 7px; }
 }
 
-/* THE LAST RESORT, and the one place this panel is allowed to scroll.
-
-   The owner's instruction was explicit -- "I do not want the explanation
-   section to be scrollable, it should be super quick and easy" -- and the
-   three tiers below honour it down to a 440px-tall window, which is already
-   an unusual shape for a window at least 901px wide. Under that, the copy
-   cannot be made to fit without shrinking type past the point of being
-   readable, and the choice stops being "scroll or no scroll" and becomes
-   "scroll or silently lose the bottom of a privacy notice".
-
-   Scrolling wins that one. It engages only here, and every other viewport
-   keeps the no-scroll behaviour the instruction asked for. */
 @media (max-height: 430px) {
   .welcome-col-text { overflow-y: auto; }
 }
 
-/* THIRD TIER: genuinely short windows, roughly 620px of viewport height and
-   under. A browser on a 768p screen with a couple of toolbars lands here, so
-   this is reachable, not theoretical.
-
-   Two changes, because trimming spacing alone could not close the gap. The
-   panel stops holding the board's 3:2 so strictly and takes 94% of the
-   viewport instead of 80%, which is the only place left to find real height;
-   and the copy tightens once more on top of the two tiers above. Measured at
-   1440x480, the worst case found: content needed 541px against 384px of room
-   before this, and fits after.
-
-   The panel keeps overflow:hidden and this column keeps it too, deliberately
-   -- see the long note on .welcome-col-text. Silent truncation is the thing
-   being engineered against here, and the fix for it is making the copy fit,
-   not quietly growing a scrollbar under it. */
 @media (max-height: 620px) {
   .welcome-panel {
     --w: min(94vw, 94vh * 1.5);
@@ -797,12 +427,6 @@ html.board-zoomed .board-back-btn { display: flex; }
   .welcome-footer .welcome-subhead { font-size: 10px; margin-bottom: 2px; }
 }
 
-/* Second tier, for windows shorter still. 1024x640 needed 469px of content
-   against 440px of room even after the trims above, so this takes another
-   pass at the same places. Everything here is spacing and type scale; no
-   copy is dropped and nothing is hidden, because a visitor on a short window
-   is entitled to the same instructions and the same cookie choice as anyone
-   else. Measured at 1024x640 and 960x600. */
 @media (max-height: 680px) {
   .welcome-col { padding-top: 10px; padding-bottom: 10px; }
   .welcome-heading { font-size: 18px; margin-bottom: 7px; }
@@ -822,48 +446,26 @@ html.board-zoomed .board-back-btn { display: flex; }
   margin-top: 4px;
 }
 .welcome-consent-btn {
-  font-family: var(--typed);
+  font-family: var(--display);
   font-size: 15px;
-  font-weight: 700;
-  color: #2b2115;
-  background: #fdfbf1;
-  border: 1px solid rgba(43, 32, 21, 0.38);
+  font-weight: 600;
+  color: var(--brand-deep);
+  background: var(--chrome);
+  border: 1px solid rgba(4, 54, 123, 0.4);
   border-radius: 3px;
   padding: 7px 16px;
   cursor: pointer;
 }
-.welcome-consent-btn:hover { border-color: var(--red); color: var(--red); }
+.welcome-consent-btn:hover { border-color: var(--brand); color: var(--brand); }
 
-/* THE CHOICE, SHOWN AS SHADING. This replaced a sentence under the buttons
-   that spelled the same thing out in words. Gentle on purpose: a fill a
-   couple of steps darker than the button's own paper, a firmer border, and
-   an inset line along the top so the chosen one reads as pressed in rather
-   than as merely tinted. Nothing here is loud enough to compete with the
-   two labels.
-
-   Colour is not the only signal. The inset shadow gives the state a shape
-   as well as a hue, which matters for anyone who cannot separate the two
-   fills, and aria-pressed carries it to a screen reader regardless. */
 .welcome-consent-btn.is-chosen {
-  background: #e6dcc4;
-  border-color: rgba(43, 32, 21, 0.62);
-  box-shadow: inset 0 1px 2px rgba(43, 32, 21, 0.22);
+  background: #dbe6f7;
+  border-color: var(--brand);
+  box-shadow: inset 0 1px 2px rgba(4, 54, 123, 0.25);
 }
-/* Hover must not wipe out the chosen fill -- without this the shading
-   disappears under the pointer, which reads as the choice being lost. */
-.welcome-consent-btn.is-chosen:hover { background: #e6dcc4; }
 
-/* One line, not a stacked list: three items separated by a middot, the same
-   layout the editorial design's own attribution line already uses. This
-   used to be a <ul>; it is a single <p> now with the three items and their
-   separators as inline children, so the browser wraps it exactly the way it
-   wraps any other run of text -- no flex, no explicit nowrap -- which is
-   what lets it wrap gracefully at 1280px instead of overflowing the column
-   if a translation or a rename ever makes the line too long to hold. */
-/* Smaller than the panel's body copy on the owner's ask. These three are a
-   colophon, not navigation: someone who wants the privacy policy will find
-   it at this size, and shrinking the footer is what buys the height that
-   lets the cookie block sit at the true bottom of the panel. */
+.welcome-consent-btn.is-chosen:hover { background: #dbe6f7; }
+
 .welcome-legal {
   margin: 0;
   font-size: 12px;
@@ -873,62 +475,27 @@ html.board-zoomed .board-back-btn { display: flex; }
   margin: 0 6px;
   color: #6b6252;
 }
-.welcome-legal a { color: #2b2115; text-decoration: underline; }
-.welcome-legal a:hover { color: var(--red); }
-/* Terms of Service and Accessibility Statement do not exist yet. Plain,
-   visibly unlinked text -- no href, no cursor:pointer, no underline -- so
-   this cannot be mistaken for a dead link. See the HTML comments beside
-   these two in index.html for exactly where each href goes once the page
-   it points to is written. */
-.welcome-legal-pending { color: #2b2115; }
-.welcome-legal-note {
-  margin-left: 4px;
-  font-size: 13px;
-  font-style: italic;
-  color: #6b6252;
-}
+.welcome-legal a { color: var(--brand-deep); text-decoration: underline; }
+.welcome-legal a:hover { color: var(--brand); }
 
 .welcome-col-sketch {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* No background and no border-left here on purpose. This column used to
-     carry its own #fdfbf1, a shade whiter than the panel's own #f4efe2
-     (.welcome-panel, above), plus a hairline divider -- together they read
-     as two tones of paper stapled side by side rather than one sheet. The
-     owner wants one flat colour across the whole panel, so this column now
-     shows the panel's own background straight through, and the divider
-     that used to mark the seam between them is gone with it. */
+
 }
 .welcome-sketch { width: 100%; height: auto; }
 
-/* --- the pencil-sketch explainer ------------------------------------
-   Thin, slightly irregular strokes on nothing: every path below is a
-   wobbly quadratic curve through uneven control points rather than a
-   true rectangle, the same cheap trick the doodle stickies on the board
-   itself use for a hand-drawn look without a displacement filter. */
 .sk-line {
-  /* NOT fill:none. Every paper was an empty frame, so wherever two overlapped
-     you saw the lines of the one behind running straight through the one in
-     front, which the owner correctly called out as the thing that looked bad.
-     A near-white fill, a shade off the panel's own cream, makes each sheet
-     opaque: whatever is drawn later covers what is under it, the way a real
-     drawing would simply not have those lines. Paint order in the SVG is
-     therefore the stacking order. */
+
   fill: #faf7ef;
-  /* Graphite grey, not near-black, and thinner than it was. Heavy black
-     outlines are what made this read as a cartoon rather than a pencil
-     study; a real pencil leaves grey. */
+
   stroke: #6f6f6f;
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-/* Interior detail: ruled lines, a doodle's screen or bulb, a chart's bars,
-   the form's rule lines and input boxes, the quote card's squiggles. Thinner
-   than .sk-line on purpose, the same way a real pencil presses lighter for
-   detail than for an object's own outline, so a card still reads as one
-   shape first and its contents second. */
+
 .sk-detail {
   fill: none;
   stroke: #949494;
@@ -936,38 +503,19 @@ html.board-zoomed .board-back-btn { display: flex; }
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-/* The sticker's ring: thicker than the paper outlines because the real
-   sticker is a die-cut circle with real edge thickness, not a drawn line on
-   flat paper. fill:none, same as every paper here -- the disc inside it
-   (.sk-fill-dark) is what carries the solid colour. */
+
 .sk-ring {
   fill: none;
   stroke: #5e5e5e;
   stroke-width: 2.6;
 }
-/* The two deliberate exceptions to fill:none: the sticker's solid dark
-   middle and the Level Up print, the one dark object on the real board (see
-   the long comment in index.html for why -- the owner's own description of
-   that print's grade). Everything else here is line art. */
-/* The sticker's middle. Still the darkest thing in the drawing, because it
-   is on the real board too, but a mid grey rather than near-black so it sits
-   in the same graphite range as everything else. */
-.sk-fill-dark { fill: #4f4f4f; stroke: none; }
 
-/* The Level Up print. It WAS a solid near-black rectangle, which the owner
-   called awful, and he was right: a filled black box in a line drawing reads
-   as a hole rather than as a photograph. It is a light tonal fill with a
-   drawn edge now, so it still reads as the one darker, photographic object
-   on the board without becoming a blob. */
+.sk-fill-dark { fill: #ffffff; stroke: #04367B; stroke-width: 5; }
+
 .sk-print { fill: #dcdcdc; stroke: #6f6f6f; stroke-width: 1.5; stroke-linejoin: round; }
-/* A handful of small filled pins. Solid dots are fine here even though the
-   rule above is fill:none for the papers -- a pin has always been a dot of
-   metal, not an outline, on the real board too. */
+
 .sk-pin { fill: #808080; stroke: none; }
-/* Strings fanning from the sticker. Thin like a pencil stroke, not the
-   board's actual red -- the sketch is graphite throughout, and giving only
-   the strings colour would read as a second material dropped into a pencil
-   drawing rather than as the same hand continuing to draw. */
+
 .sk-string {
   fill: none;
   stroke: #a2a2a2;
@@ -978,7 +526,7 @@ html.board-zoomed .board-back-btn { display: flex; }
 .sk-cursor-body { fill: #5e5e5e; }
 .sketch-click {
   fill: none;
-  stroke: #b3271c;
+  stroke: #004AAD;
   stroke-width: 2.4;
 }
 .sketch-glyph {
@@ -989,44 +537,22 @@ html.board-zoomed .board-back-btn { display: flex; }
   stroke-linejoin: round;
 }
 
-/* BASE (non-animated) values. These are what an element renders once its
-   animation is gone -- under reduced motion, css/style.css's own global
-   rule near the end of this file sets `animation: none !important` on
-   every element, and a killed animation falls back to whatever the
-   element's ordinary rule says, NOT to a frozen keyframe. So these three
-   are chosen as one coherent composed pose -- board at rest, cursor
-   resting on the paper it is about to click, the ripple and the back
-   glyph both invisible -- rather than left to fall back to whatever the
-   last @keyframes step in the file happens to be, which would read as
-   the animation stopping mid-gesture. */
 .sketch-scene { transform: translate(0, 0) scale(1); }
 .sketch-cursor { transform: translate(100px, 68px); opacity: 1; }
 .sketch-click { transform: scale(1); opacity: 0; }
 .sketch-glyph { opacity: 0; }
 
-/* Motion runs only when nothing above has already ruled it out: the
-   global `@media (prefers-reduced-motion: reduce)` rule near the end of
-   this file overrides `animation` to `none !important` on every element
-   including these four, so no second query is needed in this section --
-   the same one query already covers the whole page. */
-.sketch-scene { animation: sketch-zoom 11s ease-in-out infinite; }
-.sketch-cursor { animation: sketch-cursor-move 11s ease-in-out infinite; }
-.sketch-click { animation: sketch-click-ripple 11s ease-in-out infinite; }
-.sketch-glyph { animation: sketch-glyph-fade 11s ease-in-out infinite; }
+.sketch-scene { animation: sketch-zoom 11s ease-in-out 2; }
+.sketch-cursor { animation: sketch-cursor-move 11s ease-in-out 2; }
+.sketch-click { animation: sketch-click-ripple 11s ease-in-out 2; }
+.sketch-glyph { animation: sketch-glyph-fade 11s ease-in-out 2; }
+.welcome-col-sketch:hover .sketch-scene,
+.welcome-col-sketch:hover .sketch-cursor,
+.welcome-col-sketch:hover .sketch-click,
+.welcome-col-sketch:hover .sketch-glyph { animation-play-state: paused; }
 
-/* The cursor drifts to the About card (0-38%), a click ripple fires there
-   (handled by its own keyframes below), the scene zooms across 46-80%
-   below, and the cursor fades out for that stretch rather than sitting on
-   screen at a coordinate the zoomed board no longer agrees with, then
-   returns as the scene scales back out. (100, 68) sits inside the About
-   card's own bounds, board x36-108.9 y29.4-74.1 divided by 10, near its
-   bottom-right corner and clear of the ruled lines above it. */
 @keyframes sketch-cursor-move {
-  /* The cursor lands on (72.45, 51.75), which is the About card's own centre
-     and the EXACT point sketch-zoom below magnifies about. They used to
-     disagree: the cursor stopped at (100, 68), down in the card's corner,
-     while the zoom centred on the middle, so the click and the thing that
-     happened after it pointed at two different places. */
+
   0%, 18%   { transform: translate(300px, 190px);     opacity: 1; }
   38%, 44%  { transform: translate(72.45px, 51.75px); opacity: 1; }
   50%, 80%  { transform: translate(72.45px, 51.75px); opacity: 0; }
@@ -1039,10 +565,6 @@ html.board-zoomed .board-back-btn { display: flex; }
   50%, 100% { opacity: 0; transform: scale(1.8); }
 }
 
-/* translate(center) scale(S) translate(-target): the identical composition
-   js/board.js's writeFraming() uses for the real camera, worked out by hand
-   against this SVG's own 360x240 viewBox and the About card's actual centre:
-   board x360-1089 y294-741 divided by 10 and halved is (72.45, 51.75). */
 @keyframes sketch-zoom {
   0%, 46%   { transform: translate(0, 0) scale(1); }
   64%, 80%  { transform: translate(180px, 120px) scale(4.5) translate(-72.45px, -51.75px); }
@@ -1055,53 +577,23 @@ html.board-zoomed .board-back-btn { display: flex; }
   92%, 100% { opacity: 0; }
 }
 
-/* --- the room and the board --------------------------------------- */
-
-/* The wall the board is pinned to: a printed world map, cool and low-value so
-   it stays behind the paper. The map is original artwork rendered from
-   hand-authored coastlines (see assets/paper/SOURCES.md); the lighting is not
-   baked into it, because the light lives in the room, not on the sheet, and a
-   baked gradient would stretch with the viewport instead of staying put. */
 .viewport {
   position: fixed;
   inset: 0;
-  /* clip, NOT hidden. `hidden` still makes this a scroll container — measured
-     scrollWidth 1489 and scrollHeight 2040 against a 1440x900 client — and
-     nothing here ever gives the visitor a scrollbar for it, so the only thing
-     that could scroll it was the browser itself. It did: tabbing to the Level
-     Up caption link at the contact stop set .viewport.scrollLeft to 2715 to
-     bring the off-camera link into view, and the composed framing never came
-     back, because board.js only ever writes a transform and cannot see or
-     correct a scrolled ancestor. The postcard went from centred to hard
-     against the left edge with a doodle dragged in from off-camera, and at the
-     services stop scrollTop stuck at 1104 and the stop rendered the work
-     postcard instead. `clip` paints identically and is not a scroll container,
-     so there is nothing left to scroll. */
+
   overflow: clip;
-  /* wall-map.webp's own mean, under a 48x24 picture of it. Same principle as
-     the cork and the paper: the room is the right blue on the first paint and
-     already has continents in roughly the right places, so the scan sharpens
-     the coastlines rather than drawing them. */
+
   background-color: #233341;
   background-image:
-    /* The key light, aimed to agree with the board's. .board's key is a broad
-       pool at 36% 24% of BOARD space; at stop 0 the board covers the middle of
-       the screen, which puts that pool at roughly 37%/25% of the viewport. So
-       the wall and the cork are lit from the same corner by the same distant
-       lamp. Warm light on a cool wall, which is why it reads as desaturating
-       towards neutral where it lands rather than as a yellow blob. */
+
     radial-gradient(130% 112% at 37% 24%, rgba(255, 226, 180, 0.13), transparent 66%),
-    /* the same two shadow pools the board carries, at the same two corners,
-       but cool-dark instead of the board's brown: this is a blue wall, and the
-       warm cast of the room comes back over everything in .viewport::after. */
+
     radial-gradient(95% 85% at 80% 98%, rgba(4, 9, 16, 0.55), transparent 62%),
     radial-gradient(112% 92% at 2% 90%, rgba(4, 9, 16, 0.44), transparent 64%),
-    /* faint drywall texture, now reading as tooth in the paper the map is
-       printed on. High-frequency noise is free here and costs bytes in a
-       WebP, so the scan carries only the low-frequency mottle. */
+
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.42 0 0 0 0 0.34 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23w)'/%3E%3C/svg%3E"),
     url("../assets/wall-map.webp"),
-    /* the map at 48x24, under the map. see THE PLACEHOLDERS at the top. */
+
     url("data:image/webp;base64,UklGRpwAAABXRUJQVlA4IJAAAACwBQCdASowABgAPrVQokunJKMhpWzI4BaJZwAIHeFO5c/zlzd/72NJg2FjFPz9gaixo9lAJvAA/vKiPflx/2qAMvJQnDcTTMD7+dj3B+4cIgzEpZxXM7xbiiCm6ujHYTI4YlzlRDXhBSMlZXe6g0al4FAuLMG46DGn8JH64D4QEyZXxsyPzb//M1xeQnAAAAA=");
   background-position: 0 0, 0 0, 0 0, 0 0, 50% 45%, 50% 45%;
   background-size: auto, auto, auto, auto, cover, cover;
@@ -1109,13 +601,8 @@ html.board-zoomed .board-back-btn { display: flex; }
   background-blend-mode: soft-light, multiply, multiply, normal, normal, normal;
 }
 
-/* Hidden while the camera moves. This is a full-viewport layer sitting over
-   the board at z-index 40, so every frame of a flight composites it again on
-   top of everything below. Fine grain and a corner vignette are exactly the
-   two things nobody can resolve on a board that is sweeping and scaling. */
 .board-moving-scene .viewport::after { display: none; }
 
-/* darkened room corners + fine photographic grain over the whole scene */
 .viewport::after {
   content: "";
   position: absolute;
@@ -1135,83 +622,36 @@ html.board-zoomed .board-back-btn { display: flex; }
   height: 2400px;
   transform-origin: 0 0;
   will-change: transform;
-  /* real walnut frame. border-color is the wood scan's own median (#42342f
-     over the 170px slice, same as the whole file), so the frame is walnut
-     from the first paint and the scan only adds grain. This was transparent,
-     which let cork read through the frame until wood.jpg landed. */
-  /* Thickened 30 -> 96 on the owner's call, replacing the navy paper trim that
-     used to run inside it: a heavy walnut frame reads better and carries more
-     weight than a ribbon. The wood scan is 256px square and the slice below is
-     85, so at 96px the texture renders near 1:1 instead of the 3x oversupply it
-     sat at when the lip was 30. */
+
   border: 96px solid #42342f;
-  /* The slice and the source size move together or not at all: 170/512 and
-     85/256 are the same fraction (0.3320), so this samples exactly the same
-     band of grain it always did. A stale 170 against a 256px source would read
-     past the edge of the image. wood.jpg went 512 -> 256 (38,666 -> 9,876
-     bytes) because it fills a 30 board-px lip: even at the closest stop on a
-     retina panel that is ~83 device px, so 512 was a 6x oversupply and 256 is
-     still 3x. It is the one asset on the page measurably over-provisioned. */
+
   border-image: url("../assets/wood.jpg") 85 / 96px round;
   box-shadow:
-    /* cork sits recessed behind the frame lip */
+
     inset 0 3px 0 rgba(255, 230, 190, 0.14),
     inset 0 22px 50px rgba(35, 18, 6, 0.55),
     inset 0 -12px 34px rgba(35, 18, 6, 0.35),
     inset 14px 0 34px rgba(35, 18, 6, 0.3),
     inset -14px 0 34px rgba(35, 18, 6, 0.3),
-    /* frame casts onto the wall, light from upper left */
+
     10px 34px 90px rgba(0, 0, 0, 0.62),
     3px 8px 22px rgba(0, 0, 0, 0.5);
 }
 
-/* The board's entire cork paint job.
-
-   This rule was shared with a second element, .board-underlay, which carried
-   an identical copy of the stack so that a board tile which failed to draw
-   would show the same cork from the sheet behind it. It was deleted
-   2026-08-09 because 67 photographs of the failure proved it never once did
-   that job. Every frame where board tiles were missing showed FLAT colour in
-   the gap, not cork — because a layer carrying five background images has to
-   be rasterised exactly like the board does, and it was missing the same
-   tiles at the same moment for the same reason. It cost a full duplicate
-   3600x2400 composited layer, doubling the raster work per frame, to solve a
-   seam it could not reach.
-
-   What replaced it is .board-floor: solid colour, nothing to decode, so the
-   compositor can carry it as a quad that cannot fail. It cannot show cork
-   texture in a gap — nothing can, that is the lesson — but it is free, and
-   halving the composited layer count is the thing that actually reduces how
-   often a gap appears at all. */
 .board {
-  /* not cork.webp's raw median (#af7441): the CSS lays the scan over itself
-     at two sizes and soft-lights the upper one, which lifts contrast and
-     saturation. This is the median of softlight(cork@890, cork@1180) from
-     that same file. Measured against a loaded render, the raw median was off
-     by 13.2 mean channel levels, this by 2.6. */
+
   background-color: #bb6c27;
-  /* cork.webp at 144x144, 2.7KB of WebP inlined here so it is decodable in
-     the first frame. It is laid TWICE below, at the same two sizes and the
-     same two blend modes as the scan, so the placeholder is not a colour
-     standing in for the composite — it is the composite, computed by the
-     browser from low-resolution inputs. */
+
   --cork-lq: url("data:image/webp;base64,UklGRrIKAABXRUJQVlA4IKYKAAAwHwCdASqQAJAAPtVgpU2oJaMiKrcdCQAaiWdVaCV3tZeUCVmF7z2mouUL3uX4qwvhihlAZYE0u2gBYLzVn0/Xpgi+3V2e/yeY3wz/qdfk0v+964iGXJBK8CdysSdVB9YshmgM9kpgsgfMJ43nLWi0bu1SzywzC2fDpT/B+aRGNfw+34HfcFxMk5wONxV4vGJBWZXfE55/bYoPUDYaBn+gEP1p48fenk12APOdSS57C7RnUD9JQ8+cJo0eRdSC4GXRUpZd2Qfjh6d7BxYyTRYpuoDSnR2uPCPGvmfQZ8BzY6NvaXGy2NguHUXR28Su+7xR65PBLk7raB0faQnxJiBjIAAA/r1lIC0MkYuG34Ttoo2JRB8bO4prYe6xzLFHAF+hjS1UHpmpucUTC64z/bda//8B0YcrV43//O1sMQVJ2ecvbzGHwbEVr0vp8m1HEixBoUUhNgvoCRwon5ynjyPjY8whjzhbrCTKk52IwEovVNLgbbD2gRYYq3nt3omYhzChCrC4lTyYSa8GSqJuXT8ZmNrUSTaJIgwLvCASVcr2RhJ6YXIQDx8Pnw2gOF3saqFuGBEujDMbTEYGmLDkkyW35oseUArzi5P1zcIrlddFVqxotI6bbuoOztYNN802KpK9eTznjDWgDFR9wYE28i9AL7+OiGq3mbyUoJM3ItuZp+4LK1AccvPRuScvQCzIjn5PkPh9f1tX/n64Qv2fxnykAS5fJJ3RgkCuz7jz5nsvZKqCITc68o7zvJekGWrXwfDorugLwsd4r5jy7vjYxVBflRSSwC6ecGIySWB3NEJmSKDU/8o1G7RtXAjiG0Zxt4Y+2wgdmlxcF1B+R0SKP+8VClK4OYj1f+dMXv4eCvtPGlfwZgrcW3ytUhlvRkcI4nyeAOIOnQFS9vQvBs/ey4rmq15ycUy74g6MCu5OfiqJPSDHQbkvFFkUmg/lgFGmI/q08dj/qZ+EQhhTeTecdYPMwxlYoognAfsGStBmtgNN/txWe/4zjSqUsA6gyG8HU7Qt1/A4XusWaLhcTxAt8zwwxQYFcyCmEKB4w0YBUNo2bPgwPAwjNxifqkyKcBFR5BSkIE8IHCjKJhXW+l/Irg8JmE0YtCZomvDNhV6giHURmVfWmnKqmULOIo6tyxRuIRFT+1h6jGvQvpKPfjkxYahNXoLgQt9qXFGY+Hn8pBbfnGSJV84gB9VDLd0wtoftFVLgz9L0Pkbo5/Q4BQ3+MO2JWYn/vTDxjE/RdMs8k5AOqwVZETmXRg2lgAU0b4qTjzNEwXI6vWvHDCzR/kqiBOdI3QnBxBnvdJkY7PzdEUzr0bjy69WPlbCUE75qBS8UnkkILV1cfvC9UQqxr469yAvZELHlU4nkqf5E5VEAQLFeYAaUY3OzaetCFYuluAND2FDVsm0DYP+ZvUdpzCTZ11zHbUikhfdXpDEjLsqsSOZhtJjKJ37vR3bfkBqEXZo3n7KDUaNfUCMOP6elzEtnvLphaHO52bOqCbzytITAs6lfO43GJmiQss3vI/XxJLCgI5tbUc//XxVPayR3JEJ0tQvMOnEasLUR4n6tKrj6GqQkTWn68wMADG+wmGaWowqN16LLdsoR21Ry75XG387E10RkPUEZM6uEG+JXLD16mwTHKcd8+31ZXVe+Jbd4euCued1SbN5rQcyhUwIhIR2/ShuGYVs1x8OuanPC47psuNIf2GYfv8w6Yjuaehrb8ACEjk0UXWJaemwAbU6d4USn6qKqEV05ZKn69jnIAZMwaafxszNuI3LP0/GhByVecVBRasfygnALZFHzZCIy9Jj4IcwEIhk1Ze2j5GLGBzgscL7cmZtfYSJDJQ/nTeS7e4od1HhblUuu4yLPNLrx69ypz+v9yHSEx5POsnj4YjS6EGN3RzCMbvu181U7dGzW95NLB9ZQDONgDNPTYBAO5y45U/KNBAhYELGgNC/DsHdbNkULoZymoLRTxa+Zp28FXS+VmaZfFHG4dMRQKPmEayZS3/WyR4rBLHtWxHQYz8G4AimSUxtpqZP7EZp+lYfZkyHXqKfRh7pWjAuaskuQzSEMeN8xEeErYHvCXeM99uiYvG8cU/CZqN50pXkLfNNQr6qEL/O3iKgGUn1ZpSkg6ZrDkURrKwWEsQhP1X/X4oztzhbQGsrn+W3/wPEiCecfnY2OJ+KKj8s8sTUhuWgYMfJtRcdId/JIDJoTvCniR1fBwxlu6AeM2eW0wK0PHHcRsBKfXnannxvYhB4RZpa3oN3ZCKRDT30Hg1iuC7240VhScfG+vmp6aXslYEKy+ICUxrt3m3QDmcr7PAVK+S7neVuLq0FhOM+/5u8cUuitKy6IEdoYFHZqSGDcPj0nGQZXafSevQkTmvs5u48qYJt6EIosGV9MpiTgvAueYJiW3SdWBn61eatlba2ho2TbR82FmdmAWCK+SUVCje4CPyXJ/6qFt0ii3JCvgoFSuc5i/LVu7vemMWR1d2WIoUh86KBMl2hTsg731TdWGUq1mDhfN8xhefEEr87mYjtilG13W5yT/LQNp9MIKI/GGF+OBAfIs4B2GoaOaaYkicm3HWoBd1tHZ88p4jZ0jg9kYBFMDBRX0DM0Wy6kkN0Xv+6HvdjYt8Phse4/oa1wq5/ItnBFiIhHyCx42nRKdWXxQPx6P4QKiXcaZfI9bSnupeaErKNDjwc7jHunFxlkvB9/Oslsf82k/OzcGvP6bKZjkBBeetv0r3thlI8z2wtBxkKWkJwbh2ZHt81SCsKRiq3a/rNmJ141pSVXiqKlyBINJ8avPAI5qF16AXbmLJhPpYb+ScNF/0jk/epYYeCh8xNGlhM16oc8NLB1pvCRX1+WlpXc2J3rkxnSR1L+8IiemXp3XqyoSNvHm/wDqMl1Xe3toayeZRi2HavFA0i7I74gcUNZPOlviGF6zvsQHoHEXAHuchW/VpTKBg6w5RgYN27aDh8cMU6HQu61COh3IIAMfX+WSj4t/tM6e+oHyNO/Xh2fX4EgWZdK52WMyF68edz3MsRmgOoRGUU0lPigtiEmGuOmFku47L6iu4HZFUUEwmBvia2ZB0ZFd6RqwThUH+f8SVzSxFrOPZfeNFi9fCDFRqsQKJ1rQgUCDcvZwY+PsQakDcBpdnkNEpdX6LcfRbAqtn4OJCF8ffnGE//N6bcRS/+22mr6i50bvsBLLqaPQNpKwUOh17iRQxIkskXl6Knzf8WtcjfusbaAme9BPfcWWP9/K4K+HZ9wzvIkZnhv8OOfORGJ9yjljGC9qGc2c4gKsFdCVQnkQo/r9r5KqnMK+a8EpXWyAkNLasGCJFgbfWRb8kqpA600Q0rvkQRsIvmsRAvaify9luz1BTFqvRoN6/5oMIo6EBbIUYOtQ3KWxtjRGKQhTEJhornNum08IKG3OwIlqMxDSQjpCIEhiXPGtlssfwam8lNVsV4jG3SAA8rgQHCKThW0aTHoPXJuCOsLeVSARNyyD8h3pmhfIAyRvQfHXJjlrEIQRo86wMWww8fADwyKx2K8PqksKuVCaERHLUEPEGzE4WyryBphE73YpMlNzy7GVS1Z3ogYaCRODNQ2Smvf8wkDeh9GE/GyKC+YeD6bTnoRfKD1EUr2TcPFYzYWfKzIWO8M5+JasQAAAA==");
-  /* real photographed cork. the same scan twice at sizes with no common
-     period inside the board (1180 and 890 only line up again at 105,020px),
-     so there is no repeat to find. lighting is a lamp high on the left, not
-     a symmetric vignette: one warm pool off-centre, two unequal dark pools. */
+
   background-image:
-    /* the key light is across the room, not a lamp a metre off the board:
-       broad enough that there is no hotspot to locate, which is what makes
-       the parallel shadows below read as one distant source */
+
     radial-gradient(140% 120% at 36% 24%, rgba(255, 240, 210, 0.22), rgba(128, 110, 90, 0) 72%),
     radial-gradient(90% 80% at 78% 96%, rgba(50, 28, 10, 0.5), rgba(128, 110, 90, 0) 62%),
     radial-gradient(115% 95% at 2% 86%, rgba(45, 26, 10, 0.42), rgba(128, 110, 90, 0) 64%),
     url("../assets/cork.webp"),
     url("../assets/cork.webp"),
-    /* the same two layers again, in miniature, underneath. the 1180 layer is
-       `normal` and opaque, so the moment cork.webp decodes it covers both of
-       these outright: there is no fade, no transition, nothing to schedule. */
+
     var(--cork-lq),
     var(--cork-lq);
   background-position: 0 0, 0 0, 0 0, 380px 610px, 0 0, 380px 610px, 0 0;
@@ -1219,55 +659,6 @@ html.board-zoomed .board-back-btn { display: flex; }
   background-blend-mode: soft-light, multiply, multiply, soft-light, normal, soft-light, normal;
 }
 
-/* THE STEADY-STATE BACKGROUND, and the single biggest thing separating a
-   smooth zoom from a stuttering one. Profiled, not guessed.
-
-   Two things change once the board's images have decoded.
-
-   ONE: the two --cork-lq layers go. They exist to cover the board before
-   cork.webp decodes, and the 1180 layer above them is `normal` and opaque, so
-   the instant the real scan lands they are invisible. Invisible is not free --
-   they stay in the stack as two more blended layers to composite across the
-   whole board every time this layer rasterises, which is every scale change
-   the camera makes.
-
-   TWO, and this is the expensive one: the three radial gradients become two
-   baked images. Chrome re-rasterises this layer at intermediate scales during
-   a zoom, and evaluating three gradient functions across roughly 7.5 million
-   pixels is what made those re-rasters cost 100-150ms each. Measured with the
-   GPU on: the zoom-in's worst frame fell from 150.8ms to 50ms, and the zoom
-   out went from two slow frames to NONE, with an 18.4ms worst frame -- inside
-   the 60fps budget. Sampling a texture is cheap; evaluating a gradient per
-   pixel is not.
-
-   THE BAKES ARE EXACT, not approximations, and the arithmetic is why:
-
-     board-shadow-pools.webp replaces BOTH multiply gradients with one image.
-     Multiplying a backdrop by one factor and then by another is the same as
-     multiplying by their product, so the two compose into a single layer with
-     nothing lost. The image IS that product, obtained by rendering the two
-     gradients over white -- multiply against white returns the factor itself.
-
-     board-key-light.webp replaces the soft-light gradient. Soft-light does
-     NOT reduce the way multiply does, so this one keeps its own layer and its
-     own blend mode; the image merely carries the gradient's colour and alpha
-     instead of making the rasteriser derive them per pixel.
-
-   Both were rendered by this same engine rather than by reimplementing CSS
-   gradient maths, so they agree by construction. Verified against the live
-   gradients at three zoom scales: worst channel delta 5 levels out of 255,
-   mean absolute error a quarter of one level, and under 0.007% of pixels
-   differing by more than two levels. Invisible.
-
-   background-size is 100% 100% on both because these are single images
-   stretched over the whole board rather than tiles. They are smooth enough
-   that the upscale costs nothing visible, which is why the key light ships at
-   half the board's resolution and still outweighs the shadow image at full.
-
-   IF YOU RETUNE THE LIGHTING: the three gradients in the .board rule above
-   are the source of truth and these two files are derived from them. Change
-   one without re-baking the other and the board will visibly shift at the
-   moment the images decode. */
 html.cork-ready .board {
   background-image:
     url("../assets/board-key-light.webp"),
@@ -1279,49 +670,23 @@ html.cork-ready .board {
   background-blend-mode: soft-light, multiply, soft-light, normal;
 }
 
-/* --- red string + pins -------------------------------------------- */
-
 .strings {
   position: absolute;
-  /* EXPLICIT board units, never inset:0 with percentages. This element has to
-     occupy exactly the same 3600x2400 coordinate space the pins are positioned
-     in, because js/board.js draws both from one PINS array and the viewBox is
-     0 0 3600 2400.
 
-     It did not. With `inset: 0; width: 100%; height: 100%` the box resolved to
-     3408x2208, short by exactly 192 in each axis, which is twice .board's
-     border. preserveAspectRatio then fitted the 3600-wide viewBox inside that
-     undersized element: every string coordinate came out scaled by 0.92 and
-     shifted 48 units across, so the far end of a long string missed its pin by
-     over 200 board pixels while the pins themselves sat where they belonged.
-
-     It was always wrong. The frame was 30px, so the error was 60 units and
-     read as artistic slack. Thickening the frame to 96 tripled it and the
-     owner, correctly, said the strings connect to nothing. */
   left: 0;
   top: 0;
   width: 3600px;
   height: 2400px;
   pointer-events: none;
-  /* ABOVE the papers (z-index 3) and BELOW the pins (7). Both alternatives
-     were tried and both read as unattached, for opposite reasons. Underneath
-     at z-index 1, a string vanishes beneath a sheet for its whole final
-     approach and surfaces only as stubs between papers, so no endpoint is ever
-     visible. Over the top it stays continuous all the way into its pin, and
-     the pin, one layer higher, covers the join. What actually made them read
-     as floating was never the stacking; it was the sag. See js/board.js. */
+
   z-index: 6;
   filter: drop-shadow(6px 11px 5px rgba(25, 8, 2, 0.38));
 }
 
-/* The string's own shadow is a full-board filter pass, and at a distance it
-   resolves to nothing. Off while the board is moving or far away, with the
-   other procedural work. */
 .board.moving .strings,
 .board.far .strings,
 html.warming .board .strings { filter: none; }
 
-/* two-ply yarn: dark core with a lit strand over it */
 .strings .string-core {
   fill: none;
   stroke: #8f1d10;
@@ -1350,7 +715,7 @@ html.warming .board .strings { filter: none; }
     inset 2px 3px 4px rgba(255, 190, 170, 0.5);
 }
 .pin::before {
-  /* specular glint on the plastic dome */
+
   content: "";
   position: absolute;
   left: 25%;
@@ -1375,7 +740,6 @@ html.warming .board .strings { filter: none; }
   filter: blur(3px);
 }
 
-/* stray pinholes from whatever hung here before */
 .hole {
   position: absolute;
   z-index: 2;
@@ -1386,19 +750,12 @@ html.warming .board .strings { filter: none; }
   box-shadow: 0 1.5px 1px rgba(255, 230, 190, 0.28);
 }
 
-
-/* --- shared paper physics ----------------------------------------- */
-
 .card, .sticky, .polaroid, .postcard {
   position: absolute;
   z-index: 3;
   transform: rotate(var(--rot, 0deg));
 }
 
-/* --- ink: every piece of writing trembles a little ------------------ */
-
-/* per-character jitter set by js/hand.js.
-   .wd keeps each word atomic so lines still break only at spaces. */
 .jit { display: inline; }
 .wd { display: inline-block; white-space: nowrap; }
 .ch {
@@ -1406,7 +763,6 @@ html.warming .board .strings { filter: none; }
   white-space: pre;
   transform: rotate(var(--r, 0deg)) translateY(var(--y, 0)) scale(var(--s, 1));
   font-variation-settings: "wght" var(--w, 500);
-  opacity: var(--o, 1);
 }
 
 .sticky-title, .sticky-note { filter: url(#ink-a); }
@@ -1414,36 +770,18 @@ html.warming .board .strings { filter: none; }
 .pc-head, .pc-msg, .pc-msg-small, .email-link { filter: url(#ink-c); }
 .typed { filter: url(#ink-t); }
 
-/* --- index cards (real 5x3 proportions) ---------------------------- */
-
 .index-card {
   width: 720px;
-  /* min-height, not height: WCAG 1.4.12 Text Spacing. At the shipped spacing
-     the copy fits inside the box, so this clamps to exactly 432px and the
-     resting board renders pixel-identically — verified 0 of 1,296,000 pixels
-     changed at all eight camera stops. Under a reader's spacing override the
-     About copy needs 508px, and a fixed height plus overflow:hidden
-     guillotined its last line, "business or tech world!", at the paper edge:
-     measured 432 box against 508 scrollHeight, the line's bottom 10px past
-     the cut. letter-spacing .12em alone is enough to trigger it.
-     height:auto is NOT the fix — it renders 423px and breaks the 5:3 box that
-     url(#cut) and the ::after corner curl both key off, at every spacing.
-     The two rules below must carry min-height too, or .quote-card (420px)
-     inherits its way up to this 432px floor and grows 12px at rest. */
+
   min-height: 432px;
   padding: 62px 40px 26px;
   overflow: hidden;
   background:
-    /* real scanned paper fiber, remapped high-key so it multiplies onto
-       the near-white stock instead of cancelling out in soft-light */
+
     url("../assets/paper/paper-grain-hi.webp") 0 0 / 300px,
-    /* faint paper grain */
+
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.4 0 0 0 0 0.32 0 0 0 0.045 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23p)'/%3E%3C/svg%3E"),
-    /* blue rules, edge to edge. a printed rule is ink soaking sideways into
-       the fiber, not a 1px hairline: soft shoulders either side of the core
-       so the line survives the card's rotation without stair-stepping.
-       origin 53px puts the core 1.6px under the typed baselines (82 + 32k),
-       which is where a typist lands on ruled stock. */
+
     repeating-linear-gradient(
       to bottom,
       transparent 0 29.6px,
@@ -1452,26 +790,23 @@ html.warming .board .strings { filter: none; }
       rgba(96, 130, 178, 0.10) 31px 31.6px,
       transparent 31.6px 32px
     ) 0 53px / 100% calc(100% - 53px) no-repeat,
-    /* single red header line */
+
     linear-gradient(rgba(205, 92, 92, 0.75), rgba(205, 92, 92, 0.75)) 0 52px / 100% 1.5px no-repeat,
-    /* soft top-light on the paper itself */
+
     linear-gradient(172deg, #faf8f0 0%, #f5f2e7 60%, #efebdd 100%);
   background-blend-mode: multiply, normal, normal, normal, normal;
-  /* guillotined stock: corners are never equal and the edge is never straight.
-     #cut displaces the silhouette, so the shadows have to be drop-shadow()
-     to follow it instead of tracing the undisplaced box. */
+
   border-radius: 3px 7px 4px 6px;
   filter:
     url(#cut)
-    /* contact occlusion: the seam where the sheet touches whatever is under
-       it. zero offset, so it rings the whole silhouette and reads at rest */
+
     drop-shadow(0 0 4px rgba(25, 12, 4, 0.42))
     drop-shadow(1px 1px 2px rgba(25, 12, 4, 0.3))
     drop-shadow(3px 7px 12px rgba(25, 12, 4, 0.28))
     drop-shadow(8px 22px 38px rgba(25, 12, 4, 0.24));
 }
 .index-card::after {
-  /* faint corner curl shading */
+
   content: "";
   position: absolute;
   inset: 0;
@@ -1486,26 +821,10 @@ html.warming .board .strings { filter: none; }
   color: #2b2115;
 }
 .typed + .typed { margin-top: 32px; }
-/* #3d382e, not the old #55503f: faded-ribbon grey sat under the #444 ink
-   floor and went illegible at the wider testimonial zoom. Still lighter
-   than the 20px strikes, so the small lines keep reading as small type
-   rather than as a second weight of the same ink. */
+
 .typed.small { font-size: 13px; line-height: 22px; color: #3d382e; }
 .card-head { letter-spacing: 0.2em; color: #9c3a2e; }
 
-/* --- the circular sticker (Phase 5) --------------------------------
-   Replaces .title-card and .marker above, which carried the ruled index
-   card that used to sit here. It is deliberately not an .index-card: a
-   pressed-on sticker is printed and laminated, not torn paper, so none of
-   that family's #cut silhouette or paper-grain background belongs here.
-
-   The <section> itself IS the white ring: .card (shared with every other
-   paper on the board) gives it position/z-index/rotate, and this rule
-   makes it a plain white circle sized 520px, the geometry the section's
-   inline style also states in board pixels. .sticker-disc, sized 452px
-   (520 minus 34px on every side), is flexed to dead centre inside it,
-   which is what reads as a 34px ring. See index.html for the full
-   nesting comment, including how to swap in the owner's real logo later. */
 .sticker {
   width: 520px;
   height: 520px;
@@ -1524,17 +843,17 @@ html.warming .board .strings { filter: none; }
   width: 452px;
   height: 452px;
   border-radius: 50%;
-  background: #0c0a09;
+  box-sizing: border-box;
+  border: 16px solid var(--brand-deep);
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* ~55% of the 452px disc, matching the proportions of the interim mark
-   inlined from assets/favicon.svg. */
 .sticker-mark {
-  width: 249px;
-  height: 249px;
+  width: 300px;
+  height: auto;
 }
 
 .about-card { width: 720px; }
@@ -1542,34 +861,21 @@ html.warming .board .strings { filter: none; }
 .quote-card { width: 700px; min-height: 420px; }
 .attr { margin-top: 32px; }
 
-/* The testimonial stop frames BOTH pairs now, which rests the camera at a
-   wider zoom (~0.65 against the old ~1.1). The quote cards' type steps up
-   to keep the same on-screen reading size; line-height stays 32px so the
-   strikes still sit on the cards' ruled lines. Scoped to .quote-card: the
-   about and title cards kept their zoom. */
 .quote-card .typed { font-size: 24px; }
 .quote-card .typed.small.attr { font-size: 19px; line-height: 28px; }
 
-/* Annie's placeholder card: name and title typed, then the ruled lines
-   wait for her quote. The pencil note marks the empty space as
-   intentional. Bottom LEFT: her polaroid lies over the card's bottom-right
-   corner, and the note has to stay out from under it. */
 .pencil-note {
   position: absolute;
   left: 46px;
   bottom: 38px;
   font-size: 33px;
-  /* graphite, not ballpoint: a lighter strike than the pen, held over the
-     #444 ink floor so it still reads at the stop's resting zoom */
+
   color: rgba(56, 53, 46, 0.92);
   transform: rotate(-2deg);
 }
 
-/* --- sticky notes: real photographed paper -------------------------- */
-
 .sticky {
-  /* NOTE: % padding on abs-positioned elements resolves against the 3600px
-     board, so writable-area insets are computed from --sz instead */
+
   --sz: 344px;
   width: var(--sz);
   padding:
@@ -1585,12 +891,10 @@ html.warming .board .strings { filter: none; }
   position: absolute;
   inset: 0;
   z-index: -1;
-  /* layers 2 and 3 are the placeholder: a ~20px picture of this note over the
-     scan's median, both at 91% of the box. */
+
   background:
     var(--paper) center / 100% 100% no-repeat,
-    /* the same note at ~20px, held to the 91% box that is inside every torn
-       silhouette in the set, so it can only be revealed and never cropped */
+
     var(--lq) center / 91% 91% no-repeat,
     linear-gradient(var(--tint), var(--tint)) center / 91% 91% no-repeat;
   filter:
@@ -1598,14 +902,11 @@ html.warming .board .strings { filter: none; }
     drop-shadow(0 1px 1px rgba(25, 12, 4, 0.3))
     drop-shadow(3px 8px 8px rgba(25, 12, 4, 0.2))
     drop-shadow(8px 18px 20px rgba(22, 9, 2, 0.24))
-    /* glued along the top strip only, so the bottom of the note stands off
-       the cork and throws a long shadow the top edge never does */
+
     drop-shadow(4px 26px 22px rgba(22, 9, 2, 0.26));
 }
 .sticky.flip::before { transform: scaleX(-1); }
-/* the sheet's own fiber reads back over the ink, so the pen sits in the
-   paper instead of floating on it. masked to the photographed silhouette so
-   nothing spills onto the cork at the torn edges. */
+
 .sticky::after {
   content: "";
   position: absolute;
@@ -1613,7 +914,7 @@ html.warming .board .strings { filter: none; }
   z-index: 2;
   pointer-events: none;
   background:
-    /* the lifted bottom edge catches the light bouncing back off the cork */
+
     linear-gradient(to bottom, transparent 78%, rgba(255, 250, 228, 0.5)),
     url("../assets/paper/paper-grain.webp") 0 0 / 170px;
   -webkit-mask: var(--paper) center / 100% 100% no-repeat;
@@ -1623,24 +924,13 @@ html.warming .board .strings { filter: none; }
 }
 .sticky.flip::after { transform: scaleX(-1); }
 
-/* each variant is a different physical note: aspect from the photo,
-   writable-area insets from its measured safe zone (fractions of width).
-   --tint is that scan's median over its opaque pixels; it is what the note is
-   made of until the note arrives. */
 .paper-1 { --paper: url("../assets/paper/sticky-01.webp"); --tint: #cdc775; aspect-ratio: 1013/989; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.055; --lq: url("data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAABQAwCdASoUABQAPrVUpE2nJKOmKAgA4BaJZQDGfBmIE9JacAD+7bac/xv76vddu+S4VxvE2oe5pRAwADDyAbuAAAA="); }
 .paper-2 { --paper: url("../assets/paper/sticky-02.webp"); --tint: #cfc87b; aspect-ratio: 1009/983; --pt: 0.07;  --pr: 0.05; --pb: 0.15; --pl: 0.06; --lq: url("data:image/webp;base64,UklGRlIAAABXRUJQVlA4IEYAAACQAwCdASoUABMAPrVUo00nJKMiKAgA4BaJZQDE2BZl3C22r7kgAP7t/l2F/Qr1l99NjSusmd4KI3tLDVI/BIPmbga4/oAA"); }
 .paper-3 { --paper: url("../assets/paper/sticky-03.webp"); --tint: #d0ca84; aspect-ratio: 1029/982; --pt: 0.07;  --pr: 0.06; --pb: 0.16; --pl: 0.06; --lq: url("data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAAAQBACdASoUABMAPrVOoEsnJCMhsBgIAOAWiWMAyJgVOaEF4/BhX9cyAAD+7mEIv195Q9AqGnB9L34aco631QuiknyAAA=="); }
 .paper-4 { --paper: url("../assets/paper/sticky-04.webp"); --tint: #d1ce79; aspect-ratio: 294/284;  --pt: 0.06;  --pr: 0.06; --pb: 0.10; --pl: 0.06; --lq: url("data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADQAwCdASoUABMAPrVIoUunI6MhsBgIAOAWiWMAtOgY6Iea+D2JgAAA/u69n+6PyZ912lBprq3LNKR5dkjCp4xSAAA="); }
 .paper-5 { --paper: url("../assets/paper/sticky-05.webp"); --tint: #d1cc79; aspect-ratio: 539/533;  --pt: 0.05;  --pr: 0.05; --pb: 0.12; --pl: 0.07; --lq: url("data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAABwAwCdASoUABQAPrVUpE0nJKOiKAgA4BaJZQC+SBEc0kGnYKAA/tY4/Z/Qr5M+65ebI1mE8OQfo4j2s1Cm02AA"); }
 .paper-6 { --paper: url("../assets/paper/sticky-06.webp"); --tint: #cad279; aspect-ratio: 293/292;  --pt: 0.07;  --pr: 0.07; --pb: 0.09; --pl: 0.07; --lq: url("data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAABwAwCdASoUABQAPrVMn0snJCKhqA1Q4BaJYwDImBlPaYZbMIAA/u7Bqff8b/Vr5MjpW4+/nrrCFvuZDHB4AA=="); }
-.paper-7 { --paper: url("../assets/paper/sticky-07.webp"); --tint: #dc8395; aspect-ratio: 359/358;  --pt: 0.06;  --pr: 0.06; --pb: 0.09; --pl: 0.06; --lq: url("data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAQAwCdASoUABQAPrVUpE0nJKOiqAgA4BaJZQDKABaoBwAA/uJF4gP6P+7/vwGV3fx0D1h7tnoiEAAA"); }
 
-/* color modifiers: same photographed scan, hue-shifted in HSV so paper
-   texture, lighting gradients, and curl shadows all survive. additive to
-   .paper-N so shared classes (paper-2, paper-3) can serve differently
-   colored elements without touching the unmodified default. each one moves
-   --tint with --paper, or the note would arrive in the wrong colour and then
-   change colour, which is the worst version of this. */
 .paper-1.c-blue  { --paper: url("../assets/paper/sticky-01-blue.webp");  --tint: #75a2cd; --lq: url("data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAAAQAwCdASoUABQAPrVUo00nJKMiqAgA4BaJZQC2yBatoQAA/t1yl77s7RaZe/16pa5SaazTdo5K1k6EZEV2W3l2DbswAA=="); }
 .paper-2.c-blue  { --paper: url("../assets/paper/sticky-02-blue.webp");  --tint: #7ba6cf; --lq: url("data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAACwAwCdASoUABMAPrVUpE0nJKOiKAgA4BaJZQC9hoAAP5pO9njUAAD+4HxFkHrQtCBz1Pv4JejnwANJcXi4JBMdvN60EBU3c+AAAA=="); }
 .paper-3.c-blue  { --paper: url("../assets/paper/sticky-03-blue.webp");  --tint: #85abcf; --lq: url("data:image/webp;base64,UklGRlgAAABXRUJQVlA4IEwAAABwAwCdASoUABMAPrVMoEmnJKMhMAgA4BaJZQC90Cke0eBmxgAA/uWUmeBJW2efeuLmyIUIBkSlusTNnqnKFv0v0EAN5HfzV6B+c8AA"); }
@@ -1650,9 +940,7 @@ html.warming .board .strings { filter: none; }
 
 .hand {
   font-family: var(--hand);
-  /* ballpoint on absorbent stock is never true black, and it never fully
-     hides the sheet: a little of the fiber under the stroke reads through,
-     which is what stops the writing looking printed on top of the paper */
+
   color: rgba(36, 33, 28, 0.87);
 }
 
@@ -1681,7 +969,7 @@ html.warming .board .strings { filter: none; }
   color: inherit;
   text-decoration: none;
 }
-.mini-sticky .sticky-note a:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+.mini-sticky .sticky-note a:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
 
 .doodle {
   --sz: 280px;
@@ -1694,25 +982,21 @@ html.warming .board .strings { filter: none; }
 .ink {
   width: 100%;
   height: auto;
-  /* hand wobble on every stroke */
+
   filter: url(#roughen);
 }
 .ink path, .ink circle {
   fill: none;
-  /* same slightly open ink as the handwriting, so the sticky's tooth reads
-     through the stroke instead of the stroke sitting on top of it */
+
   stroke: rgba(26, 24, 20, 0.9);
-  /* one nib, but pressure is never constant: shapes that enclose something
-     get gone over and carry more ink than the detail drawn inside them.
-     per-path via --sw. */
+
   stroke-width: var(--sw, 3.2);
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-/* quick tick strokes stop dead; they do not roll off into a round cap */
+
 .ink .tick { stroke-linecap: butt; }
-/* flicked rays: filled slivers, not strokes, so each one leaves the nib at
-   full pressure and thins to a point as the hand lifts off */
+
 .ink .ray { fill: rgba(26, 24, 20, 0.9); stroke: none; }
 .ink-label {
   font-family: var(--hand);
@@ -1722,14 +1006,10 @@ html.warming .board .strings { filter: none; }
   stroke: none;
 }
 
-/* --- polaroids: real scanned instant-film frames -------------------- */
-
 .polaroid {
   width: 364px;
   aspect-ratio: var(--fw) / var(--fh);
-  /* a 23x28 picture of the frame over the frame stock's median, both at 98%:
-     both scans are opaque from 6px and 8px in at 950px wide, so this never
-     reaches past the frame edge, and it sits under both photo and frame. */
+
   background:
     var(--frame-lq) center / 98% 98% no-repeat,
     linear-gradient(#f6f5f2, #f6f5f2) center / 98% 98% no-repeat;
@@ -1755,7 +1035,7 @@ html.warming .board .strings { filter: none; }
   --frame-lq: url("data:image/webp;base64,UklGRj4AAABXRUJQVlA4IDIAAAAQAwCdASoXABwAPrVUpE0nJKOiKAgA4BaJaQAAPfUZkeAA/vPBVdQyLx7AWkddNgAAAA==");
 }
 .polaroid::after {
-  /* the scanned frame sits over the photo; its window is transparent */
+
   content: "";
   position: absolute;
   inset: 0;
@@ -1765,25 +1045,19 @@ html.warming .board .strings { filter: none; }
 }
 .polaroid .pol-photo {
   position: absolute;
-  /* small bleed past the window so no gap ever shows */
+
   left: calc((var(--wx) - 0.35) * 1%);
   top: calc((var(--wy) - 0.35) * 1%);
   width: calc((var(--ww) + 0.7) * 1%);
   height: calc((var(--wh) + 0.7) * 1%);
   object-fit: cover;
   z-index: 1;
-  /* emulsion corners: the dye never reaches the window's corner exactly */
+
   border-radius: 4px;
-  /* a good print of a good photo: clean, crisp, naturally coloured. the
-     only grade is a hair of exposure and bite so faces read sharp against
-     the frame's white. no sepia, no washed contrast, no desaturation. */
+
   filter: brightness(1.05) contrast(1.05) saturate(1.06);
 }
-/* film grain over the emulsion, under the frame. lives on .polaroid rather
-   than inside .pol-gloss because .pol-gloss's z-index makes a stacking
-   context, which would trap mix-blend-mode away from the photo. kept to a
-   whisper: enough that the print is not a flat pasted-in screenshot, far
-   too little to fog the picture. */
+
 .polaroid::before {
   content: "";
   position: absolute;
@@ -1805,39 +1079,17 @@ html.warming .board .strings { filter: none; }
   width: calc(var(--ww) * 1%);
   height: calc(var(--wh) * 1%);
   pointer-events: none;
-  /* raking sheen on the film, then the window's own edge falloff. both are
-     held back so the sheen never hazes the picture and the falloff stops
-     well short of the faces. */
+
   background:
     linear-gradient(115deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.025) 22%, transparent 40%),
     radial-gradient(88% 84% at 50% 45%, transparent 72%, rgba(58, 44, 26, 0.08) 100%);
 }
-/* the print itself, behind the print. 27x40 and 33x40 of caden.jpg and
-   chad.jpg, laid with background-size:cover and the SAME position the img's
-   object-position uses — cover and object-fit:cover crop a box identically,
-   so the placeholder is framed on the face exactly as the photograph will be,
-   and no crop needs restating here to drift out of date later.
 
-   The mean underneath each one is the old flat tint and stays as the floor.
-   A median is right for paper (one colour plus printed detail) and wrong for
-   a photograph: caden.jpg is 45% blown sky behind a dark suit, so its median
-   sits in neither half and landed 39 levels off the print it stands in for.
-
-   The img's filter applies to its own background, so the grade lands on the
-   placeholder exactly as on the photo, and the img is opaque at cover, so it
-   covers the placeholder outright the moment it decodes. All three
-   photographs are progressive JPEGs on top of that, so they start resolving
-   over these well before they finish arriving. */
 .caden-polaroid .pol-photo {
   object-position: 50% 10%;
   background: url("data:image/webp;base64,UklGRmIBAABXRUJQVlA4IFYBAAAQBwCdASobACgAPrFQnUsnJKKhqqoA4BYJQBkPpAhwVxNHhZAnZOyrH+vTNOUZP+oqrO1H/I72wk8hbE8XA2gDAAD++LpufyhasPGUdpPwDTCHwCGd4OSv7UVcIaNfL5BZZmI11HGYoSME1d3dPdtLabKjcMi7IMuyc81PFTL6ihTjmX+h6NmvnHJJ2AJjRDOoGlByAir1GNAaAHRW+pf1klvSJYW32icZSwIEqJYsS4h8lG6sfSXy0v8UJAlldCO28r2TLtJniOIgqDmg3XwaF09zRP068mftDgfKAdGNmhuVvXLVNOUHyOTxqdRLZ3+H53TS1p1SlGqPXKFd7R/Nrrde74FbGwEjxr7izsNBL2GnfgfF2YX/AAu4/2f6ojsnufuS7cdoLIJIgi1cy+DXpcT3rIX2xeF1Yo49ec7vVh2t/y/x8Syd71v9WhKSxU9JW0eAAAA=") 50% 10% / cover no-repeat #b0b2b3;
 }
-/* Annie's film is a placeholder (inline SVG, see index.html). The blank
-   emulsion needs MORE physical character than a real print, not less: a
-   flat grey slab measures an order of magnitude smoother than every paper
-   around it and reads as a failed image load. The SVG carries its own
-   fiber grain and vignette; these two rules add the polaroid's grain
-   overlay at double strength and seat the film into the frame's lip. */
+
 .annie-polaroid::before { opacity: 0.16; }
 .annie-polaroid .pol-gloss {
   box-shadow:
@@ -1864,17 +1116,13 @@ html.warming .board .strings { filter: none; }
   text-align: center;
 }
 
-/* --- postcards: real scanned card stock ----------------------------- */
-
 .postcard { background: none; }
 .postcard::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 0;
-  /* deckled stock, so the placeholder is held to 98%: both scans go fully
-     opaque 8px and 9px in at 1400px wide. The deckle grows into place around
-     it instead of the rectangle shrinking out of it. */
+
   background:
     var(--stock) center / 100% 100% no-repeat,
     var(--stock-lq) center / 98% 98% no-repeat,
@@ -1887,9 +1135,7 @@ html.warming .board .strings { filter: none; }
 }
 .postcard-front {
   --stock: url("../assets/paper/postcard-front.webp");
-  /* the front's own median is the teal of its 1913 picture, which is covered
-     by the Level Up shot. this is the median of the stock that actually
-     shows: the margin outside the picture area. */
+
   --stock-tint: #e9e7d9;
   --stock-lq: url("data:image/webp;base64,UklGRl4AAABXRUJQVlA4IFIAAABwBACdASooABoAPrVKnkmnJCKhMBqqqOAWiWkAzUgkomp9ERzQgD05XteSoAD+8SkHJbLR+IT6CrGqr8qWkUtdmIvLSIqCs4P7r/FRCAmrxAAA");
   width: 800px;
@@ -1902,9 +1148,7 @@ html.warming .board .strings { filter: none; }
   width: 720px;
   aspect-ratio: 1400 / 868;
 }
-/* 1913 card stock over 2026 ballpoint: without the stock's own tooth
-   reading back over the writing, the handwriting floats above the
-   engraving instead of sitting in it. masked to the deckled silhouette. */
+
 .postcard-back::after {
   content: "";
   position: absolute;
@@ -1918,7 +1162,6 @@ html.warming .board .strings { filter: none; }
   opacity: 0.3;
 }
 
-/* picture side: the Level Up shot printed into the card's picture area */
 .pc-picture {
   position: absolute;
   left: 2.5%;
@@ -1927,22 +1170,13 @@ html.warming .board .strings { filter: none; }
   height: 90.44%;
   object-fit: cover;
   z-index: 1;
-  /* the shot at 48x30 over levelup-card-900.jpg's mean, same reasoning as the
-     portraits: the shot is a near-black page with white lettering, so its
-     median is the black and nothing else, and at 48px the headline block and
-     the logo are already where they will be. The filter below grades this as
-     it grades the shot. */
+
   background: url("data:image/webp;base64,UklGRgYCAABXRUJQVlA4IPoBAADwCACdASowAB4APrFUo04nJKMiJWgA4BYJaQAOBVh2HEBpaPhXPy5zXpH2Bv1sB7S813VTI1ayV8zt/FkmefGedxwG/8OOaBoOcA+/q1uQAAD++J737+x/d6tWWfC62HudeFVRZ85WuzRQ/e9hLPOE4ito2JgvdW2rJ5w02cuw10pozf3s9pW8MSHvXicCfAoeQCly7z2YjjEF6u8GvPlGOd0cUBz+OXoPpSWAxcoa+85eeMHbJeCZ7QY3hpbP47wLKNf4/Jcw9Y8Vas3UxKnk5nT18h6QHz8/Giqymyqfp1aS5z4lLr6/zA/wAZ1nmwGg5/SRdY/fpPiUvNEN/kxf56PHGuU7mhp6LX57qfXQPkAcZQZIIiG8m/48P3+23T8t8fjivtMKtimtTmbn/+lx9gAzlt9fYT++yPwIyErrMYcP/w6NFysr4XNUjiOY3idbKZ8YTZ8Ftv/7D2xyzhkbrnjY0wyh+1G0/20ki5lilcGqGZYuvn55/Zu+exmymZks+9pP+4nhSUqr9lR8ScQg8MgohqLgJdb+yIlhlPeeG/Y4dQCvcX+1dSzLil6ePKncVdGp+VA+LJ/+pgch3Ak0dQbXyYttN/xFH1BLmHEIxYVriIg5Kpbj8IZpboM+p/UN+x7ea0JxiH1PY8zw+H2peIc9JTUTKAgAAA==") 50% 50% / cover no-repeat #333236;
-  /* four-colour on uncoated stock: no monitor blacks, no monitor saturation.
-     Owner asked for the print darker twice (2026-08-08), pointing at the
-     live site's near-pitch page: contrast up, brightness down, and the
-     ink-density ceiling on .postcard-front::after halved to let the deep
-     ink through. Blacks now land around #20 — rich, but still a step off
-     monitor black so the card keeps reading as printed. */
+
   filter: saturate(0.78) contrast(0.96) brightness(0.9) sepia(0.1);
 }
 .pc-grain {
-  /* the card's print grain over the modern shot, so it reads as printed */
+
   position: absolute;
   left: 2.5%;
   top: 4.78%;
@@ -1951,17 +1185,13 @@ html.warming .board .strings { filter: none; }
   z-index: 2;
   pointer-events: none;
   background:
-    /* faint rosette from the screen the picture was printed through */
+
     repeating-radial-gradient(circle at 0 0, rgba(0, 0, 0, 0.1) 0 0.6px, transparent 0.6px 2.4px),
     url("../assets/paper/paper-grain.webp") 0 0 / 340px;
   mix-blend-mode: multiply;
   opacity: 0.3;
 }
-/* ink-density ceiling: paper reflects, so the darkest ink on the card can
-   never reach the monitor black the source screenshot was captured at.
-   0.07, down from 0.14: the owner wanted the print darker, and the grade
-   on .pc-picture went as far as it could without crushing; the remaining
-   lift is this layer's, so it gives up half. */
+
 .postcard-front::after {
   content: "";
   position: absolute;
@@ -1979,15 +1209,7 @@ html.warming .board .strings { filter: none; }
   z-index: 4;
   left: 50%;
   top: calc(100% - 20px);
-  /* 484 wide with real side padding, not the old 440/34: the strip was
-     sized to the exact glyph box, and hand.js's per-letter jitter varies
-     the line's set width a little every time an element is added ahead of
-     it in the document — measured overrunning the tape's torn right end
-     onto bare cork. The extra paper is slack for that variance; stretching
-     tape-7 ~10% is invisible on a torn strip. The padding is asymmetric
-     because the SCAN is: tape-7's torn right end reaches further into the
-     box than its left end, so equal padding set the line 28px from the
-     left tear and 2px from the right one. */
+
   width: 484px;
   height: 128px;
   transform: translateX(-50%) rotate(1.2deg);
@@ -1996,18 +1218,14 @@ html.warming .board .strings { filter: none; }
   justify-content: center;
   text-align: center;
   padding: 0 68px 0 44px;
-  /* NO TINT: see the tape note at the top of this file. tape-7 is
-     translucent, so a colour under it would still read through on the
-     finished board (measured: 13/255 over 30% of this caption). The caption
-     arrives on bare cork and the tape lands on top of it. */
+
   background: url("../assets/paper/tape-7.webp") center / 100% 100% no-repeat;
   filter: url(#ink-b) drop-shadow(2px 5px 5px rgba(30, 15, 5, 0.3));
   font-size: 29px;
 }
 .pc-caption a { text-decoration: none; color: #232019; }
-.pc-caption a:hover { color: var(--red); }
+.pc-caption a:hover { color: var(--brand); }
 
-/* address side: the contact card */
 .pc-head {
   position: absolute;
   z-index: 3;
@@ -2032,7 +1250,7 @@ html.warming .board .strings { filter: none; }
 .pc-msg-small {
   position: absolute;
   z-index: 3;
-  /* clear of the printed GOLD MEDAL owl device in the card's bottom-left */
+
   left: 46%;
   bottom: 4.5%;
   font-size: 16.5px;
@@ -2047,8 +1265,7 @@ html.warming .board .strings { filter: none; }
   width: 15%;
   height: auto;
   transform: rotate(2.4deg);
-  /* perforated edges, so the placeholder is cropped to and drawn in the
-     largest centred all-opaque box, 78% x 88%, over that box's median pink. */
+
   background:
     url("data:image/webp;base64,UklGRvwAAABXRUJQVlA4IPAAAADQBQCdASoUABgAPrVQoEwnJKMiKAqo4BaJbAC09iADsqnPhmHyvjhtE2Yy9fA7hzSMqEAlukIAAP5rBIpmD1Ho7340dapLUeDmQ4FPH9Lo9I2MbHzxGvw8CNjw1cMZFuS8EzqGUFVR96wC0nf7or7L/NaWO8Z37fDlGvUPNUQmHHPioeGJ/Q11/q3CgCFkvQfPKzbJBgHJKVrv86K3wN/6iR6tja4NoTsC96reGBMQwTeDJs4wjs/ILaJwq8WpG1QeLCI9zTcYOl3o8bqeWCNt2d30hMfvZ0423+Sn+V2hi6v0meP1HwW6AurcAa4AAAA=") center / 78% 88% no-repeat,
     linear-gradient(#ed738b, #ed738b) center / 78% 88% no-repeat;
@@ -2056,8 +1273,7 @@ html.warming .board .strings { filter: none; }
 }
 .pc-addr {
   position: absolute;
-  /* deliberately no z-index: a stacking context here would isolate the
-     circle's multiply away from the card stock underneath it */
+
   left: 46%;
   top: 47%;
   width: 49%;
@@ -2067,18 +1283,14 @@ html.warming .board .strings { filter: none; }
 }
 .circle-ink {
   position: absolute;
-  /* sized to the viewBox's own 340:90, centred on the address: at inset:0
-     the box is too flat, the art fits by height and the loop lands inside
-     the ends of the address instead of round it. scaled up ~1.2x from the
-     viewBox baseline so the loop clears the "c" of caden and the "m" of
-     .com on both sides instead of grazing them. */
+
   left: 50%;
   top: 50%;
   width: 400px;
   height: 106px;
   transform: translate(-50%, -50%);
   filter: url(#roughen);
-  /* ballpoint over printed stock: the ink darkens what it crosses */
+
   mix-blend-mode: multiply;
 }
 .email-link {
@@ -2089,31 +1301,8 @@ html.warming .board .strings { filter: none; }
   text-decoration: none;
   white-space: nowrap;
 }
-.email-link:hover { color: var(--red); }
+.email-link:hover { color: var(--brand); }
 
-/* --- the intake form sheet (Phase 7) -------------------------------
-   .contact-form is a modifier on .card.index-card, the same pattern as
-   .about-card and .quote-card just above: the base class carries the
-   position/rotate physics, the torn-paper #cut silhouette, the ruled-paper
-   background and the drop-shadow stack, and this rule only overrides the
-   width/height (which the markup also states inline, in board pixels, the
-   same as every other paper) and the padding, which needs to be tighter
-   than an index card's default 62/40/26 to leave room for two rows of
-   fields, a consent line, and a textarea inside a 510px-tall sheet.
-
-   Deliberately typed, not handwritten: none of the classes below appear in
-   js/hand.js's SELECTORS list, so this sheet cannot shift the seed every
-   later jittered element on the board draws from. --typed (Special Elite)
-   throughout keeps it reading as one more piece of paper on the desk, not a
-   web form bolted onto it.
-
-   Sizing note, since this is the one paper on the board whose text size is
-   a measured requirement and not just a look: stop 6 (js/board.js) frames
-   this sheet at roughly 0.84x at 1440x900, so 15 screen px needs about
-   17.9 board px of font-size to clear. Every size below sits at 18px or
-   larger for exactly that reason; the acceptance pass in PROGRESS.md
-   measures the actual computed font-size in the browser rather than
-   trusting this arithmetic. */
 .contact-form {
   padding: 28px 40px 16px;
 }
@@ -2146,9 +1335,7 @@ html.warming .board .strings { filter: none; }
   color: #2b2115;
   margin-bottom: 4px;
 }
-/* a plain asterisk, not a second line of copy: the sheet is tight on
-   vertical room and native validation already announces "required" to
-   assistive tech on its own via the required attribute below */
+
 .cf-required::after {
   content: " *";
   color: var(--red);
@@ -2167,11 +1354,10 @@ html.warming .board .strings { filter: none; }
 }
 .cf-input:focus-visible,
 .cf-textarea:focus-visible {
-  outline: 3px solid var(--red);
+  outline: 3px solid var(--brand);
   outline-offset: 1px;
 }
-/* set by js/validate.js (and by the browser's own validation regardless of
-   whether that script ever runs) once a field has been flagged invalid */
+
 .cf-input[aria-invalid="true"],
 .cf-textarea[aria-invalid="true"] {
   border-color: var(--red);
@@ -2199,13 +1385,6 @@ html.warming .board .strings { filter: none; }
 
 .cf-field-wide { margin-top: 12px; }
 
-/* Honeypot: hidden from sight (off-screen, 1x1, transparent, no pointer
-   events), hidden from assistive technology (aria-hidden on this wrapper in
-   the markup), and never focusable (tabindex="-1" on the input itself in
-   the markup): the wrapper being aria-hidden is only safe BECAUSE nothing
-   inside it can still take focus; an aria-hidden ancestor around a
-   focusable control is the WCAG 4.1.2 failure js/hand.js's own long comment
-   documents, avoided here the same way it is avoided there. */
 .cf-hp {
   position: absolute;
   left: -9999px;
@@ -2227,14 +1406,14 @@ html.warming .board .strings { filter: none; }
   font-family: var(--typed);
   font-size: 20px;
   font-weight: 700;
-  color: #fdfbf1;
-  background: var(--red);
+  color: #ffffff;
+  background: var(--brand);
   border: none;
   border-radius: 3px;
   padding: 9px 26px;
   cursor: pointer;
 }
-.cf-submit:hover { background: #8f2015; }
+.cf-submit:hover { background: var(--brand-deep); }
 .cf-submit:focus-visible { outline: 3px solid #2b2115; outline-offset: 2px; }
 
 .cf-privacy {
@@ -2244,9 +1423,7 @@ html.warming .board .strings { filter: none; }
   color: #4a4234;
 }
 .cf-privacy a { color: #2b2115; text-decoration: underline; }
-.cf-privacy a:hover { color: var(--red); }
-
-/* --- tape: real masking-tape strips --------------------------------- */
+.cf-privacy a:hover { color: var(--brand); }
 
 .tape {
   position: absolute;
@@ -2272,73 +1449,17 @@ html.warming .board .strings { filter: none; }
   transform: scaleX(-1);
 }
 
-/* --- while the camera is flying, or the board is fading in ---------- */
-
-/* Every sheet on the board carries four or five chained drop-shadow()s.
-   Chained is the expensive word: each one re-blurs the whole accumulated
-   result over a filter region the previous one just widened, so the cost is
-   superlinear in the length of the stack. Measured, the stacks are 173ms of
-   the 200ms it takes to genuinely raster one frame of this board. The other
-   twenty-odd effects together are under one vsync.
-
-   js/board.js hangs .moving on the board for as long as the scroll keeps
-   feeding it frames, and drops it 160ms after the last one. In that window
-   each stack collapses to a single shadow. These are not the "smallest"
-   member of each stack: offset, blur and alpha are tuned so the one shadow
-   lands on the stack's centre of mass, which is what keeps the swap back to
-   the full stack from reading as a flicker. Measured over the seven camera
-   stops, that tuning cuts the toggle's pixel delta from 1.82 to 0.60 mean
-   (12.2% to 3.7% of pixels moving by more than 8/255) at identical cost.
-
-   #cut stays on .index-card and the ink filters stay on the writing: with the
-   shadows collapsed, removing either measured no gain at all, so there is no
-   reason to let the card silhouette or the letterforms shift.
-
-   These rules used to answer to an html.ww-flat class as well, for an opening
-   fade that no longer exists.
-
-   AND THEY ANSWER TO ONE AGAIN, 2026-08-09, for a different reason than that
-   fade had. `html.warming` is set by the inline head script and removed by
-   js/board.js once the load has settled. The problem it addresses is the one
-   the owner kept reporting as "chunks": the very first rasterisation of this
-   board is the single most expensive one it ever does — every tile is cold,
-   cork.webp may still be decoding, and the full shadow stacks are 173ms of
-   the ~200ms it takes to raster a frame. Tiles that miss that budget draw
-   nothing, and the visitor watches the board arrive in pieces.
-
-   Collapsing the stacks for the load makes those first rasters cheap, and it
-   is free in a way it would not be later: nobody is studying shadow softness
-   on a board that is still assembling itself, and the swap back to the full
-   stacks was already tuned to land on each stack's centre of mass, which is
-   why it does not read as a flicker. This is the lever that was identified
-   during the chunk work and left unshipped. The camera still owns .moving;
-   warming only owns the load. */
-
 .board.moving .index-card,
 html.warming .board .index-card,
 .board.far .index-card {
-  /* drop-shadow only. url(#cut) used to ride along here, which meant the
-     single most expensive filter on the page was applied precisely when the
-     board was moving. See the block below. */
-  /* box-shadow, not drop-shadow. A drop-shadow filter derives its shape from
-     the element's rendered alpha, so it has to render the element first and
-     then blur that result; box-shadow follows the border box and is close to
-     free. These papers are plain rectangles while moving anyway, because
-     url(#cut)'s torn edge is off in this same state, so the two are visually
-     interchangeable here and only one of them costs a filter pass. */
+
   filter: none;
   box-shadow: 6px 15px 26px rgba(25, 12, 4, 0.68);
 }
 .board.moving .sticky::before,
 html.warming .board .sticky::before,
 .board.far .sticky::before {
-  /* drop-shadow, NOT box-shadow. This element paints a scanned sheet whose
-     torn silhouette lives in its alpha channel, so its shape IS that alpha.
-     drop-shadow follows it; box-shadow follows the rectangular border box
-     and hangs a square shadow behind a peeling note. It was swapped for the
-     cheaper one to cut render cost and the owner spotted the square edges
-     immediately. The index cards and polaroids keep box-shadow because they
-     really are rectangles once url(#cut) is off in this same state. */
+
   filter: drop-shadow(5px 15px 19px rgba(25, 12, 4, 0.7));
 }
 .board.moving .polaroid,
@@ -2350,43 +1471,10 @@ html.warming .board .polaroid,
 .board.moving .postcard::before,
 html.warming .board .postcard::before,
 .board.far .postcard::before {
-  /* drop-shadow, NOT box-shadow. This element paints a scanned sheet whose
-     torn silhouette lives in its alpha channel, so its shape IS that alpha.
-     drop-shadow follows it; box-shadow follows the rectangular border box
-     and hangs a square shadow behind a peeling note. It was swapped for the
-     cheaper one to cut render cost and the owner spotted the square edges
-     immediately. The index cards and polaroids keep box-shadow because they
-     really are rectangles once url(#cut) is off in this same state. */
+
   filter: drop-shadow(8px 20px 26px rgba(25, 12, 4, 0.72));
 }
 
-/* ==================================================================
-   NO PROCEDURAL FILTERS WHILE THE BOARD IS MOVING
-   ==================================================================
-   Every filter this site draws its handmade look with is an feTurbulence
-   feeding an feDisplacementMap: #cut for torn paper edges, #ink-a through
-   #ink-t for pen tremor, #roughen for the doodles and the circled address.
-   feTurbulence is procedural Perlin noise generated PER PIXEL, and a filtered
-   element has to be re-rendered from scratch every time its rasterisation
-   scale changes.
-
-   That is exactly what a camera move does. Measured on the shipped board:
-   32 elements carry one of these filters, inside a 3600x2400 layer that is
-   34.6 million device pixels on a 2x display. Re-running procedural noise
-   across that on every frame of a zoom is the single largest cost on the
-   page, and it is the reason a correctly written, correctly eased flight
-   still dropped enough frames to read as a teleport.
-
-   None of it is perceptible while the board is moving. Pen tremor of two
-   displacement pixels and a torn edge of three cannot be read on paper that
-   is sweeping and scaling across the viewport. So the filters come off for
-   the duration and return the instant the camera settles, which is the only
-   time anybody could see them. The same applies during warming, when the
-   board is still assembling itself.
-
-   The shadow stacks above already collapse on this same class and for the
-   same reason; this is the other half of that idea, and the more expensive
-   half by a long way. */
 .board.moving .sticky-title,
 .board.moving .sticky-note,
 .board.moving .polaroid figcaption,
@@ -2423,26 +1511,6 @@ html.warming .board .circle-ink,
   filter: none;
 }
 
-/* ==================================================================
-   NO BACKDROP BLENDING WHILE THE BOARD IS MOVING
-   ==================================================================
-   mix-blend-mode is the other half of the cost, and the more damaging half
-   for compositing specifically. An element that blends with its backdrop
-   cannot be drawn on its own: the browser has to read back what is behind it
-   and combine the two, which forces the whole group to be re-rendered
-   together and defeats the single-texture path a transform animation depends
-   on. Measured while moving: 15 elements were doing this.
-
-   Every one of them is grain or ink texture. .sticky::after, .polaroid::before
-   and .postcard-back::after are paper tooth; .pc-grain and
-   .postcard-front::after are print grain on the Level Up card; .circle-ink is
-   the ballpoint ring around the address, which multiplies so the ink darkens
-   what it crosses.
-
-   None of it survives being looked at on paper that is sweeping and scaling
-   across a viewport, so the texture overlays come out entirely for the
-   duration and the ink ring merely stops blending. Everything returns the
-   instant the camera settles, which is the only time any of it reads. */
 .board.moving .sticky::after,
 .board.moving .polaroid::before,
 .board.moving .postcard-back::after,
@@ -2461,27 +1529,11 @@ html.warming .board .pc-grain,
   display: none;
 }
 
-/* The ring is real ink, not texture, so it stays on screen and only gives up
-   the blend. Losing it outright would read as the circle flickering off. */
 .board.moving .circle-ink,
 html.warming .board .circle-ink {
   mix-blend-mode: normal;
 }
 
-/* ==================================================================
-   NO BLUR PASSES WHILE THE BOARD IS MOVING
-   ==================================================================
-   The single largest group of filters left during a move was, unexpectedly,
-   the pins: ten of them, each with a blur(1px) highlight and a blur(3px)
-   shadow on its own pseudo-element, so twenty separate blur passes for
-   decoration a few pixels across. The strings carry a drop-shadow too, and
-   that one is applied across the whole 3600x2400 SVG.
-
-   Both are polish that only reads on a still board. They come off while it
-   moves. The papers KEEP their drop-shadows deliberately: those carry the
-   sense of sheets lifted off the cork, and losing them mid-flight would read
-   as the whole board going flat, which is a much worse artefact than a
-   dropped frame. */
 .board.moving .pin::before,
 .board.moving .pin::after,
 .board.moving .strings,
@@ -2494,18 +1546,12 @@ html.warming .board .strings,
   filter: none;
 }
 
-/* The caption keeps its shadow, which is cheap, and loses only the tremor. */
 .board.moving .pc-caption,
 .board.far .pc-caption,
 html.warming .board .pc-caption {
   filter: drop-shadow(2px 5px 5px rgba(30, 15, 5, 0.3));
 }
 
-/* The contact form's outcome line. Sits on the sheet under the button when
-   there is something to say and is `hidden` otherwise, so it adds nothing to
-   either layout's innerText at rest. Typed face, matching the rest of the
-   sheet; the failure state borrows the same red the circled address uses,
-   because it is the one colour on this board that already means "look here". */
 .cf-status {
   margin: 10px 0 0;
   font-family: var(--typed);
@@ -2514,32 +1560,10 @@ html.warming .board .pc-caption {
   color: #2b2015;
 }
 .cf-status-error { color: var(--red); }
+
+.contact-form:has(.cf-status:not(:empty)) .cf-textarea { height: 50px; }
 .cf-status a { color: inherit; }
 
-/* --- reduced motion / no-JS fallback ------------------------------- */
-
-/* This rule is the small half of honouring the preference and it is worth
-   being honest about which half. The only CSS transition on the page is the
-   scroll hint fading out; killing it is correct and costs the visitor
-   nothing. The motion a vestibular visitor actually needs turned off is the
-   camera — a 3600x2400 layer translated and scaled continuously under the
-   scroll — and no stylesheet can reach it, because js/board.js writes the
-   transform straight onto the element every frame. That half lives in
-   board.js, which reads this same query and snaps the camera to the nearest
-   of the eight stops instead of gliding between them. Read the two together;
-   neither one is the whole answer. */
-/* Motion suppression, in one place, because the OS preference is now the
-   sole authority. There is no in-page toggle to reconcile it with, so this
-   media query is the whole answer on the CSS side: whatever the visitor's
-   system reports, every transition and animation on the page stops or runs
-   accordingly, with no class on <html> steering it either way.
-
-   The camera itself cannot be reached from here — it is a transform written
-   straight onto the board every frame — so js/board.js reads this identical
-   query, live, and snaps the camera to the nearest of the eight stops instead
-   of gliding between them. CSS and camera answer to the same query with
-   nothing in between, which is what makes the OS setting the whole of the
-   decision rather than half of it. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -2549,103 +1573,16 @@ html.warming .board .pc-caption {
   }
 }
 
-/* ==================================================================
-   WHICH DESIGN IS ON SCREEN
-   ==================================================================
-   Progressive enhancement, stated as three rules. The editorial design is
-   the base document; the cork board is what it upgrades to when the page
-   can actually carry it.
-
-   The board needs a script (it has no camera without js/board.js — nothing
-   else ever writes #board's transform) and it needs width (below 900px the
-   camera cannot make body copy larger than about 10.8px no matter how the
-   stops are framed; that ceiling is derived in css/reading.css). When either
-   is missing, the editorial is not a fallback in the apologetic sense — it
-   is the better page, and it is the one that has been live.
-
-   Consequences worth being explicit about, because they are the whole
-   reason this is built this way:
-     - scripting off, any width      -> editorial
-     - a CSP that rejects board.js   -> editorial
-     - board.js 404s after a deploy  -> editorial
-     - a crawler with no JS          -> editorial, fully typeset
-     - a phone                       -> editorial, plus the sticky note
-     - a laptop                      -> cork board
-   Only one of the two is ever laid out, so only one is ever counted by
-   document.body.innerText.
-   ================================================================== */
-
 .corkboard { display: none; }
 
-/* A CAMERA, not merely a script. board-live is set by js/board.js and by
-   nothing else, only after it has confirmed the stylesheet arrived. `js`
-   alone would be a lie here: the inline head script and js/peek.js both set
-   it, so a 404 on board.js, or a CSP that rejects it, would leave `js`
-   present and hand the visitor a 3600x2400 board with nothing driving it.
-   That is the identical top-left-corner failure by another door. Require the
-   proof, not the intent. */
 @media (min-width: 901px) {
-  /* board-first is set by the inline head script, before the first paint, so
-     the board is what gets laid out rather than what replaces the editorial a
-     second later. board-live is still what KEEPS it: js/peek.js removes
-     board-first at DOMContentLoaded if js/board.js never came alive, so a 404
-     or a CSP rejection still lands on the editorial — it just pays for the swap
-     in the broken case instead of on every healthy load. */
+
   html.js.board-first .corkboard { display: block; }
   html.js.board-first .editorial { display: none; }
 
-  /* Hold the whole-board framing from the very first paint. The class above
-     puts the board on screen immediately, but js/board.js — the only thing
-     that ever writes this transform — executes at the end of the body, and
-     first paint does not wait for it. Untransformed, transform-origin 0 0
-     showed the visitor the top-left corner of the cork at 1:1 until the
-     script arrived: the healthy-load twin of the 404 failure described
-     above, paid briefly on every load and at length on a slow connection.
-     --first-frame is set by the same inline head script that set the class,
-     from the same numbers as STOPS[0], so the camera's first inline write
-     lands on the identical matrix and the handoff moves nothing. The
-     fallback is the old behavior. Reading mode still wins over this rule:
-     css/reading.css carries transform: none !important. */
   html.js.board-first .board,
   html.js.board-first .board-floor { transform: var(--first-frame, none); }
 
-  /* ================================================================
-     THE FLOOR — the only backstop, and the only one that can work
-     ================================================================
-     An unrasterised tile draws nothing of the board, not even its
-     background-color, so no rule on .board can cover a gap. Only something
-     BEHIND the board can. This is that thing, and it is deliberately the
-     dumbest possible element: solid colour, no image, no blend, no gradient.
-     Nothing to decode means nothing to rasterise, which means the compositor
-     can carry it as a solid-colour quad that cannot fail to paint.
-
-     THREE ATTEMPTS GOT HERE, AND THE DEAD ENDS ARE WORTH KEEPING:
-
-     1. .viewport::before, a fixed screen rect sized by the head script to the
-        FIRST frame only. Covered the load and nothing else — at every zoomed
-        stop the viewport's edge bands sat over bare wall, exactly where fresh
-        tiles rasterise mid-gesture.
-     2. A flat sheet in board space. Correct, and it worked — but it drew a
-        visible straight seam against tiles that HAD rasterised, flat orange
-        against textured cork.
-     3. That same sheet given .board's entire background stack, to kill the
-        seam. This is the one that looked clever and was wrong. Handing it
-        five background images took away the exact property that made it work:
-        it now had to be rasterised like anything else, so it missed the same
-        tiles at the same instant as the board, and the gap fell through both.
-
-     67 photographs of the live failure settled it. Every frame with missing
-     board tiles showed FLAT colour in the gap — never cork. The textured
-     backstop never once did the job it cost a full duplicate 3600x2400
-     composited layer to do. It was deleted.
-
-     So: a gap will always show flat colour. Nothing can paint texture into a
-     region the rasteriser has not reached. Accept that, keep the backstop
-     free, and spend the budget on making gaps rarer instead — which is what
-     halving the composited layer count does. The colour is the measured
-     median of the loaded cork render, so the flat patch is at least the right
-     hue. Do NOT give this element a background-image to "improve" it. That is
-     attempt 3, and it is how the bug comes back. */
   .board-floor {
     position: absolute;
     top: 0;
@@ -2659,39 +1596,22 @@ html.warming .board .pc-caption {
   }
 }
 
-/* The sticky note in the corner. Any width, camera alive: the visitor asked
-   for the board, so give them the board. Wins over the query above in both
-   directions because it is more specific. */
 html.js.board-open .corkboard { display: block; }
 html.js.board-open .editorial { display: none; }
 html.js.board-shut .corkboard { display: none; }
 html.js.board-shut .editorial { display: block; }
 
-/* Belt to the braces above. js/peek.js sets this from a setTimeout(0), which
-   cannot run until every classic script on the page has executed, so it is
-   the last word on whether board.js ever came alive. Placed last, and with
-   more specificity than the media query, so it wins from any state. */
 html.js.no-board .corkboard { display: none; }
 html.js.no-board .editorial { display: block; }
 html.js.no-board .board-peek { display: none; }
 
-/* U+2011 is in none of the seven fonts this site ships, so a non-breaking
-   hyphen fell through to a system face in the middle of a word. Plain
-   hyphen, and the span keeps it from breaking across lines. */
 .nobr { white-space: nowrap; }
 
-/* --- the sticky note in the corner -------------------------------- */
-
-/* Nothing without a script: both controls toggle state, and a control that
-   cannot do its job should not occupy a corner or a tab stop. */
 .board-peek,
 .board-exit { display: none; }
 
 html.js .board-peek {
-  /* IN THE FOOTER, not pinned to a corner. Fixed to the viewport this was the
-     loudest thing on every screen of a page meant to read as a calm typeset
-     site; here it is a reward for reaching the bottom. Half the size it was,
-     for the same reason. */
+
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
@@ -2700,27 +1620,19 @@ html.js .board-peek {
   border: 0;
   background: none;
   cursor: pointer;
-  /* the note itself is 31px now, so the control leans on padding to clear the
-     44px pointer-target minimum without looking bigger than it is */
+
   min-height: 44px;
 
-  /* BOTTOM RIGHT, in both of the footer's layouts, which are not the same
-     layout. .site-footer is a flex ROW with space-between down to 420px, where
-     editorial.css turns it into a COLUMN with align-items: flex-start — so a
-     phone was stacking the note under the copyright at the left margin.
-     margin-left:auto answers the row, align-self answers the column, and
-     neither interferes with the other. */
   margin-left: auto;
   align-self: flex-end;
   font: inherit;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* above 900px the board is already what loads; there is nothing to ask for */
 @media (min-width: 901px) {
   html.js .board-peek { display: none; }
 }
-/* and once the board is open, the peek's job is done */
+
 html.js.board-open .board-peek { display: none; }
 
 .peek-note {
@@ -2728,10 +1640,7 @@ html.js.board-open .board-peek { display: none; }
   flex: 0 0 auto;
   width: 31px;
   height: 31px;
-  /* the same photographed stock as the notes on the board, not a CSS square.
-     sticky-04 is the smallest scan in the set at 3.5KB. Its own median sits
-     underneath, so the note is the right yellow in the first frame and the
-     scan sharpens it, exactly like every other sheet on this site. */
+
   background:
     url("../assets/paper/sticky-04.webp") center / 100% 100% no-repeat,
     linear-gradient(#d1ce79, #d1ce79);
@@ -2761,13 +1670,10 @@ html.js.board-open .board-peek { display: none; }
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
 }
 
-/* a note that has just been pressed lifts off the cork a little */
 html.js .board-peek:hover .peek-note,
 html.js .board-peek:focus-visible .peek-note { transform: rotate(-1deg) scale(1.05); }
 html.js .board-peek:active .peek-note { transform: rotate(-4deg) scale(0.97); }
 
-/* the way back, only while the board is open on a screen too narrow to have
-   chosen it by default */
 @media (max-width: 900px) {
   html.js.board-open .board-exit {
     position: fixed;
@@ -2780,12 +1686,13 @@ html.js .board-peek:active .peek-note { transform: rotate(-4deg) scale(0.97); }
     padding: 0.55rem 1rem;
     border: 0;
     cursor: pointer;
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 0.74rem;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: #f4efe2;
-    background: rgba(25, 19, 12, 0.82);
+    color: #ffffff;
+    background: rgba(4, 54, 123, 0.92);
     border-radius: 2px;
     -webkit-tap-highlight-color: transparent;
   }
@@ -2795,17 +1702,6 @@ html.js .board-peek:active .peek-note { transform: rotate(-4deg) scale(0.97); }
   .peek-note { transition: none; }
 }
 
-/* Zone clicks (js/board.js): the cursor change IS the whole affordance, on
-   purpose. Every one of these papers carries its own filter/drop-shadow
-   stack, several clip their children, and the tape strips holding some of
-   them down are separate, positioned siblings in board coordinates rather
-   than children of the paper. A hover transform on the paper would slide it
-   out from under its own tape and force a re-shadow of clipped content on
-   every hover, which is a worse cost for a subtler win than just telling the
-   pointer what a click here does. So: cursor only, nothing that moves. */
 [data-zone-stop] { cursor: zoom-in; }
 
-/* A real link inside a marked paper (the Level Up caption, the circled
-   email) must still look like a link on hover, not like the zone around it,
-   or the cursor lies about what the click is about to do. */
 [data-zone-stop] a[href] { cursor: pointer; }

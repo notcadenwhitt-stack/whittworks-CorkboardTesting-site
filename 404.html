@@ -3,75 +3,32 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nothing pinned here — WhittWorks Studios</title>
-<meta name="robots" content="noindex, follow">
-<meta name="theme-color" content="#2b2119">
+<title>Nothing pinned here | WhittWorks Studios</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#04367B">
 
-<!-- The other two pages carry a policy and this one did not, which is
-     backwards: GitHub Pages serves this file for every unmatched path under
-     the domain, so it is the page that scanners probing for /wp-login.php
-     actually reach. It is also the easiest page on the site to lock down,
-     because it runs no script at all -- hence script-src 'none' rather than
-     the home page's 'self' 'unsafe-inline'. Everything it does need is
-     first-party: the two woff2 files and the favicons, plus the inline
-     style block and the data-URI grain inside it. connect-src and
-     form-action are 'none' because there is nothing here to send anywhere. -->
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'none'; connect-src 'none'; base-uri 'self'; form-action 'none'; object-src 'none'">
 
-<!-- ==================================================================
-     THE 404
-     ==================================================================
-     GitHub Pages serves this file, with a real 404 status, for every path
-     under the domain that is not a file in this repo. So it gets hit by
-     typos, by stale links, and by scanners probing for /wp-login.php, and
-     none of those visitors asked for 1.6MB of photographed paper.
-
-     So there is no board here. No cork, no scans, no camera, no scripts:
-     one card on the desk, drawn entirely in CSS, and the only things it
-     fetches are the two font files the home page already preloads
-     (permanent-marker 29KB, space-mono-400 9KB) and the 2KB favicon. If the
-     visitor is on their way to the home page those two fonts are then warm
-     in the cache and the board is that much cheaper when they land.
-
-     It is styled here rather than through css/style.css on purpose: that
-     stylesheet is 40KB of board, and the ~30 lines of it this page would
-     actually use are cheaper inlined than linked. The values are copied
-     from it, not reinvented — #2b2119 desk, #fbf8f1 card stock, the same
-     Sharpie near-black, the same red, the same grain data-URI, the same
-     fallback stacks — so if the board's identity moves, this file is the
-     one other place to look.
-     ================================================================== -->
-
-<link rel="icon" href="assets/favicon-32.png" type="image/png">
-<link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-
+<link rel="icon" href="/assets/favicon-32.png" type="image/png">
+<link rel="icon" href="/assets/favicon-512.png" type="image/png" sizes="512x512">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <style>
 @font-face {
-  font-family: "Permanent Marker";
+  font-family: "League Spartan";
   font-style: normal;
-  font-weight: 400;
+  font-weight: 100 900;
   font-display: swap;
-  src: url("assets/fonts/permanent-marker-latin.woff2") format("woff2");
+  src: url("/assets/fonts/league-spartan-latin.woff2") format("woff2");
 }
-@font-face {
-  font-family: "Space Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("assets/fonts/space-mono-400-latin.woff2") format("woff2");
-}
-
 :root {
-  --marker: "Permanent Marker", "Marker Felt", "Segoe Script", "Comic Sans MS", cursive;
-  --mono: "Space Mono", ui-monospace, Menlo, "Consolas", monospace;
-  --red: #b3271c;
+  --display: "League Spartan", "Futura", "Century Gothic", "Avenir Next", sans-serif;
+  --brand: #004AAD;
+  --brand-deep: #04367B;
+  --ink: #0B1B33;
 }
-
-* , *::before, *::after { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-
-/* the desk, lit from the same upper-left lamp as the board's cork */
 body {
   margin: 0;
   min-height: 100vh;
@@ -79,113 +36,69 @@ body {
   align-items: center;
   justify-content: center;
   padding: 6vh 5vw;
-  color: #f4efe2;
-  font-family: var(--mono);
-  background-color: #2b2119;
-  background-image:
-    radial-gradient(130% 110% at 36% 22%, rgba(255, 226, 180, 0.10), transparent 66%),
-    radial-gradient(95% 85% at 82% 100%, rgba(4, 9, 16, 0.5), transparent 62%),
-    /* the room's photographic grain, the same inline turbulence the board
-       uses over .viewport, so it costs a request-free data URI and not a file */
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
-  background-repeat: no-repeat, no-repeat, repeat;
+  font-family: var(--display);
+  color: var(--ink);
+  background: radial-gradient(120% 100% at 30% 15%, #0a4a9e 0%, var(--brand-deep) 45%, #021f4a 100%);
 }
-
-/* one index card, off true, sitting on the desk */
 .card {
-  position: relative;
-  width: min(560px, 100%);
-  padding: 46px 40px 40px;
-  transform: rotate(-1.2deg);
-  color: #2b2115;
-  background-color: #fbf8f1;
-  background-image:
-    /* the card's ruled lines, and the faint corner-curl shading the board's
-       index cards carry */
-    linear-gradient(115deg, transparent 84%, rgba(60, 40, 15, 0.06) 100%),
-    repeating-linear-gradient(to bottom,
-      transparent 0 31px, rgba(120, 140, 175, 0.22) 31px 32px);
-  box-shadow:
-    0 0 4px rgba(25, 12, 4, 0.42),
-    3px 7px 12px rgba(25, 12, 4, 0.3),
-    8px 22px 40px rgba(25, 12, 4, 0.38);
+  width: min(540px, 100%);
+  padding: 40px 40px 34px;
+  background: #ffffff;
+  border-top: 6px solid var(--brand);
+  box-shadow: 0 18px 50px rgba(2, 15, 40, 0.45);
 }
-/* the red header rule, same as the board's index cards */
-.card::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 34px;
-  height: 1px;
-  background: rgba(179, 39, 28, 0.5);
-}
-
+.mark { display: block; width: 92px; height: auto; margin-bottom: 26px; }
 h1 {
   margin: 0;
-  font-family: var(--marker);
-  font-weight: 400;
-  font-size: clamp(56px, 15vw, 92px);
-  line-height: 1.02;
-  letter-spacing: 0.01em;
-  /* real Sharpie black, the same ink as the board's title */
-  color: #0e0c0a;
+  font-weight: 800;
+  font-size: clamp(64px, 16vw, 104px);
+  line-height: 0.9;
+  color: var(--brand-deep);
 }
-
 .said {
-  margin: 26px 0 0;
-  font-size: 13px;
-  line-height: 22px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #9c3a2e;
-}
-
-p.note {
   margin: 18px 0 0;
   font-size: 14px;
-  line-height: 26px;
-  color: #55503f;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brand);
 }
-
+p.note { margin: 16px 0 0; font-size: 17px; line-height: 1.55; }
 .home {
   display: inline-block;
-  margin-top: 30px;
+  margin-top: 26px;
+  padding: 0.8em 1.4em;
   font-size: 14px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: #2b2115;
-  text-decoration: none;
-  border-bottom: 2px solid var(--red);
-  padding-bottom: 3px;
-}
-.home:hover { color: var(--red); }
-
-.sig {
-  margin: 34px 0 0;
-  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #8b8472;
+  color: #ffffff;
+  background: var(--brand);
+  text-decoration: none;
 }
-
-:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
-
-@media (max-width: 520px) {
-  .card { padding: 34px 26px 30px; transform: rotate(-0.8deg); }
+.home:hover { background: var(--brand-deep); }
+.sig {
+  margin: 30px 0 0;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(11, 27, 51, 0.6);
 }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; }
+@media (max-width: 520px) { .card { padding: 30px 24px 26px; } }
 </style>
 </head>
 <body>
 
 <main class="card">
+  <svg class="mark" viewBox="0 0 925.304 554" aria-hidden="true" focusable="false"><polygon fill="#004AAD" points="0,0 302.623,0 433.584,226.992 564.606,0 867.151,0 814.865,90.982 616.133,91.064 433.324,407.49 250.635,90 51.973,90"/><polygon fill="#004AAD" points="95.842,166 199.999,166 386.199,488.565 349.291,554 319.879,554"/><polygon fill="#004AAD" points="667.186,166 771.341,166 632.328,405.789 580.513,316.111"/><polygon fill="#004AAD" points="515.022,368.195 584.544,488.545 547.314,554 518.291,554 463.031,458.237"/><polygon fill="#04367B" points="302.623,0 360.755,0 462.715,176.576 433.6,227.02"/><polygon fill="#04367B" points="867.151,0 925.304,0 873.592,90 815.43,90"/><polygon fill="#04367B" points="616.179,91 674.381,91 543.991,317.847 643.012,489.006 605.496,554 547.314,554 584.544,488.545 515.094,368.321 407.207,554 349.291,554 386.199,488.565 199.999,166 256.483,166 402.746,419.323 436.31,402.302"/><polygon fill="#04367B" points="771.341,166 829.485,166 662.066,456.661 632.506,405.481"/></svg>
   <h1>404</h1>
   <p class="said">Nothing pinned here</p>
   <p class="note">
     That address is not on the board. It was moved, mistyped, or never there
     at all. The whole studio lives on one page.
   </p>
-  <a class="home" href="/">&larr; Back to the board</a>
+  <a class="home" href="/">&larr; Back to the studio</a>
   <p class="sig">WhittWorks Studios &middot; Birmingham, Alabama</p>
 </main>
 

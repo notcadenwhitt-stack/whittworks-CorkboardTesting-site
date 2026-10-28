@@ -1,81 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta name="robots" content="noindex, nofollow">
 <meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy Policy - WhittWorks Studios</title>
-<meta name="description" content="What the WhittWorks Studios contact form collects, how Formspree delivers it, and how to ask for it to be deleted.">
-<meta name="theme-color" content="#8a6a44">
+<meta name="description" content="What the WhittWorks Studios contact form collects, what optional analytics record if you accept them, and how to ask for deletion.">
+<meta name="theme-color" content="#ffffff">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WhittWorks Studios">
 <meta property="og:title" content="Privacy Policy - WhittWorks Studios">
-<meta property="og:description" content="What the WhittWorks Studios contact form collects, how Formspree delivers it, and how to ask for it to be deleted.">
+<meta property="og:description" content="What the WhittWorks Studios contact form collects, what optional analytics record if you accept them, and how to ask for deletion.">
 <meta property="og:url" content="https://whittworkstudios.com/privacy.html">
 <meta property="og:image" content="https://whittworkstudios.com/assets/og-thumbnail.jpg">
 <meta property="og:image:alt" content="WhittWorks Studios logo.">
 <meta name="twitter:card" content="summary_large_image">
 
-<!-- Same policy as index.html, copied rather than loosened: this page has no
-     form of its own, so form-action 'self' https://formspree.io costs
-     nothing here and keeps the two pages' policies identical rather than
-     drifting. See index.html's own long comment on this meta for the
-     reasoning behind every directive. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'none'; font-src 'self'; connect-src 'none'; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
 
 <link rel="canonical" href="https://whittworkstudios.com/privacy.html">
 <link rel="icon" href="assets/favicon-32.png" type="image/png">
 <link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
-<!-- css/style.css is where every @font-face on this site lives (Anton and
-     Inter included, the two the editorial design needs), and css/editorial.css
-     is the design itself, scoped entirely under .editorial so it cannot
-     collide with the board's own rules. This page never loads js/board.js,
-     js/hand.js, or any board markup: there is no camera here and nothing to
-     drive one, so it is plain, typeset HTML the same way the home page is
-     for a visitor with scripting off. -->
-<link rel="stylesheet" href="css/style.css?v=111">
-<link rel="stylesheet" href="css/editorial.css?v=5">
+<link rel="stylesheet" href="css/style.css?v=119">
+<link rel="stylesheet" href="css/editorial.css?v=12">
 
-<!-- The handful of rules the editorial design does not already have, for a
-     single plain page rather than the home page's poster hero: a small
-     header instead of the full-height wordmark, and shorter section spacing
-     than .band's own (that padding is tuned for a five-band scroll with a
-     hero above it, and repeated five times here it would make a four-
-     paragraph policy scroll for pages). Every value below is a var() already
-     defined on .editorial in css/editorial.css, so this stays the same ink,
-     the same red, the same type, the same spacing scale as the rest of the
-     site. -->
-<style>
-.privacy-head {
-  padding: clamp(1.5rem, 4vw, 3rem) var(--pad) clamp(1.25rem, 3vw, 2rem);
-  border-bottom: 1px solid var(--rule);
-}
-.privacy-head h1 {
-  font-family: var(--display);
-  font-weight: 400;
-  font-size: clamp(2.2rem, 1.2rem + 5vw, 4.5rem);
-  line-height: 0.95;
-  text-transform: uppercase;
-  margin: 0.6rem 0;
-}
-.privacy-head a,
-.policy-band a {
-  color: inherit;
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 1px;
-  text-decoration: none;
-  word-break: break-word;
-}
-.privacy-head a:hover,
-.policy-band a:hover { color: var(--red); border-bottom-color: var(--red); }
-
-.policy-band { padding-bottom: clamp(1.5rem, 3vw, 2.5rem); }
-.policy-band p { max-width: 62ch; }
-.policy-band p + p { margin-top: 0.9rem; }
-</style>
 </head>
 <body>
 
@@ -92,8 +44,8 @@
     <section class="band policy-band" aria-labelledby="overview-title">
       <h2 class="band-label" id="overview-title">Overview</h2>
       <p>This page explains what happens to the details you send through the
-      contact form on the home page. Nothing else on this site collects
-      personal information.</p>
+      contact form, and what the site's optional analytics record if you
+      accept them. Nothing else on this site collects information about you.</p>
     </section>
 
     <section class="band policy-band" aria-labelledby="collects-title">
@@ -118,17 +70,12 @@
       kind.</p>
     </section>
 
-    <!-- Added because the site stores three values in the browser and this
-         page described none of them. The welcome panel on the home page
-         carries the short version; this is the full one. Keep the two in
-         step: if a key is added, renamed, or moved between sessionStorage
-         and localStorage in js/peek.js or js/welcome.js, both this section
-         and .welcome-fineprint in index.html have to say so. -->
     <section class="band policy-band" aria-labelledby="storage-title">
       <h2 class="band-label" id="storage-title">What Your Browser Stores</h2>
-      <p>This site sets no cookies. It keeps three small values in your own browser
-         instead. None of them are sent anywhere, none are readable by another site,
-         and none identify you.</p>
+      <p>Strictly speaking this site sets no cookies: it keeps three small values in
+         your own browser, plus two more only if you accept analytics cookies. We
+         call those two "analytics cookies" because they do the same job. The first three are never sent
+         anywhere, none are readable by another site, and none identify you.</p>
       <p>The first records whether you chose the cork board or the plain text
          version. It is kept for that tab only and is discarded the moment you
          close it.</p>
@@ -138,14 +85,34 @@
       <p>The third records your answer to the analytics question. It also stays
          until you clear your browser data, or until you change it from the Help
          button on the home page.</p>
-      <p>No analytics or tracking scripts run on this site today. If any are ever
-         added they will load only after you have allowed them, and this page will
-         say so before that happens.</p>
+      <p>If you accept analytics cookies, two more are added: a random ID that stays until
+         you reject analytics cookies or clear your browser data, and a visit ID that is
+         discarded when you close the tab. Rejecting them deletes both.</p>
+    </section>
+
+    <section class="band policy-band" aria-labelledby="analytics-title">
+      <h2 class="band-label" id="analytics-title">Analytics Cookies, Only If You Accept Them</h2>
+      <p>Analytics cookies are off until you choose Accept analytics cookies,
+      either in the welcome panel on the cork board or in the cookie banner at
+      the top of the plain text version. If you never answer, or choose Reject
+      analytics cookies, nothing is recorded and nothing is sent.</p>
+      <p>If you accept them, the site sends a few anonymous events to PostHog, an
+      analytics service hosted in the United States: which page you opened and
+      the site that linked you there, which sections of the board you clicked
+      or jumped to, whether you started and sent the contact form (never what
+      you typed in it), and page-speed measurements. Each event carries a
+      random ID stored in your browser and your screen size. No name, email,
+      or form content is ever included, and no advertising cookies are set.
+      PostHog's own privacy policy is at
+      <a href="https://posthog.com/privacy">posthog.com/privacy</a>.</p>
+      <p>You can change your answer at any time from the Help button on the
+      board or the Cookie settings link at the bottom of the plain text page.
+      Rejecting them stops all analytics at once and deletes the random ID.</p>
     </section>
 
     <section class="band policy-band" aria-labelledby="deletion-title">
       <h2 class="band-label" id="deletion-title">Requesting Deletion</h2>
-      <p>To ask that a submission be deleted, email
+      <p>To ask that a submission or your analytics events be deleted, email
       <a href="mailto:caden@whittworkstudios.com">caden@whittworkstudios.com</a>.</p>
     </section>
 
@@ -154,7 +121,7 @@
   <footer class="site-footer">
     <div class="footer-meta">
       <p class="meta">&copy; 2026 WhittWorks Studios</p>
-      <p class="meta meta-end">Last updated 20 August 2026</p>
+      <p class="meta meta-end">Last updated 28 October 2026</p>
     </div>
   </footer>
 

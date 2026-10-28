@@ -1,22 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- The floor, and the reason it is inline rather than in css/style.css: if
-     that stylesheet 404s, every display rule on the page goes with it and BOTH
-     designs render, stacked, one after the other. Measured 2026-08-07, before
-     the events/testimonial content landed: innerText 3116
-     instead of 1387, the whole site twice. This one declaration survives that,
-     because an inline style cannot fail to arrive separately from the document
-     it is written in. css/style.css re-states it and then overrides it for the
-     cases where the board should actually show. -->
-<style>.corkboard{display:none}</style>
 <head>
-  <meta name="robots" content="noindex, nofollow">
 <meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-uRbh2umu8cgFexG6jk2V9hCNCg1yTQJnHUGixbY8nGU='; font-src 'self'; connect-src https://formspree.io https://us.i.posthog.com; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<style>.corkboard{display:none}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script>
 /* Decide WHICH DESIGN before anything paints. This used to set only "js", and
    the cork board additionally required "board-live", which js/board.js sets when
-   it runs at the very end of <body> — so on every wide-screen load the browser
+   it runs at the very end of <body>, so on every wide-screen load the browser
    laid out and PAINTED the editorial design first and swapped it a second later.
    Measured: 1.0s of tan at 4 Mbps, 1.3s at 1 Mbps. The gate was right, its
    timing was not.
@@ -29,7 +23,7 @@
    PLACEMENT IS LOAD-BEARING IN BOTH DIRECTIONS. This script sat above <head>
    once; it must stay AFTER the viewport meta and BEFORE every stylesheet.
    After the viewport meta, because it reads innerWidth/innerHeight (and
-   matchMedia) — before that meta is processed, a mobile browser answers with
+   matchMedia), before that meta is processed, a mobile browser answers with
    the 980px legacy layout viewport, and a tablet whose real viewport keeps
    the board would get a --first-frame built for a viewport it does not have,
    then pay a visible snap when the camera's first write corrects it. Before
@@ -42,7 +36,7 @@
     if (window.matchMedia && window.matchMedia("(min-width: 901px)").matches) {
       d.className += " board-first";
       /* WARMING. The first rasterisation of this board is the most expensive
-         one it will ever do — every tile cold, cork.webp possibly still
+         one it will ever do, every tile cold, cork.webp possibly still
          decoding, and the full drop-shadow stacks costing 173ms of the ~200ms
          a genuine frame takes. Tiles that miss that budget draw nothing, which
          is the "chunks" the owner has reported twice. This class collapses the
@@ -56,19 +50,19 @@
          to exist before anything paints, which only this script can do.
 
          If board.js never runs, js/peek.js takes the page back to the
-         editorial design and these selectors — all scoped under .board —
+         editorial design and these selectors, all scoped under .board , 
          match nothing. A stranded warming class is inert. */
       d.className += " warming";
       /* The class puts the board on screen from the first frame, but nothing
          writes its transform until js/board.js runs at the end of the body,
          and first paint does not wait for end-of-body scripts. Untransformed,
          with transform-origin 0 0, the 3600x2400 board shows its top-left
-         corner at 1:1 until the camera arrives — a blink on fast connections,
+         corner at 1:1 until the camera arrives, a blink on fast connections,
          seconds on slow ones, and a visible zoom-out either way. So the
          whole-board framing is computed here as well and published as
          --first-frame; the stylesheet holds it on .board until the camera's
-         inline style takes over. Same numbers as STOPS[0] in js/board.js —
-         span 3860x2620, center 1800,1200 — and the same formula, so the
+         inline style takes over. Same numbers as STOPS[0] in js/board.js , 
+         span 3860x2620, center 1800,1200, and the same formula, so the
          camera's first write lands on the identical matrix and nothing moves.
          Retune stop 0 there and these constants must move with it. */
       var vw = window.innerWidth, vh = window.innerHeight;
@@ -85,11 +79,11 @@
            first-frame screen rect (--board-x/y/w/h) for a fixed-position
            ::before version of that backstop; that covered the load moment
            only and left the viewport's edge bands over bare wall at every
-           zoomed stop — which is where fresh tiles rasterize during a hard
+           zoomed stop, which is where fresh tiles rasterize during a hard
            wheel scroll, seen live on staging as dark chunks at the edges. */
       }
       /* The preload gets cork.webp's BYTES here early, but nothing decodes
-         them until the compositor first needs the texture — and tiles whose
+         them until the compositor first needs the texture, and tiles whose
          images are still decoding draw empty, which is the board's lower
          rows blinking in late on slower machines. Start the decode now, in
          parallel with parsing, so the pixels are in the decoded-image cache
@@ -102,293 +96,81 @@
   } catch (e) {}
 })();
 </script>
-<title>WhittWorks Studios — Web Design &amp; Consulting</title>
+<title>WhittWorks Studios | Web Design &amp; Consulting</title>
 <meta name="description" content="WhittWorks Studios is the solo studio of Caden Whitt, designing and building websites and digital tools for businesses and organizations.">
-<meta name="theme-color" content="#8a6a44">
+<meta name="theme-color" content="#ffffff" media="(max-width: 900px)">
+<meta name="theme-color" content="#0b1b33" media="(min-width: 901px)">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="WhittWorks Studios">
-<meta property="og:title" content="WhittWorks Studios — Web Design &amp; Consulting">
+<meta property="og:title" content="WhittWorks Studios | Web Design &amp; Consulting">
 <meta property="og:description" content="WhittWorks Studios is the solo studio of Caden Whitt, designing and building websites and digital tools for businesses and organizations.">
-<!-- og:image and og:url are ABSOLUTE, and they have to be. The Open Graph spec
-     asks for a URL, and the scrapers behind iMessage, Slack, LinkedIn, Facebook
-     and Discord fetch these out of the markup without a document base to
-     resolve against — a bare "assets/og-thumbnail.jpg" is simply dropped by
-     most of them, which is a blank card every time anyone shares the site. -->
+
 <meta property="og:url" content="https://whittworkstudios.com/">
 <meta property="og:image" content="https://whittworkstudios.com/assets/og-thumbnail.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="WhittWorks Studios logo.">
 <meta name="twitter:card" content="summary_large_image">
 
-<!-- ==================================================================
-     NOTHING HIDES THE BOARD
-     ==================================================================
-     There was a capped fade here: hold #board at opacity 0 until either
-     window.load or a 1500ms cap, then fade it in. It is gone, and the reason
-     is worth keeping. The cap wins any time ~1.6MB of paper takes longer than
-     1.5s, which is every connection worth designing for, so the board was
-     revealed still half-loaded and the rest of it landed afterwards anyway.
-     The visitor paid the hold AND still watched the desk assemble itself.
-     Measured on a 100 KB/s line, the assets arrive one at a time from 2.5s
-     to 21.5s: against that, a 1.5s hold is indistinguishable from no hold.
-     A control with no fade put the board on screen at ~491ms against ~1315ms
-     with it.
-
-     What replaces it is in css/style.css: every element that carries a
-     photographed scan also carries a heavily downscaled picture of that exact
-     scan, base64'd into the stylesheet and shaped to stay inside the eventual
-     silhouette. 23 of them, 6.5KB gzipped, zero extra requests, no script. The
-     board is in the right shapes, in the right places, in the right colours,
-     out of focus, in the first frame that paints, and each scan then pulls
-     its own square of it into focus as it lands. This started out as flat
-     colours, which composed the board just as fast and arrived as a step
-     change from paint to photograph — read the top of css/style.css.
-     ================================================================== -->
-
-<!-- Content Security Policy, as a meta because GitHub Pages serves static
-     files and cannot set response headers. Defence in depth rather than a fix
-     for a known hole: this page takes no user input, has no forms, makes no
-     network calls, and embeds nothing third-party, so there is no injection
-     path today. What the policy buys is that if one ever appears — a
-     compromised host, a bad deploy, a future embed — an injected external
-     script or exfiltration attempt is refused by the browser.
-
-     'unsafe-inline' is present for scripts and styles and that IS a real
-     weakening, stated plainly rather than hidden. The alternative is hashing
-     the inline head script, and that script is edited often; a stale hash
-     would silently block it, drop `board-first`, and hand every wide visitor
-     the editorial design with nothing in the console tying it to this line.
-     The trade is deliberate: keep the origin lock, accept inline.
-
-     img-src allows data: because the LQIP placeholders and the neutral
-     polaroid film are base64 URIs. connect-src names formspree.io and nothing
-     else: js/form.js POSTs the contact form there so the visitor is not thrown
-     onto Formspree's own confirmation page, and that is the only request this
-     site makes to anywhere. It was 'none' until Phase 8 widened it by exactly
-     one origin. form-action names the same origin for the no-JS path, where
-     the browser navigates to it directly.
-
-     form-action WAS 'none', and Phase 7 is the reason it no longer is. The
-     contact form's no-JS fallback is a real <form method="POST"
-     action="https://formspree.io/f/...">, and form-action 'none' does not
-     merely fail to help that request, it blocks it outright: the browser
-     refuses to navigate to the action URL at all, silently, with nothing in
-     the page to catch or explain it. So the form's own action host joins
-     'self' (the second is for the same-origin GET this page still serves).
-
-     NOT AVAILABLE HERE: frame-ancestors and X-Frame-Options are header-only —
-     a meta CSP cannot carry frame-ancestors, and meta X-Frame-Options is
-     ignored by every browser. Clickjacking protection therefore needs a host
-     that can set headers, which Pages is not. Recorded, not solved. -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; font-src 'self'; connect-src https://formspree.io; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
 <link rel="canonical" href="https://whittworkstudios.com/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"WhittWorks Studios","url":"https://whittworkstudios.com/","logo":"https://whittworkstudios.com/assets/favicon-512.png","image":"https://whittworkstudios.com/assets/og-thumbnail.jpg","description":"Websites and custom tools for businesses and organizations, designed, built, and shipped end to end.","email":"caden@whittworkstudios.com","founder":{"@type":"Person","name":"Caden Whitt"},"address":{"@type":"PostalAddress","addressLocality":"Birmingham","addressRegion":"AL","addressCountry":"US"},"areaServed":"US","sameAs":["https://www.linkedin.com/company/whittworks-studios"]}</script>
 <link rel="icon" href="assets/favicon-32.png" type="image/png">
 <link rel="icon" href="assets/favicon-512.png" type="image/png" sizes="512x512">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<!-- THE WEBFONTS ARE NO LONGER SOMEONE ELSE'S HOST.
-     What used to be here was two preconnects and a stylesheet link to
-     fonts.googleapis.com, carrying a long comment about how much damage a
-     slow font host can do to a page like this one: a render-blocking sheet
-     on a host that is merely SLOW to say no (captive portal, corporate
-     proxy, DNS sinkhole, a region that blocks it) leaves readyState at
-     "loading" and the compositor with nothing to paint, so the visitor gets
-     white rather than a board. Measured against a blackholed font host with
-     scripting off, the page held a white screen for 54.6s on one machine and
-     144.1s on another. The link was defused with media="print" and an onload
-     that promoted it, and there was deliberately no <noscript> copy, because
-     a plain <noscript><link rel=stylesheet> reinstates exactly that failure
-     for the visitors least able to route around it.
 
-     None of that hazard is here any more, because the host is gone. The same
-     four families are served from assets/fonts/ — the identical latin woff2
-     subsets Google was sending, @font-face'd in css/style.css. There is now
-     no third-party request on this page at all, which also means Google no
-     longer receives the IP address of everyone who reads it.
-
-     The fallback stacks in css/style.css stay exactly as they were, and they
-     still matter: they are what letters the board if a font file 404s after
-     a bad deploy, and what letters it in the swap period.
-
-     FOUR preloads, and this used to say two. The old rule was right — preload
-     only the faces the visitor is looking at in the first frame — but it was
-     applied on a wrong reading of which faces those are, and leaving Caveat to
-     CSS discovery cost far more than the bytes it saved.
-
-     Caveat, measured: discovered from the stylesheet it started around 2.8s
-     and landed at 7.55s at 125 KB/s, while the board had been legible since
-     ~3.6s, so there were four seconds of fallback lettering on a fully
-     composed board. The claim it was traded against — that a slow font costs
-     the lettering and never the board — does not survive contact: on the
-     fallback, .pc-head's box doubles from 30.05px to 59.18px, "Have something
-     you want built?" wraps to four lines, "built?" overprints "Reach out for
-     design", the email address runs out the right side of the hand-drawn ink
-     circle, and the copyright line falls off the card. Every service sticky
-     reflows too. Preloading it costs nothing measurable: Caveat lands at 3.65s
-     instead of 7.56s while FCP (3608 vs 3644ms), cork.webp (13697 vs 13744ms)
-     and last byte (15149 vs 15162ms) all stay inside noise.
-
-     Space Mono 400 joins for the reason the original rule already gives.
-     It used to be the deskbar's four nav links, always-visible fixed chrome
-     that set no font-weight and so rendered at 400; those links now live in
-     the kebab's dropdown (see .board-menu a in css/style.css) and the
-     narrow-viewport board-exit control, neither on screen in the first
-     frame, but both are one click or tap away from it and neither should
-     pay a weight-swap the first time they are seen. It is 9.5KB, the
-     smallest font on the page, so keeping it eager costs nothing measurable.
-
-     Special Elite stays on CSS discovery: it letters the index cards, which
-     are photographed paper the eye reaches after the board composes, and its
-     fallback (American Typewriter, Courier) is metrically close enough that
-     the swap does not relayout a card.
-
-     crossorigin is required on font preloads even same-origin, or the preload
-     is fetched in a second, uncredentialed mode and the file downloads twice. -->
-<!-- Permanent Marker's preload was removed at Phase 9. Phase 5 replaced the
-     centre notecard, whose marker heading was the only thing on this page set
-     in that face, so it was 29KB fetched at high priority on every load to
-     letter nothing. 404.html still uses it and still carries its own copy of
-     the @font-face, which is why the file itself stays in assets/. -->
-<link rel="preload" as="font" type="font/woff2" crossorigin
-      href="assets/fonts/space-mono-700-latin.woff2">
-<link rel="preload" as="font" type="font/woff2" crossorigin
-      href="assets/fonts/space-mono-400-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
       href="assets/fonts/caveat-latin.woff2">
-<!-- Special Elite and Anton were deliberately left on CSS discovery, on the
-     argument that Special Elite's fallback (American Typewriter, Courier) is
-     metrically close enough that the swap does not relayout a card. The owner
-     watched a reload and reported "words in a different font under all of the
-     words on the page", so the argument lost to the evidence: this face
-     letters EVERY index card, the About copy, the quote card and the whole
-     contact form, which is most of the words on the board, and Anton is the
-     single largest thing on screen. Both now arrive with the stylesheet.
 
-     Cost is 53KB plus 12KB on the critical path, and it is a real cost.
-     Special Elite is gated to the board's own breakpoint because only
-     css/style.css uses it; the editorial sets its body copy in Inter. Anton is
-     ungated because BOTH designs use it, the board for its title strip and the
-     editorial for its wordmark. -->
 <link rel="preload" as="font" type="font/woff2" crossorigin media="(min-width: 901px)"
       href="assets/fonts/special-elite-latin.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin
-      href="assets/fonts/anton-latin.woff2">
-<!-- The walnut frame is a border-image, and a border-image has no placeholder
-     layer to hide behind: until wood.jpg lands the border paints as the flat
-     #42342f the CSS declares, which is the "shitty frame under the wood one"
-     the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
-<link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=111">
-<!-- READING MODE: the board reflowed into a column, for narrow and short
-     viewports. The media attribute is the whole gate — this file has no @media
-     of its own, so it applies exactly when that query matches.
-     It USED to be linked a second time inside <noscript>, back when the column
-     was also the no-JS fallback. It is not any more: the editorial design below
-     is what a visitor without scripting gets, and it is a better answer than
-     the column was. Do not re-add the noscript copy; with no JS the board is
-     display:none anyway and the rules would style something nobody can see. -->
-<link rel="stylesheet" href="css/reading.css?v=11"
-      media="(max-width: 900px), (max-height: 540px)">
-<link rel="stylesheet" href="css/editorial.css?v=5">
-<!-- the cork is the backdrop everything sits on and it is the largest file
-     left, but it is discovered from CSS, so its fetch used to wait behind the
-     Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
-     lands at 222ms). Preloading starts it at ~47ms with the rest of the head.
-     That stylesheet is gone now and the wait with it, but the preload still
-     earns its place: cork.webp is discovered from css/style.css either way,
-     and this is what puts it in front of the parse.
+      href="assets/fonts/league-spartan-latin.woff2">
 
-     STARTING IT EARLY WAS NOT ENOUGH. A preload without fetchpriority lands
-     in the Low tier with the other two dozen images, and on a 100 KB/s line
-     that measured cork.webp beginning at 118ms and not finishing until
-     17.78s of an 18.4s load: the largest file on the page holding a
-     connection open for the whole load and finishing next to last. High puts
-     it in front of the paper, which is the right order — the cork is the one
-     asset every other asset is seen against. -->
-<!-- THE 901px GATE, added 2026-08-09, for the same reason the three tape
-     preloads below carry one. This link had none, so every phone fetched the
-     single largest asset on the site — 304KB of cork — to paint the editorial
-     design, which never references it, and logged a "preloaded but not used"
-     warning for the trouble. The decode warmer in the head script was already
-     inside the min-width:901px branch, so the bytes were the only thing
-     crossing the wire ungated. Below 901px .corkboard is display:none and the
-     stylesheet never asks for the texture; someone tapping the sticky note
-     into the board on a phone fetches it then, exactly as before. -->
+<link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
+<link rel="stylesheet" href="css/style.css?v=119">
+
+<link rel="stylesheet" href="css/reading.css?v=14"
+      media="(max-width: 900px), (max-height: 540px)">
+<link rel="stylesheet" href="css/editorial.css?v=12">
+
 <link rel="preload" as="image" href="assets/cork.webp" fetchpriority="high" media="(min-width: 901px)">
-<!-- The board's baked lighting. These two gate html.cork-ready alongside the
-     cork itself (see js/board.js), so the swap to the cheap background stack
-     waits on all three; preloading them keeps that wait short rather than
-     leaving the board on its gradient stack until a late discovery. -->
+
 <link rel="preload" as="image" href="assets/board-key-light.webp" fetchpriority="high" media="(min-width: 901px)">
 <link rel="preload" as="image" href="assets/board-shadow-pools.webp" fetchpriority="high" media="(min-width: 901px)">
-<!-- The three masking-tape strips, and they are here because tape is the one
-     photographed thing on this board that cannot have a placeholder at all.
-     It is translucent, so any layer under it still reads through on the
-     FINISHED board, and that is a fact about compositing rather than about
-     flat colour: an alpha-preserving THUMBNAIL of the tape, laid under the
-     real tape, was built and measured, and it shifts 88% of the loaded tape
-     by a mean of 11.9 levels (max 158). See the tape note at the top of
-     css/style.css.
 
-     Left on CSS discovery that leaves the largest per-pixel arrival on this
-     page: at stop 4, 3.17% of the frame changing by a mean of 131 levels as
-     three strips materialise out of bare cork, seconds after the board is
-     already on screen. Nothing can soften that arrival, so it has to happen
-     before there is a board for it to arrive on. High rather than a plain
-     preload for the same reason cork.webp is high: the Low tier puts them
-     straight back among two dozen images. Measured at 1 Mbps over five cold
-     loads, tape-7 lands at 1.82s against 12.80s without these.
-
-     41KB total, and that is the other half of this. They were re-encoded with
-     lossy alpha first (86,866 bytes to 41,828, tools/lqip/reencode_assets.py),
-     which is what makes jumping them up the queue cheap: cork.webp still
-     finishes earlier than before, 14.04s against 14.28s, because the page as
-     a whole is 203KB lighter.
-
-     THE 901px GATE IS NOT OPTIONAL. It matches the media query in
-     css/style.css that decides whether .corkboard is laid out at all. Below
-     it the visitor gets the editorial, the board is display:none, and the
-     browser never asks for these files. Measured ungated at 390x844: 42,180
-     bytes downloaded and never drawn, and three "preloaded but not used"
-     console warnings on every phone load. Gated: identical to not having
-     added them. Someone tapping the sticky note into the board on a phone
-     fetches the tape then, exactly as they always have.
-
-     COST, so it is on the record: these three delay css/style.css, which is
-     render-blocking, by 687ms at 1 Mbps (7,827 to 8,514ms, n=5 each). That
-     is the price of the arrival fix, not a free win. -->
 <link rel="preload" as="image" href="assets/paper/tape-7.webp" fetchpriority="high" media="(min-width: 901px)">
 <link rel="preload" as="image" href="assets/paper/tape-3.webp" fetchpriority="high" media="(min-width: 901px)">
 <link rel="preload" as="image" href="assets/paper/tape-4.webp" fetchpriority="high" media="(min-width: 901px)">
-<!-- The two scripts sit at the end of <body>, so the parser only asks for them
-     after 24 image requests are already holding the connection open. Measured
-     on a 100 KB/s line that put the camera at 8.7s. Preloading them here puts
-     9KB of code ahead of 1.3MB of paper, and matters more than ever now that
-     the board is legible from the first frame: the visitor can read it and
-     want to scroll it long before the paper has landed, and the camera is
-     what scrolling does. Measured with these two in place, board.js and
-     hand.js finish at 631ms and 398ms on that same line. The href must stay
-     byte-identical to the script tags at the end of the body or the browser
-     fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=59">
-<link rel="preload" as="script" href="js/hand.js?v=7">
+
+<link rel="preload" as="script" href="js/board.js?v=61">
+<link rel="preload" as="script" href="js/hand.js?v=8">
 </head>
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <!-- pen wobble at fiber scale. a low frequency with a big displacement
-         crenellates the whole stroke and reads as crumpled foil, so: higher
-         frequency, small throw. -->
+    <symbol id="w-mark" viewBox="0 0 925.304 554">
+    <polygon fill="#004AAD" points="0,0 302.623,0 433.584,226.992 564.606,0 867.151,0 814.865,90.982 616.133,91.064 433.324,407.49 250.635,90 51.973,90"/>
+    <polygon fill="#004AAD" points="95.842,166 199.999,166 386.199,488.565 349.291,554 319.879,554"/>
+    <polygon fill="#004AAD" points="667.186,166 771.341,166 632.328,405.789 580.513,316.111"/>
+    <polygon fill="#004AAD" points="515.022,368.195 584.544,488.545 547.314,554 518.291,554 463.031,458.237"/>
+    <polygon fill="#04367B" points="302.623,0 360.755,0 462.715,176.576 433.6,227.02"/>
+    <polygon fill="#04367B" points="867.151,0 925.304,0 873.592,90 815.43,90"/>
+    <polygon fill="#04367B" points="616.179,91 674.381,91 543.991,317.847 643.012,489.006 605.496,554 547.314,554 584.544,488.545 515.094,368.321 407.207,554 349.291,554 386.199,488.565 199.999,166 256.483,166 402.746,419.323 436.31,402.302"/>
+    <polygon fill="#04367B" points="771.341,166 829.485,166 662.066,456.661 632.506,405.481"/>
+    </symbol>
+
     <filter id="roughen" x="-5%" y="-5%" width="110%" height="110%">
       <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="4" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="2.4" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
-    <!-- guillotine cut: nibbles the index cards' silhouette off true -->
+
     <filter id="cut" x="-3%" y="-3%" width="106%" height="106%">
       <feTurbulence type="fractalNoise" baseFrequency="0.012 0.05" numOctaves="2" seed="7" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="3" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
-    <!-- ink tremor: same pen, different wobble per cluster of writing -->
+
     <filter id="ink-a" x="-8%" y="-8%" width="116%" height="116%">
       <feTurbulence type="fractalNoise" baseFrequency="0.08 0.05" numOctaves="2" seed="3" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="2.2"/>
@@ -401,44 +183,33 @@
       <feTurbulence type="fractalNoise" baseFrequency="0.08 0.05" numOctaves="2" seed="23" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="2"/>
     </filter>
-    <!-- lighter tremor for typewriter strikes -->
+
     <filter id="ink-t" x="-6%" y="-6%" width="112%" height="112%">
       <feTurbulence type="fractalNoise" baseFrequency="0.12 0.08" numOctaves="2" seed="31" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3"/>
     </filter>
-    <!-- Phase 6: one staple, drawn once and <use>'d by all four trim strips
-         below. Three rectangles in one path (crown, left leg, right leg) so a
-         staple costs one flat fill and nothing to rasterise per instance
-         beyond a transform. No filter, no shadow: the owner has just had two
-         rounds of render cost stripped out of this page, so nothing decorative
-         gets it back. The symbol's own "up" is its crown; a <use> that leaves
-         it unrotated bites downward, which is why the top strip below uses it
-         plain and the other three rotate it to face their own outer edge. -->
+
   </defs>
 </svg>
 
-
-<!-- ==================================================================
-     TWO DESIGNS, ONE DOCUMENT, AND THE ORDER MATTERS
-     ==================================================================
-     .editorial comes first and is the DEFAULT. .corkboard comes second and
-     is an enhancement that needs two things the editorial does not: a
-     script, and a wide screen.
-
-     So the editorial is what a phone shows, what a visitor with scripting
-     off shows, what a strict CSP that rejects js/board.js shows, what a
-     crawler reads first, and what is left if board.js 404s after a bad
-     deploy. The board is what a laptop with JavaScript shows, and what
-     anyone gets by tapping the sticky note in the corner.
-
-     This is why the html element gets a js class from the inline script in
-     the head. Without it every one of those failure paths lands on a
-     complete, typeset, readable page instead of a 3600x2400 board with no
-     camera pointed at it. Only one of the two is ever in the layout, so
-     only one is ever in document.body.innerText.
-     ================================================================== -->
-
 <div class="editorial">
+
+  <div class="cookie-banner" data-consent-bar role="region" aria-label="Cookies on WhittWorks Studios" hidden>
+    <div class="cookie-question" data-cookie-question>
+      <h2 class="cookie-heading">Cookies on WhittWorks Studios</h2>
+      <p>We use a few essential settings to make this site work.</p>
+      <p>We'd also like to use analytics cookies so we can understand how people use the site and make improvements.</p>
+      <div class="cookie-actions">
+        <button class="cookie-btn" type="button" data-consent="granted">Accept analytics cookies</button>
+        <button class="cookie-btn" type="button" data-consent="denied">Reject analytics cookies</button>
+        <a class="cookie-link" href="privacy.html#analytics-title">View cookies</a>
+      </div>
+    </div>
+    <div class="cookie-done" data-cookie-done tabindex="-1" hidden>
+      <p data-cookie-message></p>
+      <button class="cookie-btn" type="button" data-cookie-hide>Hide cookie message</button>
+    </div>
+  </div>
   <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="hero" aria-label="WhittWorks Studios">
@@ -457,6 +228,7 @@
     </div>
 
     <h1 class="wordmark">
+      <svg class="hero-mark" viewBox="0 0 925.304 554" aria-hidden="true" focusable="false"><use href="#w-mark"/></svg>
       <span class="visually-hidden">WhittWorks Studios</span>
       <span class="wm-line" aria-hidden="true"><span>W</span><span>H</span><span>I</span><span>T</span><span>T</span><span>W</span><span>O</span><span>R</span><span>K</span><span>S</span></span>
       <span class="wm-line" aria-hidden="true"><span>S</span><span>T</span><span>U</span><span>D</span><span>I</span><span>O</span><span>S</span></span>
@@ -531,17 +303,56 @@
         <figcaption class="meta testimonial-attr">Chad Prewett, Former Auburn Men's Basketball Coach, UniteUS <span class="nobr">Co-Founder</span></figcaption>
       </figure>
 
-      <!-- RESERVED: a second testimonial figure goes here once its
-           materials are confirmed; see the reserved-cork note in the board
-           markup and HANDOFF.md. -->
     </section>
 
     <section class="band band-contact" id="contact" aria-labelledby="contact-title">
       <h2 class="band-label">Contact</h2>
       <p class="contact-head" id="contact-title">Have something you want built?</p>
       <p class="contact-line">Reach out for design and consulting availability.</p>
-      <p class="contact-action"><a class="stamp" href="mailto:caden@whittworkstudios.com">Email the studio</a></p>
-      <p class="meta contact-address">caden@whittworkstudios.com</p>
+
+      <form class="cf ecf" id="editorial-form" action="https://formspree.io/f/xyegnvzd" method="POST" data-cf data-status="ecf-status">
+        <div class="ecf-grid">
+          <div class="cf-field">
+            <label class="ecf-label cf-required" for="ecf-name">Name</label>
+            <input class="ecf-input" type="text" id="ecf-name" name="name" autocomplete="name" maxlength="120" required>
+            <p class="cf-error" id="ecf-name-error" hidden></p>
+          </div>
+          <div class="cf-field">
+            <label class="ecf-label cf-required" for="ecf-email">Email</label>
+            <input class="ecf-input" type="email" id="ecf-email" name="email" autocomplete="email" maxlength="254" required>
+            <p class="cf-error" id="ecf-email-error" hidden></p>
+          </div>
+          <div class="cf-field">
+            <label class="ecf-label" for="ecf-phone">Phone</label>
+            <input class="ecf-input" type="tel" id="ecf-phone" name="phone" autocomplete="tel" maxlength="40"
+                   aria-describedby="ecf-consent-note">
+          </div>
+          <div class="cf-field">
+            <label class="ecf-label" for="ecf-heard">How Did You Find Me?</label>
+            <input class="ecf-input" type="text" id="ecf-heard" name="heard-from" maxlength="200">
+          </div>
+        </div>
+
+        <p class="ecf-note" id="ecf-consent-note">Optional. By giving your phone number, you agree that WhittWorks Studios may call or text you about this inquiry. Message and data rates may apply. Your number is never sold or used for marketing.</p>
+
+        <div class="cf-field ecf-wide">
+          <label class="ecf-label cf-required" for="ecf-project">Project Description</label>
+          <textarea class="ecf-input ecf-textarea" id="ecf-project" name="project" minlength="20" maxlength="5000" required></textarea>
+          <p class="cf-error" id="ecf-project-error" hidden></p>
+        </div>
+
+        <div class="cf-hp" aria-hidden="true">
+          <input type="text" id="ecf-gotcha" name="_gotcha" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="ecf-actions">
+          <button class="cf-submit stamp" type="submit">Send</button>
+          <p class="ecf-note">Read the <a href="privacy.html">Privacy Policy</a>.</p>
+        </div>
+      </form>
+      <p class="cf-status ecf-status" id="ecf-status" role="status" aria-live="polite" hidden></p>
+
+      <p class="meta contact-address">Or email <a href="mailto:caden@whittworkstudios.com">caden@whittworkstudios.com</a></p>
     </section>
 
   </main>
@@ -550,20 +361,14 @@
     <div class="footer-meta">
       <p class="meta">&copy; 2026 WhittWorks Studios</p>
       <p class="meta meta-end">Birmingham, Alabama</p>
+      <p class="meta footer-links"><a href="privacy.html">Privacy</a> <span aria-hidden="true">&middot;</span> <a href="terms.html">Terms</a> <span aria-hidden="true">&middot;</span> <a href="accessibility.html">Accessibility</a> <span class="footer-cookie-item"><span aria-hidden="true">&middot;</span> <button class="footer-cookie" type="button" data-consent-open>Cookie settings</button></span></p>
     </div>
 
-    <!-- The way onto the cork board, and it lives HERE rather than pinned to a
-         corner on purpose. Fixed to the viewport it was the loudest thing on
-         every screen of a page that is meant to read as a calm typeset site.
-         In the footer it is a reward for reaching the end: you find it, or you
-         never know it was there, which is the right weight for an easter egg
-         that swaps the whole design. -->
     <button class="board-peek" type="button" aria-controls="corkboard"
-            aria-label="Open the cork board version of this site">
+            aria-label="The real board: open the cork board version of this site">
       <span class="peek-note" aria-hidden="true">
         <svg class="ink peek-face" viewBox="0 0 100 100">
-          <!-- two Sharpie dashes and a mouth that overshoots on the left, the
-               way a hand drawing quickly finishes a curve past where it meant to -->
+
           <path style="--sw:7" d="M35 37 q1.5 6 0.5 11"/>
           <path style="--sw:7" d="M65 38 q-1.5 6 -0.5 11"/>
           <path style="--sw:6" d="M27 59 q10 19 24 18 q16 -1 22 -20"/>
@@ -572,114 +377,36 @@
       <span class="peek-label">the real board</span>
     </button>
   </footer>
+
 </div>
 
 <div class="corkboard" id="corkboard">
-  <!-- The strip used to carry the title AND the four links side by side,
-       which kept the whole thing small enough to avoid competing with the
-       board. Splitting it in two lets the title get big enough to actually
-       read as a headline, and the links move into the kebab's dropdown
-       below instead of being crammed in next to it. The uppercase look is
-       text-transform, not the words themselves: the accessible name (and
-       the innerText tripwire js/peek.js's neighbor script checks) has to
-       stay "WhittWorks Studios" in mixed case.
 
-       Phase 5: this is now an <h1>, not a <span>. Deleting the centre
-       notecard's .marker heading below removed the board layout's only
-       top-level heading, so the strip's name is promoted to fill that
-       role. (The editorial design keeps its own separate <h1 class="wordmark">
-       further down this file; only one design is ever displayed at a
-       time, so two <h1>s in one document is already this codebase's
-       pattern, not a new one.) Every property the browser's default <h1>
-       styling would otherwise add — margin, font-weight — is either
-       already zeroed by the global reset above or set explicitly on
-       .deskbar-name, so the strip reads pixel-identical to the old <span>.
-
-       The kicker line below it is the first of the notecard's two typed
-       lines, promoted here for the same reason. The second line, "Caden
-       Whitt, Founder · whittworkstudios.com", is deliberately NOT carried
-       over: that credit already lives on the founder polaroid's caption a
-       few sections down, and the domain is the site the visitor is
-       already reading this on. -->
-  <!-- A <header>, not a <nav>. It was a nav when it carried the four section
-       links; Phase 3 moved those into the kebab dropdown below and Phase 5
-       gave this the <h1> and the kicker, which left an element announcing
-       itself as primary navigation while containing no links at all. The nav
-       landmark moved to the dropdown, where the links actually are. -->
   <header class="deskbar">
-    <h1 class="deskbar-name">WhittWorks Studios</h1>
-    <p class="deskbar-kicker">Web Design &amp; Consulting &middot; Est. 2026</p>
+    <svg class="deskbar-mark" viewBox="0 0 925.304 554" aria-hidden="true" focusable="false"><use href="#w-mark"/></svg>
+    <div class="deskbar-text">
+      <h1 class="deskbar-name">WhittWorks Studios</h1>
+      <p class="deskbar-kicker">Web Design &amp; Consulting &middot; Est. 2026</p>
+    </div>
   </header>
 
-  <!-- The four links that used to live in the deskbar, plus Reviews and a
-       way back to the opening view, now live behind this kebab instead of
-       out on the strip. js/menu.js (its own file, same reasoning as
-       js/peek.js: small and separate so a failure in board.js or hand.js
-       cannot take the menu down with it) does the opening, closing and
-       focus work; js/board.js already knows how to drive a[data-stop]
-       links to a camera stop and does not need to learn anything new to
-       reach these. The icon is drawn to the owner's own description of it,
-       three rows of one dot and one dash each. -->
-  <!-- The real primary navigation: the button and the list it controls, kept
-       together inside one landmark so a visitor browsing by landmark finds
-       the menu rather than the title strip. Both children are position:fixed
-       in their own right, so this wrapper adds a landmark and nothing else. -->
   <nav class="board-nav" aria-label="Primary">
-  <!-- Owner's own words: "we may need a back arrow in the top right portion
-       that backs people out instead of the escape button because people are
-       stupid." Same paper-square treatment as the kebab so the row reads as
-       one strip of hardware. data-stop="0" is the whole of the wiring:
-       js/board.js's nav-link handler already knows how to drive goToStop
-       from that attribute, widened from a[data-stop] to [data-stop] so a
-       plain <button> qualifies without a second, parallel handler.
-       Visibility is NOT a class this file invents. js/board.js already sets
-       .far on #board below FAR_SCALE, which is exactly the whole-board
-       framing this button would do nothing at; css/style.css mirrors that
-       one flag onto <html> (see setFar()'s comment in js/board.js for why a
-       mirror is needed at all) and hides this button until it flips. -->
+
   <button class="board-back-btn" type="button" data-stop="0" aria-label="Back to the whole board">
     <svg class="board-back-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"
          fill="none" stroke="currentColor" stroke-width="2.8"
          stroke-linecap="round" stroke-linejoin="round">
-      <!-- A U-turn arrow, drawn to the reference the owner supplied: the shaft
-           runs right along the top, turns down through a half circle on the
-           right, and comes back a short way along the bottom, with a large
-           open head pointing LEFT at the start of the top stroke. It reads as
-           "go back the way you came" rather than as "previous item", which is
-           what a plain chevron says.
 
-           NO LABEL, on the owner's instruction. The word "Back" sat here
-           briefly because the control was being reported as invisible, but
-           that turned out to be a real bug in js/board.js rather than a
-           legibility problem -- board-zoomed was derived from an absolute
-           scale, so the button never appeared at all below about 1200px of
-           window width. With that fixed the glyph shows everywhere and can
-           stand on its own, which is what it does here. -->
       <path d="M2.7 8.6H15.4a5.25 5.25 0 0 1 0 10.5h-5.2"/>
       <path d="M8.9 3.3 2.7 8.6l6.2 5.3"/>
     </svg>
       </button>
-  <!-- The owner asked for the board to explain itself once, on the first
-       visit, and to let a visitor bring that explanation back at will
-       afterwards. This button is the "at will" half; js/welcome.js owns the
-       "once" half. Visible at every framing, unlike the back arrow above,
-       because "how does this work" is a question worth being answerable
-       from anywhere on the board.
 
-       Reads "Help!" now, not a bare "?" glyph: a question mark alone was too
-       easy to miss among the plain squares beside it. The label stays
-       aria-label="How this site works" rather than "Help!" a second time --
-       aria-label wins the accessible-name computation over visible text, so
-       a screen reader announces the fuller sentence once, not the word
-       "Help!" twice back to back. Because the word is wider than a glyph,
-       this button is no longer a square like its neighbours; see
-       .board-help-btn in css/style.css for the paper-tab treatment that
-       keeps it in the same row without pushing the other two off screen. -->
   <button class="board-help-btn" type="button" aria-haspopup="dialog"
-          aria-controls="welcome-panel" aria-label="How this site works">
+          aria-controls="welcome-panel" aria-label="Help! How this site works">
     <span class="board-help-icon">Help!</span>
   </button>
-  <button class="board-menu-btn" type="button" aria-haspopup="true"
+  <button class="board-menu-btn" type="button"
           aria-expanded="false" aria-controls="board-menu" aria-label="Open the menu">
     <svg class="board-menu-icon" viewBox="0 0 40 40" aria-hidden="true" focusable="false">
       <circle cx="7" cy="8" r="3"/>
@@ -700,37 +427,10 @@
   </ul>
   </nav>
 
-  <!-- ==================================================================
-       THE WELCOME PANEL
-       ==================================================================
-       "Super basic and bland" on purpose, the owner's own words for the
-       content side of this. It is an instruction sheet, not another piece
-       of photographed paper, which is why it is plain off-white chrome
-       (the same #f4efe2 family .deskbar and the kebab already use) instead
-       of a torn index card.
-
-       Two elements, not one, because the dim-behind-the-board effect and
-       the panel itself have different jobs and different z-indexes: the
-       backdrop reads the board as inactive, the panel is the thing a
-       visitor actually reads and acts on. js/welcome.js owns both --
-       opening on a first visit (localStorage, wrapped in try/catch the same
-       way js/peek.js wraps its own key, because Safari private mode throws
-       on access and a storage failure must not cost the panel), reopening
-       from the help button above, and closing from the X, Escape, or a
-       click on the dimmed backdrop.
-
-       Both live inside #corkboard on purpose and nowhere else. That is the
-       entire mechanism that keeps this board-only: below 901px, or with no
-       JS, #corkboard is display:none and drags every descendant down with
-       it, so this needs no width query or no-JS guard of its own -- it
-       inherits the same gate the rest of the board furniture already
-       answers to. -->
   <div class="welcome-backdrop" id="welcome-backdrop" aria-hidden="true"></div>
   <div class="welcome-panel" id="welcome-panel" role="dialog" aria-modal="true"
        aria-labelledby="welcome-heading" tabindex="-1">
-    <!-- A red X in a box, var(--red), the same red every other alert mark
-         on this page already uses (the required-field asterisk, the form's
-         error text). -->
+
     <button class="welcome-close" type="button" aria-label="Close">
       <svg class="welcome-close-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
         <path d="M5 5 L19 19 M19 5 L5 19" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
@@ -739,182 +439,70 @@
 
     <div class="welcome-body">
       <div class="welcome-col welcome-col-text">
-        <!-- Cut to the bone on the owner's own instruction: "I do not want
-             the explanation section to be scrollable, it should be super
-             quick and easy." Every sentence below is exactly what he asked
-             for, no more -- see the no-scroll proof for .welcome-col-text
-             below and PROGRESS.md for the measured numbers this copy was
-             cut to hit. -->
-        <!-- Two blocks, not one run of copy. The instructions centre themselves
-             in whatever height is left over and the privacy block pins to the
-             bottom of the column, so the two read as separate concerns with
-             real air between them rather than as one list that happens to end
-             in a cookie notice. -->
+
         <div class="welcome-howto">
           <h2 class="welcome-heading" id="welcome-heading">What to do:</h2>
           <p>Click any paper to zoom into it.</p>
-          <!-- Class so css/reading.css can drop this ONE line. Below 901px wide
-               or 541px tall the camera is not running, nothing zooms, and
-               .board-back-btn is never revealed because board-zoomed never gets
-               set -- measured, not assumed. Every other line here stays true in
-               that layout (clicking a paper still takes you to it, scrolling
-               still travels, the menu still jumps), but this one sends the
-               visitor looking for a control that is not on the screen. -->
+
           <p class="welcome-step-back">Press Escape, or the back arrow at the top right, to come back out.</p>
           <p>Scroll to travel across the whole board.</p>
           <p>The menu at the top right jumps to any section.</p>
         </div>
 
         <div class="welcome-privacy">
-        <h3 class="welcome-subhead">Privacy and Cookies</h3>
+        <h3 class="welcome-subhead">Cookies</h3>
 
-        <!-- The choice comes FIRST and the explanation sits under it in fine
-             print, on the owner's ask: "Just a simple allow cookies or deny
-             and then this can be under in small font." That is also the order
-             that actually respects the decision, since nothing loads until a
-             visitor makes one, so the buttons are the point of this section
-             and the paragraph is the disclosure behind it. -->
         <div class="welcome-consent">
-          <!-- aria-pressed, set here rather than only in script, so the
-               buttons announce as a two-state choice even in the instant
-               before js/welcome.js has run. The chosen one gets shaded and
-               flipped to true; see renderConsentStatus() there. -->
-          <button class="welcome-consent-btn" type="button" data-consent="granted" aria-pressed="false">Allow cookies</button>
-          <button class="welcome-consent-btn" type="button" data-consent="denied" aria-pressed="false">Deny</button>
+
+          <button class="welcome-consent-btn" type="button" data-consent="granted" aria-pressed="false">Accept analytics cookies</button>
+          <button class="welcome-consent-btn" type="button" data-consent="denied" aria-pressed="false">Reject analytics cookies</button>
         </div>
 
-        <!-- ACCURATE, and it was not before. This used to say the site "only
-             remembers whether you chose the board or the plain text version,
-             and forgets that when you close the tab". Only the first of those
-             three keys behaves that way: js/peek.js puts ww-board-open in
-             sessionStorage, but js/welcome.js writes ww-welcome-seen and
-             ww-analytics to localStorage, which outlive the tab and were
-             disclosed nowhere. A privacy notice that under-reports what is
-             stored is the one kind of copy that has to be exact, so all three
-             are named here and privacy.html carries the longer version. -->
-        <p class="welcome-fineprint">This site sets no cookies and uses no analytics
-           today. Your browser remembers three things: which version you chose,
-           board or plain text, which is dropped when you close the tab; that you
-           have seen this panel; and your answer below. The last two stay until you
-           clear your browser data. Analytics may be added later; nothing loads
-           unless you allow it here, and you can change your answer any time from
-           the Help button.</p>
+        <p class="welcome-fineprint">We use a few essential settings to make this site
+           work. We'd also like to use analytics cookies so we can understand how
+           people use the site and make improvements. They stay off unless you accept
+           them, and you can change your choice at any time from the Help button.
+           <a href="privacy.html#analytics-title">View cookies</a></p>
         </div>
 
       </div>
 
       <div class="welcome-col welcome-col-sketch">
-        <!-- ==============================================================
-             THE PENCIL-SKETCH EXPLAINER
-             ==============================================================
-             The owner's own description: "an animation of a pencil drawing
-             mouse clicking around a basic pencil drawing of the website...
-             easy and cheap sketches... a mouse clicking a section and then
-             it zooming in, then an explanation that they click esc to back
-             out of it." One inline SVG, nothing photographed, nothing
-             imported: every shape below is a wobbly hand-authored path,
-             the same technique the doodle stickies on the board itself use
-             (see .sticky.doodle in index.html) of drawing a curve through
-             slightly uneven control points rather than a mathematically
-             true rectangle. No feTurbulence filter here on purpose --
-             those cost a rasterisation pass each, the exact thing the
-             PERFORMANCE section of this build asked to be careful about,
-             and a panel that only opens at idle is still not a reason to
-             spend on decoration for free.
 
-             viewBox is 360x240, which is .board's own 3600x2400 divided by
-             10: every shape below is the owner's own measured board
-             coordinates for that paper, scaled by exactly 1/10 rather than
-             hand-converted one at a time, which is what keeps the miniature
-             in true proportion to the real board instead of drifting off it
-             shape by shape. It used to be six anonymous rectangles; the
-             owner asked for a drawing someone would recognise as THIS board,
-             so every paper below is at its own real position: the About
-             card, the founder polaroid, the monitor and bulb doodles, the
-             four-sticky services cluster, the circular sticker with its
-             solid dark middle, the chart doodle, the contact postcard and
-             its stamp, the contact form with its rule lines and two input
-             boxes, Chad's polaroid, the quote card with a few squiggles for
-             text, the Level Up print as the one dark filled shape on the
-             board, and the portfolio sticky. A handful of small filled
-             pins and a few thin strings fan out from the sticker, echoing
-             js/board.js's own STRINGS array, because a board with nothing
-             pinned to it would not read as this one.
-
-             ANIMATION, CSS keyframes only, transform and opacity only (the
-             PERFORMANCE section's own rule): a cursor drifts to the About
-             card specifically, top left and the easiest paper to follow, a
-             click ripple fires, the whole .sketch-scene group scales and
-             translates so that card fills the frame -- translate(center)
-             scale(S) translate(-target) is the identical composition
-             js/board.js's writeFraming() uses for the real camera -- a crude
-             back-arrow glyph appears top right (echoing the real one added
-             just above), then it scales back out and the cursor resets for
-             the loop.
-
-             REDUCED MOTION: css/style.css already kills every animation on
-             the page unconditionally (`*, *::before, *::after { animation:
-             none !important }`), so nothing here needs its own reduced-
-             motion query. What matters is what is LEFT once the animation
-             is gone: an element with animation:none renders whatever its
-             own base rule says, not a frozen keyframe, so the base
-             transform/opacity on .sketch-scene, .sketch-cursor,
-             .sketch-click and .sketch-glyph below are deliberately set to
-             one coherent pose -- board at rest, cursor resting on the
-             paper it is about to click, ripple and glyph both invisible --
-             rather than left to whatever the last keyframe in the file
-             happens to be. That is the "sensible still frame" rather than
-             a half-finished one. -->
         <svg class="welcome-sketch" viewBox="0 0 360 240" aria-hidden="true" focusable="false">
           <g class="sketch-scene">
-            <!-- the board's own edge, for context -->
+
             <path class="sk-line" d="M8 9 Q180 4 352 10 Q357 120 351 231 Q180 238 7 230 Q3 120 8 9 Z"/>
 
-            <!-- About card: board x360-1089 y294-741, wide ruled index card -->
             <path class="sk-line" d="M37 31 Q73 27 107 32 Q109 52 106 72 Q72 76 38 71 Q35 51 37 31 Z"/>
             <path class="sk-detail" d="M41 42 L103 41"/>
             <path class="sk-detail" d="M41 51 L103 50"/>
             <path class="sk-detail" d="M41 60 L103 60"/>
             <path class="sk-detail" d="M41 67 L99 67"/>
 
-            <!-- Founder polaroid: board x1060-1449 y430-890, thick white
-                 border drawn as a second inner outline, caption strip as a
-                 line near the bottom rather than a filled band -->
             <path class="sk-line" d="M107 44 Q126 41 144 45 Q146 66 143 88 Q126 91 108 87 Q105 66 107 44 Z"/>
             <path class="sk-line" d="M112 50 Q126 48 139 51 Q140 64 139 76 Q126 78 112 76 Q111 64 112 50 Z"/>
             <path class="sk-detail" d="M109 82 L142 82"/>
 
-            <!-- Monitor doodle: board x1560-1846 y210-515, small sticky with
-                 a screen-and-stand line drawing -->
             <path class="sk-line" d="M157 22 Q171 20 184 23 Q185 37 183 50 Q170 53 158 50 Q155 36 157 22 Z"/>
             <path class="sk-detail" d="M163 29 Q171 27 178 29 Q179 34 178 39 Q171 41 163 39 Q162 34 163 29 Z"/>
             <path class="sk-detail" d="M168 44 L174 44 M171 40 L171 44"/>
 
-            <!-- Bulb doodle: board x2020-2305 y160-464, another small
-                 sticky with a bulb-and-base line drawing -->
             <path class="sk-line" d="M203 17 Q216 15 230 18 Q231 32 229 45 Q216 48 204 45 Q201 31 203 17 Z"/>
             <path class="sk-detail" d="M216 24 Q221 22 224 26 Q226 31 221 34 Q216 36 212 32 Q210 27 216 24 Z"/>
             <path class="sk-detail" d="M214 35 L219 35 M215 38 L218 38"/>
 
-            <!-- Four blue stickies: board x2400-3267 y326-1225, a loose
-                 diagonal cluster -->
             <path class="sk-line" d="M241 34 Q257 31 273 35 Q275 51 272 66 Q257 69 242 65 Q239 50 241 34 Z"/>
             <path class="sk-line" d="M278 47 Q294 44 311 48 Q313 63 310 78 Q294 81 279 77 Q276 62 278 47 Z"/>
             <path class="sk-line" d="M252 74 Q268 71 285 75 Q287 90 284 105 Q268 108 253 104 Q250 89 252 74 Z"/>
             <path class="sk-line" d="M290 87 Q306 84 322 88 Q324 103 321 118 Q306 121 291 117 Q288 102 290 87 Z"/>
 
-            <!-- Chart doodle: board x2140-2433 y1010-1321, small sticky
-                 with a few bar-chart lines -->
             <path class="sk-line" d="M215 102 Q229 99 243 103 Q244 117 242 131 Q229 134 216 130 Q213 116 215 102 Z"/>
             <path class="sk-detail" d="M220 126 L220 112 M226 126 L226 108 M232 126 L232 116 M238 126 L238 110"/>
 
-            <!-- Contact postcard: board x310-1035 y1000-1454, a stamp
-                 square in its top right -->
             <path class="sk-line" d="M32 102 Q68 98 103 101 Q105 122 102 144 Q67 147 33 143 Q29 122 32 102 Z"/>
             <path class="sk-detail" d="M88 106 Q94 104 99 106 Q100 111 99 116 Q94 118 89 116 Q87 111 88 106 Z"/>
 
-            <!-- Contact form: board x120-1000 y1500-1980, rule lines and
-                 two input boxes -->
             <path class="sk-line" d="M13 152 Q56 148 99 151 Q101 175 99 197 Q56 200 14 196 Q10 175 13 152 Z"/>
             <path class="sk-detail" d="M18 160 L94 159"/>
             <path class="sk-detail" d="M18 168 L94 167"/>
@@ -922,73 +510,40 @@
             <path class="sk-detail" d="M52 176 L80 176 L80 184 L52 184 Z"/>
             <path class="sk-detail" d="M18 191 L58 191"/>
 
-            <!-- Chad's polaroid: board x1119-1503 y1450-1908, second
-                 portrait with its own caption strip -->
             <path class="sk-line" d="M113 146 Q131 143 150 147 Q151 168 149 190 Q131 193 114 189 Q111 168 113 146 Z"/>
             <path class="sk-line" d="M117 151 Q131 149 145 152 Q146 165 145 177 Q131 179 118 177 Q116 165 117 151 Z"/>
             <path class="sk-detail" d="M114 184 L149 184"/>
 
-            <!-- Quote card: board x1600-2311 y1510-1949, ruled card with a
-                 few squiggle lines standing in for text -- no letters -->
             <path class="sk-line" d="M161 153 Q196 149 230 152 Q233 173 230 194 Q196 197 162 193 Q158 172 161 153 Z"/>
             <path class="sk-detail" d="M168 163 Q178 160 188 163 Q198 166 208 163 Q215 161 222 164"/>
             <path class="sk-detail" d="M168 172 Q180 175 192 172 Q204 169 216 173"/>
             <path class="sk-detail" d="M168 181 Q176 178 186 181 Q196 184 206 181"/>
 
-            <!-- Level Up print: board x2520-3337 y1300-1842, the one dark
-                 filled object on the board -- everything else here is
-                 fill:none -->
             <path class="sk-print" d="M253 131 Q293 128 333 132 Q335 158 333 183 Q293 186 254 182 Q250 157 253 131 Z"/>
-            <!-- Enough interior to read as a printed page rather than a
-                 rectangle: a heading bar, two lines under it, and a mark off
-                 to the right where the real print carries its logo. -->
+
             <path class="sk-detail" d="M259 142 L300 141 M259 151 L312 150 M259 160 L294 159"/>
             <path class="sk-detail" d="M305 160 Q319 159 327 163 Q328 170 326 175 Q315 177 306 174 Q304 167 305 160 Z"/>
 
-            <!-- Portfolio sticky: board x3140-3418 y1630-1905 -->
             <path class="sk-line" d="M315 164 Q328 162 341 165 Q342 177 340 189 Q328 191 316 188 Q313 176 315 164 Z"/>
 
-            <!-- The sticker: board centre 1800,1100, 520 across, a ring
-                 with a solid dark middle -- the disc is the second and
-                 last filled shape here besides the Level Up print. -->
             <circle class="sk-ring" cx="180" cy="110" r="26"/>
             <circle class="sk-fill-dark" cx="180" cy="110" r="18"/>
 
-            <!-- Strings, fanning from the sticker's own pin the same way
-                 js/board.js's STRINGS array fans real red string from
-                 [0, 3], [0, 4] and [0, 8]: to the services cluster, to the
-                 Level Up print, and to the contact form. Thin and dark
-                 like every other stroke here, not the board's red -- see
-                 .sk-string in css/style.css for why. -->
             <path class="sk-string" d="M180 88 L255 36"/>
             <path class="sk-string" d="M180 88 L288 132"/>
             <path class="sk-string" d="M180 88 L95 152"/>
 
-            <!-- A handful of pins. Small filled dots are allowed even
-                 though the rule above is fill:none for everything except
-                 the sticker's middle and the Level Up print -- that rule
-                 is about the papers themselves, and a pin has always been
-                 a dot of solid metal, not an outline. Not every pin here
-                 carries a string, the same way the real board keeps a
-                 stray pin or two unstrung. -->
             <circle class="sk-pin" cx="180" cy="88" r="1.8"/>
             <circle class="sk-pin" cx="255" cy="36" r="1.8"/>
             <circle class="sk-pin" cx="288" cy="132" r="1.8"/>
             <circle class="sk-pin" cx="95" cy="152" r="1.8"/>
             <circle class="sk-pin" cx="74" cy="32" r="1.8"/>
           </g>
-          <!-- The ripple is a CHILD of the cursor group, not a sibling, so
-               it inherits the arrow's own drift for free and only ever
-               needs its own scale/opacity keyframes -- one fewer pair of
-               coordinates to keep in sync by hand. -->
+
           <g class="sketch-cursor">
             <path class="sk-cursor-body" d="M0 0 L1 22 L6 17 L10 27 L14 25 L10 15 L18 15 Z"/>
             <g class="sketch-click">
-              <!-- cx/cy of 0 is the cursor path's own origin, which is its
-                   TIP. It was (9, 4), so the ripple bloomed from the middle
-                   of the arrow instead of from the point that is doing the
-                   clicking. Scaling this group therefore expands the ring
-                   out of the tip, which is where a click actually lands. -->
+
               <circle cx="0" cy="0" r="9"/>
             </g>
           </g>
@@ -997,102 +552,35 @@
       </div>
     </div>
 
-      <!-- The Legal line lives in a footer across the BOTTOM of the panel,
-           on the owner's ask, rather than inside the left column. It runs
-           the full width under both columns and reads left to right from
-           the bottom-left corner. -->
       <div class="welcome-footer">
-        <!-- The heading and the line share a shrink-wrapped block so "Legal"
-             can centre over the links themselves rather than over the panel's
-             whole width, which is what makes it read as a header for them
-             instead of a stray word floating above. -->
+
         <div class="welcome-footer-block">
         <h3 class="welcome-subhead">Legal</h3>
-        <!-- One line, not a stacked list: the owner wants the three items
-             read at a glance, separated by a middot the same way the site's
-             own editorial attribution already uses one. Privacy Policy is
-             the only real link; the other two stay plain unlinked text with
-             their "(being written)" note so neither reads as a dead link,
-             and their HTML comments below still mark exactly where each href
-             goes once that page exists. "Accessibility Statement" is
-             shortened to "Accessibility" here only, to keep the line short
-             enough to hold at 1280px; if it still wraps at that width it
-             wraps at a space like any other text, which is fine -- see
-             .welcome-legal in css/style.css for why no nowrap is set. -->
+
         <p class="welcome-legal">
           <a href="privacy.html">Privacy Policy</a>
           <span class="welcome-legal-sep" aria-hidden="true">&middot;</span>
-          <!-- Terms of Service does not exist yet. Do not link this to a
-               page that is not there; when it lands, this becomes
-               <a href="terms.html">Terms of Service</a>. -->
-          <span class="welcome-legal-pending">Terms of Service</span>
+          <a href="terms.html">Terms of Service</a>
           <span class="welcome-legal-sep" aria-hidden="true">&middot;</span>
-          <!-- Accessibility does not exist yet either. When it lands, this
-               becomes <a href="accessibility.html">Accessibility</a>. -->
-          <span class="welcome-legal-pending">Accessibility</span>
+          <a href="accessibility.html">Accessibility</a>
         </p>
         </div>
       </div>
   </div>
 
   <div class="viewport">
-    <!-- The backstop. Solid colour only, so the compositor never has to
-         rasterise it and it cannot fail to paint. A second, cork-textured
-         sheet used to sit between this and the board; it was deleted after 67
-         photographs showed it failing in exactly the frames it existed to
-         rescue. See the .board-floor rule in css/style.css before adding
-         anything back here. -->
+
     <div class="board-floor" aria-hidden="true"></div>
     <main class="board" id="board">
 
-      <!-- The navy stapled trim that ran around the cork was removed on the
-           owner's call: a thick walnut frame reads heavier and better than a
-           paper ribbon. Its replacement is .board's own border, thickened in
-           css/style.css, so there is no element here to stand in its place. -->
-
       <svg class="strings" id="strings" viewBox="0 0 3600 2400" aria-hidden="true"></svg>
 
-      <!-- ================= STICKER (interim mark) =================
-           Replaces the ruled index card that used to carry "WhittWorks
-           Studios" in marker plus two typed lines; both lines moved up to
-           the deskbar (name -> <h1>, first line -> kicker) and the second
-           line was dropped, see the comment at the deskbar for why.
-
-           Three nested parts so a real logo can drop in later by touching
-           only the innermost one: this <section> IS the white ring (.card
-           gives it position/z-index/rotate, .sticker paints it white and
-           circular and is exactly the ring's outer edge); .sticker-disc is
-           the black disc centred inside it; and the <svg> is the logo
-           slot. The owner does not have his real mark yet, so the interim
-           chevron from assets/favicon.svg ships here instead, inlined
-           (not <img>) so it stays crisp at every camera zoom and costs no
-           extra request. That file's own <rect> background is dropped:
-           .sticker-disc already supplies the black behind it.
-           TO SWAP IN THE REAL LOGO LATER: replace only the contents of the
-           <svg class="sticker-mark"> below. Leave .sticker and
-           .sticker-disc alone.
-
-           data-zone-stop="0" returns the camera to the whole board on
-           click, same as the other nine zone targets. Deliberately a
-           <section>, not a <button>, and no tabindex: js/board.js's
-           delegated handler bails out on
-           a[href], button, input, select, textarea, label, [tabindex],
-           and the other nine zone papers already established pointer-only
-           zone clicks as a deliberate decision (the kebab's "Whole Board"
-           entry is the keyboard path). aria-label gives it the accessible
-           name "WhittWorks Studios"; aria-hidden on the disc and the mark
-           keeps the decoration out of the accessibility tree, and neither
-           holds any text node, so neither contributes to innerText
-           either. -->
       <section class="card sticker" data-zone-stop="0" style="left:1540px; top:840px; width:520px; height:520px; --rot:1.5deg" aria-label="WhittWorks Studios">
         <div class="sticker-disc" aria-hidden="true">
-          <svg class="sticker-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-            <path d="M11 17 L21 47 L32 26 L43 47 L53 17" fill="none" stroke="#FFA92B" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+          <svg class="sticker-mark" viewBox="0 0 925.304 554" aria-hidden="true" focusable="false"><use href="#w-mark"/></svg>
         </div>
       </section>
 
-      <!-- ================= ABOUT ================= -->
       <section class="card index-card about-card" data-zone-stop="2" style="left:360px; top:294px; --rot:1.2deg" aria-label="About">
         <p class="typed card-head">ABOUT</p>
         <p class="typed">Hey, I'm Caden! At WhittWorks Studios we do it all. From speedy web design to consulting and more, we've got you covered.</p>
@@ -1105,7 +593,6 @@
         <figcaption class="hand">Caden Whitt, Founder</figcaption>
       </figure>
 
-      <!-- ================= SERVICES ================= -->
       <section class="sticky service-sticky paper-1 c-blue" data-zone-stop="3" style="left:2400px; top:326px; --rot:-2.1deg" aria-label="Service: web design and development">
         <h2 class="hand sticky-title">Custom Website Design &amp; Development</h2>
         <p class="hand sticky-note">First wireframe to launch day. A site that fits how your organization actually works.</p>
@@ -1126,14 +613,8 @@
         <p class="hand sticky-note">Planning, logistics, and the tools that make an event run itself.</p>
       </section>
 
-      <!-- ================= WORK: the Level Up postcard, picture side out ================= -->
-      <!-- Centered in the work pane per the owner: the card's middle
-           (x=2920) is the midpoint of Chad's review's right edge (2300)
-           and the cork's inner right edge (3540; the frame is 30px). -->
       <figure class="postcard postcard-front work-postcard" data-zone-stop="4" style="left:2520px; top:1300px; --rot:-2deg">
-        <!-- no loading="lazy" here: this shot is inside the stop-0 opening view,
-             and postcard-front.webp's picture area was compressed hard precisely
-             because this covers it. Deferring it shows a soft card first. -->
+
         <img class="pc-picture" fetchpriority="high" src="assets/levelup-card-900.jpg" width="900" height="562" decoding="async"
              alt="Home page of the Level Up Conference website: a dark, chrome-styled layout with the headline Real Men. Real Faith. Next Level.">
         <span class="pc-grain" aria-hidden="true"></span>
@@ -1144,21 +625,13 @@
         </figcaption>
       </figure>
 
-      <!-- Tucked over the postcard's bottom-right corner: the sticky's
-           top-left quadrant lies on the card, the rest on cork. -->
       <aside class="sticky mini-sticky paper-5 c-pink" style="left:3215px; top:1705px; --rot:4.2deg">
         <p class="hand sticky-note"><a href="mailto:caden@whittworkstudios.com">More portfolio available on request &rarr;</a></p>
       </aside>
 
-      <!-- ================= TESTIMONIAL ================= -->
-      <!-- ============ REVIEWS: two stacked rows, left of the work pane.
-           Row 1 is Chad: polaroid LEFT, card RIGHT. Row 2 (parked): card
-           LEFT, polaroid RIGHT. The bottom-right quadrant under the work
-           postcard stays EMPTY on purpose — that cork is reserved for
-           future product cards. ============ -->
       <section class="card index-card quote-card" data-zone-stop="5" style="left:1600px; top:1510px; --rot:1.6deg" aria-label="Client testimonial">
         <p class="typed">&ldquo;Quick turnaround, great design, and excellent support. He built exactly what I envisioned and was helpful from start to finish.&rdquo;</p>
-        <p class="typed small attr">&mdash; CHAD PREWETT, FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS <span class="nobr">CO-FOUNDER</span></p>
+        <p class="typed small attr">CHAD PREWETT, FORMER AUBURN MEN'S BASKETBALL COACH, UNITEUS <span class="nobr">CO-FOUNDER</span></p>
       </section>
 
       <figure class="polaroid frame-2 chad-polaroid" data-zone-stop="5" style="left:1119px; top:1450px; --rot:-2.6deg">
@@ -1167,100 +640,20 @@
         <figcaption class="hand">Chad Prewett</figcaption>
       </figure>
 
-      <!-- RESERVED CORK: the second testimonial (index card left, polaroid
-           right) goes here once its materials are confirmed. The complete
-           worked-out markup, coordinates, and styling notes live on the
-           local branch `annie-wip` and in HANDOFF.md under "Parked: the
-           second testimonial"; its CSS (.annie-card, .pencil-note,
-           .annie-polaroid, the reading-mode rules, the hand.js selector)
-           is still in the tree on purpose. Do not fill this space with
-           anything else. -->
-
-      <!-- ================= CONTACT: the intake form sheet =================
-           Sits in the cork the two relocated doodles vacated, directly above
-           the postcard. Reuses .card.index-card rather than inventing a new
-           paper treatment, the same way .about-card and .quote-card are
-           .index-card with only a width/height and a modifier class of their
-           own: that also means it inherits the .board.moving /
-           html.warming shadow-collapse rules for free, with no new
-           selectors needed there.
-
-           SIZE AND ROTATION ARE SMALLER THAN THE ORIGINAL PLAN, and the
-           reason is worth keeping. The plan's own numbers (900x510,
-           left:120 top:1000, --rot:-0.8deg) were checked against a hand
-           calculation that compared this sheet's UNROTATED edges against
-           neighboring papers' ROTATED, already-measured ones, which quietly
-           borrowed clearance that was never really there. Measured for
-           real, with getBoundingClientRect on the live page, both at
-           --rot:0 and at the plan's rotation: the plan's box left only 20
-           board px between this sheet and the about-card above unrotated
-           (10 once both papers' own rotations were applied, against a
-           required 40), and only 40 board px against the founder polaroid
-           unrotated (24 rotated). The nominal 46px and 58px the plan quoted
-           for those same two gaps do not reproduce from the actual
-           coordinates either way, rotated or not; they are the plan's own
-           arithmetic error, not a rounding difference.
-
-           So: 880x480 rather than 900x510, and --rot:-0.4deg rather than
-           -0.8deg, both of which shrink the rotation-driven growth of this
-           sheet's own bounding box on top of shrinking the box itself.
-           Measured after the change, board pixels, worst case (this
-           sheet's own rotation combined with the neighbor's): about-card
-           43px, contact-postcard 43px, founder polaroid 41px, left trim
-           53px. All four checked live, not derived. The two-column layout
-           still fits: the form's own rendered height measures 430px against
-           436px of interior room at this padding, six board px to spare.
-
-           No .hand, .sticky-title, .sticky-note, .pc-*, .email-link,
-           .marker or .pencil-note class anywhere in this sheet: those are
-           exactly js/hand.js's SELECTORS list, and this sheet is
-           deliberately typed, not handwritten, so adding it cannot shift
-           the character counter hand.js seeds every later jittered element
-           from. (Moving the two doodles above didn't touch that counter
-           either: they were never in the selector list, and only their
-           left/top changed.) Verified on a stop-4 screenshot after this
-           landed: the Level Up caption still sits on its tape with margin
-           both ends, unchanged.
-
-           data-zone-stop="6" and no tabindex, the same pattern as the nine
-           other zone papers (see the long comment on js/board.js's
-           delegated click handler): a click anywhere on the sheet's own
-           paper frames Contact, but the handler bails out on
-           a[href], button, input, select, textarea, label, [tabindex]
-           first, so filling a field or clicking Send never fights the
-           camera for the click. -->
       <section class="card index-card contact-form" data-zone-stop="6" style="left:120px; top:1500px; width:880px; height:480px; --rot:-0.4deg" aria-label="Contact form">
-        <!-- No novalidate: the required/type=email/minlength attributes below
-             ARE the validation, and the browser enforces them on its own
-             whether or not js/validate.js ever runs. That script only rides
-             the "invalid" event each field already fires during the
-             browser's own pre-submit check, to swap the native bubble for an
-             inline message in the sheet's own hand; it does not add or
-             replace any constraint. See js/validate.js's own header comment
-             for why "invalid" and not a "submit" handler with novalidate,
-             which is the more common pattern and the wrong one here: it
-             would drop native enforcement the instant the script failed to
-             run, which is exactly the case this form most needs to survive.
 
-             action + method are real and live NOW, on purpose: Phase 7's
-             own no-JS path IS this form, POSTing straight to Formspree with
-             nothing else in the way. Nothing here submits it early: every
-             verification in this phase runs invalid data on purpose (empty,
-             a bad email, a five-character description), each one is
-             cancelled by the constraints above before a request is ever
-             made, and Phase 8 is the one deliberate real submission. -->
-        <form class="cf" action="https://formspree.io/f/xyegnvzd" method="POST">
+        <form class="cf" id="board-form" action="https://formspree.io/f/xyegnvzd" method="POST" data-cf data-status="cf-status">
           <p class="typed card-head cf-head">Start a Project</p>
 
           <div class="cf-row">
             <div class="cf-field">
               <label class="cf-label cf-required" for="cf-name">Name</label>
-              <input class="cf-input" type="text" id="cf-name" name="name" autocomplete="name" required>
+              <input class="cf-input" type="text" id="cf-name" name="name" autocomplete="name" maxlength="120" required>
               <p class="cf-error" id="cf-name-error" hidden></p>
             </div>
             <div class="cf-field">
               <label class="cf-label cf-required" for="cf-email">Email</label>
-              <input class="cf-input" type="email" id="cf-email" name="email" autocomplete="email" required>
+              <input class="cf-input" type="email" id="cf-email" name="email" autocomplete="email" maxlength="254" required>
               <p class="cf-error" id="cf-email-error" hidden></p>
             </div>
           </div>
@@ -1268,18 +661,13 @@
           <div class="cf-row">
             <div class="cf-field">
               <label class="cf-label" for="cf-phone">Phone</label>
-              <!-- aria-describedby, not just proximity. The consent notice below
-                   is the legal terms attached to THIS field, and a sighted
-                   visitor reads it on the way past; someone tabbing through the
-                   form previously heard "Phone, edit text" and nothing else, so
-                   the one warning that matters was absent at the exact moment
-                   the number gets typed. -->
-              <input class="cf-input" type="tel" id="cf-phone" name="phone" autocomplete="tel"
+
+              <input class="cf-input" type="tel" id="cf-phone" name="phone" autocomplete="tel" maxlength="40"
                      aria-describedby="cf-consent-note">
             </div>
             <div class="cf-field">
               <label class="cf-label" for="cf-heard">How Did You Find Me?</label>
-              <input class="cf-input" type="text" id="cf-heard" name="heard-from">
+              <input class="cf-input" type="text" id="cf-heard" name="heard-from" maxlength="200">
             </div>
           </div>
 
@@ -1287,18 +675,10 @@
 
           <div class="cf-field cf-field-wide">
             <label class="cf-label cf-required" for="cf-project">Project Description</label>
-            <textarea class="cf-textarea" id="cf-project" name="project" minlength="20" required></textarea>
+            <textarea class="cf-textarea" id="cf-project" name="project" minlength="20" maxlength="5000" required></textarea>
             <p class="cf-error" id="cf-project-error" hidden></p>
           </div>
 
-          <!-- Honeypot: Formspree's own documented convention treats a field
-               named _gotcha as a spam trap. Hidden from sight (off-screen,
-               1x1, opacity 0, no pointer-events), hidden from assistive
-               technology (aria-hidden on the wrapper), and never focusable
-               (tabindex="-1" on the input itself): the wrapper being
-               aria-hidden is only safe because nothing inside it can still
-               take focus; see js/hand.js's long comment on the same WCAG
-               4.1.2 rule for the failure mode this avoids. -->
           <div class="cf-hp" aria-hidden="true">
             <input type="text" id="cf-gotcha" name="_gotcha" tabindex="-1" autocomplete="off">
           </div>
@@ -1309,22 +689,15 @@
           </div>
         </form>
 
-        <!-- Sits OUTSIDE the form, because js/form.js hides the whole form on
-             success and a status message inside it would go with it. role=status
-             plus aria-live=polite so a screen reader hears the outcome without
-             the focus being yanked; hidden until there is something to say, so
-             it contributes nothing to either layout's innerText at rest. -->
         <p class="cf-status" id="cf-status" role="status" aria-live="polite" hidden></p>
       </section>
 
-      <!-- ================= CONTACT: postcard, address side out ================= -->
       <section class="postcard postcard-back contact-postcard" data-zone-stop="6" style="left:310px; top:1000px; --rot:-0.6deg" aria-label="Contact">
         <h2 class="hand pc-head">Have something you want built?</h2>
         <p class="hand pc-msg">Reach out for design and consulting availability.</p>
         <img class="pc-stamp" src="assets/paper/stamp-1.webp" alt="" width="320" height="344" decoding="async">
         <p class="circled-wrap pc-addr">
-          <!-- nobody rings something in one clean pass: the pen overshoots
-               where it started, then goes round again over the top half -->
+
           <svg class="circle-ink" viewBox="0 0 340 90" aria-hidden="true">
             <path d="M28 52 Q18 14 172 11 Q330 9 322 46 Q316 82 166 84 Q26 87 21 50 Q19 30 44 20" fill="none" stroke="#b8301f" stroke-width="3.4" stroke-opacity="0.92" stroke-linecap="round"/>
             <path d="M34 58 Q30 20 176 16 Q326 14 318 49" fill="none" stroke="#a8281a" stroke-width="4.6" stroke-opacity="0.7" stroke-linecap="round"/>
@@ -1334,7 +707,6 @@
         <p class="hand pc-msg-small">&copy; 2026 WhittWorks Studios &middot; Birmingham, Alabama</p>
       </section>
 
-      <!-- ================= DOODLE STICKIES ================= -->
       <aside class="sticky doodle paper-4" style="left:1560px; top:210px; --rot:1.2deg" aria-hidden="true">
         <svg viewBox="0 0 200 200" class="ink">
           <path style="--sw:4.3" d="M35 32 Q100 26 166 31 L170 120 Q100 127 33 122 Z"/>
@@ -1363,7 +735,6 @@
           <text x="172" y="186" class="ink-label">Q</text>
         </svg>
       </aside>
-
 
       <aside class="sticky doodle paper-2 flip" style="left:2020px; top:160px; --rot:-1deg" aria-hidden="true">
         <svg viewBox="0 0 200 200" class="ink">
@@ -1395,66 +766,15 @@
         </svg>
       </aside>
 
-
     </main>
   </div>
 
   <div class="scroll-space" aria-hidden="true"></div>
 </div>
 
-<!-- ==================================================================
-     THE STICKY NOTE IN THE CORNER
-     ==================================================================
-     The way onto the cork board from a phone, and the way back off it.
-
-     Both are <button>, not <a>. They change what this page shows; they do
-     not navigate anywhere, and dressing a state change up as a link lies to
-     anyone using a screen reader or middle-clicking. Both live outside
-     .editorial and .corkboard so neither is hidden along with the design it
-     belongs to.
-
-     They only exist for people who can use them: both are display:none
-     without the js class, because nothing can toggle without a script, and
-     an inert control is worse than no control. The peek is hidden above
-     900px, where the board is already the default and there is nothing to
-     ask for.
-
-     The smiley is drawn, not typed. A real note on a real board would be
-     Sharpie, and the emoji would be the one flat vector object on a page
-     built entirely out of photographed paper and hand strokes. It shares
-     the .ink treatment and the #roughen displacement filter with the five
-     doodles pinned to the board itself.
-     ================================================================== -->
-<button class="board-exit" type="button" aria-controls="corkboard"
-        aria-label="Go back to the main site">
+<button class="board-exit" type="button" aria-controls="corkboard">
   <span aria-hidden="true">&larr;</span> back to the site
 </button>
-
-<script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=59"></script>
-<script src="js/hand.js?v=7"></script>
-<!-- Deferred, unlike its three neighbors above: those are classic scripts
-     that must run in document order the instant the parser reaches them
-     (board.js in particular sets board-live, which js/peek.js's own
-     DOMContentLoaded audit depends on). This file only wires up static
-     markup that is already sitting in the document by the time any script
-     here runs, so it can wait for the parser to finish instead of blocking
-     it, and defer preserves it running after the three above regardless. -->
-<script src="js/menu.js?v=1" defer></script>
-<!-- Same reasoning as js/menu.js just above: its own file, so a failure in
-     board.js or hand.js cannot also strand the form's validation, and
-     deferred because it only wires up static markup that is already in the
-     document by the time it runs. It does not know what a "stop" or a
-     "camera" is, only how to read and annotate one form's own validity. -->
-<script src="js/validate.js?v=2" defer></script>
-<script src="js/form.js?v=1" defer></script>
-<!-- Same reasoning as js/menu.js and js/validate.js above: its own file, so
-     a failure here cannot strand the camera or the form, and deferred
-     because it only wires up the welcome panel's already-parsed markup. It
-     is the last of the five deferred scripts to run, which is fine: nothing
-     above it depends on the panel existing yet, and the panel's own
-     auto-open on a first visit only needs #corkboard's computed display,
-     which is settled well before any script runs at all. -->
-<script src="js/welcome.js?v=2" defer></script>
+<script src="js/peek.js?v=7"></script><script src="js/board.js?v=61"></script><script src="js/hand.js?v=8"></script><script src="js/menu.js?v=1" defer></script><script src="js/validate.js?v=3" defer></script><script src="js/form.js?v=3" defer></script><script src="js/consent.js?v=3" defer></script><script src="js/welcome.js?v=3" defer></script><script src="js/analytics.js?v=2" defer></script>
 </body>
 </html>

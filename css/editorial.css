@@ -1,47 +1,14 @@
-/* WhittWorks Studios — the editorial design
-   ---------------------------------------------------------------------------
-   This is the tan, typeset version of the site: the one that has been live on
-   whittworkstudios.com, and now the DEFAULT presentation of this document.
-
-   The cork board is the enhancement, not the base. It needs a script and a
-   wide screen; this needs neither. So this is what a phone gets, what a
-   visitor with scripting off gets, what a strict CSP that rejects js/board.js
-   gets, and what a crawler reads. The board is what a laptop with JavaScript
-   gets, and what anyone gets when they tap the sticky note in the corner.
-
-   TWO THINGS WERE CHANGED when this moved out of its own repo, both mechanical:
-
-   1. The :root block became .editorial. Four of its custom properties —
-      --paper, --ink and --red — collide with the board's, with different
-      values (the board's --paper is a url() for photographed sticky note
-      stock; this one is #EFEDE6). Scoping the block to the subtree it belongs
-      to means neither design can reach into the other. There are ZERO class
-      name collisions between the two stylesheets, which is why the rest of
-      this file arrived unedited.
-   2. Rules that styled `html` and `body` now style `.editorial`, because the
-      two designs share one <body> and neither may own it.
-
-   The fonts moved too. This design used to pull Anton and Inter from
-   fonts.googleapis.com, which would have handed Google the IP address of every
-   visitor and put a third-party host back on the render path — the exact thing
-   css/style.css spent a commit removing. Both are now self-hosted beside the
-   other five, OFL, verified at source, and declared in css/style.css.
-   --------------------------------------------------------------------------- */
-
-/* WhittWorks Studios — print-poster editorial
-   Display: Anton | Mono: Space Mono | Body: Inter
-   Paper #EFEDE6 · Ink #141412 · Stamp red #C8331B
------------------------------------------------------------------- */
-
 .editorial {
-  --paper: #EFEDE6;
-  --ink: #141412;
-  --red: #C8331B;
-  --rule: rgba(20, 20, 18, 0.28);
-  --muted: rgba(20, 20, 18, 0.62);
+  --paper: #FFFFFF;
+  --ink: #0B1B33;
+  --brand: #004AAD;
+  --brand-deep: #04367B;
+  --tint: #EEF3FB;
+  --red: #004AAD;
+  --rule: rgba(11, 27, 51, 0.18);
+  --muted: rgba(11, 27, 51, 0.66);
 
-  --display: "Anton", "Arial Narrow", Impact, sans-serif;
-  --mono: "Space Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --display: "League Spartan", "Futura", "Century Gothic", "Avenir Next", sans-serif;
   --body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 
   --pad: clamp(1rem, 3.2vw, 3rem);
@@ -71,8 +38,8 @@ ul { padding: 0; list-style: none; }
 
 a { color: inherit; }
 
-:focus-visible {
-  outline: 2px solid var(--red);
+.editorial :focus-visible {
+  outline: 2px solid var(--brand);
   outline-offset: 3px;
 }
 
@@ -93,7 +60,8 @@ a { color: inherit; }
   z-index: 10;
   background: var(--ink);
   color: var(--paper);
-  font-family: var(--mono);
+  font-family: var(--display);
+  font-weight: 500;
   font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -102,10 +70,9 @@ a { color: inherit; }
 }
 .skip-link:focus { top: 0.75rem; }
 
-/* --- mono metadata ------------------------------------------------ */
-
 .meta {
-  font-family: var(--mono);
+  font-family: var(--display);
+  font-weight: 500;
   font-size: clamp(0.62rem, 0.55rem + 0.2vw, 0.75rem);
   line-height: 1.4;
   letter-spacing: 0.16em;
@@ -115,8 +82,6 @@ a { color: inherit; }
 }
 
 .meta-end { text-align: right; }
-
-/* --- hero poster -------------------------------------------------- */
 
 .hero {
   min-height: 100vh;
@@ -142,7 +107,8 @@ a { color: inherit; }
 }
 
 .hero-nav a {
-  font-family: var(--mono);
+  font-family: var(--display);
+  font-weight: 500;
   font-size: clamp(0.62rem, 0.55rem + 0.2vw, 0.75rem);
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -163,18 +129,30 @@ a { color: inherit; }
   display: flex;
   justify-content: space-between;
   font-family: var(--display);
-  font-size: clamp(2.6rem, 17.6vw, 17rem);
-  line-height: 0.86;
+  font-weight: 800;
+  font-size: clamp(2.2rem, 12.4vw, 12rem);
+  line-height: 0.9;
   text-transform: uppercase;
   letter-spacing: 0;
+  color: var(--ink);
 }
 
 .wm-line span { display: block; }
 
+.hero-mark {
+  display: block;
+  width: clamp(5rem, 24vw, 14rem);
+  height: auto;
+  margin-bottom: clamp(1rem, 3vw, 2.25rem);
+}
+
 .wm-line + .wm-line {
-  margin-top: clamp(0.5rem, 2.2vw, 2.2rem);
+  margin-top: clamp(0.4rem, 1.4vw, 1.4rem);
   justify-content: flex-start;
-  gap: 0.035em;
+  gap: 0.32em;
+  font-weight: 300;
+  font-size: clamp(1.4rem, 7.2vw, 7rem);
+  color: var(--brand-deep);
 }
 
 .hero-statement {
@@ -203,15 +181,14 @@ a { color: inherit; }
   margin-top: auto;
 }
 
-/* --- section bands ------------------------------------------------ */
-
 .band {
-  border-top: 1px solid var(--ink);
+  border-top: 1px solid var(--brand-deep);
   padding: clamp(1.1rem, 2.4vw, 1.6rem) var(--pad) clamp(3.5rem, 9vw, 8rem);
 }
 
 .band-label {
-  font-family: var(--mono);
+  font-family: var(--display);
+  font-weight: 500;
   font-size: clamp(0.62rem, 0.55rem + 0.2vw, 0.75rem);
   font-weight: 400;
   letter-spacing: 0.2em;
@@ -219,8 +196,6 @@ a { color: inherit; }
   color: var(--muted);
   margin-bottom: clamp(2rem, 6vw, 5rem);
 }
-
-/* --- about -------------------------------------------------------- */
 
 .about-grid {
   display: grid;
@@ -261,8 +236,6 @@ a { color: inherit; }
 
 .about-copy p + p { max-width: 54ch; }
 
-/* --- services index ----------------------------------------------- */
-
 .index-row {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
@@ -279,11 +252,12 @@ a { color: inherit; }
 
 .index-name {
   font-family: var(--display);
-  font-weight: 400;
-  font-size: clamp(1.6rem, 1rem + 3.2vw, 4.25rem);
-  line-height: 0.95;
+  font-weight: 700;
+  font-size: clamp(1.35rem, 0.9rem + 2.4vw, 3.4rem);
+  line-height: 1.02;
   text-transform: uppercase;
-  letter-spacing: 0.005em;
+  letter-spacing: 0;
+  color: var(--brand-deep);
 }
 
 .index-note {
@@ -291,8 +265,6 @@ a { color: inherit; }
   line-height: 1.5;
   max-width: 44ch;
 }
-
-/* --- featured work ------------------------------------------------ */
 
 .plate-frame {
   border: 1px solid var(--ink);
@@ -304,7 +276,8 @@ a { color: inherit; }
 
 .plate figcaption {
   margin-top: clamp(0.6rem, 1.4vw, 1rem);
-  font-family: var(--mono);
+  font-family: var(--display);
+  font-weight: 500;
   font-size: clamp(0.62rem, 0.55rem + 0.2vw, 0.75rem);
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -321,8 +294,6 @@ a { color: inherit; }
   margin-top: clamp(1.5rem, 3vw, 2.5rem);
   font-size: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
 }
-
-/* --- testimonial -------------------------------------------------- */
 
 .testimonial {
   margin: clamp(3rem, 7vw, 6rem) 0 0;
@@ -361,24 +332,19 @@ a { color: inherit; }
   .testimonial-quote, .testimonial-attr { grid-column: 1; }
 }
 
-/* The second testimonial is a placeholder until Annie's team confirms her
-   quote and photo: no photo, and a status line where the quote will go —
-   set apart from the real quotes so nobody reads it as one. The line is a
-   <p class="testimonial-quote pending-line">, not a blockquote (see
-   index.html), so it is styled directly rather than via a descendant p. */
 .testimonial-pending .pending-line {
   font-size: clamp(1.05rem, 1rem + 0.6vw, 1.4rem);
   font-style: italic;
 }
 
-/* --- contact ------------------------------------------------------ */
-
 .contact-head {
   font-family: var(--display);
-  font-size: clamp(2.2rem, 0.5rem + 8.2vw, 11rem);
-  line-height: 0.9;
+  font-weight: 800;
+  font-size: clamp(1.9rem, 0.4rem + 6.4vw, 8.5rem);
+  line-height: 0.95;
   text-transform: uppercase;
-  letter-spacing: 0.002em;
+  letter-spacing: 0;
+  color: var(--brand-deep);
   max-width: 14ch;
   margin-bottom: clamp(1.5rem, 4vw, 3rem);
 }
@@ -394,26 +360,169 @@ a { color: inherit; }
 
 .stamp {
   display: inline-block;
-  background: var(--red);
+  background: var(--brand);
   color: var(--paper);
-  font-family: var(--mono);
+  font-family: var(--display);
   font-weight: 700;
+  border-radius: 2px;
   font-size: clamp(0.8rem, 0.7rem + 0.4vw, 1rem);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   text-decoration: none;
   padding: 0.85em 1.4em;
 }
-.stamp:hover { background: var(--ink); }
+.stamp:hover { background: var(--brand-deep); }
 .stamp:focus-visible { outline-color: var(--ink); }
 
 .contact-address { color: var(--muted); }
 
-/* --- footer ------------------------------------------------------- */
+.ecf { max-width: 40rem; margin: 0 0 clamp(1.5rem, 3vw, 2rem); }
+.ecf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem 1.25rem;
+}
+.ecf-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--brand-deep);
+}
+.ecf-input {
+  width: 100%;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid rgba(11, 27, 51, 0.32);
+  border-radius: 4px;
+  padding: 0.65rem 0.75rem;
+}
+.ecf-input:focus-visible { outline: 3px solid var(--brand); outline-offset: 1px; border-color: var(--brand); }
+.ecf-input[aria-invalid="true"] { border-color: #b3271c; }
+.ecf-textarea { min-height: 8rem; resize: vertical; }
+.ecf-wide { margin-top: 1rem; }
+.ecf-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.ecf-note a { color: var(--brand-deep); }
+.ecf-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-top: 1.25rem;
+}
+.ecf-actions .ecf-note { margin: 0; }
+.editorial .cf-required::after { content: " *"; color: #b3271c; }
+.editorial .cf-error {
+  margin: 0.3rem 0 0;
+  font-family: var(--body);
+  font-size: 0.85rem;
+  color: #b3271c;
+}
+.editorial .cf-submit {
+  border: 0;
+  cursor: pointer;
+  font-size: clamp(0.85rem, 0.8rem + 0.3vw, 1rem);
+  padding: 0.85em 2.2em;
+  border-radius: 2px;
+}
+.editorial .cf-status {
+  margin: 0 0 1.5rem;
+  font-family: var(--body);
+  font-size: 1rem;
+  color: var(--ink);
+}
+.editorial .cf-status-error { color: #b3271c; }
+.contact-address a { color: inherit; }
+
+@media (max-width: 560px) {
+  .ecf-grid { grid-template-columns: 1fr; }
+}
+
+.cookie-banner {
+  padding: 1.25rem var(--pad) 1.4rem;
+  background: var(--tint);
+  border-bottom: 1px solid var(--rule);
+}
+.cookie-banner[hidden],
+.cookie-banner [hidden] { display: none; }
+.cookie-question,
+.cookie-done { max-width: 44rem; }
+.cookie-heading {
+  margin: 0 0 0.6rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--brand-deep);
+}
+.cookie-banner p { margin: 0 0 0.6rem; font-size: 0.95rem; line-height: 1.5; }
+.cookie-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-top: 0.9rem;
+}
+.cookie-btn {
+  min-height: 44px;
+  padding: 0 1.1rem;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--paper);
+  background: var(--brand);
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.cookie-btn:hover { background: var(--brand-deep); }
+.cookie-link { color: var(--brand-deep); font-size: 0.95rem; }
+.cookie-done:focus { outline: none; }
+.cookie-done:focus-visible { outline: 2px solid var(--brand); outline-offset: 4px; }
+
+.privacy-head {
+  padding: clamp(1.5rem, 4vw, 3rem) var(--pad) clamp(1.25rem, 3vw, 2rem);
+  border-bottom: 1px solid var(--rule);
+}
+.privacy-head h1 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(2rem, 1.1rem + 4.4vw, 4rem);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--brand-deep);
+  margin: 0.6rem 0;
+}
+.privacy-head a,
+.policy-band a {
+  color: inherit;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 1px;
+  text-decoration: none;
+  word-break: break-word;
+}
+.privacy-head a:hover,
+.policy-band a:hover { color: var(--brand); border-bottom-color: var(--brand); }
+
+.policy-band { padding-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+.policy-band p,
+.policy-band li { max-width: 62ch; }
+.policy-band p + p,
+.policy-band p + ul,
+.policy-band ul + p { margin-top: 0.9rem; }
+.policy-band ul { list-style: disc; padding-left: 1.25rem; }
+.policy-band li + li { margin-top: 0.4rem; }
 
 .site-footer {
-  border-top: 1px solid var(--ink);
-  /* tighter than the bands above it: a footer is a signature, not a section */
+  border-top: 1px solid var(--brand-deep);
+
   padding: 0.7rem var(--pad);
   display: flex;
   align-items: center;
@@ -421,20 +530,32 @@ a { color: inherit; }
   gap: 1rem;
 }
 
-/* The two meta lines travel together as one block so the footer stays a single
-   row at every width — copyright on the left, the sticky note on the right.
-   Side by side while there is room, stacked when there is not, but never
-   pushing the note onto a line of its own. */
 .footer-meta {
   display: flex;
   align-items: baseline;
-  gap: 1.2rem;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.2rem;
   min-width: 0;
 }
+.footer-links a { color: inherit; }
 
-/* --- small screens ------------------------------------------------ */
+html:not(.js) .footer-cookie-item { display: none; }
+.footer-cookie {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
 
 @media (max-width: 720px) {
+  .hero { min-height: auto; }
+  .wordmark { margin: 0; padding: 2.75rem 0 1.75rem; }
+  .hero-statement { margin-bottom: 2.5rem; }
   .hero-top {
     flex-direction: column;
     align-items: stretch;
@@ -454,8 +575,7 @@ a { color: inherit; }
 }
 
 @media (max-width: 420px) {
-  /* the FOOTER stays a row here; only the text inside it stacks, so the
-     sticky note keeps its corner instead of dropping below the copyright */
+
   .site-footer { flex-direction: row; align-items: center; gap: 0.75rem; }
   .footer-meta { flex-direction: column; align-items: flex-start; gap: 0.15rem; }
   .site-footer .meta-end { text-align: left; }

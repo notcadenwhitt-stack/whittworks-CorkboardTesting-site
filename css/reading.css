@@ -1,92 +1,5 @@
-/* ==================================================================
-   READING MODE: the board becomes a document
-   ==================================================================
-   Below 900px, on a short viewport, or with scripting off, the camera is
-   switched off and the whole board reflows into
-   one readable column. That single switch closes four separate failures
-   that all had the same root cause — a fixed 3600x2400 stage that only a
-   running script can frame:
-
-   1. PHONES. scaleFor() is min(vw/stop.w, vh/stop.h), which is width-bound
-      in portrait, so a 390px viewport fitted the stop's WIDTH and threw the
-      height away. Measured body copy across the eight stops at 390x844:
-      2.0, 7.2, 5.8, 7.8, 5.5, 6.0, 7.5, 2.0 CSS px. Retuning STOPS cannot
-      fix that, and it is worth writing down why so nobody tries: framing an
-      index card edge-to-edge with zero margin is scale 390/720 = 0.542,
-      which puts its 20px body type at 10.8px. That is the ceiling. 16px
-      would need scale 0.80 and a card 576px wide on a 390px screen.
-      The camera was never the problem; the fixed-width paper was.
-   2. NO JAVASCRIPT. board.js is the only thing that ever writes #board's
-      transform, so without it the board sat at 1:1 pinned to the top-left
-      and the viewport showed one corner of it: 3 of 16 pieces on desktop,
-      0 of 16 on a phone, and 10,800px of scroll that changed nothing
-      (screenshots at scrollY 0 and 6000 hashed identically). The contact
-      email was unreachable by any user action. In reading mode the layout
-      needs no script at all.
-   3. BROWSER ZOOM (WCAG 1.4.4). Page zoom shrinks the CSS viewport, and
-      scaleFor() derives the camera scale from the viewport, so zooming
-      shrank the camera by exactly as much as it magnified the page. The
-      About paragraph measured 20.0 device px at 100%, 200% AND 400% zoom —
-      identical to three decimals. Zoom accomplished nothing at all. Now
-      400% on a 1440px window lands under 700px CSS and reflows, so zoom
-      finally does what a zoom is for.
-   4. A DEAD board.js. If the script 404s or a strict CSP blocks it, this is
-      what the visitor gets, and it is a complete site rather than a corner.
-
-   WHERE THE 900px LINE COMES FROM. Not a device; the camera's own numbers.
-   Body copy is 20px of board type, so its rendered size is 20 x the camera
-   scale, and scale is min(vw/stop.w, vh/stop.h). Worked through the three
-   content stops:
-
-     1440x900 desktop   20.0 / 17.0 / 27.7px   comfortable
-     1024x768 iPad ls   15.3 / 14.4 / 19.7px   acceptable, stays on the camera
-      900x700 window    13.4 / 12.7 / 17.3px   marginal
-      834x1112 iPad Air 12.4 / 11.7 / 16.0px   too small
-      768x1024 iPad pt  11.5 / 10.8 / 14.8px   too small
-
-   900 is the last width where the camera still tells a better story than a
-   column, so it is the line. Tablet portrait falls to reading mode, tablet
-   landscape keeps the board. Widen it and iPad portrait visitors read 11px
-   type; narrow it and 1024px landscape loses a design that works for it.
-
-   WHY WIDTH *OR* HEIGHT, AND NOT ORIENTATION. A 320px desktop window and a
-   400% zoom are both narrow without being phones, and both need this. Short
-   viewports need it for the mirror-image reason: scaleFor() fits whichever
-   dimension is tighter, so a landscape phone is height-bound and lands in the
-   same place. Measured body copy across the eight stops at 844x390 —
-   3.0, 10.5, 8.7, 8.2, 7.4, 9.5, 12.0, 3.0 — so its best stop is 12.0px and a
-   1440x420 window is no better at 12.9px. An earlier read of this called
-   landscape fine; it is not, it just fails less dramatically than portrait.
-
-   The 540px height line comes from the camera's own numbers. The tightest
-   stop is 1040x650 board px, so 16px type needs scale 0.8, which needs
-   650 x 0.8 = 520px of viewport height. 540 leaves a little air.
-
-   NOTHING IS HIDDEN WITH display:none OR visibility:hidden. Both drop the
-   element out of document.body.innerText, and the scroll hint alone takes
-   the count from 1387 to 1355, which trips the copy tripwire. Decorative
-   things that must go are moved off-screen or faded instead — measured:
-   opacity:0, off-screen positioning and clip-path all hold 1387; the other
-   two do not. (An earlier note claiming visibility:hidden was safe here was
-   wrong; it behaves exactly like display:none for innerText.)
-   ================================================================== 
-
-   HOW THIS FILE IS APPLIED. It carries no @media of its own. The gate is the
-   media attribute on its <link> in index.html:
-
-     <link ... media="(max-width: 900px), (max-height: 540px)">
-
-   It was ALSO linked inside <noscript> for a while, when this column was the
-   no-JavaScript fallback. It is not any more. index.html now carries both
-   designs, and the tan editorial one is what renders with scripting off, at
-   any width — a complete typeset site rather than a reflowed board. Do not
-   re-add the noscript link: without JS the cork board is display:none, so
-   these rules would be styling something nobody can see.
-   ================================================================== */
-
 :root { --camera-active: 0; }
 
-/* the stage stops being a stage */
 .viewport {
   position: static;
   overflow: visible;
@@ -98,16 +11,13 @@
   position: static;
   width: auto;
   height: auto;
-  /* !important because js/board.js writes transform as an inline style.
-     It stands down on its own when --camera-active is 0, but a cached or
-     half-loaded script must not be able to drag the column off screen. */
+
   transform: none !important;
   will-change: auto;
   border: 0;
   border-image: none;
   box-shadow: none;
-  /* keep the cork: it is the identity of the site, and as a page
-     background it costs nothing that it did not already cost */
+
   padding: 5.5rem 1rem 3rem;
   display: flex;
   flex-direction: column;
@@ -115,9 +25,6 @@
   align-items: center;
 }
 
-/* every sheet of paper becomes a block in the column, at its own natural
-   type size. position:relative, NOT static — the polaroid photos and the
-   postcard picture are absolutely positioned against their parent. */
 .card, .sticky, .polaroid, .postcard {
   position: relative;
   left: auto !important;
@@ -128,10 +35,6 @@
   margin: 0;
 }
 
-/* the index cards are 720x432 with overflow:hidden, which clips the moment
-   the text reflows narrower. Height goes auto here. That does cost the
-   5:3 proportion the card comment defends and the corner-curl keys off,
-   which is the right trade when the alternative is losing the words. */
 .index-card {
   width: 100%;
   height: auto;
@@ -139,33 +42,6 @@
   overflow: visible;
   padding: 3.2rem 1.6rem 2rem;
 
-  /* NO url(#cut) HERE, AND IT IS A WEBKIT BUG NOT A TASTE CALL.
-     Reported from a real iPhone and reproduced in the iOS Simulator on real
-     WebKit: opening the board on a phone painted a solid BLACK RECTANGLE about
-     170x188pt pinned to the top-left of the viewport, over the cork and the
-     title card. Chrome never showed it at any viewport, which is why every
-     emulated check passed for days.
-
-     Bisected in the Simulator, one variant at a time:
-       all filters off ................. fixed
-       svg url() off, shadows kept ..... fixed
-       shadows off, svg url() kept ..... still black
-       .ink #roughen off ............... still black
-       defs <svg> display:none ......... still black
-       off-screen doodles repositioned . still black
-       url(#cut) off, all else kept .... FIXED
-     So it is this one filter. #cut is feTurbulence + feDisplacementMap over a
-     106% x 106% region, and here the cards run far taller than the fixed
-     720x432 box it was written against, inside a ~4,300px scrolling flex
-     column. WebKit allocates that filter region and paints it opaque black at
-     the origin.
-
-     What is lost, only below 900px: the nibbled guillotine edge on the three
-     index cards. They keep the photographed stock, the grain, the ruled lines,
-     the red header rule, the corner curl and all four drop-shadows — the
-     shadows are exactly the half of the stack this restores. The board on a
-     laptop is untouched and still cuts its own edges, and Goal 4 is judged on
-     the board. A nibbled edge is not worth a black hole on every phone. */
   filter:
     drop-shadow(0 0 4px rgba(25, 12, 4, 0.42))
     drop-shadow(1px 1px 2px rgba(25, 12, 4, 0.3))
@@ -173,36 +49,13 @@
     drop-shadow(8px 22px 38px rgba(25, 12, 4, 0.24));
 }
 
-/* The Sharpie wordmark is 88px, set for an 800px card, and hand.js wraps
-   each word in a nowrap span — so "WhittWorks" was one unbreakable 548px
-   box on a 390px screen. It, and not the postcards, was what forced the
-   page 200px wider than the viewport. 88/800 is 11% of the card, so the
-   same fraction in container units holds the design at full size and
-   shrinks it in step below that. */
-.title-card {
-  container-type: inline-size;
-  width: 100%;
-  height: auto;
-  padding-top: 2.6rem;
-}
-
 .sticky { --sz: 100%; width: 100%; padding: 1.6rem 1.4rem 2rem; }
 .polaroid { width: 100%; max-width: 22rem; }
 
-/* The two tape strips holding the parked testimonial pair are SIBLINGS of
-   the paper they hold, positioned in board coordinates (see index.html for
-   why). In this column those coordinates mean nothing, so they go. The
-   work postcard's tape is children of the card and stays. */
 .board > .tape { display: none; }
 
-/* The camera's cork backstop is a 3600x2400 sheet in board space; the
-   column has no camera and no board space, so it goes too. */
 .board-floor { display: none; }
 
-/* Annie's card is one typed line over deliberately empty ruled lines. The
-   height:auto above would collapse it to a label; keep enough card for the
-   emptiness to read as reserved space, and let the pencil note sit in the
-   flow instead of at absolute board offsets. */
 .annie-card { min-height: 13rem; }
 .annie-card .pencil-note {
   position: static;
@@ -211,19 +64,6 @@
   transform: rotate(-2deg);
 }
 
-/* THE POSTCARDS SCALE AS ONE PIECE, because they are the only paper here
-   whose contents are pinned to a photograph. Everything inside them is
-   positioned in percentages against the card — the message block, the stamp,
-   the address lines, the ink circle — but every font-size is an absolute px
-   tuned to a 720px card. Narrow the card alone and the type stays put and
-   bursts out of it.
-
-   So the card becomes an inline-size container and its type is re-expressed
-   as the exact same fractions of the card width it already was: 40/720 =
-   5.556cqw, 24/720 = 3.333cqw, 16.5/720 = 2.292cqw, 29/720 = 4.028cqw. At
-   720px those compute back to the original pixel values, so a card at its
-   designed width is unchanged; at 358px on a phone the whole postcard is a
-   faithful miniature of itself instead of a broken one. */
 .postcard {
   container-type: inline-size;
   max-width: 32rem;
@@ -233,17 +73,6 @@
 .pc-msg-small { font-size: 2.292cqw; }
 .email-link { font-size: 4.028cqw; }
 
-/* THE CONTACT CARD IS THE EXCEPTION, and it earns it. Scaled faithfully,
-   its message lands at 11.9px on a 390px phone and 9.6px on a 320px one,
-   and this is the card carrying the email address — the whole commercial
-   point of the site. Fidelity loses to legibility here and nowhere else.
-   So its children come off the printed address lines and flow down the
-   card at real reading sizes, on the same 1913 postcard stock. The stamp
-   stays pinned in its corner because that is where a stamp goes, and
-   .pc-addr keeps position:relative so the hand-drawn ink ring still tracks
-   the address it is drawn around. The work postcard opposite keeps its
-   miniature treatment: it is a picture with a caption, and a picture
-   survives being small in a way that a sentence does not. */
 .postcard-back {
   aspect-ratio: auto;
   height: auto;
@@ -273,9 +102,6 @@
 .postcard-back .email-link { font-size: 1.05rem; }
 .postcard-back .pc-stamp { width: 4.5rem; }
 
-/* the caption is the one child sized in fixed px rather than percentages
-   (440x128), so it overhung a 390px viewport by 200px and was the only
-   thing forcing a horizontal scrollbar. Percentages and cqw instead. */
 .pc-caption {
   width: 100%;
   height: auto;
@@ -285,13 +111,9 @@
   padding: 1.2cqw 4.7cqw;
   font-size: 4.028cqw;
 }
-/* the hand-drawn ring is 400x106 fixed; keep it on the address, scaled */
+
 .circle-ink { width: 100%; height: auto; }
 
-/* the two corner strips are 126-132px with -48 to -56px offsets, all set
-   against a 720px card, so on a 358px one they were twice the size they
-   should be and hung 34px past the edge of the screen. Same fractions in
-   container units: 126/720 = 17.5%, 52/720 = 7.222%, and so on. */
 .postcard-front .tape-tl2 {
   width: 17.5cqw; height: 17.222cqw; top: -7.222cqw; left: -6.667cqw;
 }
@@ -299,16 +121,8 @@
   width: 18.333cqw; height: 16.389cqw; top: -7.778cqw; right: -6.944cqw;
 }
 
-/* Backstop. Tape, pins and torn edges are all meant to overhang the paper
-   they sit on, and nothing decorative should ever be able to hand the
-   visitor a horizontal scrollbar — that is WCAG 1.4.10, and it is the one
-   failure mode of this layout that would be entirely self-inflicted.
-   overflow-x: clip rather than hidden, because clip is the only value that
-   can constrain one axis while leaving the other genuinely visible. */
 .board { overflow-x: clip; }
 
-/* decorative only, and all of it already aria-hidden. Off-screen rather
-   than display:none so innerText cannot move. */
 .strings, .pin, .hole, .doodle {
   position: absolute !important;
   left: -9999px !important;
@@ -318,27 +132,38 @@
   overflow: hidden;
 }
 
-/* no camera means no runway to drive it with */
 .scroll-space { height: 0; }
 
-
-
-/* ---------------------------------------------------------------------------
-   THE WELCOME PANEL'S ONE UNTRUE LINE
-   ---------------------------------------------------------------------------
-   This sheet is loaded at (max-width: 900px), (max-height: 540px), which is
-   exactly the range where the cork board stops being a camera and becomes a
-   flat document. Below 901px wide the panel is not shown at all -- it lives
-   inside #corkboard, which is display:none there -- so this rule only has any
-   effect in the short-and-wide case: a window at least 901px across and no
-   more than 540px tall.
-
-   In that state the panel still opens, and it still says "Press Escape, or the
-   back arrow at the top right, to come back out." There is nothing to come
-   back out of and no back arrow to press: js/board.js never writes a transform
-   here, so .far never flips, so board-zoomed is never set on <html>, so
-   .board-back-btn stays display:none. Verified at 1440x500 -- clicking a paper
-   scrolls to it, the menu still jumps, scrolling still travels the whole
-   board, and the back arrow is the one promise the layout cannot keep.
-   --------------------------------------------------------------------------- */
 .welcome-step-back { display: none; }
+
+@media (max-width: 900px) {
+  .contact-form {
+    width: 100% !important;
+    height: auto !important;
+    padding: 2.4rem 1.25rem 1.5rem;
+  }
+  .contact-form .cf-row { grid-template-columns: 1fr; }
+
+  .sticker {
+    width: min(72vw, 18rem) !important;
+    height: auto !important;
+    aspect-ratio: 1;
+  }
+  .sticker-disc { width: 87%; height: 87%; border-width: 10px; }
+  .sticker-mark { width: 62%; }
+
+  .welcome-panel {
+    --w: calc(100vw - 24px);
+    width: var(--w);
+    height: auto;
+    max-height: calc(100svh - 24px);
+    overflow-y: auto;
+  }
+  .welcome-body { flex-direction: column; }
+  .welcome-col-text { overflow: visible; }
+  .welcome-col-sketch { display: none; }
+  .welcome-col { padding: 20px 20px 8px; }
+  .welcome-footer { position: static; justify-content: center; padding: 0 20px 18px; }
+}
+
+.card, .sticky, .polaroid, .postcard { scroll-margin-top: 5.5rem; }
