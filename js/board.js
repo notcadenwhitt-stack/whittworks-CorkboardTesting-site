@@ -193,7 +193,7 @@
      Restore point for the previous framings: tag known-good-zoom-20260819. */
   var STOPS = [
     { x: 1800, y: 1200, w: 3860, h: 2620 },  /* 0 whole board */
-    { x: 1800, y: 1100, w: 900,  h: 700 },   /* 1 circular sticker */
+    { x: 1704, y: 1104, w: 1040, h: 808 },   /* 1 circular sticker, centred on the cork */
     /* 2-5 tightened 2026-10-28 on the owner's ask ("zoom in a little more so
        that the words are readable"). They had been widened to rest at 0.75
        for raster cost, but the zoom's smoothness turned out to hinge on
@@ -229,14 +229,14 @@
   /* pins land where a hand put them, not dead center */
   var PINS = [
     /* 0 sticker. CENTRED on the sticker's vertical axis, not carried over from
-       the old notecard's hand-placed pin. The sticker spans x1540-2060 so its
-       centreline is 1800, which is the board's horizontal centre; sitting 47px left
-       of that read as skewed on a circle in a way it never did on a rectangle.
-       y955 puts it just inside the top edge, where a pin would bite.
+       the old notecard's hand-placed pin. Since 2026-10-28 the sticker spans
+       x1404-2004, centred on the CORK's centre (1704); a pin off its axis reads
+       as skewed on a circle in a way it never did on a rectangle. y819 puts it
+       just inside the top edge (804), where a pin would bite.
 
        Every string on the board originates here, so this pin and the sticker
        have to move together or all four strings strand on bare cork. */
-    { x: 1800, y: 855 },
+    { x: 1704, y: 819 },
     { x: 741,  y: 304 },  /* 1 about, lifted 190 with the card */
     { x: 1236, y: 446 },  /* 2 caden polaroid, lifted 190 with it */
     { x: 2547, y: 335 },  /* 3 services s1 */

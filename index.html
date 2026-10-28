@@ -293,7 +293,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=123">
+<link rel="stylesheet" href="css/style.css?v=124">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -385,7 +385,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=69">
+<link rel="preload" as="script" href="js/board.js?v=70">
 <link rel="preload" as="script" href="js/hand.js?v=8">
 </head>
 <body>
@@ -1056,7 +1056,7 @@
             <!-- Portfolio sticky: board x3140-3418 y1630-1905 -->
             <path class="sk-line" d="M315 164 Q328 162 341 165 Q342 177 340 189 Q328 191 316 188 Q313 176 315 164 Z"/>
 
-            <!-- The sticker: board centre 1800,1100, 520 across, a ring
+            <!-- The sticker: cork centre 1704,1104, 600 across, a ring
                  with a solid dark middle -- the disc is the second and
                  last filled shape here besides the Level Up print. -->
             <circle class="sk-ring" cx="180" cy="110" r="26"/>
@@ -1151,7 +1151,7 @@
          on purpose: js/board.js sets it from data-src only after the board is
          shown, so it never competes with the first load. Rebuild it with
          python3 -I tools/release/make_snapshot.py after any visual change. -->
-    <img class="board-snap" data-src="assets/board-snapshot.webp?v=2" alt="" aria-hidden="true" width="3600" height="2400" decoding="async">
+    <img class="board-snap" data-src="assets/board-snapshot.webp?v=3" alt="" aria-hidden="true" width="3600" height="2400" decoding="async">
     <main class="board" id="board">
 
       <!-- The navy stapled trim that ran around the cork was removed on the
@@ -1191,7 +1191,7 @@
            keeps the decoration out of the accessibility tree, and neither
            holds any text node, so neither contributes to innerText
            either. -->
-      <section class="card sticker" data-zone-stop="0" style="left:1540px; top:840px; width:520px; height:520px; --rot:1.5deg" aria-label="WhittWorks Studios">
+      <section class="card sticker" data-zone-stop="0" style="left:1404px; top:804px; width:600px; height:600px; --rot:1.5deg" aria-label="WhittWorks Studios">
         <div class="sticker-disc" aria-hidden="true">
           <svg class="sticker-mark" viewBox="0 0 925.304 554" aria-hidden="true" focusable="false"><use href="#w-mark"/></svg>
         </div>
@@ -1535,7 +1535,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=69"></script>
+<script src="js/board.js?v=70"></script>
 <script src="js/hand.js?v=8"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them

@@ -1492,9 +1492,14 @@ html.warming .board .strings { filter: none; }
    (520 minus 34px on every side), is flexed to dead centre inside it,
    which is what reads as a 34px ring. See index.html for the full
    nesting comment, including how to swap in the owner's real logo later. */
+/* 600px, centred on the cork at (1704, 1104), 2026-10-28. It was 520px at
+   (1800, 1100), the centre of the board's OUTER box, which with the 96px
+   walnut frame sat 96px right of the cork's real centre; the owner saw it
+   off-centre. 600 leaves at least 49px to the nearest paper (the founder
+   polaroid's corner). Ring, disc and mark all scale with it. */
 .sticker {
-  width: 520px;
-  height: 520px;
+  width: 600px;
+  height: 600px;
   border-radius: 50%;
   background: #fdfdf8;
   display: flex;
@@ -1509,25 +1514,24 @@ html.warming .board .strings { filter: none; }
 /* White disc inside a navy ring: the W's navy facets disappear on a dark
    disc, so the mark sits on white, the way the logo file itself does. */
 .sticker-disc {
-  width: 452px;
-  height: 452px;
+  width: 532px;
+  height: 532px;
   border-radius: 50%;
   box-sizing: border-box;
-  border: 16px solid var(--brand-deep);
+  border: 18px solid var(--brand-deep);
   background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 340px of the 452px disc (75% of its 420px white face), enlarged on the
-   owner's ask, 2026-10-28. Optically centred, not box-centred: the W's wide
+/* 400px of the 532px disc (75% of the disc), enlarged 2026-10-28. Optically centred, not box-centred: the W's wide
    top bar puts its visual mass 7% of its height above the middle of its box
    (area centroid of the traced polygons), so a box-centred mark rode high in
    the circle. translateY in % is a share of the mark's OWN height, so the
    correction holds at any size, including reading mode's smaller sticker. */
 .sticker-mark {
-  width: 340px;
+  width: 400px;
   height: auto;
   transform: translateY(7%);
 }
