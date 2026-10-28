@@ -33,6 +33,16 @@ board is an enhancement layered on top of it.
 | `css/style.css` 404s | tan editorial |
 | crawler | tan editorial, fully typeset |
 
+**Current tripwires, 2026-10-28 (blue rebrand arc, PLAN.md of that date):**
+`document.body.innerText.length` is **2394** on the board at 1440x900 with the
+welcome panel open (first visit), **2269** on the editorial at 390x844 with the
+phone consent bar showing (first visit), **1712** in reading mode, **2127**
+with no JS at either width. Measured by `node tools/verify/cdp.mjs modes`, and
+identical on the built copy (`SITE_ROOT=<out> node tools/verify/cdp.mjs modes`).
+Every delta from the August values is accounted for in PROGRESS.md's
+2026-10-28 section. The values below are history.
+
+Superseded:
 `document.body.innerText.length` is **1688** wherever the board shows and
 **1812** on the editorial (**1707** in reading mode, **1796** with no JS) —
 re-baselined 2026-08-19 when two doodle stickies were deleted to clear space

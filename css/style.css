@@ -1021,10 +1021,17 @@ html.board-zoomed .board-back-btn { display: flex; }
    this file overrides `animation` to `none !important` on every element
    including these four, so no second query is needed in this section --
    the same one query already covers the whole page. */
-.sketch-scene { animation: sketch-zoom 11s ease-in-out infinite; }
-.sketch-cursor { animation: sketch-cursor-move 11s ease-in-out infinite; }
-.sketch-click { animation: sketch-click-ripple 11s ease-in-out infinite; }
-.sketch-glyph { animation: sketch-glyph-fade 11s ease-in-out infinite; }
+/* Twice, then it rests in the composed base pose above, and it pauses
+   under the pointer. It used to loop forever beside text a visitor is
+   trying to read, which WCAG 2.2.2 asks to be stoppable (audit 2026-10-28). */
+.sketch-scene { animation: sketch-zoom 11s ease-in-out 2; }
+.sketch-cursor { animation: sketch-cursor-move 11s ease-in-out 2; }
+.sketch-click { animation: sketch-click-ripple 11s ease-in-out 2; }
+.sketch-glyph { animation: sketch-glyph-fade 11s ease-in-out 2; }
+.welcome-col-sketch:hover .sketch-scene,
+.welcome-col-sketch:hover .sketch-cursor,
+.welcome-col-sketch:hover .sketch-click,
+.welcome-col-sketch:hover .sketch-glyph { animation-play-state: paused; }
 
 /* The cursor drifts to the About card (0-38%), a click ripple fires there
    (handled by its own keyframes below), the scene zooms across 46-80%

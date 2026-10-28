@@ -1,3 +1,78 @@
+# Progress tracker
+
+## 2026-10-28: blue rebrand, overhaul, and launch (PLAN.md of this date)
+
+The August cork board plan below is complete. This arc rebrands the site to
+the owner's new blue W logo, overhauls it, and ships it to whittworkstudios.com.
+Branch `board-edits`. Nothing is pushed until the owner says so.
+
+**Owner's preview verdict (R4), 2026-10-28:** shown the blue chrome at stops
+0, 1 and 6, the open menu and the 390px phone page, he chose "Approve this
+look". The rest of the arc was built on that.
+
+Done, each its own commit:
+- Phase 1. Baselines and audits. Findings files live in the shared notes
+  folder, not the repo: `audit-security.md` (0 High, 5 Medium), `audit-code.md`
+  (17 correctness, 15 accessibility, dead code, byte savings),
+  `posthog-notes.md`. Byte baseline before the arc: 1,742,423 bytes / 43
+  requests at 1440x900 and 1,149,809 / 24 at 390x844 (decodedBodySize sum).
+- Phase 2. The W mark traced to SVG (IoU 0.991 against the PNG) by
+  `tools/brand/trace_mark.py`; favicon, touch icon and share image rebuilt.
+- Phase 3. Blue chrome: League Spartan replaces Anton and Space Mono, blue
+  `#004AAD` and navy `#04367B` replace stamp red, white editorial page. Cork,
+  paper, photos, pins and red string unchanged.
+- Phase 4. Phone page gets the contact form (`ecf-` ids), a consent bar, footer
+  legal links and a tighter hero.
+- Phase 5. `terms.html` and `accessibility.html`; legal styles moved from
+  privacy.html's inline block into css/editorial.css.
+- Phase 6. PostHog behind consent, with no SDK: `js/analytics.js` posts to the
+  capture API (US region). `js/consent.js` owns the choice for both designs.
+  `tools/verify/analytics-check.mjs` 13/13.
+- Phase 7. CSP first in head, script-src by sha256, legal pages script-src
+  'none', referrer policy everywhere, 404 rebranded with root-absolute URLs.
+- Phase 8. `tools/release/build.py` ships a comment-stripped copy (text files
+  143KB to 53KB gzipped); dead fonts, rules and assets deleted.
+- Phase 9. sitemap.xml, robots Sitemap line, ProfessionalService JSON-LD.
+- Audit fixes: phones no longer fetch ~350KB of cork and lighting (board.js
+  starts that decode only at 901px or on board-open); Escape no longer jumps
+  the editorial page or fires inside a field; reading mode fits a phone (form,
+  sticker, welcome panel, title strip); board failure message no longer
+  clipped; form send timeout, focus after success, honeypot left to Formspree;
+  label-in-name fixes; welcome sketch animation runs twice and pauses on hover.
+
+Tripwire deltas, all accounted for: board 2418 -> 2416 (quote attribution lost
+"&mdash; ") -> 2394 (shorter panel disclosure). Reading 1714 -> 1712 (same
+em dash). Editorial and no-JS +331 (the phone form, "Or email", footer links
+and Cookie settings); editorial with JS a further +142 for the consent bar,
+which only shows on a first visit.
+
+### New traps from this arc (read before editing)
+
+- **The head script is allowed by its sha256.** Edit one byte of the inline
+  `<script>` in index.html and the board never chooses its design, silently
+  except for a console CSP error. Run `python3 -I tools/release/csp_hash.py`
+  after any edit there; it prints the new hash and fails if the CSP is stale.
+- **Ship the built copy, not the tree.** `python3 -I tools/release/build.py OUT`
+  (add `--staging` for staging: no CNAME, noindex). Then run the harness with
+  `SITE_ROOT=OUT`. An early version tidied whitespace inside the inline script,
+  broke its hash, and only the harness on the built copy caught it.
+- **"Is the board showing" is #corkboard's computed display**, in welcome.js,
+  consent.js and analytics.js alike. `board-live` is set on phones too, because
+  board.js runs everywhere and stands its camera down; reading that class hid
+  the phone consent bar.
+- **Two forms, one page.** form.js and validate.js bind every `form[data-cf]`
+  and look up `data-status`. A new copy needs its own id prefix, or its errors
+  land in the hidden board form.
+- **Codex lanes cannot commit or start a local server in their sandbox** on
+  this machine (git index.lock and listen EPERM). Commit for them and run
+  their browser checks yourself. A Gemini (agy) lane hung silently for 40
+  minutes with an empty log; Claude subagents finished the same briefs.
+- **The welcome panel copy must fit**: re-measure `.welcome-col-text`
+  scrollHeight against clientHeight at 1440x900 down to 1024x640 and 1440x480
+  after any copy change (all fit on 2026-10-28).
+
+---
+
 # Progress tracker: editing the cork board in place
 
 Read this file FIRST in any new session. `PLAN.md` holds the approved plan this
