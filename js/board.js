@@ -609,6 +609,16 @@
     var vw = window.innerWidth;
     var vh = window.innerHeight;
     setFar(s, vw, vh);
+    var t = framingTransform(x, y, s, vw, vh);
+    board.style.transform = t;
+    if (floor) floor.style.transform = t;
+  }
+
+  /* The transform for a framing, with the clamp and the frame offset applied.
+     Pure: it writes nothing. writeFraming() and the snapshot flight both use
+     it, so the picture that flies and the board that lands cannot disagree by
+     a pixel. */
+  function framingTransform(x, y, s, vw, vh) {
 
     /* Keep the camera on the cork: clamp the view to the board's bounds.
 
@@ -650,11 +660,8 @@
        coordinate space, so a stop's numbers mean what they say. Read from the
        element rather than hard-coded, or the next frame change reopens this. */
     var edge = parseFloat(getComputedStyle(board).borderLeftWidth) || 0;
-    var t =
-      "translate(" + (vw / 2 - (x + edge) * s) + "px," +
-                     (vh / 2 - (y + edge) * s) + "px) scale(" + s + ")";
-    board.style.transform = t;
-    if (floor) floor.style.transform = t;
+    return "translate(" + (vw / 2 - (x + edge) * s) + "px," +
+                          (vh / 2 - (y + edge) * s) + "px) scale(" + s + ")";
   }
 
   function update() {
@@ -896,7 +903,115 @@
   /* Land: drop the transition, hand the camera back to scroll, and prove the
      resting frame is the one scroll draws at this offset rather than trusting
      the flight's own last frame to have been close enough. */
+  /* ==================================================================
+     THE SNAPSHOT FLIGHT (2026-10-28)
+     ==================================================================
+     A click flight used to animate the live board: 3600x2400 of HTML with
+     shadow stacks and ink filters, which Chrome re-rasterises as the scale
+     changes, and whose first frame restyled the whole board (.moving, .far)
+     at the scale it was leaving. The owner felt that as a rough zoom out.
+
+     Maps and deep-zoom viewers solve the same problem by never painting
+     sharp content mid-motion: they stretch a picture they already have and
+     sharpen on arrival. This does the same. assets/board-snapshot.webp is
+     the board at rest, rendered by Chrome itself (tools/release/snapshot.mjs),
+     so it matches the live board. For a click flight the live board and its
+     floor drop to opacity 0 while the snapshot, one compositor texture,
+     flies from the departure framing to the destination. On landing the live
+     board is written at the destination and fades back in OVER the snapshot,
+     which stays underneath a moment longer, so any tile Chrome has not
+     finished rasterising shows the matching picture, never a gap. No .moving
+     collapse is needed: the live board never moves during the flight.
+
+     The snapshot downloads only after the board is shown (board-shown), so
+     it never competes with the first load. Until it has decoded, or if it
+     fails, flights take the original live-board path below unchanged.
+     Scrolling with the wheel always drives the live board. */
+  var snap = document.querySelector(".board-snap");
+  var snapReady = false;
+  var snapTimer = null;
+  var snapRevealTimer = null;
+  function loadSnapshot() {
+    if (!snap || snapReady || !cameraActive()) return;
+    var src = snap.getAttribute("data-src");
+    if (!src) return;
+    var img = new Image();
+    img.src = src;
+    var done = function () { snap.src = src; snapReady = true; };
+    if (img.decode) img.decode().then(done, function () {});
+    else img.onload = done;
+  }
+  if (window.MutationObserver) {
+    var snapWatch = new MutationObserver(function () {
+      if (document.documentElement.classList.contains("board-shown")) {
+        snapWatch.disconnect();
+        /* A beat after the reveal, so it never shares a frame with it. */
+        setTimeout(loadSnapshot, 600);
+      }
+    });
+    snapWatch.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  }
+
+  function endSnapshot(immediate) {
+    var root = document.documentElement;
+    if (snapTimer !== null) { clearTimeout(snapTimer); snapTimer = null; }
+    if (snapRevealTimer !== null) { clearTimeout(snapRevealTimer); snapRevealTimer = null; }
+    snap.removeEventListener("transitionend", onSnapEnd);
+    snap.style.transition = "none";
+    board.style.transition = immediate ? "none" : "opacity 160ms ease-out";
+    if (floor) floor.style.transition = "none";
+    root.classList.remove("snap-flying");
+    if (immediate) {
+      root.classList.remove("snap-showing");
+      board.style.transition = "";
+      if (floor) floor.style.transition = "";
+      return;
+    }
+    snapRevealTimer = setTimeout(function () {
+      snapRevealTimer = null;
+      root.classList.remove("snap-showing");
+      board.style.transition = "";
+      if (floor) floor.style.transition = "";
+    }, 450);
+  }
+
+  function landSnapshot() {
+    if (!flying) return;
+    flying = false;
+    /* Board and floor are still invisible here: write the destination first,
+       then let endSnapshot() fade the board in over the snapshot. */
+    update();
+    endSnapshot(false);
+  }
+
+  function onSnapEnd(e) {
+    if (e.target !== snap || e.propertyName !== "transform") return;
+    landSnapshot();
+  }
+
+  function flySnapshot(from, to, target) {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var root = document.documentElement;
+    flying = true;
+    if (snapRevealTimer !== null) { clearTimeout(snapRevealTimer); snapRevealTimer = null; }
+    snap.style.transition = "none";
+    snap.style.transform = framingTransform(from.x, from.y, from.s, vw, vh);
+    board.style.transition = "none";
+    if (floor) floor.style.transition = "none";
+    root.classList.add("snap-showing", "snap-flying");
+    window.scrollTo({ top: target, behavior: "auto" });
+    /* Commit the start frame before arming the transition, for the same
+       reason the live flight does: otherwise both writes coalesce. */
+    void snap.offsetWidth;
+    snap.style.transition = "transform " + FLY_MS + "ms " + (to.s > from.s ? FLY_EASE_IN : FLY_EASE);
+    snap.style.transform = framingTransform(to.x, to.y, to.s, vw, vh);
+    snap.addEventListener("transitionend", onSnapEnd);
+    snapTimer = setTimeout(landSnapshot, FLY_MS + 150);
+  }
+
   function landFlight() {
+    if (snap && document.documentElement.classList.contains("snap-flying")) { landSnapshot(); return; }
     if (!flying) return;
     flying = false;
     if (flyTimer !== null) { clearTimeout(flyTimer); flyTimer = null; }
@@ -923,6 +1038,12 @@
      to whatever is on screen at this instant before the transition comes off,
      or dropping it would snap the board back to the flight's start value. */
   function cancelFlight(resync) {
+    if (flying && snap && document.documentElement.classList.contains("snap-flying")) {
+      flying = false;
+      update();
+      endSnapshot(true);
+      return;
+    }
     if (!flying) return;
     flying = false;
     if (flyTimer !== null) { clearTimeout(flyTimer); flyTimer = null; }
@@ -988,6 +1109,7 @@
     var to = framingFor(stop);
 
     cancelFlight(false);
+    if (snapReady) { flySnapshot(from, to, target); return; }
 
     /* flying goes up BEFORE scroll moves. The jump below fires a scroll
        event, and onScroll has to ignore it: repainting from the new position

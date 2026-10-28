@@ -1261,6 +1261,11 @@ html.board-first .board-floor { transition: opacity 0.35s ease-out; }
    unchanged: evaluating three gradients across ~7.5 million pixels made each
    zoom re-raster cost 100-150ms, and sampling a texture does not. */
 
+/* The click-flight snapshot exists only for the camera design; see the
+   .board-snap rule in the camera block further down. */
+.board-snap { display: none; }
+html.board-first .board-snap { display: block; }
+
 /* --- red string + pins -------------------------------------------- */
 
 .strings {
@@ -2646,6 +2651,31 @@ html.warming .board .pc-caption {
     will-change: transform;
     pointer-events: none;
   }
+
+  /* The snapshot that flies during click flights (js/board.js, THE SNAPSHOT
+     FLIGHT). Same box, origin and transform maths as .board, between the
+     floor and the board in the markup, so the live board lands ON TOP of it
+     and any tile not yet rasterised shows the matching picture underneath.
+     It carries the board's two outer shadows; the inset ones are already in
+     the picture. Invisible except while html.snap-showing is set. */
+  .board-snap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3600px;
+    height: 2400px;
+    max-width: none;
+    transform-origin: 0 0;
+    will-change: transform;
+    pointer-events: none;
+    opacity: 0;
+    box-shadow:
+      10px 34px 90px rgba(0, 0, 0, 0.62),
+      3px 8px 22px rgba(0, 0, 0, 0.5);
+  }
+  html.snap-showing .board-snap { opacity: 1; }
+  html.snap-flying .board,
+  html.snap-flying .board-floor { opacity: 0; }
 }
 
 /* The sticky note in the corner. Any width, camera alive: the visitor asked

@@ -24,6 +24,7 @@ After building, run the harness against the output, not the source:
 """
 import argparse
 import gzip
+import json
 import os
 import re
 import shutil
@@ -151,11 +152,26 @@ def same_or_inside(path, parent):
     return path == parent or path.startswith(parent + os.sep)
 
 
+def snapshot_is_current():
+    """The click-flight snapshot must show today's board. make_snapshot.py
+    records a hash of every visual input; refuse to build if it moved."""
+    manifest = os.path.join(ROOT, "assets", "board-snapshot.json")
+    if not os.path.exists(manifest):
+        return False
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from make_snapshot import inputs_hash
+    return json.load(open(manifest))["inputs_sha256"] == inputs_hash()
+
+
 def main():
     parser = argparse.ArgumentParser(description="Build the public copy of the site.")
     parser.add_argument("out", help="output folder: new, or one this script built before")
     parser.add_argument("--staging", action="store_true", help="drop CNAME and add noindex")
+    parser.add_argument("--allow-stale-snapshot", action="store_true",
+                        help="build even if assets/board-snapshot.webp predates the board's look")
     args = parser.parse_args()
+    if not args.allow_stale_snapshot and not snapshot_is_current():
+        sys.exit("refusing: assets/board-snapshot.webp is stale; run python3 tools/release/make_snapshot.py")
     out, staging = os.path.abspath(args.out), args.staging
     if same_or_inside(out, ROOT) or same_or_inside(ROOT, out):
         sys.exit("refusing: the output folder overlaps the repo")
@@ -171,7 +187,7 @@ def main():
     for d in DIRS:
         for base, _, names in os.walk(os.path.join(ROOT, d)):
             for name in names:
-                if name.endswith(".md") or name.startswith("."):
+                if name.endswith(".md") or name.startswith(".") or name == "board-snapshot.json":
                     continue
                 files.append(os.path.relpath(os.path.join(base, name), ROOT))
     if staging and "CNAME" in files:

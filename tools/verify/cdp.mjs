@@ -76,7 +76,12 @@ async function launch() {
   const proc = spawn(CHROME, [
     "--headless=new", "--remote-debugging-port=0",
     `--user-data-dir=${profile}`, "--no-first-run", "--no-default-browser-check",
-    "--disable-gpu", "--hide-scrollbars", "about:blank",
+    "--disable-gpu", "--hide-scrollbars",
+    /* CDP_WINDOW=WxH widens the headless window. An emulated viewport larger
+       than the window hangs Page.captureScreenshot, and the snapshot render
+       needs one about 2600 wide. */
+    ...(process.env.CDP_WINDOW ? ["--window-size=" + process.env.CDP_WINDOW.replace("x", ",")] : []),
+    "about:blank",
   ], { stdio: ["ignore", "ignore", "pipe"] });
 
   /* Chrome prints the chosen port on stderr; asking for 0 and reading it back
@@ -297,6 +302,46 @@ const CHECKS = {
     if (s.console.length) console.log("console:", s.console);
   },
 
+  /* Renders the click-flight snapshot (js/board.js, THE SNAPSHOT FLIGHT): the
+     board at rest, whole, as four 1200x800 tiles of a 2400x1600 picture, which
+     tools/release/make_snapshot.py stitches and encodes. Tiles, because any
+     viewport bigger than the default headless window hung captureScreenshot.
+     The board is placed by hand at 2/3 scale for each tile (board.js only
+     writes the transform on scroll and resize, and neither fires here), with
+     .far removed so every effect is ON, the look a zone stop shows. Fixed
+     chrome and the room's grain overlay are hidden: they sit above the live
+     board and would otherwise be painted twice. */
+  async snapshot({ s, base, motion, goto, sleep }, outDir) {
+    await motion(s, "no-preference");
+    await s.send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+    await s.send("Page.addScriptToEvaluateOnNewDocument", { source:
+      'try{localStorage.setItem("ww-welcome-seen","1");localStorage.setItem("ww-analytics","denied")}catch(e){}' });
+    await goto(s, base + "/index.html");
+    await s.eval(`const st = document.createElement("style");
+      st.textContent = ".deskbar,.board-nav,.board-help-btn,.board-back-btn,.board-menu-btn,.board-menu,.welcome-panel,.welcome-backdrop{display:none!important}.viewport::after{display:none!important}";
+      document.head.appendChild(st); return 1`);
+    for (let i = 0; i < 100; i++) {
+      const ok = await s.eval(`const h = document.documentElement.classList, b = document.getElementById("board").classList;
+        return h.contains("board-shown") && !h.contains("warming") && !b.contains("moving")
+          && [...document.images].every(im => !im.getAttribute("src") || im.complete)`);
+      if (ok) break;
+      await sleep(200);
+    }
+    const { writeFile, mkdir } = await import("node:fs/promises");
+    await mkdir(outDir, { recursive: true });
+    const S = 2 / 3;
+    for (const [i, j] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+      await s.eval(`const b = document.getElementById("board");
+        b.classList.remove("far", "moving"); b.style.transition = "none";
+        b.style.transform = "translate(${-i * 1200}px, ${-j * 800}px) scale(${S})";
+        return 1`);
+      await sleep(2500);
+      const shot = await s.send("Page.captureScreenshot", {
+        format: "png", clip: { x: 0, y: 0, width: 1200, height: 800, scale: 1 } });
+      await writeFile(outDir + "/tile-" + i + "-" + j + ".png", Buffer.from(shot.data, "base64"));
+    }
+    console.log("snapshot tiles in", outDir);
+  },
   async shot({ s, base, viewport, motion, goto, atFraction, shot }, n = "0") {
     await viewport(s, 1440, 900);
     await motion(s, "no-preference");
