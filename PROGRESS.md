@@ -51,6 +51,25 @@ android-app:// referrer stopped analytics for the visit) and 8 Low; all fixed
 or already moot. Final tripwires: board 2297, editorial 2403, reading 1712,
 no-JS 2109 (see HANDOFF.md).
 
+**LAUNCHED 2026-10-28.** After the snapshot zoom (click flights fly
+assets/board-snapshot.webp and the live board lands on top), the loading
+fix (no placeholder swap, reveal once decoded), zone stops at 1.0, the
+sticker centred on the cork at 600px and the Level Up print moved down
+100 to fill the bottom-right corner, the owner approved staging, confirmed
+the TEST SUBMISSION email arrived, and said ship it. `sitecheck` on the
+built copy: zero static findings; header findings are GitHub Pages limits
+(Cloudflare proxy is the parked follow-up); the editorial photos were made
+lazy. Production commit ced9937 on whittworks-site, built from board-edits
+f617f5b; previous site tagged pre-blue-rebrand-20261028 (e15a884). Pages
+reports built, HTTPS enforced, certificate approved to 2027-01-01. Not yet
+seen on a non-work network or in PostHog at the time of writing.
+
+Follow-ups still open: Cloudflare in front of Pages for real security
+headers; Annie's testimonial (parked); product cards (the bottom-right
+corner is smaller now); low accessibility notes (two <main> landmarks, no
+inert on the board while the welcome dialog is open); the whittworks-ship
+skill's deploy table still says pushing board-edits serves production.
+
 Tripwire deltas, all accounted for: board 2418 -> 2416 (quote attribution lost
 "&mdash; ") -> 2394 (shorter panel disclosure). Reading 1714 -> 1712 (same
 em dash). Editorial and no-JS +331 (the phone form, "Or email", footer links

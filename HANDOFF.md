@@ -255,16 +255,35 @@ Referenced payload is now **40 files, 1,677,351 bytes**.
 
 ## Current state
 
+Updated 2026-10-28, the day this build went live.
+
 ```
-whittworks-site          main only (e15a884) — the OLD editorial design, live, untouched
-CorkboardTesting         corkboard-realism fdbaefe · main 8c7259e — serving this build
-whittworkstudios.com     200, still the old design
+whittworks-site      main ced9937  LIVE at whittworkstudios.com: the built copy of
+                     board-edits f617f5b. Previous site tagged pre-blue-rebrand-20261028.
+CorkboardTesting     board-edits f617f5b (source, pushed) · main = staging build
+staging              https://notcadenwhitt-stack.github.io/whittworks-CorkboardTesting-site/
 ```
 
-Staging: `https://notcadenwhitt-stack.github.io/whittworks-CorkboardTesting-site/`
+**How to release now (both targets ship the BUILT copy, never the tree):**
 
-**Per-rebuild fixups for staging, required every time:** delete `CNAME`, add
-`<meta name="robots" content="noindex, nofollow">`.
+1. In this repo: `python3 tools/release/make_snapshot.py` if anything visual
+   changed (build.py refuses a stale snapshot), then
+   `python3 -I tools/release/csp_hash.py` if the head script changed.
+2. Staging: `python3 -I tools/release/build.py OUT --staging`, replace the tree
+   of a worktree on this repo's `main` with OUT (minus `.ww-build`), commit,
+   push. A normal fast-forward; it drops CNAME and adds noindex itself.
+3. Production, only on the owner's explicit go-ahead: fresh clone of
+   `notcadenwhitt-stack/whittworks-site` (never `_archive/`), tag the current
+   main, `build.py OUT` without `--staging`, replace the clone's tree with OUT,
+   commit, push. Rollback: `git revert` the release commit and push.
+4. Verify with `SITE_ROOT=OUT` / `BASE=<url>` runs of `tools/verify/cdp.mjs`
+   and `tools/verify/analytics-check.mjs`.
+
+**The owner's work network (Alfa Insurance) intercepts HTTPS** and re-signs
+whittworkstudios.com with "Alfa Web Inspection 2024", serving a block page.
+Nothing on this Mac (curl, headless Chrome, WebFetch) can load production
+from there; github.io is not intercepted. Verify production from another
+network (his phone on cellular) and through `gh api .../pages/builds/latest`.
 
 ---
 

@@ -26,8 +26,9 @@ board is an enhancement for wide screens with working JS. Repo
 `corkboard-realism`. `main` is an unrelated staging-rebuild history: never
 merge or rebase into it, only rebuild it from the branch (delete CNAME, add
 the noindex meta, push). Staging is GitHub Pages off `main`. The separate
-`whittworks-site` repo is LIVE PRODUCTION at whittworkstudios.com and this
-project never touches it.
+`whittworks-site` repo is LIVE PRODUCTION at whittworkstudios.com. Since
+2026-10-28 it carries the BUILT copy of this repo's `board-edits` (see HANDOFF.md,
+"How to release now"); push to it only on the owner's explicit go-ahead.
 
 Conventions that bite if skipped: bump `?v=` on every edited linked file;
 size paper with `--sz`, never raw percentages; innerText tripwires are
