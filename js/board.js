@@ -18,18 +18,27 @@
       if (wide.removeEventListener) wide.removeEventListener("change", check);
       var srcs = ["assets/cork.webp", "assets/board-key-light.webp",
                   "assets/board-shadow-pools.webp"];
-      var ready = function () { root.classList.add("cork-ready"); };
+
+      var shown = false;
+      var ready = function () {
+        if (shown) return;
+        shown = true;
+        root.classList.add("board-shown");
+      };
+
+      var since = window.performance && performance.now ? performance.now() : 0;
+      setTimeout(ready, Math.max(0, 1500 - since));
       if (!window.Promise || !new Image().decode) {
         var cork = new Image();
         cork.src = srcs[0];
-        cork.onload = ready;
+        cork.onload = cork.onerror = ready;
         return;
       }
       Promise.all(srcs.map(function (s) {
         var i = new Image();
         i.src = s;
         return i.decode();
-      })).then(ready).catch(function () {});
+      })).then(ready, ready);
     }
     function check() {
       if (wide.matches || root.classList.contains("board-open")) start();
@@ -58,10 +67,11 @@
   var STOPS = [
     { x: 1800, y: 1200, w: 3860, h: 2620 },
     { x: 1800, y: 1100, w: 900,  h: 700 },
-    { x: 926,  y: 613,  w: 1785, h: 1200 },
-    { x: 2745, y: 765,  w: 1260, h: 1200 },
-    { x: 2800, y: 1600, w: 1704, h: 1200 },
-    { x: 1640, y: 1910, w: 1428, h: 1200 },
+
+    { x: 896,  y: 554,  w: 1440, h: 900 },
+    { x: 2816, y: 723,  w: 1260, h: 1035 },
+    { x: 2920, y: 1527, w: 1440, h: 900 },
+    { x: 1708, y: 1661, w: 1440, h: 900 },
 
     { x: 575,  y: 1489, w: 980,  h: 1050 },
     { x: 1800, y: 1200, w: 3860, h: 2620 }
@@ -251,9 +261,11 @@
     var BW = board.clientWidth || 3408;
     var BH = board.clientHeight || 2208;
     var visW = vw / s, visH = vh / s;
-    if (visW < BW) { x = Math.max(visW / 2, Math.min(BW - visW / 2, x)); }
+
+    var rim = parseFloat(getComputedStyle(board).borderLeftWidth) || 0;
+    if (visW < BW) { x = Math.max(visW / 2 - rim, Math.min(BW + rim - visW / 2, x)); }
     else { x = BW / 2; }
-    if (visH < BH) { y = Math.max(visH / 2, Math.min(BH - visH / 2, y)); }
+    if (visH < BH) { y = Math.max(visH / 2 - rim, Math.min(BH + rim - visH / 2, y)); }
     else { y = BH / 2; }
 
     var edge = parseFloat(getComputedStyle(board).borderLeftWidth) || 0;
