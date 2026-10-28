@@ -1,7 +1,7 @@
 /* WhittWorks Studios — the cork board
-   Hand: Caveat | Typed: Special Elite | Meta: Space Mono | Display: Anton
-   (Permanent Marker left this stylesheet at Phase 9: Phase 5 replaced the one
-   element set in it. 404.html still uses it and declares its own @font-face.)
+   Hand: Caveat | Typed: Special Elite | Display and labels: League Spartan
+   Brand: blue #004AAD, navy #04367B, from the logo (rebrand 2026-10-28;
+   Anton, Space Mono and Permanent Marker are gone from the whole site)
    Paper: real photographed/scanned assets in ../assets/paper/ (see SOURCES.md)
 ------------------------------------------------------------------ */
 
@@ -168,26 +168,9 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-@font-face {
-  font-family: "Space Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("../assets/fonts/space-mono-400-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-@font-face {
-  font-family: "Space Mono";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("../assets/fonts/space-mono-700-latin.woff2") format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
 /* --- the editorial design's two families -----------------------------
-   Anton letters its wordmark, Inter sets its body copy. They arrived with that
+   League Spartan letters its wordmark (Anton did until 2026-10-28), Inter
+   sets its body copy. They arrived with that
    design still calling fonts.googleapis.com, which would have undone the point
    of the section above: a third party back on the render path, and Google
    handed the IP address of every visitor again. Both are here now, latin only,
@@ -251,7 +234,6 @@
   --brand-ink: #0B1B33;
   --chrome: #ffffff;
   --red: #b3271c;
-  --card: #fbf8f1;
 
   /* Each stack falls back to something with the right posture, so a blocked
      or slow font host (captive portal, proxy, sinkhole) costs the lettering
@@ -259,7 +241,6 @@
      The generics at the end are the floor, not the plan. */
   --hand: "Caveat", "Bradley Hand", "Segoe Script", "Comic Sans MS", cursive;
   --typed: "Special Elite", "American Typewriter", "Courier New", Courier, monospace;
-  --mono: "Space Mono", ui-monospace, Menlo, "Consolas", monospace;
   /* Anton's @font-face is above; css/editorial.css already names this stack
      as --display for the tan design, but the board never loads that
      stylesheet, so the deskbar title needs its own copy of the same
@@ -918,18 +899,6 @@ html.board-zoomed .board-back-btn { display: flex; }
 }
 .welcome-legal a { color: var(--brand-deep); text-decoration: underline; }
 .welcome-legal a:hover { color: var(--brand); }
-/* Terms of Service and Accessibility Statement do not exist yet. Plain,
-   visibly unlinked text -- no href, no cursor:pointer, no underline -- so
-   this cannot be mistaken for a dead link. See the HTML comments beside
-   these two in index.html for exactly where each href goes once the page
-   it points to is written. */
-.welcome-legal-pending { color: var(--brand-ink); }
-.welcome-legal-note {
-  margin-left: 4px;
-  font-size: 13px;
-  font-style: italic;
-  color: #6b6252;
-}
 
 .welcome-col-sketch {
   display: flex;
@@ -1449,7 +1418,6 @@ html.warming .board .strings { filter: none; }
   white-space: pre;
   transform: rotate(var(--r, 0deg)) translateY(var(--y, 0)) scale(var(--s, 1));
   font-variation-settings: "wght" var(--w, 500);
-  opacity: var(--o, 1);
 }
 
 .sticky-title, .sticky-note { filter: url(#ink-a); }
@@ -1680,7 +1648,6 @@ html.warming .board .strings { filter: none; }
 .paper-4 { --paper: url("../assets/paper/sticky-04.webp"); --tint: #d1ce79; aspect-ratio: 294/284;  --pt: 0.06;  --pr: 0.06; --pb: 0.10; --pl: 0.06; --lq: url("data:image/webp;base64,UklGRk4AAABXRUJQVlA4IEIAAADQAwCdASoUABMAPrVIoUunI6MhsBgIAOAWiWMAtOgY6Iea+D2JgAAA/u69n+6PyZ912lBprq3LNKR5dkjCp4xSAAA="); }
 .paper-5 { --paper: url("../assets/paper/sticky-05.webp"); --tint: #d1cc79; aspect-ratio: 539/533;  --pt: 0.05;  --pr: 0.05; --pb: 0.12; --pl: 0.07; --lq: url("data:image/webp;base64,UklGRkwAAABXRUJQVlA4IEAAAABwAwCdASoUABQAPrVUpE0nJKOiKAgA4BaJZQC+SBEc0kGnYKAA/tY4/Z/Qr5M+65ebI1mE8OQfo4j2s1Cm02AA"); }
 .paper-6 { --paper: url("../assets/paper/sticky-06.webp"); --tint: #cad279; aspect-ratio: 293/292;  --pt: 0.07;  --pr: 0.07; --pb: 0.09; --pl: 0.07; --lq: url("data:image/webp;base64,UklGRkoAAABXRUJQVlA4ID4AAABwAwCdASoUABQAPrVMn0snJCKhqA1Q4BaJYwDImBlPaYZbMIAA/u7Bqff8b/Vr5MjpW4+/nrrCFvuZDHB4AA=="); }
-.paper-7 { --paper: url("../assets/paper/sticky-07.webp"); --tint: #dc8395; aspect-ratio: 359/358;  --pt: 0.06;  --pr: 0.06; --pb: 0.09; --pl: 0.06; --lq: url("data:image/webp;base64,UklGRkYAAABXRUJQVlA4IDoAAAAQAwCdASoUABQAPrVUpE0nJKOiqAgA4BaJZQDKABaoBwAA/uJF4gP6P+7/vwGV3fx0D1h7tnoiEAAA"); }
 
 /* color modifiers: same photographed scan, hue-shifted in HSV so paper
    texture, lighting gradients, and curl shadows all survive. additive to

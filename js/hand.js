@@ -44,9 +44,9 @@
 
     var cs = window.getComputedStyle(el);
     var fam = cs.fontFamily.toLowerCase();
-    var isMarker = fam.indexOf("permanent") !== -1;
-    var isCaveat = fam.indexOf("caveat") !== -1;
-    if (!isMarker && !isCaveat) return;
+    /* Caveat only. The Permanent Marker branch went with the last element
+       set in that face (2026-10-28); no element here uses it any more. */
+    if (fam.indexOf("caveat") === -1) return;
 
     /* ink pressure band: bolder text swings around a heavier center */
     var bold = parseInt(cs.fontWeight, 10) >= 600;
@@ -70,13 +70,7 @@
       s.style.setProperty("--r", ((rnd() * 2 - 1) * 2.05).toFixed(2) + "deg");
       s.style.setProperty("--y", ((rnd() * 2 - 1) * 0.05).toFixed(3) + "em");
       s.style.setProperty("--s", (0.968 + rnd() * 0.064).toFixed(3));
-      if (isCaveat) {
-        s.style.setProperty("--w", String(Math.round(base - span / 2 + rnd() * span)));
-      } else {
-        /* one marker stroke never lays down evenly: some glyphs go down dry.
-           same rnd() call count, so the seeded layout is unchanged. */
-        s.style.setProperty("--o", (0.93 + rnd() * 0.07).toFixed(3));
-      }
+      s.style.setProperty("--w", String(Math.round(base - span / 2 + rnd() * span)));
       return s;
     }
 

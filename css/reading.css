@@ -173,19 +173,6 @@
     drop-shadow(8px 22px 38px rgba(25, 12, 4, 0.24));
 }
 
-/* The Sharpie wordmark is 88px, set for an 800px card, and hand.js wraps
-   each word in a nowrap span — so "WhittWorks" was one unbreakable 548px
-   box on a 390px screen. It, and not the postcards, was what forced the
-   page 200px wider than the viewport. 88/800 is 11% of the card, so the
-   same fraction in container units holds the design at full size and
-   shrinks it in step below that. */
-.title-card {
-  container-type: inline-size;
-  width: 100%;
-  height: auto;
-  padding-top: 2.6rem;
-}
-
 .sticky { --sz: 100%; width: 100%; padding: 1.6rem 1.4rem 2rem; }
 .polaroid { width: 100%; max-width: 22rem; }
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-Y62QLGbTWOIoIQifrvwtB7EQoRZj6T0NV/VqKidFvDQ='; font-src 'self'; connect-src https://formspree.io https://us.i.posthog.com; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'sha256-uRbh2umu8cgFexG6jk2V9hCNCg1yTQJnHUGixbY8nGU='; font-src 'self'; connect-src https://formspree.io https://us.i.posthog.com; base-uri 'self'; form-action 'self' https://formspree.io; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <!-- The floor, and the reason it is inline rather than in css/style.css: if
      that stylesheet 404s, every display rule on the page goes with it and BOTH
@@ -17,7 +17,7 @@
 <script>
 /* Decide WHICH DESIGN before anything paints. This used to set only "js", and
    the cork board additionally required "board-live", which js/board.js sets when
-   it runs at the very end of <body> — so on every wide-screen load the browser
+   it runs at the very end of <body>, so on every wide-screen load the browser
    laid out and PAINTED the editorial design first and swapped it a second later.
    Measured: 1.0s of tan at 4 Mbps, 1.3s at 1 Mbps. The gate was right, its
    timing was not.
@@ -30,7 +30,7 @@
    PLACEMENT IS LOAD-BEARING IN BOTH DIRECTIONS. This script sat above <head>
    once; it must stay AFTER the viewport meta and BEFORE every stylesheet.
    After the viewport meta, because it reads innerWidth/innerHeight (and
-   matchMedia) — before that meta is processed, a mobile browser answers with
+   matchMedia), before that meta is processed, a mobile browser answers with
    the 980px legacy layout viewport, and a tablet whose real viewport keeps
    the board would get a --first-frame built for a viewport it does not have,
    then pay a visible snap when the camera's first write corrects it. Before
@@ -43,7 +43,7 @@
     if (window.matchMedia && window.matchMedia("(min-width: 901px)").matches) {
       d.className += " board-first";
       /* WARMING. The first rasterisation of this board is the most expensive
-         one it will ever do — every tile cold, cork.webp possibly still
+         one it will ever do, every tile cold, cork.webp possibly still
          decoding, and the full drop-shadow stacks costing 173ms of the ~200ms
          a genuine frame takes. Tiles that miss that budget draw nothing, which
          is the "chunks" the owner has reported twice. This class collapses the
@@ -57,19 +57,19 @@
          to exist before anything paints, which only this script can do.
 
          If board.js never runs, js/peek.js takes the page back to the
-         editorial design and these selectors — all scoped under .board —
+         editorial design and these selectors, all scoped under .board , 
          match nothing. A stranded warming class is inert. */
       d.className += " warming";
       /* The class puts the board on screen from the first frame, but nothing
          writes its transform until js/board.js runs at the end of the body,
          and first paint does not wait for end-of-body scripts. Untransformed,
          with transform-origin 0 0, the 3600x2400 board shows its top-left
-         corner at 1:1 until the camera arrives — a blink on fast connections,
+         corner at 1:1 until the camera arrives, a blink on fast connections,
          seconds on slow ones, and a visible zoom-out either way. So the
          whole-board framing is computed here as well and published as
          --first-frame; the stylesheet holds it on .board until the camera's
-         inline style takes over. Same numbers as STOPS[0] in js/board.js —
-         span 3860x2620, center 1800,1200 — and the same formula, so the
+         inline style takes over. Same numbers as STOPS[0] in js/board.js , 
+         span 3860x2620, center 1800,1200, and the same formula, so the
          camera's first write lands on the identical matrix and nothing moves.
          Retune stop 0 there and these constants must move with it. */
       var vw = window.innerWidth, vh = window.innerHeight;
@@ -86,11 +86,11 @@
            first-frame screen rect (--board-x/y/w/h) for a fixed-position
            ::before version of that backstop; that covered the load moment
            only and left the viewport's edge bands over bare wall at every
-           zoomed stop — which is where fresh tiles rasterize during a hard
+           zoomed stop, which is where fresh tiles rasterize during a hard
            wheel scroll, seen live on staging as dark chunks at the edges. */
       }
       /* The preload gets cork.webp's BYTES here early, but nothing decodes
-         them until the compositor first needs the texture — and tiles whose
+         them until the compositor first needs the texture, and tiles whose
          images are still decoding draw empty, which is the board's lower
          rows blinking in late on slower machines. Start the decode now, in
          parallel with parsing, so the pixels are in the decoded-image cache
@@ -281,7 +281,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=116">
+<link rel="stylesheet" href="css/style.css?v=117">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -290,9 +290,9 @@
      is what a visitor without scripting gets, and it is a better answer than
      the column was. Do not re-add the noscript copy; with no JS the board is
      display:none anyway and the rules would style something nobody can see. -->
-<link rel="stylesheet" href="css/reading.css?v=13"
+<link rel="stylesheet" href="css/reading.css?v=14"
       media="(max-width: 900px), (max-height: 540px)">
-<link rel="stylesheet" href="css/editorial.css?v=8">
+<link rel="stylesheet" href="css/editorial.css?v=9">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch used to wait behind the
      Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
@@ -374,7 +374,7 @@
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
 <link rel="preload" as="script" href="js/board.js?v=60">
-<link rel="preload" as="script" href="js/hand.js?v=7">
+<link rel="preload" as="script" href="js/hand.js?v=8">
 </head>
 <body>
 <!-- The brand W, traced from the owner's logo file (assets/brand/w-mark.svg,
@@ -1506,7 +1506,7 @@
 
 <script src="js/peek.js?v=7"></script>
 <script src="js/board.js?v=60"></script>
-<script src="js/hand.js?v=7"></script>
+<script src="js/hand.js?v=8"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them
      (board.js in particular sets board-live, which js/peek.js's own

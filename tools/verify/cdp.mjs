@@ -28,7 +28,9 @@ import { createReadStream } from "node:fs";
 import { extname, join, resolve, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(fileURLToPath(new URL("../..", import.meta.url)));
+/* SITE_ROOT points the harness at a built copy (tools/release/build.py)
+   instead of the working tree. */
+const ROOT = process.env.SITE_ROOT ? resolve(process.env.SITE_ROOT) : resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const OUT = join(ROOT, "tools", "verify", "out");
 
 const CHROME = [

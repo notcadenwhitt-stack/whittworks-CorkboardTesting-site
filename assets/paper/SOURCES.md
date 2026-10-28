@@ -158,6 +158,22 @@ a base64 --lq, all of which would need re-deriving.
   and fetching it was out of scope for the pass, so the map was drawn instead.
   Recorded here so the next person does not have to re-verify it.
 
+## 2026-10-28 rebrand: fonts changed
+
+- assets/fonts/league-spartan-latin.woff2: League Spartan, variable wght 100..900,
+  v2.002, 22,540 bytes, sha256 6695176aa241981acfbe16e047c509ae466795539d6712bfaa1defef40006dbf.
+  Subset with fontTools 4.60.2 (pyftsubset, latin unicode-range, all layout features)
+  from github.com/google/fonts/raw/main/ofl/leaguespartan/LeagueSpartan[wght].ttf
+  (95,116 bytes, sha256 2dbb6290b39ab7c48a40b18f74ca59ef48a69a015c3ea0542703f0c6ce51d617),
+  downloaded 2026-10-28. SIL Open Font License 1.1, Copyright 2020 The League Spartan
+  Project Authors; licence shipped as assets/fonts/LICENSE-LeagueSpartan-OFL.txt.
+- Removed with their licence files: anton-latin.woff2, space-mono-400-latin.woff2,
+  space-mono-700-latin.woff2, permanent-marker-latin.woff2. Nothing references them.
+  Their entries below are kept as history.
+- Removed: assets/paper/sticky-07.webp (its .paper-7 rule was used by no element).
+- assets/brand/w-mark.svg and the icon files are traced from the owner's own logo
+  (tools/brand/logo-source.png) by tools/brand/trace_mark.py.
+
 ## The webfonts (assets/fonts/) — self-hosted 2026-08-07
 The four families used to be fetched from fonts.googleapis.com at page load.
 They are now served from this repo. The files are the EXACT woff2 bytes Google

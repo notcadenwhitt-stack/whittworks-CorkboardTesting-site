@@ -29,8 +29,9 @@
    --------------------------------------------------------------------------- */
 
 /* WhittWorks Studios — print-poster editorial
-   Display: Anton | Mono: Space Mono | Body: Inter
-   Paper #EFEDE6 · Ink #141412 · Stamp red #C8331B
+   Display and labels: League Spartan | Body: Inter
+   Paper #FFFFFF · Ink #0B1B33 · Blue #004AAD · Navy #04367B (2026-10-28;
+   this was tan #EFEDE6, Anton and stamp red #C8331B before the rebrand)
 ------------------------------------------------------------------ */
 
 .editorial {
@@ -44,7 +45,6 @@
   --muted: rgba(11, 27, 51, 0.66);
 
   --display: "League Spartan", "Futura", "Century Gothic", "Avenir Next", sans-serif;
-  --mono: "Space Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 
   --pad: clamp(1rem, 3.2vw, 3rem);
