@@ -1151,8 +1151,12 @@
          on purpose: js/board.js sets it from data-src only after the board is
          shown, so it never competes with the first load. Rebuild it with
          python3 -I tools/release/make_snapshot.py after any visual change. -->
-    <img class="board-snap" data-src="assets/board-snapshot.webp?v=5" alt="" aria-hidden="true" width="3600" height="2400" decoding="async">
-    <main class="board" id="board">
+    <img class="board-snap" data-src="assets/board-snapshot.webp?v=6" alt="" aria-hidden="true" width="3600" height="2400" decoding="async">
+    <!-- A div with role="main", not a second <main>: HTML allows one <main>
+         that is not hidden, and the editorial design's #main is the other.
+         Only one of the two designs is ever displayed, so screen readers
+         still get exactly one main landmark. -->
+    <div class="board" id="board" role="main">
 
       <!-- The navy stapled trim that ran around the cork was removed on the
            owner's call: a thick walnut frame reads heavier and better than a
@@ -1501,7 +1505,7 @@
       </aside>
 
 
-    </main>
+    </div>
   </div>
 
   <div class="scroll-space" aria-hidden="true"></div>
@@ -1560,7 +1564,7 @@
      auto-open on a first visit only needs #corkboard's computed display,
      which is settled well before any script runs at all. -->
 <script src="js/consent.js?v=4" defer></script>
-<script src="js/welcome.js?v=3" defer></script>
+<script src="js/welcome.js?v=4" defer></script>
 <script src="js/analytics.js?v=2" defer></script>
 </body>
 </html>
