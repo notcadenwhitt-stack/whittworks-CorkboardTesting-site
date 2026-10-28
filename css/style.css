@@ -816,8 +816,8 @@ html.warming .board .strings { filter: none; }
 .card-head { letter-spacing: 0.2em; color: #9c3a2e; }
 
 .sticker {
-  width: 520px;
-  height: 520px;
+  width: 600px;
+  height: 600px;
   border-radius: 50%;
   background: #fdfdf8;
   display: flex;
@@ -830,11 +830,11 @@ html.warming .board .strings { filter: none; }
 }
 
 .sticker-disc {
-  width: 452px;
-  height: 452px;
+  width: 532px;
+  height: 532px;
   border-radius: 50%;
   box-sizing: border-box;
-  border: 16px solid var(--brand-deep);
+  border: 18px solid var(--brand-deep);
   background: #ffffff;
   display: flex;
   align-items: center;
@@ -842,7 +842,7 @@ html.warming .board .strings { filter: none; }
 }
 
 .sticker-mark {
-  width: 340px;
+  width: 400px;
   height: auto;
   transform: translateY(7%);
 }
