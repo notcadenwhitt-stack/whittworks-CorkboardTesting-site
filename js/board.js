@@ -200,15 +200,15 @@
        FLY_MS and settle timing (PROGRESS.md), so they now frame each zone's
        measured paper extent (getBoundingClientRect, rotation included) with a
        margin and room under the title strip.
-       First at 1.0; the owner felt the zoom back OUT turn rough, because a
-       flight's first frame restyles the board (.moving, and .far for a
-       zoom-out) at the scale it starts from, and that repaint grows with the
-       scale. Settled at 0.9 at 1440x900 for 2, 4 and 5; 0.87 for 3, whose
-       four stickies stack too tall for more. */
-    { x: 896,  y: 554,  w: 1600, h: 1000 },  /* 2 about + polaroid: papers 356-1436 x 287-880 */
+       1.0 at 1440x900 for 2, 4 and 5; 0.87 for 3, whose four stickies stack
+       too tall for more. (Briefly 0.9: a live-board flight's first frame
+       restyled the board at the scale it was leaving, so zoom out roughened
+       as stops came closer. Click flights now fly a snapshot and never
+       restyle the board at take-off; see THE SNAPSHOT FLIGHT.) */
+    { x: 896,  y: 554,  w: 1440, h: 900 },   /* 2 about + polaroid: papers 356-1436 x 287-880 */
     { x: 2816, y: 723,  w: 1260, h: 1035 },  /* 3 services, four stickies: 2394-3237 x 320-1195 */
-    { x: 2920, y: 1527, w: 1600, h: 1000 },  /* 4 portfolio postcard + pink sticky: 2511-3329 x 1286-1828 */
-    { x: 1708, y: 1661, w: 1600, h: 1000 },  /* 5 reviews, Chad's row: 1109-2306 x 1442-1940 */
+    { x: 2920, y: 1527, w: 1440, h: 900 },   /* 4 portfolio postcard + pink sticky: 2511-3329 x 1286-1828 */
+    { x: 1708, y: 1661, w: 1440, h: 900 },   /* 5 reviews, Chad's row: 1109-2306 x 1442-1940 */
     /* 6 contact: Phase 7 retuned this to frame the new form sheet AND the
        postcard together, not the postcard alone. Their combined extent is
        NOT the two papers' nominal left/top/width/height added up: both
@@ -979,7 +979,14 @@
     if (!flying) return;
     flying = false;
     /* Board and floor are still invisible here: write the destination first,
-       then let endSnapshot() fade the board in over the snapshot. */
+       then let endSnapshot() fade the board in over the snapshot.
+
+       markMoving() first, so the board's first paint at the destination is
+       the cheap collapsed one and the full shadows and ink return later, in
+       idle time, through settle(), exactly as a live flight lands. Without it
+       the reveal painted every effect at once and one frame right at landing
+       ran about 0.7s in a software-raster test. */
+    markMoving();
     update();
     endSnapshot(false);
   }
