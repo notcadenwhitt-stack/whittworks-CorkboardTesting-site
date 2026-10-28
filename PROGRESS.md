@@ -81,6 +81,18 @@ no screenshot. (Probe in the session scratchpad; rebuild it from this note
 if needed: launch Chrome without --disable-gpu, Page.bringToFront, focus
 emulation, then click a zone and press Escape in a loop.) Untested: Safari.
 
+**Third release 862f6b6 (board-edits 3332ed7):** the welcome dialog is truly
+modal (everything else in #corkboard is inert while it is open), the board's
+container is a div role="main" so the page has one <main>, and Google's
+ownership file ships at the root (build.py copies google<hex>.html byte for
+byte). Search Console verified; sitemap read, 4 pages. Live checks from a
+non-intercepted network: every page 200, http and www 301 to https, console
+clean, tripwires match, 12 stress zoom-outs with 0 flash frames. Safari's
+engine checked on an iPad Pro 13-inch simulator in landscape: board renders,
+zoom in and out work, no orange at landing. PostHog: ingestion proven (0
+requests before consent, 200s after Accept); reading the dashboard needs
+the owner's sign-in or a personal API key.
+
 Follow-ups still open: Cloudflare in front of Pages for real security
 headers; Annie's testimonial (parked); product cards (the bottom-right
 corner is smaller now); low accessibility notes (two <main> landmarks, no
