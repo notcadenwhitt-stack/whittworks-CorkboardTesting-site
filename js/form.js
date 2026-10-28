@@ -31,8 +31,11 @@
       started = true;
       window.dispatchEvent(new CustomEvent("ww-form-start", { detail: { form: identity } }));
     });
+    /* A submit blocked by the browser's own validation is its own event,
+       not a failed send: nothing left the page. */
     form.addEventListener("invalid", function (e) {
-      if (e.target === form.querySelector(":invalid")) report(false);
+      if (e.target !== form.querySelector(":invalid")) return;
+      window.dispatchEvent(new CustomEvent("ww-form-invalid", { detail: { form: identity } }));
     }, true);
 
     if (!window.fetch || !window.FormData) return;

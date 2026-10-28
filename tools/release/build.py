@@ -9,6 +9,10 @@ shipped copy drops them while the source keeps every word.
     python3 -I tools/release/build.py OUT_DIR            # production copy
     python3 -I tools/release/build.py OUT_DIR --staging  # no CNAME, noindex
 
+OUT_DIR must not exist yet, or must be a folder this script built before
+(it carries a .ww-build marker). Anything else is refused, never deleted:
+an earlier version would rmtree whatever path it was given.
+
 What is stripped: /* */ comments in CSS, // and /* */ comments in JS, and
 <!-- --> comments in HTML outside <script> and <style>. Nothing else is
 rewritten. Inline <script> bodies are copied byte for byte, because the CSP
@@ -18,6 +22,7 @@ Docs (*.md) and tools/ never ship.
 After building, run the harness against the output, not the source:
     SITE_ROOT=OUT_DIR node tools/verify/cdp.mjs modes
 """
+import argparse
 import gzip
 import os
 import re
@@ -134,16 +139,32 @@ def staging_page(html):
     return html.replace('<meta charset="utf-8">', '<meta charset="utf-8">\n' + tag, 1)
 
 
+MARKER = ".ww-build"
+
+
+def same_or_inside(path, parent):
+    # Lowercased on purpose: macOS volumes are case-insensitive by default,
+    # realpath does not fix the case of a path that does not exist yet, and
+    # normcase is a no-op there, so "/USERS/.../repo/x" slipped past this.
+    path = os.path.realpath(path).lower()
+    parent = os.path.realpath(parent).lower()
+    return path == parent or path.startswith(parent + os.sep)
+
+
 def main():
-    if len(sys.argv) < 2:
-        sys.exit(__doc__)
-    out = os.path.abspath(sys.argv[1])
-    staging = "--staging" in sys.argv[2:]
-    if out == ROOT or out.startswith(ROOT + os.sep):
-        sys.exit("refusing to build inside the repo; pick a directory outside it")
+    parser = argparse.ArgumentParser(description="Build the public copy of the site.")
+    parser.add_argument("out", help="output folder: new, or one this script built before")
+    parser.add_argument("--staging", action="store_true", help="drop CNAME and add noindex")
+    args = parser.parse_args()
+    out, staging = os.path.abspath(args.out), args.staging
+    if same_or_inside(out, ROOT) or same_or_inside(ROOT, out):
+        sys.exit("refusing: the output folder overlaps the repo")
     if os.path.exists(out):
+        if os.listdir(out) and not os.path.isfile(os.path.join(out, MARKER)):
+            sys.exit("refusing: %s exists and was not built by this script; pick a new folder" % out)
         shutil.rmtree(out)
     os.makedirs(out)
+    open(os.path.join(out, MARKER), "w").write("built by tools/release/build.py\n")
 
     before = after = 0
     files = [p for p in PAGES + EXTRA if os.path.exists(os.path.join(ROOT, p))]

@@ -7,9 +7,8 @@
 User-agent: *
 Allow: /
 
-# No Sitemap: line. This site is a single page at /, which every crawler
-# already finds from the domain root, so a sitemap.xml would be one file to
-# keep in sync listing one URL that needs no help being discovered.
+# The Sitemap: line at the end lists the four public pages (the home page
+# plus privacy, terms and accessibility since 2026-10-28).
 
 # ---------------------------------------------------------------------------
 # AI / MODEL-TRAINING CRAWLERS — currently ALLOWED. Read before changing.

@@ -1108,10 +1108,14 @@
      js/welcome.js toggles on the panel itself for exactly this read. */
   document.addEventListener("keydown", function (e) {
     if (e.key !== "Escape") return;
-    /* Only while the board is on screen, and never from inside a form field:
+    /* Only while the board is on screen (read the same way consent.js and
+       welcome.js read it, from #corkboard's computed display, so a short
+       window in reading mode still works and the editorial page after a
+       sticky-note round trip does not jump), and never from inside a field:
        on the editorial page this used to scroll a phone back to the top, and
        in a field Escape belongs to the field (closing an autofill list). */
-    if (!cameraActive() && !document.documentElement.classList.contains("board-open")) return;
+    var corkboard = document.getElementById("corkboard");
+    if (!corkboard || getComputedStyle(corkboard).display === "none") return;
     if (e.target && e.target.closest && e.target.closest("input, textarea, select")) return;
     var menuBtn = document.querySelector(".board-menu-btn");
     if (menuBtn && menuBtn.getAttribute("aria-expanded") === "true") return;

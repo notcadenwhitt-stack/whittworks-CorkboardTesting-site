@@ -48,9 +48,13 @@
   /* Which design the visitor is looking at, read the same way js/consent.js
      and js/welcome.js decide it: from #corkboard's computed display. */
   var corkboard = document.getElementById("corkboard");
+  /* "reading" only when the board is on screen WITHOUT its camera (a phone
+     that opened it, or a short window). board-open alone is not enough:
+     peek.js sets it on desktop too, where the camera board is running. */
   function design() {
-    if (document.documentElement.classList.contains("board-open")) return "reading";
-    return corkboard && getComputedStyle(corkboard).display !== "none" ? "board" : "editorial";
+    var root = document.documentElement;
+    if (!corkboard || getComputedStyle(corkboard).display === "none") return "editorial";
+    return getComputedStyle(root).getPropertyValue("--camera-active").trim() === "0" ? "reading" : "board";
   }
 
   function granted() {
@@ -69,20 +73,35 @@
     session.time = now;
     try { sessionStorage.setItem("ww-ph-session", JSON.stringify(session)); } catch (e) {}
   }
+  /* Origin plus path only, never the query or hash. An app referral such as
+     android-app://com.google.android.gm/ has the opaque origin "null"; it is
+     reported as direct rather than parsed again, which used to throw and stop
+     analytics for the whole visit. */
   function clean(url) {
     try {
       var parsed = new URL(url);
+      if (parsed.origin === "null") return "$direct";
       return parsed.origin + parsed.pathname;
     } catch (e) { return "$direct"; }
   }
   function capture(event, extra) {
     if (!active || !granted()) return;
+    /* One malformed property must never take analytics down for the visit. */
+    try {
+      queueEvent(event, extra);
+    } catch (e) {}
+  }
+  function queueEvent(event, extra) {
     touch();
     var referrer = clean(document.referrer);
+    var referringDomain = "$direct";
+    if (referrer !== "$direct") {
+      try { referringDomain = new URL(referrer).host; } catch (e) {}
+    }
     var props = {
       design: design(),
       $current_url: clean(location.href), $host: location.host, $pathname: location.pathname,
-      $referrer: referrer, $referring_domain: referrer === "$direct" ? "$direct" : new URL(referrer).host,
+      $referrer: referrer, $referring_domain: referringDomain,
       $screen_width: screen.width, $screen_height: screen.height,
       $viewport_width: innerWidth, $viewport_height: innerHeight,
       $session_id: session.id, $window_id: windowId, $lib: "web", $process_person_profile: false
@@ -219,6 +238,11 @@
   });
   window.addEventListener("ww-form", function (e) {
     if (e.detail) capture("form_submit", { form: e.detail.form, ok: e.detail.ok === true });
+  });
+  /* Kept apart from form_submit so a blocked empty field never reads as a
+     failed send in the dashboard. */
+  window.addEventListener("ww-form-invalid", function (e) {
+    if (e.detail) capture("form_invalid", { form: e.detail.form });
   });
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "hidden") { vitals(); if (queue.length) flush(true); }

@@ -615,6 +615,8 @@ a { color: inherit; }
   min-width: 0;
 }
 .footer-links a { color: inherit; }
+/* Cookie settings needs js/consent.js; without scripting it would do nothing. */
+html:not(.js) .footer-cookie-item { display: none; }
 .footer-cookie {
   padding: 0;
   border: 0;

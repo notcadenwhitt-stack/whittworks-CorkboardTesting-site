@@ -106,7 +106,19 @@
      designs, without a reload; both change whether the bar belongs on
      screen. A choice made in another tab is honoured here too. */
   window.addEventListener("resize", render);
-  new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+  /* Only the classes that can swap the design matter. board.js toggles other
+     classes on <html> at the start and end of every camera move, and a style
+     read on each of those would sit on the zoom's frame budget. */
+  var DESIGN_CLASSES = /\b(board-open|board-shut|no-board|board-first|board-live)\b/g;
+  function designKey(cls) { return (String(cls || "").match(DESIGN_CLASSES) || []).sort().join(" "); }
+  new MutationObserver(function (records) {
+    for (var i = 0; i < records.length; i++) {
+      if (designKey(records[i].oldValue) !== designKey(document.documentElement.className)) {
+        render();
+        return;
+      }
+    }
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ["class"], attributeOldValue: true });
   window.addEventListener("storage", function (e) {
     if (e.key !== KEY && e.key !== null) return;
     choice = read();
