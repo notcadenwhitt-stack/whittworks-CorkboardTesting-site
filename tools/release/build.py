@@ -184,6 +184,9 @@ def main():
 
     before = after = 0
     files = [p for p in PAGES + EXTRA if os.path.exists(os.path.join(ROOT, p))]
+    # Google Search Console's ownership file. It must stay at the site root,
+    # byte for byte, or the property loses verification.
+    files += sorted(f for f in os.listdir(ROOT) if re.fullmatch(r"google[0-9a-f]+\.html", f))
     for d in DIRS:
         for base, _, names in os.walk(os.path.join(ROOT, d)):
             for name in names:
@@ -204,6 +207,8 @@ def main():
                 text = strip_css(text)
             elif rel.endswith(".js"):
                 text = strip_js(text)
+            elif re.fullmatch(r"google[0-9a-f]+\.html", os.path.basename(rel)):
+                pass
             else:
                 text = strip_html(text)
                 if staging:
