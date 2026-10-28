@@ -842,8 +842,9 @@ html.warming .board .strings { filter: none; }
 }
 
 .sticker-mark {
-  width: 300px;
+  width: 340px;
   height: auto;
+  transform: translateY(7%);
 }
 
 .about-card { width: 720px; }
