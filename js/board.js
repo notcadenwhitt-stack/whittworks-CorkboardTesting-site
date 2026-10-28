@@ -207,7 +207,7 @@
        restyle the board at take-off; see THE SNAPSHOT FLIGHT.) */
     { x: 896,  y: 554,  w: 1440, h: 900 },   /* 2 about + polaroid: papers 356-1436 x 287-880 */
     { x: 2816, y: 723,  w: 1260, h: 1035 },  /* 3 services, four stickies: 2394-3237 x 320-1195 */
-    { x: 2920, y: 1527, w: 1440, h: 900 },   /* 4 portfolio postcard + pink sticky: 2511-3329 x 1286-1828 */
+    { x: 2920, y: 1647, w: 1440, h: 900 },   /* 4 portfolio postcard + pink sticky: 2511-3329 x 1386-1928 */
     { x: 1708, y: 1661, w: 1440, h: 900 },   /* 5 reviews, Chad's row: 1109-2306 x 1442-1940 */
     /* 6 contact: Phase 7 retuned this to frame the new form sheet AND the
        postcard together, not the postcard alone. Their combined extent is
@@ -240,7 +240,7 @@
     { x: 741,  y: 304 },  /* 1 about, lifted 190 with the card */
     { x: 1236, y: 446 },  /* 2 caden polaroid, lifted 190 with it */
     { x: 2547, y: 335 },  /* 3 services s1 */
-    { x: 2934, y: 1318 }, /* 4 work postcard */
+    { x: 2934, y: 1418 }, /* 4 work postcard, down 100 with it (2026-10-28 rebalance) */
     { x: 1977, y: 1523 }, /* 5 quote card (reviews row 1, right) */
     { x: 1309, y: 1466 }, /* 6 chad polaroid, moved left with it */
     { x: 694,  y: 1544 }, /* 7 contact */

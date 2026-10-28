@@ -385,7 +385,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=70">
+<link rel="preload" as="script" href="js/board.js?v=72">
 <link rel="preload" as="script" href="js/hand.js?v=8">
 </head>
 <body>
@@ -1151,7 +1151,7 @@
          on purpose: js/board.js sets it from data-src only after the board is
          shown, so it never competes with the first load. Rebuild it with
          python3 -I tools/release/make_snapshot.py after any visual change. -->
-    <img class="board-snap" data-src="assets/board-snapshot.webp?v=3" alt="" aria-hidden="true" width="3600" height="2400" decoding="async">
+    <img class="board-snap" data-src="assets/board-snapshot.webp?v=4" alt="" aria-hidden="true" width="3600" height="2400" decoding="async">
     <main class="board" id="board">
 
       <!-- The navy stapled trim that ran around the cork was removed on the
@@ -1235,7 +1235,7 @@
       <!-- Centered in the work pane per the owner: the card's middle
            (x=2920) is the midpoint of Chad's review's right edge (2300)
            and the cork's inner right edge (3540; the frame is 30px). -->
-      <figure class="postcard postcard-front work-postcard" data-zone-stop="4" style="left:2520px; top:1300px; --rot:-2deg">
+      <figure class="postcard postcard-front work-postcard" data-zone-stop="4" style="left:2520px; top:1400px; --rot:-2deg">
         <!-- no loading="lazy" here: this shot is inside the stop-0 opening view,
              and postcard-front.webp's picture area was compressed hard precisely
              because this covers it. Deferring it shows a soft card first. -->
@@ -1251,7 +1251,7 @@
 
       <!-- Tucked over the postcard's bottom-right corner: the sticky's
            top-left quadrant lies on the card, the rest on cork. -->
-      <aside class="sticky mini-sticky paper-5 c-pink" style="left:3215px; top:1705px; --rot:4.2deg">
+      <aside class="sticky mini-sticky paper-5 c-pink" style="left:3215px; top:1805px; --rot:4.2deg">
         <p class="hand sticky-note"><a href="mailto:caden@whittworkstudios.com">More portfolio available on request &rarr;</a></p>
       </aside>
 
@@ -1535,7 +1535,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=70"></script>
+<script src="js/board.js?v=72"></script>
 <script src="js/hand.js?v=8"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them
