@@ -287,7 +287,7 @@
      display:none anyway and the rules would style something nobody can see. -->
 <link rel="stylesheet" href="css/reading.css?v=11"
       media="(max-width: 900px), (max-height: 540px)">
-<link rel="stylesheet" href="css/editorial.css?v=6">
+<link rel="stylesheet" href="css/editorial.css?v=7">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch used to wait behind the
      Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
@@ -555,8 +555,55 @@
       <h2 class="band-label">Contact</h2>
       <p class="contact-head" id="contact-title">Have something you want built?</p>
       <p class="contact-line">Reach out for design and consulting availability.</p>
-      <p class="contact-action"><a class="stamp" href="mailto:caden@whittworkstudios.com">Email the studio</a></p>
-      <p class="meta contact-address">caden@whittworkstudios.com</p>
+
+      <!-- The phone and no-JS copy of the board's contact form. Same Formspree
+           inbox, same fields and names; ids carry an ecf- prefix so the two
+           copies never collide. js/form.js and js/validate.js find every
+           form[data-cf] and scope themselves to it. With scripting off it
+           posts natively, which is the whole no-JS story. -->
+      <form class="cf ecf" id="editorial-form" action="https://formspree.io/f/xyegnvzd" method="POST" data-cf data-status="ecf-status">
+        <div class="ecf-grid">
+          <div class="cf-field">
+            <label class="ecf-label cf-required" for="ecf-name">Name</label>
+            <input class="ecf-input" type="text" id="ecf-name" name="name" autocomplete="name" maxlength="120" required>
+            <p class="cf-error" id="ecf-name-error" hidden></p>
+          </div>
+          <div class="cf-field">
+            <label class="ecf-label cf-required" for="ecf-email">Email</label>
+            <input class="ecf-input" type="email" id="ecf-email" name="email" autocomplete="email" maxlength="254" required>
+            <p class="cf-error" id="ecf-email-error" hidden></p>
+          </div>
+          <div class="cf-field">
+            <label class="ecf-label" for="ecf-phone">Phone</label>
+            <input class="ecf-input" type="tel" id="ecf-phone" name="phone" autocomplete="tel" maxlength="40"
+                   aria-describedby="ecf-consent-note">
+          </div>
+          <div class="cf-field">
+            <label class="ecf-label" for="ecf-heard">How Did You Find Me?</label>
+            <input class="ecf-input" type="text" id="ecf-heard" name="heard-from" maxlength="200">
+          </div>
+        </div>
+
+        <p class="ecf-note" id="ecf-consent-note">Optional. By giving your phone number, you agree that WhittWorks Studios may call or text you about this inquiry. Message and data rates may apply. Your number is never sold or used for marketing.</p>
+
+        <div class="cf-field ecf-wide">
+          <label class="ecf-label cf-required" for="ecf-project">Project Description</label>
+          <textarea class="ecf-input ecf-textarea" id="ecf-project" name="project" minlength="20" maxlength="5000" required></textarea>
+          <p class="cf-error" id="ecf-project-error" hidden></p>
+        </div>
+
+        <div class="cf-hp" aria-hidden="true">
+          <input type="text" id="ecf-gotcha" name="_gotcha" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div class="ecf-actions">
+          <button class="cf-submit stamp" type="submit">Send</button>
+          <p class="ecf-note">Read the <a href="privacy.html">Privacy Policy</a>.</p>
+        </div>
+      </form>
+      <p class="cf-status ecf-status" id="ecf-status" role="status" aria-live="polite" hidden></p>
+
+      <p class="meta contact-address">Or email <a href="mailto:caden@whittworkstudios.com">caden@whittworkstudios.com</a></p>
     </section>
 
   </main>
@@ -565,6 +612,7 @@
     <div class="footer-meta">
       <p class="meta">&copy; 2026 WhittWorks Studios</p>
       <p class="meta meta-end">Birmingham, Alabama</p>
+      <p class="meta footer-links"><a href="privacy.html">Privacy</a> <span aria-hidden="true">&middot;</span> <a href="terms.html">Terms</a> <span aria-hidden="true">&middot;</span> <a href="accessibility.html">Accessibility</a> <span aria-hidden="true">&middot;</span> <button class="footer-cookie" type="button" data-consent-open>Cookie settings</button></p>
     </div>
 
     <!-- The way onto the cork board, and it lives HERE rather than pinned to a
@@ -587,6 +635,18 @@
       <span class="peek-label">the real board</span>
     </button>
   </footer>
+
+  <!-- Phone and text-design consent. The board asks in its welcome panel; this
+       is the same question for everyone who never sees that panel. js/consent.js
+       shows it only when no choice is stored and the board is not on screen,
+       and the footer's Cookie settings button brings it back. -->
+  <div class="consent-bar" data-consent-bar role="region" aria-label="Cookie choice" hidden>
+    <p class="consent-text">Allow privacy-friendly analytics so I can see which pages help people? Nothing loads unless you say yes. <a href="privacy.html">Details</a></p>
+    <div class="consent-actions">
+      <button class="consent-btn" type="button" data-consent="granted">Allow</button>
+      <button class="consent-btn" type="button" data-consent="denied">Deny</button>
+    </div>
+  </div>
 </div>
 
 <div class="corkboard" id="corkboard">
@@ -1265,18 +1325,18 @@
              a bad email, a five-character description), each one is
              cancelled by the constraints above before a request is ever
              made, and Phase 8 is the one deliberate real submission. -->
-        <form class="cf" action="https://formspree.io/f/xyegnvzd" method="POST">
+        <form class="cf" id="board-form" action="https://formspree.io/f/xyegnvzd" method="POST" data-cf data-status="cf-status">
           <p class="typed card-head cf-head">Start a Project</p>
 
           <div class="cf-row">
             <div class="cf-field">
               <label class="cf-label cf-required" for="cf-name">Name</label>
-              <input class="cf-input" type="text" id="cf-name" name="name" autocomplete="name" required>
+              <input class="cf-input" type="text" id="cf-name" name="name" autocomplete="name" maxlength="120" required>
               <p class="cf-error" id="cf-name-error" hidden></p>
             </div>
             <div class="cf-field">
               <label class="cf-label cf-required" for="cf-email">Email</label>
-              <input class="cf-input" type="email" id="cf-email" name="email" autocomplete="email" required>
+              <input class="cf-input" type="email" id="cf-email" name="email" autocomplete="email" maxlength="254" required>
               <p class="cf-error" id="cf-email-error" hidden></p>
             </div>
           </div>
@@ -1290,12 +1350,12 @@
                    form previously heard "Phone, edit text" and nothing else, so
                    the one warning that matters was absent at the exact moment
                    the number gets typed. -->
-              <input class="cf-input" type="tel" id="cf-phone" name="phone" autocomplete="tel"
+              <input class="cf-input" type="tel" id="cf-phone" name="phone" autocomplete="tel" maxlength="40"
                      aria-describedby="cf-consent-note">
             </div>
             <div class="cf-field">
               <label class="cf-label" for="cf-heard">How Did You Find Me?</label>
-              <input class="cf-input" type="text" id="cf-heard" name="heard-from">
+              <input class="cf-input" type="text" id="cf-heard" name="heard-from" maxlength="200">
             </div>
           </div>
 
@@ -1303,7 +1363,7 @@
 
           <div class="cf-field cf-field-wide">
             <label class="cf-label cf-required" for="cf-project">Project Description</label>
-            <textarea class="cf-textarea" id="cf-project" name="project" minlength="20" required></textarea>
+            <textarea class="cf-textarea" id="cf-project" name="project" minlength="20" maxlength="5000" required></textarea>
             <p class="cf-error" id="cf-project-error" hidden></p>
           </div>
 
