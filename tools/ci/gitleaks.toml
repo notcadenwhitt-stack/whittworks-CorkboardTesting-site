@@ -1,0 +1,10 @@
+# Secret scan settings for CI: gitleaks' own rules, plus one exception.
+[extend]
+useDefault = true
+
+# js/analytics.js carries the PostHog project key (phc_...). PostHog issues
+# that key to be shipped in browser code: it can only send events, never read
+# data. PostHog's personal API keys start phx_ and stay flagged.
+[[allowlists]]
+description = "PostHog project keys are public by design"
+regexes = ['''^phc_[A-Za-z0-9]{20,}$''']

@@ -1,0 +1,10 @@
+{
+  "root": true,
+  "extends": ["html-validate:recommended"],
+  "rules": {
+    "no-inline-style": "off",
+    "unique-landmark": "warn",
+    "prefer-native-element": "warn",
+    "element-required-attributes": "warn"
+  }
+}
