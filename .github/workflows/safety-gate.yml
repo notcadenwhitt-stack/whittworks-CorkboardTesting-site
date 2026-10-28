@@ -66,6 +66,10 @@ jobs:
       - name: HTML parses cleanly
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: find "$OUT" -name '*.html' ! -name 'google*.html' -print0 | xargs -0 npx --yes html-validate@11.17.0 -c tools/ci/htmlvalidate.json
+      # Chrome's first launch on a fresh runner can outlast cdp.mjs's 20 s wait for its debug port.
+      - name: Warm up Chrome
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: google-chrome --headless=new --disable-gpu --dump-dom about:blank > /dev/null
       - name: Render-mode tripwires hold in headless Chrome
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: SITE_ROOT="$OUT" node tools/ci/tripwires.mjs
