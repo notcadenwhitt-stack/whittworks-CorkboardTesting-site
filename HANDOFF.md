@@ -258,8 +258,9 @@ Referenced payload is now **40 files, 1,677,351 bytes**.
 Updated 2026-10-28, the day this build went live.
 
 ```
-whittworks-site      main ced9937  LIVE at whittworkstudios.com: the built copy of
-                     board-edits f617f5b. Previous site tagged pre-blue-rebrand-20261028.
+whittworks-site      main a17492e  LIVE at whittworkstudios.com: the built copy of
+                     board-edits 7dc9ac6 (first launch ced9937 from f617f5b).
+                     The August site is tagged pre-blue-rebrand-20261028.
 CorkboardTesting     board-edits f617f5b (source, pushed) · main = staging build
 staging              https://notcadenwhitt-stack.github.io/whittworks-CorkboardTesting-site/
 ```

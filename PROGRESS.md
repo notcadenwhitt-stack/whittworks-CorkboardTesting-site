@@ -64,6 +64,23 @@ f617f5b; previous site tagged pre-blue-rebrand-20261028 (e15a884). Pages
 reports built, HTTPS enforced, certificate approved to 2027-01-01. Not yet
 seen on a non-work network or in PostHog at the time of writing.
 
+**Same day, second release a17492e (from board-edits 7dc9ac6).** The owner saw
+the bottom half flash orange on some zoom outs. Cause: on landing, a timer
+removed the snapshot at 450ms while the live board's 160ms fade could start
+late behind a long landing paint, so the flat .board-floor showed through a
+half-faded board. Fix: once decoded, the snapshot stays under the board at
+every framing; it is 1:1 (3600x2400) now and the landing fade is 280ms. The
+cookie banner closes on a choice; the phone header is one row.
+
+Proven before shipping, because the owner asked "are you positive": 20 zoom
+outs each on the old and new builds, GPU rasterisation on, CPU throttled 4x,
+with a requestAnimationFrame probe counting frames where the board's opacity
+was under 0.99 while the snapshot was hidden and the floor visible. Old: 35
+of 3,885 frames, and one screenshot 10% flat floor orange. New: 0 of 4,165,
+no screenshot. (Probe in the session scratchpad; rebuild it from this note
+if needed: launch Chrome without --disable-gpu, Page.bringToFront, focus
+emulation, then click a zone and press Escape in a loop.) Untested: Safari.
+
 Follow-ups still open: Cloudflare in front of Pages for real security
 headers; Annie's testimonial (parked); product cards (the bottom-right
 corner is smaller now); low accessibility notes (two <main> landmarks, no
