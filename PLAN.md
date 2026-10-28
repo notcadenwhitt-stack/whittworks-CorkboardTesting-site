@@ -100,7 +100,7 @@ Executor's latitude: the exact chrome layout inside the preview, the trace metho
 | R11 | THE SYSTEM SHALL pass `sitecheck` with no High findings and fix or get sign-off on every `security-review` and `code-review` finding. | Reports saved to the notes folder |
 | R12 | THE SYSTEM SHALL keep the zoom's worst frame at or under 20ms in and out. | Same profile method as `PROGRESS.md` 2026-08-24 |
 | R13 | THE SYSTEM SHALL keep pre-consent page weight at or below the Phase 1 baseline plus the League Spartan file. | Byte count before and after, same method |
-| R14 | THE SYSTEM SHALL contain no em dash in any visible text on any page. | grep for `—` and `&mdash;` across `*.html` outside comments |
+| R14 | THE SYSTEM SHALL contain no em dash in any visible text on any page. | grep for U+2014 and `&mdash;` across `*.html` outside comments |
 | R15 | THE SYSTEM SHALL ship `sitemap.xml`, a canonical URL, Open Graph tags and a JSON-LD `ProfessionalService` block with the logo. | File and tag inspection; a JSON-LD validator |
 | R16 | THE SYSTEM SHALL leave the second testimonial's cork bare. | Screenshot at stop 5 |
 | R17 | WHEN the owner gives the go-ahead, THE SYSTEM SHALL be live at whittworkstudios.com over HTTPS, with the previous `main` tagged for rollback. | Headless Chrome on the live URL; tag visible on GitHub |
