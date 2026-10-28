@@ -303,10 +303,12 @@ const CHECKS = {
   },
 
   /* Renders the click-flight snapshot (js/board.js, THE SNAPSHOT FLIGHT): the
-     board at rest, whole, as four 1200x800 tiles of a 2400x1600 picture, which
-     tools/release/make_snapshot.py stitches and encodes. Tiles, because any
+     board at rest, whole, at 1:1 (3600x2400) as nine 1200x800 tiles, which
+     tools/release/make_snapshot.py stitches and encodes. 1:1, not the first
+     version's 2400 wide: stretched 3x on a Retina screen at the 1.0 zone
+     stops, the flight looked too soft against the sharp board it lands on. Tiles, because any
      viewport bigger than the default headless window hung captureScreenshot.
-     The board is placed by hand at 2/3 scale for each tile (board.js only
+     The board is placed by hand at scale 1 for each tile (board.js only
      writes the transform on scroll and resize, and neither fires here), with
      .far removed so every effect is ON, the look a zone stop shows. Fixed
      chrome and the room's grain overlay are hidden: they sit above the live
@@ -329,8 +331,10 @@ const CHECKS = {
     }
     const { writeFile, mkdir } = await import("node:fs/promises");
     await mkdir(outDir, { recursive: true });
-    const S = 2 / 3;
-    for (const [i, j] of [[0, 0], [1, 0], [0, 1], [1, 1]]) {
+    const S = 1;
+    const tiles = [];
+    for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) tiles.push([i, j]);
+    for (const [i, j] of tiles) {
       await s.eval(`const b = document.getElementById("board");
         b.classList.remove("far", "moving"); b.style.transition = "none";
         b.style.transform = "translate(${-i * 1200}px, ${-j * 800}px) scale(${S})";

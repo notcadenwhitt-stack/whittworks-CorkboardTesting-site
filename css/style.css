@@ -2661,12 +2661,16 @@ html.warming .board .pc-caption {
     pointer-events: none;
   }
 
-  /* The snapshot that flies during click flights (js/board.js, THE SNAPSHOT
-     FLIGHT). Same box, origin and transform maths as .board, between the
-     floor and the board in the markup, so the live board lands ON TOP of it
-     and any tile not yet rasterised shows the matching picture underneath.
-     It carries the board's two outer shadows; the inset ones are already in
-     the picture. Invisible except while html.snap-showing is set. */
+  /* The snapshot (js/board.js, THE SNAPSHOT FLIGHT). Same box, origin and
+     transform as .board, between the floor and the board in the markup. Once
+     it has decoded (html.snap-ready) it stays visible UNDER the live board at
+     every moment, moving with it, so anything the board has not painted yet,
+     or a board still fading in, shows the matching picture instead of the
+     flat floor. It used to be shown only around flights and removed on a
+     timer, which raced the board's fade-in and flashed the orange floor
+     through a half-transparent board on zoom out (owner report, 2026-10-28).
+     No box-shadow on purpose: a plain image layer is scaled by the GPU
+     without being repainted, which is what makes it free to keep up. */
   .board-snap {
     position: absolute;
     top: 0;
@@ -2678,11 +2682,8 @@ html.warming .board .pc-caption {
     will-change: transform;
     pointer-events: none;
     opacity: 0;
-    box-shadow:
-      10px 34px 90px rgba(0, 0, 0, 0.62),
-      3px 8px 22px rgba(0, 0, 0, 0.5);
   }
-  html.snap-showing .board-snap { opacity: 1; }
+  html.snap-ready .board-snap { opacity: 1; }
   html.snap-flying .board,
   html.snap-flying .board-floor { opacity: 0; }
 }

@@ -293,7 +293,7 @@
      #42342f the CSS declares, which is the "shitty frame under the wood one"
      the owner saw on reload. It is 9.9KB, the cheapest fix on this page. -->
 <link rel="preload" as="image" media="(min-width: 901px)" href="assets/wood.jpg">
-<link rel="stylesheet" href="css/style.css?v=124">
+<link rel="stylesheet" href="css/style.css?v=125">
 <!-- READING MODE: the board reflowed into a column, for narrow and short
      viewports. The media attribute is the whole gate — this file has no @media
      of its own, so it applies exactly when that query matches.
@@ -304,7 +304,7 @@
      display:none anyway and the rules would style something nobody can see. -->
 <link rel="stylesheet" href="css/reading.css?v=16"
       media="(max-width: 900px), (max-height: 540px)">
-<link rel="stylesheet" href="css/editorial.css?v=12">
+<link rel="stylesheet" href="css/editorial.css?v=13">
 <!-- the cork is the backdrop everything sits on and it is the largest file
      left, but it is discovered from CSS, so its fetch used to wait behind the
      Google Fonts stylesheet (measured: assets start at 219ms, the font CSS
@@ -385,7 +385,7 @@
      hand.js finish at 631ms and 398ms on that same line. The href must stay
      byte-identical to the script tags at the end of the body or the browser
      fetches each file twice. -->
-<link rel="preload" as="script" href="js/board.js?v=72">
+<link rel="preload" as="script" href="js/board.js?v=74">
 <link rel="preload" as="script" href="js/hand.js?v=8">
 </head>
 <body>
@@ -473,8 +473,9 @@
   <!-- Cookie banner for the phone and text design (the board asks in its
        welcome panel). Wording, equal buttons, in-flow placement at the top of
        the page and the confirmation step follow the GOV.UK cookie banner
-       pattern; equal styling also follows the EDPB cookie banner taskforce
-       report (2023). Not fixed to the screen, so it never covers a field
+       pattern, minus its confirmation step: on the owner's ask the banner
+       simply closes once a choice is made. Equal styling follows the EDPB
+       cookie banner taskforce report (2023). Not fixed to the screen, so it never covers a field
        someone is typing in (WCAG 2.4.11). js/consent.js shows it only when no
        choice is stored, and the footer's Cookie settings button reopens it. -->
   <div class="cookie-banner" data-consent-bar role="region" aria-label="Cookies on WhittWorks Studios" hidden>
@@ -487,10 +488,6 @@
         <button class="cookie-btn" type="button" data-consent="denied">Reject analytics cookies</button>
         <a class="cookie-link" href="privacy.html#analytics-title">View cookies</a>
       </div>
-    </div>
-    <div class="cookie-done" data-cookie-done tabindex="-1" hidden>
-      <p data-cookie-message></p>
-      <button class="cookie-btn" type="button" data-cookie-hide>Hide cookie message</button>
     </div>
   </div>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -516,6 +513,9 @@
       <span class="wm-line" aria-hidden="true"><span>W</span><span>H</span><span>I</span><span>T</span><span>T</span><span>W</span><span>O</span><span>R</span><span>K</span><span>S</span></span>
       <span class="wm-line" aria-hidden="true"><span>S</span><span>T</span><span>U</span><span>D</span><span>I</span><span>O</span><span>S</span></span>
     </h1>
+    <!-- Phones only (css/editorial.css): the two header meta lines move here
+         so the header is one row of links instead of three rows. -->
+    <p class="meta hero-kicker">Web Design &amp; Consulting &middot; Est. 2026</p>
 
     <p class="hero-statement"><span class="mark" aria-hidden="true"></span>Websites and digital tools for businesses and organizations, designed, built, and shipped end to end.</p>
 
@@ -1151,7 +1151,7 @@
          on purpose: js/board.js sets it from data-src only after the board is
          shown, so it never competes with the first load. Rebuild it with
          python3 -I tools/release/make_snapshot.py after any visual change. -->
-    <img class="board-snap" data-src="assets/board-snapshot.webp?v=4" alt="" aria-hidden="true" width="3600" height="2400" decoding="async">
+    <img class="board-snap" data-src="assets/board-snapshot.webp?v=5" alt="" aria-hidden="true" width="3600" height="2400" decoding="async">
     <main class="board" id="board">
 
       <!-- The navy stapled trim that ran around the cork was removed on the
@@ -1535,7 +1535,7 @@
 </button>
 
 <script src="js/peek.js?v=7"></script>
-<script src="js/board.js?v=72"></script>
+<script src="js/board.js?v=74"></script>
 <script src="js/hand.js?v=8"></script>
 <!-- Deferred, unlike its three neighbors above: those are classic scripts
      that must run in document order the instant the parser reaches them
@@ -1559,7 +1559,7 @@
      above it depends on the panel existing yet, and the panel's own
      auto-open on a first visit only needs #corkboard's computed display,
      which is settled well before any script runs at all. -->
-<script src="js/consent.js?v=3" defer></script>
+<script src="js/consent.js?v=4" defer></script>
 <script src="js/welcome.js?v=3" defer></script>
 <script src="js/analytics.js?v=2" defer></script>
 </body>

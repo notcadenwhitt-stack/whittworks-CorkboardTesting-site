@@ -4,7 +4,7 @@
 
 Runs `node tools/verify/cdp.mjs snapshot` (headless Chrome renders the board
 at rest as four tiles), stitches and encodes them to
-assets/board-snapshot.webp at 2400x1600, and
+assets/board-snapshot.webp at 3600x2400 (1:1), and
 writes assets/board-snapshot.json with a hash of every input that changes how
 the board looks. tools/release/build.py refuses to build when that hash no
 longer matches, so a stale snapshot can never ship: a flight would show the
@@ -48,15 +48,15 @@ def main():
     from PIL import Image
     with tempfile.TemporaryDirectory() as tmp:
         subprocess.run(["node", "tools/verify/cdp.mjs", "snapshot", tmp], cwd=ROOT, check=True)
-        im = Image.new("RGB", (2400, 1600))
-        for i in (0, 1):
-            for j in (0, 1):
+        im = Image.new("RGB", (3600, 2400))
+        for i in (0, 1, 2):
+            for j in (0, 1, 2):
                 tile = Image.open(os.path.join(tmp, "tile-%d-%d.png" % (i, j))).convert("RGB")
                 if tile.size != (1200, 800):
                     sys.exit("unexpected tile size %dx%d" % tile.size)
                 im.paste(tile, (i * 1200, j * 800))
         im.save(OUT, "WEBP", quality=65, method=6)
-    json.dump({"inputs_sha256": inputs_hash(), "size": [2400, 1600]}, open(MANIFEST, "w"), indent=2)
+    json.dump({"inputs_sha256": inputs_hash(), "size": [3600, 2400]}, open(MANIFEST, "w"), indent=2)
     print("wrote", OUT, os.path.getsize(OUT), "bytes")
 
 

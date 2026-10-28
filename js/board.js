@@ -612,6 +612,7 @@
     var t = framingTransform(x, y, s, vw, vh);
     board.style.transform = t;
     if (floor) floor.style.transform = t;
+    if (snapReady) snap.style.transform = t;
   }
 
   /* The transform for a framing, with the clamp and the frame offset applied.
@@ -918,9 +919,11 @@
      so it matches the live board. For a click flight the live board and its
      floor drop to opacity 0 while the snapshot, one compositor texture,
      flies from the departure framing to the destination. On landing the live
-     board is written at the destination and fades back in OVER the snapshot,
-     which stays underneath a moment longer, so any tile Chrome has not
-     finished rasterising shows the matching picture, never a gap. No .moving
+     board is written at the destination and fades back in OVER the snapshot.
+     Once decoded, the snapshot never leaves: it sits under the board at every
+     framing (writeFraming moves it too), so any tile Chrome has not finished
+     rasterising, or a board mid-fade, shows the matching picture, never the
+     flat floor. No .moving
      collapse is needed: the live board never moves during the flight.
 
      The snapshot downloads only after the board is shown (board-shown), so
@@ -937,7 +940,12 @@
     if (!src) return;
     var img = new Image();
     img.src = src;
-    var done = function () { snap.src = src; snapReady = true; };
+    var done = function () {
+      snap.src = src;
+      snap.style.transform = board.style.transform;
+      snapReady = true;
+      document.documentElement.classList.add("snap-ready");
+    };
     if (img.decode) img.decode().then(done, function () {});
     else img.onload = done;
   }
@@ -957,22 +965,19 @@
     if (snapTimer !== null) { clearTimeout(snapTimer); snapTimer = null; }
     if (snapRevealTimer !== null) { clearTimeout(snapRevealTimer); snapRevealTimer = null; }
     snap.removeEventListener("transitionend", onSnapEnd);
-    snap.style.transition = "none";
-    board.style.transition = immediate ? "none" : "opacity 160ms ease-out";
+    /* The board fades back in over the snapshot, which simply stays where it
+       is, under the board, for good: nothing is taken away on a timer, so a
+       slow frame can no longer expose the floor through a half-faded board. */
+    /* 280ms, not 160: the sharp board resolving over the softer picture reads
+       as a quick focus pull instead of a pop. */
+    board.style.transition = immediate ? "none" : "opacity 280ms ease-out";
     if (floor) floor.style.transition = "none";
     root.classList.remove("snap-flying");
-    if (immediate) {
-      root.classList.remove("snap-showing");
-      board.style.transition = "";
-      if (floor) floor.style.transition = "";
-      return;
-    }
     snapRevealTimer = setTimeout(function () {
       snapRevealTimer = null;
-      root.classList.remove("snap-showing");
       board.style.transition = "";
       if (floor) floor.style.transition = "";
-    }, 450);
+    }, immediate ? 0 : 400);
   }
 
   function landSnapshot() {
@@ -986,6 +991,7 @@
        idle time, through settle(), exactly as a live flight lands. Without it
        the reveal painted every effect at once and one frame right at landing
        ran about 0.7s in a software-raster test. */
+    snap.style.transition = "none";
     markMoving();
     update();
     endSnapshot(false);
@@ -1006,7 +1012,7 @@
     snap.style.transform = framingTransform(from.x, from.y, from.s, vw, vh);
     board.style.transition = "none";
     if (floor) floor.style.transition = "none";
-    root.classList.add("snap-showing", "snap-flying");
+    root.classList.add("snap-flying");
     window.scrollTo({ top: target, behavior: "auto" });
     /* Commit the start frame before arming the transition, for the same
        reason the live flight does: otherwise both writes coalesce. */
@@ -1047,6 +1053,7 @@
   function cancelFlight(resync) {
     if (flying && snap && document.documentElement.classList.contains("snap-flying")) {
       flying = false;
+      snap.style.transition = "none";
       update();
       endSnapshot(true);
       return;
