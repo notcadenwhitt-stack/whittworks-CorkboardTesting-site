@@ -1,4 +1,15 @@
-/* Inline errors supplement the browser's native constraints. */
+/* Inline error messages for the contact forms, on top of the browser's own
+   constraint validation, which stays the authority: the required, type and
+   minlength attributes in the markup block a bad submit whether or not this
+   script ever runs. This only words the message and moves focus.
+
+   aria-describedby is edited one token at a time, never overwritten: the
+   phone field already points at its consent notice, and replacing the
+   attribute would drop that link the first time the field went invalid.
+
+   Testing note: setting .value from script never trips minlength, because
+   the spec gates tooShort on a dirty flag script assignment does not set.
+   Drive real typing (CDP Input.insertText) or the check gives a false pass. */
 (function () {
   "use strict";
 

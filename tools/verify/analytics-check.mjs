@@ -38,16 +38,6 @@ function serve() {
       res.setHeader("Cache-Control", "no-store");
       const type = MIME[extname(p).toLowerCase()];
       if (type) res.setHeader("Content-Type", type);
-      if (p === join(ROOT, "index.html")) {
-        /* Apply the pending markup/CSP contract only to the served response. */
-        let html = readFileSync(p, "utf8");
-        html = html.replace("connect-src https://formspree.io;", "connect-src https://formspree.io https://us.i.posthog.com;");
-        html = html.replace('<form class="cf"', '<form data-cf data-status="cf-status" class="cf"');
-        html = html.replace(/<script[^>]*src="js\/welcome.js[^>]*><\/script>/,
-          '<script src="js/consent.js" defer></script><script src="js/welcome.js" defer></script><script src="js/analytics.js" defer></script>');
-        res.end(html);
-        return;
-      }
       const s = createReadStream(p);
       s.on("error", () => res.writeHead(404).end("404"));
       s.pipe(res);
@@ -196,7 +186,7 @@ async function main() {
             document.querySelector('.welcome-close').click();
             window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * (6 / 7));
             return new Promise(function (resolve) { setTimeout(function () {
-              document.querySelector('form[data-cf]').requestSubmit();
+              document.getElementById('board-form').requestSubmit();
               resolve(document.activeElement.id);
             }, 500); });
           `);
@@ -238,9 +228,8 @@ async function main() {
     await sleep(1000);
     check("deny removes identity and session", gone);
     check("deny stops all further requests", requests.length === count);
-    await load(1440, "granted", false);
-    await sleep(5500);
-    check("empty production key stays inert", requests.length === 0);
+    /* The shipped key is real now, so the old "empty key stays inert" case
+       is gone. Fetch interception above still keeps every request local. */
   } finally {
     s.ws.close();
     proc.kill();

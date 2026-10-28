@@ -8,13 +8,26 @@
    POST /i/v0/e/ takes api_key, event, distinct_id, properties, timestamp.
    POST /batch/ takes api_key and batch of events. CORS allows JSON POSTs.
    Raw JSON is decoded from bytes; text/plain beacons avoid JSON preflight.
-   No provider SDK, cookies, field values or DOM text are collected. */
+   No provider SDK, cookies, field values or DOM text are collected.
+
+   Why no SDK: posthog-js's standalone bundle is about 680KB raw and 209KB
+   gzipped (npm 1.441.1, measured 2026-10-28) to send a handful of events.
+   This file talks to the same public capture endpoint directly, so
+   script-src stays 'self' and the only new origin is connect-src for the
+   ingestion host. Nothing here runs at all until the visitor clicks Allow
+   (window.wwAnalyticsGranted from js/consent.js), and a later Deny stops
+   capture and deletes this file's two storage keys.
+
+   The key is PostHog's public, write-only project key, made to ship in page
+   source. The project lives in PostHog's US region (verified 2026-10-28:
+   /decide answered 200 on us.i.posthog.com and 401 on eu.i.posthog.com). */
 (function () {
   "use strict";
 
-  var POSTHOG_KEY = "";
+  var POSTHOG_KEY = "phc_vYnZPGSe2BsqmGJyf6TrdAJT5YXw2N847aQxHPsG33YU";
   var POSTHOG_HOST = "https://us.i.posthog.com";
-  /* Test hook: only an explicitly supplied override enables an empty key. */
+  /* Test hook for tools/verify/analytics-check.mjs, which injects a fake key
+     so its checks never write into the real project. */
   if (typeof window.__WW_PH_TEST_KEY === "string") POSTHOG_KEY = window.__WW_PH_TEST_KEY;
   if (!POSTHOG_KEY) return;
 
@@ -31,6 +44,14 @@
   var vitalsSent = false;
   var cls = { start: 0, last: 0, value: 0 };
   var interactions = {};
+
+  /* Which design the visitor is looking at, read the same way js/consent.js
+     and js/welcome.js decide it: from #corkboard's computed display. */
+  var corkboard = document.getElementById("corkboard");
+  function design() {
+    if (document.documentElement.classList.contains("board-open")) return "reading";
+    return corkboard && getComputedStyle(corkboard).display !== "none" ? "board" : "editorial";
+  }
 
   function granted() {
     return !!window.wwAnalyticsGranted && window.wwAnalyticsGranted();
@@ -57,11 +78,9 @@
   function capture(event, extra) {
     if (!active || !granted()) return;
     touch();
-    var root = document.documentElement.classList;
     var referrer = clean(document.referrer);
     var props = {
-      design: root.contains("board-open") ? "reading" :
-        root.contains("board-live") && !root.contains("no-board") ? "board" : "editorial",
+      design: design(),
       $current_url: clean(location.href), $host: location.host, $pathname: location.pathname,
       $referrer: referrer, $referring_domain: referrer === "$direct" ? "$direct" : new URL(referrer).host,
       $screen_width: screen.width, $screen_height: screen.height,

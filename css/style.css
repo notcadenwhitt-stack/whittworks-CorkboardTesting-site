@@ -2561,6 +2561,11 @@ html.warming .board .pc-caption {
   color: #2b2015;
 }
 .cf-status-error { color: var(--red); }
+/* The board's sheet has a fixed 480px box, and a status line below Send
+   ran off its bottom edge (failure text and its mailto link cut in half,
+   audit 2026-10-28). While a status is showing, the description box gives
+   up the room instead; the typed text stays in it and it still scrolls. */
+.contact-form:has(.cf-status:not(:empty)) .cf-textarea { height: 50px; }
 .cf-status a { color: inherit; }
 
 /* --- reduced motion / no-JS fallback ------------------------------- */
