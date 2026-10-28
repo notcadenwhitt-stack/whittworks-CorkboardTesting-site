@@ -30,8 +30,18 @@
     );
   }
 
+  function setBackgroundInert(on) {
+    if (!corkboard) return;
+    Array.prototype.forEach.call(corkboard.children, function (el) {
+      if (el === panel || el === backdrop) return;
+      if (on) el.setAttribute("inert", "");
+      else el.removeAttribute("inert");
+    });
+  }
+
   function open(fromOpener) {
     opener = fromOpener || null;
+    setBackgroundInert(true);
     backdrop.classList.add("is-open");
     panel.classList.add("is-open");
     refreshFocusables();
@@ -45,6 +55,7 @@
     if (!isOpen()) return;
     backdrop.classList.remove("is-open");
     panel.classList.remove("is-open");
+    setBackgroundInert(false);
     document.removeEventListener("keydown", onKeydown);
     if (opener && typeof opener.focus === "function") opener.focus();
     opener = null;
