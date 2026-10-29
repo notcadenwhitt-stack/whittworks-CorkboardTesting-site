@@ -278,10 +278,24 @@ staging              https://notcadenwhitt-stack.github.io/whittworks-CorkboardT
    push. A normal fast-forward; it drops CNAME and adds noindex itself.
 3. Production, only on the owner's explicit go-ahead: fresh clone of
    `notcadenwhitt-stack/whittworks-site` (never `_archive/`), tag the current
-   main, `build.py OUT` without `--staging`, replace the clone's tree with OUT,
-   commit, push. Rollback: `git revert` the release commit and push.
+   main, `build.py OUT` without `--staging`, replace the clone's tree with OUT
+   (minus `.ww-build`) while KEEPING its `.github/` (the safety gate lives
+   there), commit on a branch, open a pull request into `main`, and merge it
+   once `safety-gate` is green. A direct push to `main` is refused once branch
+   protection is on. Rollback: a pull request that reverts the release commit.
 4. Verify with `SITE_ROOT=OUT` / `BASE=<url>` runs of `tools/verify/cdp.mjs`
    and `tools/verify/analytics-check.mjs`.
+
+**CI (`.github/workflows/safety-gate.yml`)** runs on every pull request into
+`board-edits` and every push to it: gitleaks, `csp_hash.py`, a fresh
+`build.py`, then on that build `tools/ci/site_checks.py` (built copy, CSP no
+looser than `tools/ci/csp-baseline.json`, links), html-validate,
+`tools/ci/tripwires.mjs` (fails when the tripwires above move more than 10
+characters from `tools/ci/tripwires.json`) and `analytics-check.mjs`.
+`whittworks-site` runs the same `site_checks.py` and html-validate on what is
+live, from its `.github/safety/`. A deliberate CSP change means editing both
+baselines; a deliberate text change means new numbers in `tripwires.json` and
+in the paragraph above, in the same commit.
 
 **The owner's work network (Alfa Insurance) intercepts HTTPS** and re-signs
 whittworkstudios.com with "Alfa Web Inspection 2024", serving a block page.

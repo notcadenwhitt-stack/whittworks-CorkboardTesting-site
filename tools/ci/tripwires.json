@@ -1,0 +1,10 @@
+{
+  "tolerance": 10,
+  "lengths": {
+    "board": 2297,
+    "editorial": 2403,
+    "reading": 1712,
+    "noJsWide": 2109,
+    "noJsNarrow": 2109
+  }
+}

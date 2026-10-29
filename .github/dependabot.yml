@@ -1,0 +1,10 @@
+# Weekly pull requests that move the pinned GitHub Actions to their newest release. Each one runs through the
+# safety gate like any other change; nothing merges on its own.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci"
